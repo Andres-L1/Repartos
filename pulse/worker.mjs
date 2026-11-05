@@ -1,5 +1,6 @@
+import { handleAuth } from './auth.mjs';
 const HEADERS = {
-  'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self'; worker-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
   'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
 };
@@ -56,6 +57,11 @@ async function sourceFeed(kind, request, context) {
 export default {
   async fetch(request, env, context) {
     const url = new URL(request.url);
+    const auth = await handleAuth(request, env);
+    if (auth) {
+      for (const [key, value] of Object.entries(HEADERS)) auth.headers.set(key, value);
+      return auth;
+    }
     if (!['GET', 'HEAD'].includes(request.method)) return json({ error: 'Método no permitido' }, 405);
     if (url.pathname === '/api/news' || url.pathname === '/api/broadcasts') {
       const response = await sourceFeed(url.pathname.slice(5), request, context);

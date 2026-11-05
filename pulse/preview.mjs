@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import worker from './worker.mjs';
 const root = fileURLToPath(new URL('./public/', import.meta.url));
-const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
+const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.geojson': 'application/geo+json', '.woff2': 'font/woff2', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml' };
 const env = { ASSETS: { async fetch(request) {
   const pathname = decodeURIComponent(new URL(request.url).pathname);
   const target = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
@@ -14,7 +14,7 @@ const env = { ASSETS: { async fetch(request) {
 } } };
 const server = createServer(async (req, res) => {
   try {
-    const response = await worker.fetch(new Request(`http://127.0.0.1:8787${req.url}`, { method: req.method }), env, { waitUntil() {} });
+    const response = await worker.fetch(new Request(`http://127.0.0.1:8787${req.url}`, { method: req.method, headers: req.headers }), env, { waitUntil() {} });
     res.writeHead(response.status, Object.fromEntries(response.headers)); res.end(Buffer.from(await response.arrayBuffer()));
   } catch { res.writeHead(500); res.end('Error de vista previa'); }
 });

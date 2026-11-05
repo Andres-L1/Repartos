@@ -1,33 +1,40 @@
 # Chedex Pulse
 
-Observatorio mundial del ajedrez: actualidad, retransmisiones, exploración geográfica y metodologías abiertas. Sustituye a la aplicación de recados anterior.
+Dashboard del ajedrez mundial con identidad Chedex: DM Sans local, fondo negro, acentos naranjas, controles con relieve y navegación lateral adaptable a móvil.
 
-## Ejecutar
+Web: https://chedexpulse.chedex-chesssociety.workers.dev
+Repositorio: https://github.com/Andres-L1/Repartos
 
-Node.js 24 o superior. `npm ci`, seguido de `npm start` (Cloudflare local) o `npm run preview` (servidor Node sin credenciales). Abrir http://127.0.0.1:8787.
+## Ejecutar y verificar
 
-## Esta versión
+Node.js 24 o superior. `npm ci` y `npm start` para Cloudflare local, o `npm run preview` para vista previa Node en http://127.0.0.1:8787. La vista previa no habilita autenticación de producción.
 
-- Hoy: titulares del RSS oficial FIDE y selección de retransmisiones Lichess Broadcast, con origen, fecha y cobertura visibles.
-- Mundo: mapa esquemático accesible, directorio inicial de 12 países, búsqueda y filtros por jugadores del directorio o coincidencias de ubicación de torneos.
-- Fichas conectadas de países, jugadores y torneos. Las relaciones se muestran cuando hay coincidencias explícitas en la fuente. Los perfiles FIDE se consultan mediante enlaces oficiales.
-- Tendencias e índices Performance, Trending y Global: metodologías propuestas y estados pendientes. No hay rankings, Elo, progresiones ni estadísticas nacionales inventados.
-- Diseño móvil, navegación con teclado, movimiento reducido y sin registro, rastreadores ni fuentes tipográficas externas.
+`npm run check`, `npm test`, `npm run build` (empaquetado sin publicar). `npm run publish:cloudflare` actualiza Pulse.
 
-Los contadores corresponden a los elementos recibidos en una selección limitada, no al total mundial. Los titulares se mantienen en el idioma original y enlazan a los artículos del editor; no se replican artículos completos. La disponibilidad y cobertura dependen de las fuentes.
+## Contenido y mapa
 
-## Datos y costes
+- Hoy: RSS oficial FIDE y selección Lichess Broadcast, con origen, consulta y cobertura visibles. Caché bajo demanda de 15 y 5 minutos respectivamente.
+- Mundo: MapLibre GL JS 6.16.0 con cartografía Natural Earth local, 177 geometrías de países y territorios; desplazamiento, zoom, selección por fronteras, búsqueda, filtros y directorio accesible.
+- Los puntos representan coincidencias de ubicación agrupadas por país, colocadas en coordenadas de etiqueta cartográfica. No son sedes exactas. La selección de retransmisiones no describe toda la actividad mundial. Los filtros solo actúan sobre los datos disponibles.
+- Fichas conectadas de países, jugadores y torneos; relaciones explícitas en las fuentes. El mapa puede omitir territorios pequeños por su escala 1:110m.
+- Tendencias e índices Performance, Trending y Global: metodologías propuestas. Pendientes de datos históricos; sin puntuaciones simuladas.
 
-El Worker consulta endpoints fijos de lectura, con un timeout de 12 segundos. Cloudflare almacena respuestas correctas en caché: noticias 15 minutos, retransmisiones 5 minutos. La fecha mostrada es la de consulta de esa respuesta; las horas de la interfaz son de Madrid. Los errores se presentan como no disponibles, sin convertirlos en ceros ni almacenarlos en caché. La caché es por ubicación de Cloudflare y se rellena bajo demanda; no es almacenamiento histórico ni un recopilador programado.
+El mapa se inspira en la exploración de World Monitor y utiliza una biblioteca también presente en ese proyecto. No incorpora código de World Monitor. MapLibre se distribuye bajo BSD-3-Clause, Natural Earth es dominio público y DM Sans utiliza SIL OFL. Recursos y licencias servidos desde la propia aplicación, sin servicios cartográficos de pago ni peticiones de teselas a terceros. `npm run assets:prepare` regenera recursos desde las fuentes documentadas.
 
-Pendiente de desarrollo: importación mensual FIDE y almacenamiento histórico; integración Wikimedia; ampliación del directorio y cartografía de países con fronteras; índices validados y filtros de rankings; recopiladores programados; favoritos y alertas. No hay pagos ni Pulse Pro activos.
+## Acceso exclusivamente con Lichess
 
-## Validación y publicación
+La consulta sigue siendo pública. El único acceso de usuario es `/auth/login`, mediante OAuth Authorization Code + PKCE S256 de Lichess. Client ID: `chedexpulse`; callback: `https://chedexpulse.chedex-chesssociety.workers.dev/auth/callback`. Lichess admite clientes públicos sin registro previo ni client secret. No se solicitan permisos adicionales.
 
-`npm run check`, `npm test`, `npm run build` (empaquetado sin publicar).
+El servidor intercambia el código, consulta `/api/account` y revoca el token de Lichess tras verificar la identidad. No se almacena el token ni se envía al navegador. La cookie de sesión contiene solo identidad y caducidad, cifradas con AES-GCM; HttpOnly, Secure, SameSite=Lax, prefijo __Host y duración de 12 horas. El estado OAuth caduca a los 10 minutos. `/api/session` nunca se cachea. Cerrar sesión exige POST y origen propio; elimina las cookies locales. La sesión es stateless y no admite revocación individual anticipada de copias de una cookie robada.
 
-`npm run publish:cloudflare` publica en el Worker existente `de-paso-benavente`, conservando su dirección para reemplazar la web anterior: https://de-paso-benavente.chedex-chesssociety.workers.dev. El nombre de producto es Chedex Pulse; el identificador de infraestructura se conserva para no dejar la versión antigua accesible en otra dirección.
+`SESSION_SECRET` es un secreto de Cloudflare generado exclusivamente en memoria. `node scripts/configure-auth.mjs` lo configura en la instalación inicial; no repetir en despliegues rutinarios, porque rotarlo invalida todas las sesiones. Nunca publicar claves en GitHub ni cargar credenciales de Turso. `PUBLIC_ORIGIN` limita el origen y callback válidos.
 
-El despliegue sirve exclusivamente `pulse/public/` y `pulse/worker.mjs`. No necesita Turso, secretos ni acceso administrativo. Las rutas de recados ya no forman parte de la aplicación. Los datos y archivos privados anteriores no se migran, publican ni borran. El antiguo public/, server/, scripts/publish.mjs y tests/ que puedan quedar en la carpeta local son legado inactivo y se excluyen del nuevo árbol publicado en GitHub.
+## Cambio de dirección
 
-Repositorio: https://github.com/Andres-L1/Repartos. La configuración conserva el nombre del repositorio existente. No publicar `.dev.vars`, `.env`, `data/`, `.wrangler/`, `.cloudflare-build/` ni dependencias instaladas.
+El Worker principal se llama `chedexpulse`. `wrangler.redirect.jsonc` configura un Worker mínimo en la dirección antigua: `node scripts/wrangler.mjs deploy --config wrangler.redirect.jsonc`. Las visitas públicas redirigen a Pulse; APIs antiguas y escrituras devuelven 410. No se trasladan parámetros ni rutas privadas. El nombre del repositorio GitHub se conserva para mantener enlaces existentes.
+
+## Pendiente
+
+Importación mensual FIDE e histórico; integración Wikimedia; índices calculados y validados; recopiladores programados; favoritos y alertas. No hay pagos ni Pulse Pro activos. El diseño y la autenticación no implican que estas funciones estén implementadas.
+
+Los datos privados de la aplicación de recados no se publican, migran ni borran. Se sirve exclusivamente `pulse/public/` y el Worker Pulse. Los archivos antiguos que permanezcan en la carpeta local son legado inactivo, excluido del nuevo árbol Git. No publicar `.dev.vars`, `.env`, `data/`, `.wrangler/`, `.cloudflare-build/` ni dependencias instaladas.

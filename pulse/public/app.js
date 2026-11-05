@@ -1,3 +1,4 @@
+import { updateMap, prepareGeography, resetMaps } from './maps.js';
 import { countries, players, indices, countryByCode, matchesCountry } from './data.js';
 const $ = selector => document.querySelector(selector);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
@@ -11,16 +12,14 @@ const statusText = item => item.status === 'live' ? 'EN DIRECTO' : item.status =
 const relatedCountries = text => countries.filter(country => matchesCountry(text, country));
 const relatedPlayers = text => players.filter(player => player.aliases.some(alias => text.toLowerCase().includes(alias.toLowerCase())));
 
-function mapMarkup(list, interactive = true) {
-  return `<svg viewBox="65 45 810 370" role="img" aria-label="Mapa mundial esquemático con países del directorio. No representa eventos ni fronteras oficiales."><defs><pattern id="${interactive ? 'world' : 'home'}-grid" width="42" height="38" patternUnits="userSpaceOnUse"><path d="M42 0H0V38" class="map-grid"/></pattern></defs><rect x="65" y="45" width="810" height="370" fill="url(#${interactive ? 'world' : 'home'}-grid)"/><g class="land"><path d="M115 99 145 76 187 68 216 83 245 78 273 93 302 96 316 119 298 135 282 152 265 165 247 182 234 196 224 189 210 183 196 165 176 165 157 150 147 131 126 127 110 113Z"/><path d="m230 194 20 6 5 13 18 5 9 18-10 9-16-17-14-6Z"/><path d="m294 67 27-15 32 7 7 25-22 26-19 1-14-21Z"/><path d="m281 237 30-6 34 17 17 26-8 25-15 18-10 32-19 28-7 31-15-16-6-36-15-31-9-32 7-24Z"/><path d="m463 151 6-18 19-7 9-16-5-13 12-15 13-4 4 27 17 10 18-6 17 14 1 20-21 16-24-1-8 16-17-10-16 9-19-3Z"/><path d="m464 173 32-9 28 4 23 22 20 6 15 35-19 32-10 40-21 30-17 3-12-21-12-27-17-16-9-24-19-23 1-30Z"/><path d="m553 121 25-23 36-13 34 1 28-16 43 1 38 13 30 4 30 20 22 12 21 1 5 17-28 8-9 22-25 9-16 19-20 2-17 17-25-11-18 8-16-12-15 16-2 23-13 11-15-23-8-22-20-11-20 6-18-22-13-8-10-24-19-6Z"/><path d="m719 216 14 5 7 25 17 15 24 8-7 11-23-9-11-13-13-19Z"/><path d="m776 290 26-13 34 10 22 29-1 30-26 11-26-14-24 1-16-20Z"/><path d="m817 204 7-19 7-5 4 13-11 18Z"/><path d="m572 293 6 9-7 21-7-4Z"/><path d="m449 109 8-9 4 15-3 14-7-5Z"/></g>${list.map(c => `<a class="map-link" href="#mundo/${c.code}" aria-label="Explorar ${escape(c.name)}"><circle class="map-ring" cx="${c.x}" cy="${c.y}" r="11"/><circle class="map-dot" cx="${c.x}" cy="${c.y}" r="4.5"/><title>${escape(c.name)}</title>${['ESP', 'IND', 'USA', 'BRA', 'CHN', 'NOR'].includes(c.code) ? `<text x="${c.x + 10}" y="${c.y - 8}">${escape(c.name)}</text>` : ''}</a>`).join('')}</svg>`;
-}
 function renderMaps() {
-  $('#home-map').innerHTML = mapMarkup(countries, false);
   const term = $('#country-search').value.trim().toLocaleLowerCase('es');
   const filter = $('#map-filter').value;
   const list = countries.filter(country => country.name.toLocaleLowerCase('es').includes(term) && (filter === 'all' || filter === 'players' && players.some(p => p.country === country.code) || filter === 'tournaments' && broadcasts?.items.some(t => matchesCountry(t.location, country))));
-  $('#world-map').innerHTML = mapMarkup(list);
-  $('#country-list').innerHTML = list.length ? list.map(c => `<a class="country-button" href="#mundo/${c.code}" ${c.code === selectedCountry ? 'aria-current="true"' : ''}>${escape(c.name)}</a>`).join('') : '<p class="fine">No hay países que coincidan con este filtro en los datos disponibles.</p>';
+  const common = { broadcasts: broadcasts?.items || [], onSelect: code => { location.hash = 'mundo/' + code; } };
+  updateMap('home-map', { ...common, list: countries });
+  updateMap('world-map', { ...common, list, selected: location.hash.split('/')[1] || null, filter });
+  $('#country-list').innerHTML = list.length ? list.sort((a,b)=>a.name.localeCompare(b.name,'es')).map(c => '<a class="country-button" href="#mundo/' + c.code + '" ' + (c.code === selectedCountry ? 'aria-current="true"' : '') + '>' + escape(c.name) + '</a>').join('') : '<p class="fine">No hay países que coincidan con este filtro en los datos disponibles.</p>';
 }
 function broadcastCard(item, compact = false) {
   return `<a class="broadcast-card" href="#torneo/${escape(item.id)}"><div class="broadcast-meta"><span class="${item.status === 'live' ? 'live-badge' : ''}">${item.status === 'live' ? '<i class="live-dot"></i>' : ''}${statusText(item)}</span><span>${escape(item.location || 'Ubicación sin indicar')}</span></div><h4>${escape(item.name)}</h4>${compact ? '' : `<p>${escape(item.round || item.format || 'Retransmisión de ajedrez')}</p><div class="card-bottom"><span>${dateText(item.startsAt)}</span><b>Explorar torneo ↗</b></div>`}</a>`;
@@ -54,7 +53,7 @@ function renderCountry() {
   const foundPlayers = players.filter(p => p.country === country.code);
   const tournaments = broadcasts?.items.filter(t => matchesCountry(t.location, country)) || [];
   const foundNews = news?.items.filter(n => matchesCountry(n.title, country)) || [];
-  $('#country-profile').innerHTML = `<p class="eyebrow">FICHA DE PAÍS</p><span class="country-code">${country.code}</span><h2>${escape(country.name)}</h2><p>Un punto de partida para explorar su ajedrez. Directorio editorial inicial; la actividad nacional completa aún no está integrada.</p><h3>Jugadores del directorio</h3><div class="profile-links">${foundPlayers.length ? foundPlayers.map(p => `<a href="#jugador/${p.id}">${escape(p.name)}<span>Ver ficha ↗</span></a>`).join('') : '<p>Aún no hay fichas locales para este país.</p>'}<a href="https://ratings.fide.com/" target="_blank" rel="noopener noreferrer">Directorio oficial FIDE <span>↗</span></a></div><h3>Competiciones en la selección</h3>${tournaments.length ? tournaments.slice(0, 4).map(t => broadcastCard(t, true)).join('') : `<p>${broadcasts?.status === 'ok' ? 'Sin coincidencias de ubicación en la selección actual. Esto no implica ausencia de torneos en el país.' : 'Consulta de retransmisiones no disponible todavía.'}</p>`}<h3>Actualidad relacionada</h3><div class="profile-links">${foundNews.length ? foundNews.map(n => `<a href="${escape(n.url)}" target="_blank" rel="noopener noreferrer">${escape(n.title)} <span>↗</span></a>`).join('') : '<p>Sin coincidencias explícitas en los titulares recibidos. La cobertura no es exhaustiva.</p>'}</div><h3>Tendencia nacional</h3><p>Pendiente de histórico comparable. No se calcula actividad nacional a partir de retransmisiones destacadas.</p><a class="text-link" href="#indices/global">Conocer el índice Global ↗</a>`;
+  $('#country-profile').innerHTML = `<p class="eyebrow">FICHA DE PAÍS</p><span class="country-code">${country.code}</span><h2>${escape(country.name)}</h2><p>Un punto de partida para explorar su ajedrez. La cobertura competitiva depende de las fuentes conectadas.</p><h3>Jugadores del directorio</h3><div class="profile-links">${foundPlayers.length ? foundPlayers.map(p => `<a href="#jugador/${p.id}">${escape(p.name)}<span>Ver ficha ↗</span></a>`).join('') : '<p>Aún no hay fichas locales para este país.</p>'}<a href="https://ratings.fide.com/" target="_blank" rel="noopener noreferrer">Directorio oficial FIDE <span>↗</span></a></div><h3>Competiciones en la selección</h3>${tournaments.length ? tournaments.slice(0, 4).map(t => broadcastCard(t, true)).join('') : `<p>${broadcasts?.status === 'ok' ? 'Sin coincidencias de ubicación en la selección actual. Esto no implica ausencia de torneos en el país.' : 'Consulta de retransmisiones no disponible todavía.'}</p>`}<h3>Actualidad relacionada</h3><div class="profile-links">${foundNews.length ? foundNews.map(n => `<a href="${escape(n.url)}" target="_blank" rel="noopener noreferrer">${escape(n.title)} <span>↗</span></a>`).join('') : '<p>Sin coincidencias explícitas en los titulares recibidos. La cobertura no es exhaustiva.</p>'}</div><h3>Tendencia nacional</h3><p>Pendiente de histórico comparable. No se calcula actividad nacional a partir de retransmisiones destacadas.</p><a class="text-link" href="#indices/global">Conocer el índice Global ↗</a>`;
 }
 function renderMethodology(key) {
   const index = indices[key] || indices.performance;
@@ -85,6 +84,8 @@ function route(scroll = true) {
     if (link.dataset.nav === name || name === 'jugador' && link.dataset.nav === 'tendencias' || name === 'torneo' && link.dataset.nav === 'hoy') link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   });
+  $('#workspace-title').textContent = { hoy: 'Vista general', mundo: 'Observatorio mundial', tendencias: 'Tendencias', indices: 'Índices Chedex', fuentes: 'Fuentes y metodología', jugador: 'Ficha de jugador', torneo: 'Competición' }[name];
+  renderMaps();
   if (name === 'mundo') { if (countryByCode(value)) selectedCountry = value; renderMaps(); renderCountry(); }
   if (name === 'indices') renderMethodology(indices[value] ? value : 'performance');
   if (name === 'jugador') renderPlayer(value);
@@ -122,3 +123,5 @@ document.addEventListener('click', event => {
 });
 window.addEventListener('hashchange', () => route());
 renderMaps(); renderCountry(); renderMethodology('performance'); route(false); loadSources();
+prepareGeography().then(() => { renderMaps(); route(false); }).catch(() => {});
+document.querySelectorAll('[data-reset-map]').forEach(button => button.addEventListener('click', resetMaps));
