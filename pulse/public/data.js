@@ -25,7 +25,7 @@ export const players = [
 ];
 export const indices = {
   performance: {
-    name: 'Performance',
+    name: 'Progresión Elo · Performance',
     title: 'Progresión medible de Elo.',
     description:
       'Performance v1.0 expresa la progresión del Elo estándar en doce meses. La unidad son puntos Elo, sin una escala artificial de 0 a 100.',
@@ -43,7 +43,7 @@ export const indices = {
       'Performance = Elo del mes actual − Elo del mismo mes del año anterior. Datos insuficientes → sin puntuación.',
   },
   trending: {
-    name: 'Trending',
+    name: 'Interés en Wikipedia · Trending',
     title: 'La evolución del interés público.',
     description:
       'Trending v1.0 compara el volumen de consultas de Wikipedia en inglés. Mide atención, nunca mérito deportivo ni fuerza de juego.',
@@ -61,7 +61,7 @@ export const indices = {
       'Trending = 100 × (visitas de los últimos 7 días completos − visitas de los 7 anteriores) / visitas de los 7 anteriores. Base inferior a 100 → no comparable.',
   },
   global: {
-    name: 'Global',
+    name: 'Censo activo FIDE · Global',
     title: 'El cambio del censo activo FIDE.',
     description:
       'Global v1.0 mide cómo varía el número de jugadores activos con Elo estándar registrados en cada federación. Es una medida concreta del censo competitivo publicado.',
@@ -82,6 +82,8 @@ export const indices = {
 export const countryByCode = (code) => countries.find((c) => c.code === code);
 const countryMatchers = new WeakMap();
 export function matchesCountry(text, country) {
+  // FID es una afiliación administrativa, nunca una ubicación geográfica.
+  if (['FID', 'FIDE'].includes(country.code) || !country.aliases?.length) return false;
   let cached = countryMatchers.get(country);
   if (!cached || cached.aliases !== country.aliases) {
     const escaped = country.aliases.map((alias) => alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
@@ -91,5 +93,5 @@ export function matchesCountry(text, country) {
     };
     countryMatchers.set(country, cached);
   }
-  return cached.pattern.test(text);
+  return cached.pattern.test(String(text ?? ''));
 }

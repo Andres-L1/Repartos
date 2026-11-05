@@ -1,4 +1,5 @@
 import { currentRoute, navigate, installRouter } from './lib/routes.js';
+import { countryActivity, orderBroadcasts } from './lib/observatory.js';
 import { requestJSON } from './lib/requests.js';
 import { enhanceSelects, closeSelects } from './components/select.js';
 import { initLanding } from './components/landing.js';
@@ -29,7 +30,8 @@ let news = null,
   selectedCountry = 'ESP',
   activeFeed = 'all',
   loading = false,
-  showAllBroadcasts = false;
+  showAllBroadcasts = false,
+  homeMapFilter = 'all';
 const statusText = (item) =>
   item.status === 'live' ? 'EN DIRECTO' : item.status === 'finished' ? 'FINALIZADO' : 'PROGRAMADO';
 const relatedCountries = (text) => countries.filter((country) => matchesCountry(text, country));
@@ -41,23 +43,50 @@ const relatedPlayers = (text) =>
 function renderMaps() {
   const term = $('#country-search').value.trim().toLocaleLowerCase('es');
   const filter = $('#map-filter').value;
+  const activity = countryActivity(countries, broadcasts?.items || [], players, filter);
   const list = countries.filter(
     (country) =>
       country.name.toLocaleLowerCase('es').includes(term) &&
       (filter === 'all' ||
         (filter === 'players' && players.some((p) => p.country === country.code)) ||
-        (filter === 'tournaments' &&
-          broadcasts?.items.some((t) => matchesCountry(t.location, country)))),
+        (['tournaments', 'live', 'upcoming'].includes(filter) &&
+          activity.some((row) => row.country === country && row.count > 0))),
   );
   const common = {
     broadcasts: broadcasts?.items || [],
+    players,
     onSelect: (code) => {
       navigate('/mundo/' + code);
     },
   };
-  updateMap('home-map', { ...common, list: countries });
+  updateMap('home-map', { ...common, list: countries, filter: homeMapFilter });
+  const homeActivity = countryActivity(countries, broadcasts?.items || [], players, homeMapFilter)
+    .filter((row) => row.count && Number.isFinite(row.country.lng))
+    .sort((a, b) => b.count - a.count || a.country.name.localeCompare(b.country.name, 'es'));
+  $('#map-activity-list').innerHTML =
+    homeActivity
+      .slice(0, 6)
+      .map(
+        (row) =>
+          `<a href="/mundo/${row.country.code}">${escape(row.country.name)} <b>${row.count}</b></a>`,
+      )
+      .join('') ||
+    `<span class="fine">${broadcasts || homeMapFilter === 'players' ? 'Sin coincidencias geográficas en esta capa.' : 'Consultando ubicaciones…'}</span>`;
+  document.querySelector('.map-legend').hidden = homeMapFilter === 'players';
+  $('#home-map-summary').textContent =
+    homeMapFilter !== 'players' && broadcasts?.status !== 'ok'
+      ? 'Cobertura geográfica pendiente de la fuente'
+      : `${homeActivity.length} países con datos en esta capa · Puntos agrupados por país`;
+  $('#home-map-source').textContent =
+    homeMapFilter === 'players'
+      ? 'Selección FIDE · Federación registrada; no residencia. Sin punto cuando no hay correspondencia cartográfica.'
+      : broadcasts?.status === 'ok'
+        ? `Lichess · ${dateText(broadcasts.fetchedAt)} (Madrid) · ${broadcasts.items.filter((item) => !countries.some((c) => Number.isFinite(c.lng) && matchesCountry(item.location, c))).length} retransmisiones sin ubicación cartográfica identificada.`
+        : broadcasts
+          ? 'Lichess no disponible. No se muestran puntos de ejemplo.'
+          : 'Consultando Lichess…';
   updateMap('world-map', { ...common, list, selected: currentRoute().value || null, filter });
-  const signature = JSON.stringify([selectedCountry, list.map((c) => c.code)]);
+  const signature = JSON.stringify([selectedCountry, list.map((c) => [c.code, c.name])]);
   if ($('#country-list').dataset.signature === signature) return;
   $('#country-list').dataset.signature = signature;
   $('#country-list').innerHTML = list.length
@@ -113,7 +142,10 @@ function renderFeeds() {
     $('#events-count').textContent = broadcasts.status === 'ok' ? broadcasts.items.length : '—';
     $('#live-count').textContent =
       broadcasts.status === 'ok' ? broadcasts.items.filter((t) => t.status === 'live').length : '—';
-    const items = broadcasts.items.filter((t) => activeFeed !== 'live' || t.status === 'live');
+    const items = orderBroadcasts(broadcasts.items).filter(
+      (t) => activeFeed !== 'live' || t.status === 'live',
+    );
+    const initialCount = Math.max(3, items.filter((item) => item.status === 'live').length);
     $('#broadcast-list').innerHTML =
       broadcasts.status !== 'ok'
         ? errorMarkup(
@@ -121,10 +153,10 @@ function renderFeeds() {
           )
         : items.length
           ? items
-              .slice(0, showAllBroadcasts || activeFeed === 'live' ? 24 : 3)
+              .slice(0, showAllBroadcasts || activeFeed === 'live' ? 24 : initialCount)
               .map((t) => broadcastCard(t))
               .join('') +
-            (activeFeed === 'all' && items.length > 3
+            (activeFeed === 'all' && items.length > initialCount
               ? `<button class="refresh-button" type="button" data-show-broadcasts>${showAllBroadcasts ? 'Mostrar menos ↑' : `Ver las ${items.length} retransmisiones ↓`}</button>`
               : '')
           : '<div class="empty">No hay retransmisiones en esta selección. Puedes consultar el directorio completo en Lichess.</div>';
@@ -145,10 +177,12 @@ function renderFeeds() {
 function renderCountry() {
   const country = countryByCode(selectedCountry) || countries[0];
   const foundPlayers = players.filter((p) => p.country === country.code);
-  const tournaments = broadcasts?.items.filter((t) => matchesCountry(t.location, country)) || [];
+  const tournaments = orderBroadcasts(
+    broadcasts?.items.filter((t) => matchesCountry(t.location, country)) || [],
+  );
   const foundNews = news?.items.filter((n) => matchesCountry(n.title, country)) || [];
   $('#country-profile').innerHTML =
-    `<p class="eyebrow">FICHA DE PAÍS</p><span class="country-code">${country.code}</span><h2>${escape(country.name)}</h2><p>Un punto de partida para explorar su ajedrez. La cobertura competitiva depende de las fuentes conectadas.</p><h3>Jugadores del directorio</h3><div class="profile-links">${foundPlayers.length ? foundPlayers.map((p) => `<a href="/jugador/${p.id}">${escape(p.name)}<span>Ver ficha ↗</span></a>`).join('') : '<p>Aún no hay fichas locales para este país.</p>'}<a href="https://ratings.fide.com/" target="_blank" rel="noopener noreferrer">Directorio oficial FIDE <span>↗</span></a></div><h3>Competiciones en la selección</h3>${
+    `<p class="eyebrow">PAÍS / FEDERACIÓN</p><span class="country-code">${country.code}</span><h2>${escape(country.name)}</h2><p>Un punto de partida para explorar su ajedrez. La cobertura competitiva depende de las fuentes conectadas.</p><h3>Jugadores del directorio</h3><div class="profile-links">${foundPlayers.length ? foundPlayers.map((p) => `<a href="/jugador/${p.id}">${escape(p.name)}<span>Ver ficha ↗</span></a>`).join('') : '<p>Aún no hay fichas locales para este país.</p>'}<a href="https://ratings.fide.com/" target="_blank" rel="noopener noreferrer">Directorio oficial FIDE <span>↗</span></a></div><h3>Competiciones en la selección</h3>${
       tournaments.length
         ? tournaments
             .slice(0, 4)
@@ -177,7 +211,7 @@ function renderPlayer(id) {
   const tournaments =
     broadcasts?.items.filter((t) => relatedPlayers(t.players).includes(player)) || [];
   $('#player-profile').innerHTML =
-    `<a class="back-link" href="/tendencias">← Explorar jugadores</a><article class="panel player-profile-card"><p class="eyebrow">FICHA CONECTADA · DIRECTORIO EDITORIAL</p><div class="player-avatar">${escape(player.initials)}</div><h1>${escape(player.name)}</h1><a class="text-link" href="/mundo/${country.code}">${escape(country.name)} · Explorar país ↗</a><div class="profile-summary"><div><span>Identificador FIDE</span><strong>${player.id}</strong></div><div><span>Elo actual</span><strong>Consultando…</strong></div><div><span>Evolución</span><strong>Consultando…</strong></div></div><p class="fine">La federación del directorio se debe contrastar con la ficha oficial. No se muestran puntuaciones ni títulos sin una lista FIDE fechada.</p><div class="profile-links"><a href="https://ratings.fide.com/profile/${player.id}" target="_blank" rel="noopener noreferrer">Perfil, Elo e histórico oficiales en FIDE <span>↗</span></a><a href="/indices/performance">Cómo se medirá la progresión <span>↗</span></a><a href="/indices/trending">Cómo se medirá el interés público <span>↗</span></a></div><h2 class="profile-section-title">Actualidad relacionada</h2>${stories.length ? stories.map((n) => `<p><a href="${escape(n.url)}" target="_blank" rel="noopener noreferrer">${escape(n.title)} ↗</a></p>`).join('') : '<p class="fine">Sin menciones explícitas en los titulares recibidos.</p>'}<h2 class="profile-section-title">Competiciones relacionadas</h2>${tournaments.length ? tournaments.map((t) => broadcastCard(t)).join('') : '<p class="fine">Sin coincidencias explícitas en los participantes indicados por Lichess. La selección no es exhaustiva.</p>'}</article>`;
+    `<a class="back-link" href="/tendencias">← Explorar jugadores</a><article class="panel player-profile-card"><p class="eyebrow">FICHA CONECTADA · DIRECTORIO EDITORIAL</p><div class="player-avatar">${escape(player.initials)}</div><h1>${escape(player.name)}</h1><a class="text-link" href="/mundo/${country.code}">${escape(country.name)} · Explorar país ↗</a><div class="profile-summary"><div><span>Identificador FIDE</span><strong>${player.id}</strong></div><div><span>Elo actual</span><strong>Consultando…</strong></div><div><span>Evolución</span><strong>Consultando…</strong></div></div><p class="fine">La federación del directorio se debe contrastar con la ficha oficial. No se muestran puntuaciones ni títulos sin una lista FIDE fechada.</p><div class="profile-links"><a href="https://ratings.fide.com/profile/${player.id}" target="_blank" rel="noopener noreferrer">Perfil, Elo e histórico oficiales en FIDE <span>↗</span></a><a href="/indices/performance">Cómo se calcula la progresión <span>↗</span></a><a href="/indices/trending">Cómo se calcula el interés en Wikipedia <span>↗</span></a></div><h2 class="profile-section-title">Actualidad relacionada</h2>${stories.length ? stories.map((n) => `<p><a href="${escape(n.url)}" target="_blank" rel="noopener noreferrer">${escape(n.title)} ↗</a></p>`).join('') : '<p class="fine">Sin menciones explícitas en los titulares recibidos.</p>'}<h2 class="profile-section-title">Competiciones relacionadas</h2>${tournaments.length ? tournaments.map((t) => broadcastCard(t)).join('') : '<p class="fine">Sin coincidencias explícitas en los participantes indicados por Lichess. La selección no es exhaustiva.</p>'}</article>`;
 }
 function renderTournament(id) {
   const item = broadcasts?.items.find((t) => t.id === id);
@@ -307,6 +341,23 @@ document.addEventListener('click', (event) => {
   if (event.target.closest('[data-show-broadcasts]')) {
     showAllBroadcasts = !showAllBroadcasts;
     renderFeeds();
+  }
+  const methodLink = event.target.closest('[data-method-link]');
+  if (methodLink) {
+    event.preventDefault();
+    $('#index-method').open = true;
+    $('#index-method').scrollIntoView({
+      block: 'start',
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+    });
+  }
+  const layer = event.target.closest('[data-map-layer]');
+  if (layer) {
+    homeMapFilter = layer.dataset.mapLayer;
+    document
+      .querySelectorAll('[data-map-layer]')
+      .forEach((button) => button.setAttribute('aria-pressed', String(button === layer)));
+    renderMaps();
   }
   const retry = event.target.closest('[data-retry]');
   if (retry) loadSources();

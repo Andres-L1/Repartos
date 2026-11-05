@@ -17,6 +17,21 @@ export function initLanding() {
         federations: data.fide.federations.length,
       };
       const format = new Intl.NumberFormat('es-ES');
+      const leader = data.fide.players
+        .filter((player) => player.performance.eligible)
+        .sort((a, b) => b.performance.score - a.performance.score)[0];
+      const example = document.getElementById('landing-example');
+      if (example && leader) {
+        example.replaceChildren();
+        const label = document.createElement('span');
+        label.textContent = 'UN EJEMPLO CON LOS DATOS DISPONIBLES';
+        const link = document.createElement('a');
+        link.href = `/jugador/${leader.id}`;
+        link.textContent = `${leader.name}: ${leader.performance.score > 0 ? '+' : ''}${format.format(leader.performance.score)} puntos Elo en doce meses ↗`;
+        const note = document.createElement('p');
+        note.textContent = `Abre su ficha para consultar la evolución mensual y las fuentes. Mayor progresión comparable dentro de nuestra selección, según FIDE ${data.fide.month}.`;
+        example.append(label, link, note);
+      }
       for (const element of coverage.querySelectorAll('[data-coverage]')) {
         element.textContent = format.format(counts[element.dataset.coverage]);
       }

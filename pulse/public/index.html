@@ -140,71 +140,30 @@
           <a
             class="preview-window"
             href="/panel"
-            aria-label="Vista esquemática del dashboard de Chedex Pulse. Abrir el panel."
+            aria-label="Captura real del panel de Chedex Pulse. Abrir el panel."
           >
             <div class="preview-bar">
               <span class="preview-dots" aria-hidden="true"><i></i><i></i><i></i></span
               ><span>chedexpulse.app/panel</span><span class="preview-open">Abrir panel ↗</span>
             </div>
-            <div class="preview-content">
-              <div class="preview-sidebar" aria-hidden="true">
-                <img src="/chedex-icon.svg" width="32" height="32" alt="" /><span class="selected"
-                  >Panel</span
-                ><span>Mundo</span><span>Tendencias</span><span>Índices</span>
-              </div>
-              <div class="preview-main">
-                <div class="preview-heading">
-                  <div>
-                    <span class="eyebrow">CHEDEX PULSE</span
-                    ><strong>Vista general<span>.</span></strong>
-                  </div>
-                  <span class="preview-status"><i></i> Consulta pública</span>
-                </div>
-                <div class="preview-panels">
-                  <div class="preview-map">
-                    <div class="preview-map-heading">
-                      <span>EL AJEDREZ EN EL MUNDO</span><span>Exploración geográfica</span>
-                    </div>
-                    <img
-                      src="/landing-map.svg"
-                      width="1080"
-                      height="450"
-                      alt="Cartografía mundial de Natural Earth, sin marcadores de eventos."
-                    />
-                    <div class="preview-map-footer">
-                      <span>Países y federaciones</span><span>Natural Earth</span>
-                    </div>
-                  </div>
-                  <div class="preview-modules">
-                    <div>
-                      <span class="eyebrow">ACTUALIDAD</span><strong>Titulares oficiales</strong
-                      ><small>FIDE</small>
-                    </div>
-                    <div>
-                      <span class="eyebrow">COMPETICIONES</span><strong>Retransmisiones</strong
-                      ><small>Lichess Broadcast</small>
-                    </div>
-                    <div>
-                      <span class="eyebrow">ANÁLISIS</span><strong>Índices Chedex</strong
-                      ><small>Performance · Trending · Global</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <img
+              class="dashboard-capture"
+              src="/dashboard-preview.jpg"
+              width="1265"
+              height="1050"
+              alt="Panel real de Chedex Pulse: mapa por capas, retransmisiones y cambios de Elo, Wikipedia y censo FIDE."
+              fetchpriority="high"
+            />
           </a>
           <figcaption>
-            Vista de funciones del panel. El contenido actualizado se consulta al abrirlo.
+            Captura del panel · 5 de noviembre de 2026. Consulta los datos actualizados al abrirlo.
           </figcaption>
         </figure>
         <div class="landing-section-nav" role="navigation" aria-label="Secciones de la portada">
-          <button type="button" data-landing-scroll="landing-about" aria-controls="landing-about">
-            Qué es Pulse</button
-          ><button type="button" data-landing-scroll="landing-uses" aria-controls="landing-uses">
-            Qué puedes consultar</button
-          ><button type="button" data-landing-scroll="landing-start" aria-controls="landing-start">
-            Primeros pasos</button
-          ><button
+          <button type="button" data-landing-scroll="landing-uses" aria-controls="landing-uses">
+            Qué puedes consultar
+          </button>
+          <button
             type="button"
             data-landing-scroll="landing-sources"
             aria-controls="landing-sources"
@@ -214,23 +173,6 @@
             Preguntas frecuentes
           </button>
         </div>
-        <section
-          id="landing-about"
-          class="landing-section landing-about"
-          aria-labelledby="landing-about-title"
-        >
-          <p class="eyebrow">UNA VISTA CONECTADA</p>
-          <h2 id="landing-about-title">¿Qué es Chedex Pulse?</h2>
-          <p>
-            Un observatorio del ajedrez que reúne actualidad, competiciones, fichas de jugadores,
-            exploración geográfica y tres índices propios. Puedes pasar de un torneo a su país,
-            consultar un jugador y revisar su evolución sin volver a empezar la búsqueda.
-          </p>
-          <p>
-            Las relaciones aparecen cuando los datos de las fuentes permiten identificarlas. Las
-            fechas, la cobertura y los límites se muestran junto al contenido.
-          </p>
-        </section>
         <section id="landing-uses" class="landing-section" aria-labelledby="landing-uses-title">
           <div class="landing-section-heading">
             <p class="eyebrow">EMPIEZA POR UNA PREGUNTA</p>
@@ -278,6 +220,7 @@
               cobertura, no el total del ajedrez mundial.
             </p>
           </div>
+          <div id="landing-example" class="landing-example" aria-live="polite"></div>
           <div class="coverage-grid" aria-live="polite">
             <div>
               <strong data-coverage="players">—</strong><span>Jugadores en seguimiento</span>
@@ -341,47 +284,6 @@
               <span class="index-unit">Variación % ↗</span></a
             >
           </div>
-        </section>
-        <section id="landing-start" class="landing-section" aria-labelledby="landing-start-title">
-          <div class="landing-section-heading">
-            <p class="eyebrow">DEL PANEL A LOS DATOS</p>
-            <h2 id="landing-start-title">Tus primeros pasos en Pulse.</h2>
-          </div>
-          <ol class="landing-steps">
-            <li>
-              <span>01</span>
-              <div>
-                <h3>Abre el panel.</h3>
-                <p>
-                  Empieza por la actualidad y las competiciones. Cada elemento muestra su fuente y
-                  el estado de la consulta.
-                </p>
-                <a href="/panel">Ir al panel ↗</a>
-              </div>
-            </li>
-            <li>
-              <span>02</span>
-              <div>
-                <h3>Sigue una conexión.</h3>
-                <p>
-                  Explora un país, un torneo o un jugador. Las fichas enlazan los datos relacionados
-                  que hemos podido identificar.
-                </p>
-                <a href="/mundo">Explorar Mundo ↗</a>
-              </div>
-            </li>
-            <li>
-              <span>03</span>
-              <div>
-                <h3>Consulta la evolución y el método.</h3>
-                <p>
-                  Utiliza los filtros de los índices y abre una ficha para consultar sus registros y
-                  fuentes. Los valores no comparables se excluyen del ranking.
-                </p>
-                <a href="/indices">Ver índices y metodología ↗</a>
-              </div>
-            </li>
-          </ol>
         </section>
         <section
           id="landing-sources"
@@ -515,6 +417,21 @@
                 >Explorar el mundo <span aria-hidden="true">↗</span></a
               >
             </div>
+            <div class="map-layers" role="group" aria-label="Capas del mapa">
+              <button type="button" data-map-layer="all" aria-pressed="true">
+                Retransmisiones
+              </button>
+              <button type="button" data-map-layer="live" aria-pressed="false">
+                <i class="live-dot"></i> En directo
+              </button>
+              <button type="button" data-map-layer="upcoming" aria-pressed="false">Próximas</button>
+              <button type="button" data-map-layer="players" aria-pressed="false">
+                Jugadores FIDE
+              </button>
+              <button type="button" data-reset-map aria-label="Restablecer vista mundial">
+                ↗ Vista mundial
+              </button>
+            </div>
             <div class="map-stage">
               <div id="home-map" class="map-container"></div>
               <div class="map-overlay">
@@ -524,9 +441,18 @@
               <span class="map-watermark">CHEDEX / WORLD VIEW</span>
             </div>
             <div class="map-caption">
-              <span><i class="legend-dot"></i> Países con torneos en la selección</span
-              ><span>Natural Earth · Ubicación aproximada por país</span>
+              <span id="home-map-summary">Consultando actividad por país…</span>
+              <span class="map-legend"
+                ><i class="legend-dot"></i> Con directos <i class="legend-dot scheduled"></i> Sin
+                directos</span
+              >
             </div>
+            <nav
+              id="map-activity-list"
+              class="map-activity-list"
+              aria-label="Países destacados en la capa"
+            ></nav>
+            <p id="home-map-source" class="map-source">Consultando Lichess…</p>
           </article>
           <aside class="vitals panel" aria-label="Estado de las fuentes">
             <p class="eyebrow">EN EL RADAR</p>
@@ -555,6 +481,7 @@
             <button class="refresh-button" id="refresh" type="button">↻ Actualizar fuentes</button>
           </aside>
         </div>
+        <section id="analytics-home" aria-label="Cambios destacados"></section>
         <div class="section-heading">
           <div>
             <p class="eyebrow">PARA SEGUIR EL JUEGO</p>
@@ -590,7 +517,6 @@
             <p class="source-note" id="broadcast-source"></p>
           </section>
         </div>
-        <section id="analytics-home" aria-label="Cambios destacados"></section>
       </section>
       <section id="mundo" class="view" hidden aria-labelledby="world-title">
         <div class="page-intro">
@@ -608,6 +534,8 @@
             >Explorar por
             <select id="map-filter">
               <option value="all">Todos los países del directorio</option>
+              <option value="live">Retransmisiones en directo</option>
+              <option value="upcoming">Próximas retransmisiones</option>
               <option value="players">Jugadores con ficha</option>
               <option value="tournaments">Torneos en la selección de Lichess</option>
             </select></label
@@ -661,9 +589,9 @@
           </p>
         </div>
         <div class="index-tabs" role="group" aria-label="Seleccionar índice">
-          <button data-index="performance" aria-pressed="true">Performance</button
-          ><button data-index="trending" aria-pressed="false">Trending</button
-          ><button data-index="global" aria-pressed="false">Global</button>
+          <button data-index="performance" aria-pressed="true">Progresión Elo · Performance</button
+          ><button data-index="trending" aria-pressed="false">Wikipedia · Trending</button
+          ><button data-index="global" aria-pressed="false">Censo FIDE · Global</button>
         </div>
         <div id="index-data-status" aria-live="polite"></div>
         <div id="index-controls" class="analytics-filters"></div>
@@ -673,7 +601,10 @@
           aria-label="Resultados del índice"
           aria-live="polite"
         ></section>
-        <article class="panel methodology" id="methodology"></article>
+        <details id="index-method" class="methodology-disclosure">
+          <summary>Metodología, fuentes y límites</summary>
+          <article class="panel methodology" id="methodology"></article>
+        </details>
       </section>
       <section id="ficha" class="view" hidden aria-label="Ficha de jugador">
         <div id="player-profile"></div>

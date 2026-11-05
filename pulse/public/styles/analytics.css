@@ -643,3 +643,130 @@
     margin: 0 0 12px;
   }
 }
+
+.index-explainer {
+  margin-bottom: 20px;
+}
+.index-explainer h2 {
+  font-size: 23px;
+}
+.index-explainer p,
+.ranking-scope {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  max-width: 800px;
+}
+.index-explainer [data-method-link] {
+  background: none;
+  padding: 0;
+  color: var(--accent);
+  font-size: 12px;
+}
+.methodology-disclosure {
+  margin-top: 25px;
+  scroll-margin-top: 100px;
+}
+.methodology-disclosure > summary {
+  cursor: pointer;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.methodology-disclosure[open] > summary {
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+@media (max-width: 760px) {
+  .rank-table {
+    min-width: 0;
+    width: 100%;
+    display: block;
+  }
+  .rank-table caption {
+    display: block;
+    text-align: left;
+    font-size: 13px;
+  }
+  .rank-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .rank-table tbody {
+    display: block;
+  }
+  .rank-table tbody tr {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    gap: 8px 10px;
+    padding: 17px 13px;
+    border-bottom: 1px solid var(--line);
+  }
+  .rank-table td,
+  .rank-table tbody th {
+    padding: 0;
+    border: 0;
+    font-size: 13px;
+    text-align: left;
+    min-width: 0;
+    white-space: normal;
+  }
+  .rank-table .rank-number {
+    grid-row: 1;
+    grid-column: 1;
+    font-size: 12px;
+    padding-top: 2px;
+  }
+  .rank-table tbody th {
+    grid-row: 1;
+    grid-column: 2;
+    line-height: 1.5;
+  }
+  .rank-table .index-score {
+    grid-row: 1;
+    grid-column: 3;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .rank-table td[data-label]:not(.index-score) {
+    grid-column: 2 / -1;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--text);
+  }
+  .rank-table td[data-label]:not(.index-score)::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .ranking-overflow-hint {
+    display: none;
+  }
+  .ranking-heading,
+  .ranking-heading span {
+    font-size: 11px;
+  }
+  .ranking-pagination,
+  .ranking-pagination button {
+    font-size: 12px;
+  }
+  .ranking-pagination button {
+    min-height: 42px;
+  }
+  .analytics-filters label {
+    font-size: 12px;
+  }
+  .analytics-filters input {
+    font-size: 14px;
+    min-height: 42px;
+  }
+  .index-explainer h2 {
+    font-size: 20px;
+  }
+}

@@ -1,6 +1,6 @@
 import { requestJSON } from './lib/requests.js';
 import { enhanceSelects } from './components/select.js';
-import { countries, players, countryByCode } from './data.js';
+import { countries, players, countryByCode, indices } from './data.js';
 import { prepareGeography } from './maps.js';
 const $ = (selector) => document.querySelector(selector);
 const esc = (value) =>
@@ -19,6 +19,13 @@ const normalize = (value) =>
     .toLowerCase();
 const GEO = {
   NED: 'NLD',
+  BIZ: 'BLZ',
+  BRU: 'BRN',
+  BRN: 'BHR',
+  FIJ: 'FJI',
+  GEQ: 'GNQ',
+  GUI: 'GIN',
+  LES: 'LSO',
   SUI: 'CHE',
   POR: 'PRT',
   GRE: 'GRC',
@@ -47,7 +54,7 @@ const GEO = {
   ESA: 'SLV',
   GUA: 'GTM',
   HON: 'HND',
-  KOS: 'XKX',
+  KOS: 'KOS',
   KSA: 'SAU',
   KUW: 'KWT',
   LIB: 'LBN',
@@ -98,7 +105,10 @@ const NAMES = {
   SGP: 'Singapur',
   SIN: 'Singapur',
   MRI: 'Mauricio',
-  BRN: 'Baréin',
+  BHR: 'Baréin',
+  BRU: 'Brunéi',
+  ANT: 'Antigua y Barbuda',
+  BAR: 'Barbados',
   BER: 'Bermudas',
   IVB: 'Islas Vírgenes Británicas',
   ISV: 'Islas Vírgenes de Estados Unidos',
@@ -128,11 +138,11 @@ export async function loadAnalytics(onData) {
   try {
     const data = await requestJSON('/api/analytics/summary', { ttl: 600000 });
     if (data.status !== 'ok' || data.schema !== 1) throw Error('source');
+    await prepareGeography().catch(() => {});
     snapshot = data;
     playerIndex = new Map(data.fide.players.map((p) => [p.id, p]));
     interestIndex = new Map(data.interest.players.map((p) => [p.id, p]));
     rankCache.clear();
-    await prepareGeography().catch(() => {});
     const old = new Map(players.map((p) => [p.id, p]));
     players.splice(
       0,
@@ -239,7 +249,13 @@ function leaderCard(type, title, subtitle) {
       ? esc(leader.name)
       : esc(leader.name || leader.article.replaceAll('_', ' '))
     : 'Sin datos comparables';
-  return `<a class="analytics-leader" href="/indices/${type}"><span class="eyebrow">${title}</span><strong>${leader ? signed(leader.score, type === 'performance' ? ' Elo' : ' %') : '—'}</strong><h3>${name}</h3><p>${subtitle}</p><span class="leader-link">Explorar índice ↗</span></a>`;
+  const destination =
+    leader && type !== 'global'
+      ? `/jugador/${leader.id}`
+      : leader
+        ? `/mundo/${geoCode(leader.code)}`
+        : `/indices/${type}`;
+  return `<a class="analytics-leader" href="${destination}"><span class="eyebrow">${title}</span><strong>${leader ? signed(leader.score, type === 'performance' ? ' Elo' : ' %') : '—'}</strong><h3>${name}</h3><p>${subtitle}</p><span class="leader-link">${leader ? 'Ver ficha y evolución ↗' : 'Consultar índice ↗'}</span></a>`;
 }
 export function renderAnalytics(section, value) {
   if (
@@ -248,7 +264,7 @@ export function renderAnalytics(section, value) {
     $('#analytics-home').dataset.version !== snapshot?.generatedAt
   )
     $('#analytics-home').innerHTML = snapshot
-      ? `<div class="section-heading"><div><p class="eyebrow">LOS CAMBIOS, CON DATOS</p><h2>En movimiento</h2></div><a class="text-link" href="/tendencias">Ver tendencias ↗</a></div><div class="three-cards">${leaderCard('performance', 'PERFORMANCE · 12 MESES', 'Mayor progresión entre los jugadores comparables de la selección.')}${leaderCard('trending', 'TRENDING · 7 VS. 7 DÍAS', 'Mayor aumento relativo de visitas entre los 28 artículos seguidos.')}${leaderCard('global', 'GLOBAL · 12 MESES', 'Mayor crecimiento del censo activo entre las federaciones comparables.')}</div>`
+      ? `<div class="section-heading"><div><p class="eyebrow">LOS CAMBIOS, CON DATOS</p><h2>Tres cambios para explorar</h2></div><a class="text-link" href="/tendencias">Ver tendencias ↗</a></div><div class="three-cards">${leaderCard('performance', 'PROGRESIÓN ELO · 12 MESES', `FIDE ${snapshot.fide.month} · Mayor subida de Elo entre ${sortedRows('performance').length} jugadores comparables de la selección.`)}${leaderCard('trending', 'WIKIPEDIA · 7 VS. 7 DÍAS', `Wikimedia hasta ${snapshot.interest.endDate} · Mayor variación relativa entre ${sortedRows('trending').length} artículos comparables en inglés.`)}${leaderCard('global', 'CENSO FIDE · 12 MESES', `FIDE ${snapshot.fide.month} · Mayor variación del censo entre ${sortedRows('global').length} federaciones comparables.`)}</div>`
       : '';
   if (section === 'hoy' && snapshot) $('#analytics-home').dataset.version = snapshot.generatedAt;
   if (section === 'tendencias') renderTrends();
@@ -293,7 +309,9 @@ function renderTrends() {
 }
 function renderIndex(type) {
   key = ['performance', 'trending', 'global'].includes(type) ? type : 'performance';
-  $('#index-data-status').innerHTML = freshness();
+  $('#index-data-status').innerHTML =
+    `<div class="index-explainer"><h2>${esc(indices[key].name)}</h2><p>${esc(indices[key].description)}</p><button type="button" class="text-link" data-method-link>Cómo se calcula ↓</button></div>` +
+    freshness();
   const container = $('#index-controls');
   if (!snapshot) {
     $('#index-results').innerHTML = '';
@@ -346,10 +364,16 @@ function renderRanking() {
   const visible = rows.slice(page * size, (page + 1) * size);
   const headers =
     key === 'performance'
-      ? ['Jugador', 'Federación', 'Elo actual', 'Partidas / 12 m', 'Performance · Δ Elo']
+      ? ['Jugador', 'Federación', 'Elo actual', 'Partidas / 12 m', 'Progresión · Δ Elo']
       : key === 'trending'
-        ? ['Jugador', 'Federación', 'Visitas / 7 d', 'Visitas / 7 d previos', 'Trending · %']
-        : ['Federación', 'Activos actuales', 'Activos hace 12 m', 'Media top 10', 'Global · %'];
+        ? ['Jugador', 'Federación', 'Visitas / 7 d', 'Visitas / 7 d previos', 'Wikipedia · %']
+        : [
+            'Federación',
+            'Activos actuales',
+            'Activos hace 12 m',
+            'Media top 10',
+            'Censo activo · %',
+          ];
   const body = visible
     .map((row, i) => {
       const values =
@@ -376,11 +400,11 @@ function renderRanking() {
                 number(row.current?.top10Average),
                 signed(row.score, ' %'),
               ];
-      return `<tr><td class="rank-number">${page * size + i + 1}</td>${values.map((value, n) => `<${n === 0 ? 'th scope="row"' : 'td'}${n === values.length - 1 ? ` class="index-score ${row.score < 0 ? 'negative' : ''}"` : ''}>${value}</${n === 0 ? 'th' : 'td'}>`).join('')}</tr>`;
+      return `<tr><td class="rank-number">${page * size + i + 1}</td>${values.map((value, n) => `<${n === 0 ? 'th scope="row"' : 'td'}${n === values.length - 1 ? ` class="index-score ${row.score < 0 ? 'negative' : ''}" data-label="${headers[n]}"` : ` data-label="${headers[n]}"`}>${value}</${n === 0 ? 'th' : 'td'}>`).join('')}</tr>`;
     })
     .join('');
   $('#index-results').innerHTML =
-    `<div class="ranking-heading"><p>${rows.length} resultados del filtro · ${all.length} comparables ${key === 'global' ? 'de ' + snapshot.fide.federations.length + ' códigos FIDE' : 'en la selección'}</p><span>Metodología v1.0 · ${key === 'trending' ? snapshot.interest.endDate : snapshot.fide.month}</span></div><p class="ranking-overflow-hint">Desliza la tabla para consultar todos los valores →</p><div class="rank-table-wrap"><table class="rank-table"><caption>${key === 'performance' ? 'Progresión de Elo a 12 meses en la selección' : key === 'trending' ? 'Variación del interés en Wikipedia · selección editorial' : 'Crecimiento del censo activo de federaciones FIDE'}</caption><thead><tr><th scope="col">#</th>${headers.map((h) => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${body || '<tr><td colspan="6">No hay resultados con estos filtros.</td></tr>'}</tbody></table></div><div class="ranking-pagination"><button data-analytics-page="${page - 1}" ${page === 0 ? 'disabled' : ''}>← Anterior</button><span>Página ${page + 1} de ${pages}</span><button data-analytics-page="${page + 1}" ${page === pages - 1 ? 'disabled' : ''}>Siguiente →</button></div><p class="source-note">${key === 'global' ? 'Base mínima: 100 jugadores activos hace 12 meses. Listas estándar FIDE completas. No se utiliza el número de retransmisiones como actividad nacional.' : key === 'trending' ? 'Base mínima: 100 visitas en los siete días anteriores. Excluye series incompletas o cuya última consulta falló. El idioma observado es únicamente inglés.' : 'Requiere 13 listas consecutivas, 12 partidas en los 12 meses y estado activo actual. La edad es el año de la lista menos el año de nacimiento; no una edad exacta.'}</p>`;
+    `<p class="ranking-scope">${key === 'global' ? 'Censo de las listas estándar FIDE completas.' : key === 'trending' ? `Selección de ${snapshot.catalog.length} artículos de Wikipedia en inglés; no mide todo el interés por el ajedrez.` : `Selección de ${snapshot.fide.players.length} jugadores por Elo actual, mujeres, jóvenes y catálogo Wikipedia; no es un ranking mundial exhaustivo.`}</p><div class="ranking-heading"><p>${rows.length} resultados del filtro · ${all.length} comparables ${key === 'global' ? 'de ' + snapshot.fide.federations.length + ' códigos FIDE' : 'en la selección'}</p><span>Metodología v1.0 · ${key === 'trending' ? snapshot.interest.endDate : snapshot.fide.month}</span></div><p class="ranking-overflow-hint">Desliza la tabla para consultar todos los valores →</p><div class="rank-table-wrap"><table class="rank-table"><caption>${key === 'performance' ? 'Progresión de Elo a 12 meses en la selección' : key === 'trending' ? 'Variación del interés en Wikipedia · selección editorial' : 'Crecimiento del censo activo de federaciones FIDE'}</caption><thead><tr><th scope="col">#</th>${headers.map((h) => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${body || '<tr><td colspan="6">No hay resultados con estos filtros.</td></tr>'}</tbody></table></div><div class="ranking-pagination"><button data-analytics-page="${page - 1}" ${page === 0 ? 'disabled' : ''}>← Anterior</button><span>Página ${page + 1} de ${pages}</span><button data-analytics-page="${page + 1}" ${page === pages - 1 ? 'disabled' : ''}>Siguiente →</button></div><p class="source-note">${key === 'global' ? 'Base mínima: 100 jugadores activos hace 12 meses. Listas estándar FIDE completas. No se utiliza el número de retransmisiones como actividad nacional.' : key === 'trending' ? 'Base mínima: 100 visitas en los siete días anteriores. Excluye series incompletas o cuya última consulta falló. El idioma observado es únicamente inglés.' : 'Requiere 13 listas consecutivas, 12 partidas en los 12 meses y estado activo actual. La edad es el año de la lista menos el año de nacimiento; no una edad exacta.'}</p>`;
 }
 export async function enhancePlayer(id) {
   if (!snapshot) return;
