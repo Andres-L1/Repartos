@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "de-paso-benavente",
+  "main": "pulse/worker.mjs",
+  "compatibility_date": "2026-11-05",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./pulse/public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "dev": { "ip": "127.0.0.1", "port": 8787 },
+  "observability": { "enabled": false }
+}

@@ -1,0 +1,9 @@
+.env
+.dev.vars
+.dev.vars.*
+data/
+node_modules/
+*.log
+coverage/
+.wrangler/
+.cloudflare-build/

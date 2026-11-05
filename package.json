@@ -1,0 +1,16 @@
+{
+  "name": "chedex-pulse",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "start": "node scripts/wrangler.mjs dev --local",
+    "preview": "node pulse/preview.mjs",
+    "build": "node scripts/wrangler.mjs deploy --dry-run --outdir .cloudflare-build",
+    "publish:cloudflare": "node scripts/wrangler.mjs deploy",
+    "check": "node --check pulse/worker.mjs && node --check pulse/public/app.js && node --check pulse/public/data.js && node --check pulse/preview.mjs",
+    "test": "node --test pulse/tests/*.test.mjs"
+  },
+  "devDependencies": { "wrangler": "^4.157.0" }
+}
