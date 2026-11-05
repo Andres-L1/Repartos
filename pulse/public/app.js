@@ -1,6 +1,7 @@
 import { currentRoute, navigate, installRouter } from './lib/routes.js';
 import { requestJSON } from './lib/requests.js';
 import { enhanceSelects, closeSelects } from './components/select.js';
+import { initLanding } from './components/landing.js';
 import { loadAnalytics, renderAnalytics } from './analytics-ui.js';
 import { updateMap, resetMaps } from './maps.js';
 import { countries, players, indices, countryByCode, matchesCountry } from './data.js';
@@ -322,6 +323,7 @@ document.addEventListener('click', (event) => {
 });
 installRouter(() => route());
 enhanceSelects();
+initLanding();
 route(false);
 document
   .querySelectorAll('[data-reset-map]')

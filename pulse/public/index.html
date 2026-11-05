@@ -114,74 +114,383 @@
     <main id="main" tabindex="-1">
       <section id="inicio" class="view landing-view" aria-labelledby="landing-title">
         <div class="landing-hero">
-          <div class="landing-copy">
-            <p class="eyebrow">
-              <span class="small-dot"></span> CHEDEX PULSE · OBSERVATORIO MUNDIAL
-            </p>
-            <h1 id="landing-title">Todo el ajedrez.<br />Una nueva <span>perspectiva.</span></h1>
-            <p class="landing-positioning">
-              Entiende lo que está pasando.<br />Descubre lo que está cambiando.
-            </p>
-            <p class="landing-description">
-              Actualidad, competiciones y datos conectados. Un lugar para seguir el pulso del
-              ajedrez mundial, con fuentes visibles y contexto para cada movimiento.
-            </p>
-            <div class="landing-actions">
-              <a class="login-button landing-primary" href="/panel"
-                >Explorar Pulse <span aria-hidden="true">↗</span></a
-              ><a href="/indices" class="landing-secondary">Conocer los índices ↗</a>
-            </div>
-            <p class="landing-open">Consulta gratuita. Sin registro obligatorio.</p>
-          </div>
-          <div class="landing-art" aria-hidden="true">
-            <div class="art-orbit orbit-one"></div>
-            <div class="art-orbit orbit-two"></div>
-            <div class="art-board">
-              <div class="board-grid"></div>
-              <span class="board-piece piece-one">♞</span
-              ><span class="board-piece piece-two">♜</span
-              ><span class="board-piece piece-three">♛</span
-              ><span class="board-piece piece-four">♚</span
-              ><span class="board-piece piece-five">♟</span>
-            </div>
-            <div class="art-label label-one"><i></i> EL MUNDO, EN JUEGO</div>
-            <div class="art-label label-two"><span>↗</span> MÁS ALLÁ DEL RESULTADO</div>
-          </div>
-        </div>
-        <div class="landing-divider">
-          <span>UN JUEGO. MUCHAS CONEXIONES.</span
-          ><a href="/fuentes">Datos abiertos, criterios claros ↗</a>
-        </div>
-        <div class="landing-features">
-          <a href="/panel"
-            ><span class="eyebrow">01 / ACTUALIDAD</span>
-            <h2>Lo que sucede, ahora<span>↗</span></h2>
-            <p>Titulares oficiales y retransmisiones para saber qué merece tu atención.</p>
-            <span class="feature-source">FIDE · Lichess</span></a
-          ><a href="/mundo"
-            ><span class="eyebrow">02 / MUNDO</span>
-            <h2>El mapa de las conexiones<span>↗</span></h2>
-            <p>Explora países, jugadores y competiciones. Sigue el hilo sin volver a empezar.</p>
-            <span class="feature-source">Países · Federaciones · Torneos</span></a
-          ><a href="/tendencias"
-            ><span class="eyebrow">03 / INTELIGENCIA</span>
-            <h2>El cambio, con contexto<span>↗</span></h2>
-            <p>
-              Progresión de Elo, interés público y evolución del censo activo. Cada cifra tiene su
-              origen.
-            </p>
-            <span class="feature-source">Performance · Trending · Global</span></a
-          >
-        </div>
-        <div class="landing-manifesto">
-          <p class="eyebrow">TRANSPARENCIA POR DISEÑO</p>
-          <h2>Las cifras importan.<br />Saber qué significan, <span>también.</span></h2>
-          <p>
-            Fuentes, periodos, métodos y límites a la vista. Pulse distingue los datos disponibles
-            de lo que todavía no se puede concluir.
+          <p class="eyebrow">
+            <span class="small-dot"></span> CHEDEX PULSE · OBSERVATORIO DE AJEDREZ
           </p>
-          <a href="/fuentes">Así construimos Pulse ↗</a>
+          <h1 id="landing-title">El ajedrez mundial,<br /><span>con contexto.</span></h1>
+          <p class="landing-description">
+            Titulares de FIDE, retransmisiones de Lichess y evolución de jugadores y federaciones.
+            Conecta la actualidad con los datos desde un mismo panel.
+          </p>
+          <div class="landing-actions">
+            <a class="login-button landing-primary" href="/panel"
+              >Abrir el panel <span aria-hidden="true">↗</span></a
+            ><button
+              class="landing-secondary"
+              type="button"
+              data-landing-scroll="landing-uses"
+              aria-controls="landing-uses"
+            >
+              Ver qué puedes consultar <span aria-hidden="true">↓</span>
+            </button>
+          </div>
+          <p class="landing-open">Consulta gratuita · Sin registro obligatorio</p>
         </div>
+        <figure class="product-preview">
+          <a
+            class="preview-window"
+            href="/panel"
+            aria-label="Vista esquemática del dashboard de Chedex Pulse. Abrir el panel."
+          >
+            <div class="preview-bar">
+              <span class="preview-dots" aria-hidden="true"><i></i><i></i><i></i></span
+              ><span>chedexpulse.app/panel</span><span class="preview-open">Abrir panel ↗</span>
+            </div>
+            <div class="preview-content">
+              <div class="preview-sidebar" aria-hidden="true">
+                <img src="/chedex-icon.svg" width="32" height="32" alt="" /><span class="selected"
+                  >Panel</span
+                ><span>Mundo</span><span>Tendencias</span><span>Índices</span>
+              </div>
+              <div class="preview-main">
+                <div class="preview-heading">
+                  <div>
+                    <span class="eyebrow">CHEDEX PULSE</span
+                    ><strong>Vista general<span>.</span></strong>
+                  </div>
+                  <span class="preview-status"><i></i> Consulta pública</span>
+                </div>
+                <div class="preview-panels">
+                  <div class="preview-map">
+                    <div class="preview-map-heading">
+                      <span>EL AJEDREZ EN EL MUNDO</span><span>Exploración geográfica</span>
+                    </div>
+                    <img
+                      src="/landing-map.svg"
+                      width="1080"
+                      height="450"
+                      alt="Cartografía mundial de Natural Earth, sin marcadores de eventos."
+                    />
+                    <div class="preview-map-footer">
+                      <span>Países y federaciones</span><span>Natural Earth</span>
+                    </div>
+                  </div>
+                  <div class="preview-modules">
+                    <div>
+                      <span class="eyebrow">ACTUALIDAD</span><strong>Titulares oficiales</strong
+                      ><small>FIDE</small>
+                    </div>
+                    <div>
+                      <span class="eyebrow">COMPETICIONES</span><strong>Retransmisiones</strong
+                      ><small>Lichess Broadcast</small>
+                    </div>
+                    <div>
+                      <span class="eyebrow">ANÁLISIS</span><strong>Índices Chedex</strong
+                      ><small>Performance · Trending · Global</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+          <figcaption>
+            Vista de funciones del panel. El contenido actualizado se consulta al abrirlo.
+          </figcaption>
+        </figure>
+        <div class="landing-section-nav" role="navigation" aria-label="Secciones de la portada">
+          <button type="button" data-landing-scroll="landing-about" aria-controls="landing-about">
+            Qué es Pulse</button
+          ><button type="button" data-landing-scroll="landing-uses" aria-controls="landing-uses">
+            Qué puedes consultar</button
+          ><button type="button" data-landing-scroll="landing-start" aria-controls="landing-start">
+            Primeros pasos</button
+          ><button
+            type="button"
+            data-landing-scroll="landing-sources"
+            aria-controls="landing-sources"
+          >
+            Fuentes</button
+          ><button type="button" data-landing-scroll="landing-faq" aria-controls="landing-faq">
+            Preguntas frecuentes
+          </button>
+        </div>
+        <section
+          id="landing-about"
+          class="landing-section landing-about"
+          aria-labelledby="landing-about-title"
+        >
+          <p class="eyebrow">UNA VISTA CONECTADA</p>
+          <h2 id="landing-about-title">¿Qué es Chedex Pulse?</h2>
+          <p>
+            Un observatorio del ajedrez que reúne actualidad, competiciones, fichas de jugadores,
+            exploración geográfica y tres índices propios. Puedes pasar de un torneo a su país,
+            consultar un jugador y revisar su evolución sin volver a empezar la búsqueda.
+          </p>
+          <p>
+            Las relaciones aparecen cuando los datos de las fuentes permiten identificarlas. Las
+            fechas, la cobertura y los límites se muestran junto al contenido.
+          </p>
+        </section>
+        <section id="landing-uses" class="landing-section" aria-labelledby="landing-uses-title">
+          <div class="landing-section-heading">
+            <p class="eyebrow">EMPIEZA POR UNA PREGUNTA</p>
+            <h2 id="landing-uses-title">¿Qué quieres consultar?</h2>
+            <p>Elige una entrada al panel según lo que quieras explorar.</p>
+          </div>
+          <div class="landing-use-grid">
+            <a href="/panel"
+              ><span class="use-number">01</span>
+              <h3>¿Qué está pasando?</h3>
+              <p>
+                Consulta los titulares oficiales de FIDE y la selección de retransmisiones de
+                Lichess.
+              </p>
+              <span class="use-link">Abrir actualidad y competiciones ↗</span></a
+            ><a href="/mundo"
+              ><span class="use-number">02</span>
+              <h3>¿Qué encuentro en un país?</h3>
+              <p>
+                Selecciona un país y explora las fichas, competiciones y noticias relacionadas que
+                estén disponibles.
+              </p>
+              <span class="use-link">Explorar el mapa ↗</span></a
+            ><a href="/indices"
+              ><span class="use-number">03</span>
+              <h3>¿Qué está cambiando?</h3>
+              <p>
+                Revisa la progresión de Elo, el interés en Wikipedia y la variación del censo activo
+                FIDE.
+              </p>
+              <span class="use-link">Consultar los índices ↗</span></a
+            >
+          </div>
+        </section>
+        <section
+          id="landing-coverage"
+          class="landing-section coverage-section"
+          aria-labelledby="landing-coverage-title"
+        >
+          <div class="landing-section-heading">
+            <p class="eyebrow">COBERTURA DE LOS DATOS</p>
+            <h2 id="landing-coverage-title">Qué estamos observando.</h2>
+            <p>
+              Las cifras se consultan en la instantánea de datos disponible. Describen nuestra
+              cobertura, no el total del ajedrez mundial.
+            </p>
+          </div>
+          <div class="coverage-grid" aria-live="polite">
+            <div>
+              <strong data-coverage="players">—</strong><span>Jugadores en seguimiento</span>
+            </div>
+            <div><strong data-coverage="months">—</strong><span>Listas mensuales FIDE</span></div>
+            <div>
+              <strong data-coverage="articles">—</strong
+              ><span>Artículos de Wikipedia en inglés</span>
+            </div>
+            <div>
+              <strong data-coverage="federations">—</strong><span>Códigos de federación FIDE</span>
+            </div>
+          </div>
+          <p id="landing-coverage-status" class="coverage-status">
+            La cobertura se carga al llegar a esta sección.
+          </p>
+          <div class="coverage-note">
+            <span aria-hidden="true">ⓘ</span>
+            <p>
+              El seguimiento de jugadores utiliza una selección declarada en el panel. El análisis
+              del censo de federaciones parte de las listas estándar FIDE completas.
+            </p>
+            <a href="/fuentes">Ver cobertura y fuentes ↗</a>
+          </div>
+        </section>
+        <section class="landing-section" aria-labelledby="landing-indices-title">
+          <div class="landing-section-heading">
+            <p class="eyebrow">TRES PERSPECTIVAS</p>
+            <h2 id="landing-indices-title">Una cifra tiene sentido<br />cuando sabes qué mide.</h2>
+          </div>
+          <div class="landing-index-list">
+            <a href="/indices/performance"
+              ><span class="index-label">PERFORMANCE</span>
+              <div>
+                <h3>Progresión del Elo estándar.</h3>
+                <p>
+                  Diferencia entre el Elo actual y el de hace doce meses, con requisitos de
+                  continuidad y actividad. No es rendimiento por partida.
+                </p>
+              </div>
+              <span class="index-unit">Puntos Elo ↗</span></a
+            ><a href="/indices/trending"
+              ><span class="index-label">TRENDING</span>
+              <div>
+                <h3>Cambio del interés público.</h3>
+                <p>
+                  Visitas de siete días completos a los artículos de Wikipedia en inglés que
+                  seguimos, frente a los siete días anteriores.
+                </p>
+              </div>
+              <span class="index-unit">Variación % ↗</span></a
+            ><a href="/indices/global"
+              ><span class="index-label">GLOBAL</span>
+              <div>
+                <h3>Evolución del censo activo.</h3>
+                <p>
+                  Variación anual de jugadores activos con Elo estándar registrados en cada
+                  federación. No representa toda la actividad de un país.
+                </p>
+              </div>
+              <span class="index-unit">Variación % ↗</span></a
+            >
+          </div>
+        </section>
+        <section id="landing-start" class="landing-section" aria-labelledby="landing-start-title">
+          <div class="landing-section-heading">
+            <p class="eyebrow">DEL PANEL A LOS DATOS</p>
+            <h2 id="landing-start-title">Tus primeros pasos en Pulse.</h2>
+          </div>
+          <ol class="landing-steps">
+            <li>
+              <span>01</span>
+              <div>
+                <h3>Abre el panel.</h3>
+                <p>
+                  Empieza por la actualidad y las competiciones. Cada elemento muestra su fuente y
+                  el estado de la consulta.
+                </p>
+                <a href="/panel">Ir al panel ↗</a>
+              </div>
+            </li>
+            <li>
+              <span>02</span>
+              <div>
+                <h3>Sigue una conexión.</h3>
+                <p>
+                  Explora un país, un torneo o un jugador. Las fichas enlazan los datos relacionados
+                  que hemos podido identificar.
+                </p>
+                <a href="/mundo">Explorar Mundo ↗</a>
+              </div>
+            </li>
+            <li>
+              <span>03</span>
+              <div>
+                <h3>Consulta la evolución y el método.</h3>
+                <p>
+                  Utiliza los filtros de los índices y abre una ficha para consultar sus registros y
+                  fuentes. Los valores no comparables se excluyen del ranking.
+                </p>
+                <a href="/indices">Ver índices y metodología ↗</a>
+              </div>
+            </li>
+          </ol>
+        </section>
+        <section
+          id="landing-sources"
+          class="landing-section landing-source-section"
+          aria-labelledby="landing-sources-title"
+        >
+          <div class="landing-section-heading">
+            <p class="eyebrow">FUENTES A LA VISTA</p>
+            <h2 id="landing-sources-title">De dónde sale cada dato.</h2>
+            <p>
+              Los contenidos tienen ritmos de actualización distintos. Pulse muestra las fechas y el
+              estado de cada fuente.
+            </p>
+          </div>
+          <div class="landing-source-grid">
+            <article>
+              <span class="source-wordmark">FIDE</span>
+              <h3>Actualidad y Elo.</h3>
+              <p>
+                Titulares del RSS oficial y listas mensuales de Elo estándar. Las fichas permiten
+                consultar los registros importados.
+              </p>
+              <a
+                href="https://ratings.fide.com/download_lists.phtml"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Listas oficiales ↗</a
+              >
+            </article>
+            <article>
+              <span class="source-wordmark">Lichess</span>
+              <h3>Retransmisiones.</h3>
+              <p>
+                Selección de competiciones de Lichess Broadcast, con el estado de la ronda
+                comunicado por la fuente.
+              </p>
+              <a href="https://lichess.org/broadcast" target="_blank" rel="noopener noreferrer"
+                >Lichess Broadcast ↗</a
+              >
+            </article>
+            <article>
+              <span class="source-wordmark">Wikimedia</span>
+              <h3>Interés público.</h3>
+              <p>
+                Visitas de usuarios a los artículos seguidos en Wikipedia en inglés. Los artículos
+                se vinculan a FIDE mediante Wikidata.
+              </p>
+              <a href="/indices/trending">Ver el método ↗</a>
+            </article>
+          </div>
+          <a class="all-sources-link" href="/fuentes"
+            >Consultar todas las fuentes, periodos y límites ↗</a
+          >
+        </section>
+        <section
+          id="landing-faq"
+          class="landing-section landing-faq"
+          aria-labelledby="landing-faq-title"
+        >
+          <div class="landing-section-heading">
+            <p class="eyebrow">ANTES DE ENTRAR</p>
+            <h2 id="landing-faq-title">Preguntas frecuentes.</h2>
+          </div>
+          <details>
+            <summary>¿Necesito registrarme para consultar Pulse?</summary>
+            <p>
+              No. La consulta es pública y gratuita. El acceso de usuario, cuando lo utilizas, se
+              realiza únicamente mediante Lichess.
+            </p>
+          </details>
+          <details>
+            <summary>¿Todos los datos están en tiempo real?</summary>
+            <p>
+              No. Los titulares tienen una caché de quince minutos y las retransmisiones de cinco.
+              Las listas FIDE son mensuales y la recopilación de visitas de Wikipedia es diaria. La
+              fecha de la fuente aparece junto a los datos.
+            </p>
+          </details>
+          <details>
+            <summary>¿Los rankings incluyen a todos los jugadores?</summary>
+            <p>
+              No. Performance y Trending ordenan las selecciones que se declaran en el panel. Global
+              se calcula a partir de las listas estándar FIDE completas, con un mínimo de jugadores
+              en el periodo base para publicar una comparación.
+            </p>
+          </details>
+          <details>
+            <summary>¿Los puntos del mapa indican la sede exacta de cada torneo?</summary>
+            <p>
+              No. Agrupan coincidencias de ubicación por país. La cartografía es una referencia y no
+              equivale a un censo de eventos ni de federaciones.
+            </p>
+          </details>
+          <details>
+            <summary>¿Puedo consultar cómo se calcula un índice?</summary>
+            <p>
+              Sí. Cada índice publica su fórmula, periodo, requisitos y limitaciones. Las fichas
+              muestran los registros disponibles y enlaces a las fuentes.
+            </p>
+          </details>
+        </section>
+        <section class="landing-bottom-cta">
+          <p class="eyebrow">CHEDEX PULSE</p>
+          <h2>Entra al panel.<br /><span>Empieza a conectar los datos.</span></h2>
+          <a class="login-button landing-primary" href="/panel"
+            >Abrir Chedex Pulse <span aria-hidden="true">↗</span></a
+          >
+          <p>Sin registro obligatorio.</p>
+        </section>
       </section>
       <section id="hoy" hidden class="view" aria-labelledby="home-title">
         <div class="intro">
