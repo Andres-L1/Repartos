@@ -2,7 +2,7 @@
 
 Dashboard del ajedrez mundial con identidad Chedex: DM Sans local, fondo negro, acentos naranjas, controles con relieve y navegación lateral adaptable a móvil.
 
-Web: https://chedexpulse.chedex-chesssociety.workers.dev
+Web: https://chedexpulse.app
 Repositorio: https://github.com/Andres-L1/Repartos
 
 ## Ejecutar y verificar
@@ -23,7 +23,7 @@ El mapa se inspira en la exploración de World Monitor y utiliza una biblioteca 
 
 ## Acceso exclusivamente con Lichess
 
-La consulta sigue siendo pública. El único acceso de usuario es `/auth/login`, mediante OAuth Authorization Code + PKCE S256 de Lichess. Client ID: `chedexpulse`; callback: `https://chedexpulse.chedex-chesssociety.workers.dev/auth/callback`. Lichess admite clientes públicos sin registro previo ni client secret. No se solicitan permisos adicionales.
+La consulta sigue siendo pública. El único acceso de usuario es `/auth/login`, mediante OAuth Authorization Code + PKCE S256 de Lichess. Client ID: `chedexpulse`; callback: `https://chedexpulse.app/auth/callback`. Lichess admite clientes públicos sin registro previo ni client secret. No se solicitan permisos adicionales.
 
 El servidor intercambia el código, consulta `/api/account` y revoca el token de Lichess tras verificar la identidad. No se almacena el token ni se envía al navegador. La cookie de sesión contiene solo identidad y caducidad, cifradas con AES-GCM; HttpOnly, Secure, SameSite=Lax, prefijo __Host y duración de 12 horas. El estado OAuth caduca a los 10 minutos. `/api/session` nunca se cachea. Cerrar sesión exige POST y origen propio; elimina las cookies locales. La sesión es stateless y no admite revocación individual anticipada de copias de una cookie robada.
 
@@ -56,3 +56,17 @@ Las fichas muestran Elo, variación, edad aproximada, gráfico, valores mensuale
 `/api/analytics` consulta la instantánea pública de la rama main de GitHub, con caché de diez minutos. Si la fuente falla, sirve la copia incluida en el despliegue y lo indica. No hay que redesplegar para las actualizaciones de datos. Si la recopilación tiene más de 48 horas, la interfaz advierte de la antigüedad. Se puede auditar la versión, las fuentes y las incidencias en `/snapshots/latest.json` (copia del despliegue) o en el archivo correspondiente de GitHub (última recopilación).
 
 Pendiente de futuras versiones: resultados y rivales por partida, cohortes ampliadas, comparación libre entre jugadores, más idiomas y fuentes de interés, registros exhaustivos de torneos, favoritos y alertas. No hay cobros activos.
+
+## Interfaz y rendimiento · v1.3
+
+Dominio principal: https://chedexpulse.app. La landing está en `/`; el dashboard en `/panel`; las rutas de mundo, índices y fichas utilizan History API sin fragmentos. Se reconocen los enlaces antiguos con #. El retorno OAuth utiliza `/auth/callback` en el dominio principal y termina en `/panel`.
+
+Los desplegables son componentes propios, con búsqueda en listas largas, navegación por teclado, cierre con Escape, selección accesible y diseño Chedex. El campo select original se conserva para el estado del formulario.
+
+Los rankings consultan `/api/analytics/summary`; los históricos individuales se cargan desde `/api/players/:id` al abrir la ficha. `/api/analytics` conserva la instantánea completa para compatibilidad. La respuesta inicial de análisis pasa de unos 687 KB a 126 KB antes de compresión (82 % menos); comprimida, de unos 77 KB a 19,5 KB (75 % menos), medido sobre la instantánea actual.
+
+La memoria del servidor tiene límite LRU y TTL; las solicitudes simultáneas al mismo recurso comparten una única carga por instancia. Cloudflare mantiene otra capa de caché. ETag permite respuestas 304 y revalidar GitHub sin transferir de nuevo un archivo inalterado. La sesión y autenticación permanecen fuera de todas las cachés públicas.
+
+El cliente reutiliza las solicitudes, carga MapLibre solo cuando se muestra un mapa y utiliza un catálogo geográfico ligero fuera del mapa. Los rankings se indexan y ordenan una vez por instantánea; se evitan repintados de vistas ocultas y las búsquedas se agrupan mientras se escribe.
+
+`npm run format` ordena el código de la aplicación y `npm run format:check` verifica su formato en CI. Los recursos de terceros y archivos generados quedan excluidos. Véase `pulse/ARQUITECTURA.md` para los contratos y límites de escalabilidad actuales.

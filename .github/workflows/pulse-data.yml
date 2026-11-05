@@ -26,6 +26,7 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --ignore-scripts
+      - run: npm run format:check
       - name: Recopilar listas mensuales y visitas diarias
         run: node scripts/collect-analytics.mjs
       - name: Comprobar los datos antes de publicarlos

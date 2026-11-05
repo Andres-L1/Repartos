@@ -1,4 +1,4 @@
-# Chedex Pulse · Producto v1.2
+# Chedex Pulse · Producto v1.3
 
 Observatorio mundial del ajedrez inspirado en la visión global de World Monitor, conectado con tendencias, estadísticas e índices propios de Chedex. Debe sentirse como un centro de información, con navegación entre noticias, jugadores, torneos, tendencias y países.
 
@@ -28,7 +28,7 @@ Actualidad, mapa y tendencias básicas gratuitos. Evaluar Pulse Pro solo despué
 
 ## Identidad y acceso v1.1
 
-Dashboard con navegación lateral inspirado en la distribución aportada; identidad visual de chedex.app (DM Sans, negro, naranja y botones con relieve). Acceso opcional exclusivamente mediante Lichess OAuth PKCE, sin permisos adicionales; la consulta continúa abierta. URL principal: https://chedexpulse.chedex-chesssociety.workers.dev. La dirección anterior redirige; no conserva una segunda aplicación.
+Dashboard con navegación lateral inspirado en la distribución aportada; identidad visual de chedex.app (DM Sans, negro, naranja y botones con relieve). Acceso opcional exclusivamente mediante Lichess OAuth PKCE, sin permisos adicionales; la consulta continúa abierta. URL principal: https://chedexpulse.app. La dirección anterior redirige; no conserva una segunda aplicación.
 
 ## Índices operativos v1.2
 

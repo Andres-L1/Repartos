@@ -1,15 +1,30 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "chedexpulse",
+  "workers_dev": false,
+  "preview_urls": false,
   "main": "pulse/worker.mjs",
   "compatibility_date": "2026-11-05",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./pulse/public",
     "binding": "ASSETS",
-    "run_worker_first": true
+    "run_worker_first": true,
   },
-  "dev": { "ip": "127.0.0.1", "port": 8787 },
-  "vars": { "PUBLIC_ORIGIN": "https://chedexpulse.chedex-chesssociety.workers.dev" },
-  "observability": { "enabled": false }
+  "dev": {
+    "ip": "127.0.0.1",
+    "port": 8787,
+  },
+  "vars": {
+    "PUBLIC_ORIGIN": "https://chedexpulse.app",
+  },
+  "observability": {
+    "enabled": false,
+  },
+  "routes": [
+    {
+      "pattern": "chedexpulse.app",
+      "custom_domain": true,
+    },
+  ],
 }

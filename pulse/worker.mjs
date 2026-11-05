@@ -1,103 +1,36 @@
 import { handleAuth } from './auth.mjs';
-const HEADERS = {
-  'Content-Security-Policy': "default-src 'self'; script-src 'self'; worker-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'",
-  'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
-};
-export function decodeXml(text = '') {
-  return text.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').replace(/<[^>]*>/g, '').replace(/&#(x[0-9a-f]+|\d+);|&(amp|lt|gt|quot|apos);/gi, (all, num, named) => {
-    if (!num) return { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" }[named.toLowerCase()];
-    const n = num[0].toLowerCase() === 'x' ? parseInt(num.slice(1), 16) : Number(num);
-    return n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : '';
-  }).trim();
-}
-export function parseNews(xml) {
-  return [...xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)].slice(0, 10).flatMap(([, item]) => {
-    const field = name => decodeXml(item.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)<\\/${name}>`, 'i'))?.[1]);
-    const title = field('title'), url = field('link'), date = new Date(field('pubDate'));
-    if (!title || !/^https:\/\/(www\.)?fide\.com\//.test(url) || !Number.isFinite(date.getTime())) return [];
-    return [{ title, url, publishedAt: date.toISOString(), source: 'FIDE' }];
-  });
-}
-export function normalizeBroadcasts(data) {
-  const groups = ['active', 'upcoming', 'past'];
-  const seen = new Set();
-  return groups.flatMap(group => (Array.isArray(data[group]) ? data[group] : []).flatMap(entry => {
-    const tour = entry.tour, round = entry.round;
-    if (!tour?.id || !tour.name || seen.has(tour.id)) return [];
-    seen.add(tour.id);
-    const url = round?.url || tour.url;
-    if (!/^https:\/\/lichess\.org\/broadcast\//.test(url || '')) return [];
-    return [{ id: tour.id, name: tour.name, url, round: round?.name || '', location: tour.info?.location || '', players: tour.info?.players || '', format: tour.info?.format || '', timeControl: tour.info?.tc || '', startsAt: round?.startsAt || tour.dates?.[0] || null, status: round?.ongoing ? 'live' : group === 'past' ? 'finished' : 'upcoming', source: 'Lichess' }];
-  })).slice(0, 24);
-}
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), { status, headers: { ...HEADERS, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': status === 200 ? 'public, max-age=60' : 'no-store' } });
-}
-async function sourceFeed(kind, request, context) {
-  const cache = globalThis.caches?.default;
-  const cacheKey = new Request(new URL(`/api/${kind}`, request.url));
-  const cached = cache && await cache.match(cacheKey);
-  if (cached) return cached;
-  try {
-    const upstream = await fetch(kind === 'news' ? 'https://www.fide.com/feed/' : 'https://lichess.org/api/broadcast/top?nb=12', {
-      headers: { Accept: kind === 'news' ? 'application/rss+xml' : 'application/json', 'User-Agent': 'ChedexPulse/1.0 (chess observatory)' },
-      signal: AbortSignal.timeout(12000)
-    });
-    if (!upstream.ok) throw new Error('upstream');
-    const items = kind === 'news' ? parseNews(await upstream.text()) : normalizeBroadcasts(await upstream.json());
-    const response = json({ status: 'ok', source: kind === 'news' ? 'FIDE · RSS oficial' : 'Lichess · Broadcast API', fetchedAt: new Date().toISOString(), scope: kind === 'news' ? 'Últimos titulares del RSS; no es un archivo completo.' : 'Selección de retransmisiones destacadas; no es un censo mundial.', items });
-    response.headers.set('Cache-Control', `public, max-age=${kind === 'news' ? 900 : 300}`);
-    if (cache) context.waitUntil(cache.put(cacheKey, response.clone()));
-    return response;
-  } catch {
-    return json({ status: 'unavailable', source: kind === 'news' ? 'FIDE' : 'Lichess', fetchedAt: null, items: [], message: 'La fuente no está disponible temporalmente. Inténtalo de nuevo.' }, 503);
-  }
-}
-async function analytics(request, env, context) {
-  const cache = globalThis.caches?.default, cacheKey = new Request(new URL('/api/analytics', request.url));
-  const cached = cache && await cache.match(cacheKey); if (cached) return cached;
-  let snapshot, delivery = 'github';
-  try {
-    const upstream = await fetch('https://raw.githubusercontent.com/Andres-L1/Repartos/main/pulse/public/snapshots/latest.json', { signal: AbortSignal.timeout(10000) });
-    if (!upstream.ok) throw new Error('source');
-    const text = await upstream.text(); if (text.length > 3000000) throw new Error('size');
-    snapshot = JSON.parse(text);
-    if (snapshot.schema !== 1 || !Array.isArray(snapshot.fide?.players) || !Array.isArray(snapshot.interest?.players) || !snapshot.generatedAt) throw new Error('schema');
-  } catch {
-    delivery = 'bundled';
-    try {
-      const fallback = await env.ASSETS.fetch(new Request(new URL('/snapshots/latest.json', request.url)));
-      if (!fallback.ok) throw new Error('missing'); snapshot = await fallback.json();
-      if (snapshot.schema !== 1 || !Array.isArray(snapshot.fide?.players) || !Array.isArray(snapshot.interest?.players)) throw new Error('schema');
-    } catch { return json({ status: 'unavailable', message: 'La instantánea de análisis no está disponible.' }, 503); }
-  }
-  const response = json({ ...snapshot, status: 'ok', delivery, stale: Date.now() - new Date(snapshot.generatedAt).getTime() > 48 * 3600000 });
-  response.headers.set('Cache-Control', 'public, max-age=600');
-  if (cache) context.waitUntil(cache.put(cacheKey, response.clone()));
-  return response;
-}
+import { createPublicApi } from './server/public-api.mjs';
+import { json, SECURITY_HEADERS } from './server/http.mjs';
+import { parseRoute } from './public/lib/routes.js';
+export { decodeXml, parseNews, normalizeBroadcasts } from './server/feeds.mjs';
+const publicApi = createPublicApi();
 export default {
   async fetch(request, env, context) {
     const url = new URL(request.url);
-    const auth = await handleAuth(request, env);
-    if (auth) {
-      for (const [key, value] of Object.entries(HEADERS)) auth.headers.set(key, value);
-      return auth;
+    if (
+      env.PUBLIC_ORIGIN &&
+      url.origin !== env.PUBLIC_ORIGIN &&
+      url.hostname.endsWith('.workers.dev') &&
+      ['GET', 'HEAD'].includes(request.method) &&
+      !url.pathname.startsWith('/api/') &&
+      !url.pathname.startsWith('/auth/')
+    ) {
+      return Response.redirect(new URL(url.pathname + url.search, env.PUBLIC_ORIGIN), 301);
     }
-    if (!['GET', 'HEAD'].includes(request.method)) return json({ error: 'Método no permitido' }, 405);
-    if (url.pathname === '/api/analytics') {
-      const response = await analytics(request, env, context);
-      return request.method === 'HEAD' ? new Response(null, response) : response;
+    let response = await handleAuth(request, env);
+    if (!response) {
+      if (!['GET', 'HEAD'].includes(request.method))
+        response = json({ error: 'Método no permitido' }, 405);
+      else response = await publicApi(request, env, context);
+      if (!response)
+        response = url.pathname.startsWith('/api/')
+          ? json({ error: 'Recurso no encontrado' }, 404)
+          : await env.ASSETS.fetch(
+              parseRoute(url.pathname) ? new Request(new URL('/', url.origin), request) : request,
+            );
     }
-    if (url.pathname === '/api/news' || url.pathname === '/api/broadcasts') {
-      const response = await sourceFeed(url.pathname.slice(5), request, context);
-      return request.method === 'HEAD' ? new Response(null, response) : response;
-    }
-    if (url.pathname.startsWith('/api/')) return json({ error: 'Recurso no encontrado' }, 404);
-    const asset = await env.ASSETS.fetch(request);
-    const response = new Response(asset.body, asset);
-    for (const [key, value] of Object.entries(HEADERS)) response.headers.set(key, value);
+    response = new Response(response.body, response);
+    for (const [key, value] of Object.entries(SECURITY_HEADERS)) response.headers.set(key, value);
     return response;
-  }
+  },
 };
