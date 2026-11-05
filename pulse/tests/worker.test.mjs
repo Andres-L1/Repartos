@@ -36,3 +36,14 @@ test('páginas con política de seguridad y sin rutas de recados', async () => {
   const response = await worker.fetch(new Request('https://pulse.test/admin.html'), env, {});
   assert.equal(response.status, 404); assert.match(response.headers.get('Content-Security-Policy'), /frame-ancestors 'none'/);
 });
+test('análisis: si GitHub falla se identifica la copia publicada y se conserva su fecha', async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => { throw new Error('offline'); };
+  try {
+    const snapshot = { schema: 1, generatedAt: '2020-01-01T00:00:00Z', fide: { players: [] }, interest: { players: [] } };
+    const env = { ASSETS: { fetch: async () => Response.json(snapshot) } };
+    const response = await worker.fetch(new Request('https://pulse.test/api/analytics'), env, { waitUntil() {} });
+    const data = await response.json();
+    assert.equal(response.status, 200); assert.equal(data.delivery, 'bundled'); assert.equal(data.stale, true); assert.equal(data.generatedAt, snapshot.generatedAt);
+  } finally { globalThis.fetch = original; }
+});

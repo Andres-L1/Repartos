@@ -11,14 +11,16 @@
     "preview": "node pulse/preview.mjs",
     "build": "node scripts/wrangler.mjs deploy --dry-run --outdir .cloudflare-build",
     "publish:cloudflare": "node scripts/wrangler.mjs deploy",
-    "check": "node --check pulse/worker.mjs && node --check pulse/auth.mjs && node --check pulse/public/app.js && node --check pulse/public/maps.js && node --check pulse/public/session.js && node --check pulse/public/data.js && node --check pulse/preview.mjs",
+    "check": "node --check pulse/worker.mjs && node --check pulse/auth.mjs && node --check pulse/public/app.js && node --check pulse/public/maps.js && node --check pulse/public/session.js && node --check pulse/public/data.js && node --check pulse/preview.mjs && node --check pulse/analytics.mjs && node --check pulse/public/analytics-ui.js && node --check scripts/collect-analytics.mjs",
     "test": "node --test pulse/tests/*.test.mjs",
-    "assets:prepare": "node scripts/vendor-assets.mjs"
+    "assets:prepare": "node scripts/vendor-assets.mjs",
+    "data:collect": "node scripts/collect-analytics.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.157.0"
   },
   "dependencies": {
+    "fflate": "0.8.3",
     "maplibre-gl": "6.16.0"
   }
 }

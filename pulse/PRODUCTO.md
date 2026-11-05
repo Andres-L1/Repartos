@@ -1,4 +1,4 @@
-# Chedex Pulse · Producto v1.1
+# Chedex Pulse · Producto v1.2
 
 Observatorio mundial del ajedrez inspirado en la visión global de World Monitor, conectado con tendencias, estadísticas e índices propios de Chedex. Debe sentirse como un centro de información, con navegación entre noticias, jugadores, torneos, tendencias y países.
 
@@ -11,9 +11,9 @@ Observatorio mundial del ajedrez inspirado en la visión global de World Monitor
 
 ## Desarrollo por fases
 
-1. Base funcional: portada, actualidad de fuentes autorizadas, torneos Lichess, datos mensuales FIDE y fichas de jugadores. Estado actual: titulares y retransmisiones conectados; perfiles enlazados; importación de Elo pendiente.
-2. Observatorio: mapa mundial, fichas nacionales, histórico y primeros rankings de tendencias. Estado actual: mapa y exploración de países operativos; histórico y rankings pendientes.
-3. Inteligencia: índices validados, comparativas y detección explicada de cambios, con fuentes. Estado actual: metodologías propuestas; cálculos y validación pendientes.
+1. Base funcional: portada, actualidad de fuentes autorizadas, torneos Lichess, datos mensuales FIDE y fichas de jugadores. Estado actual: titulares, retransmisiones, importación mensual FIDE y fichas con histórico de Elo.
+2. Observatorio: mapa mundial, fichas nacionales, histórico y primeros rankings de tendencias. Estado actual: mapa, exploración, históricos FIDE y rankings operativos dentro de la cobertura declarada.
+3. Inteligencia: índices validados, comparativas y detección explicada de cambios, con fuentes. Estado actual: índices v1.0 calculados con reglas de comparabilidad, fuentes y límites publicados.
 4. Personalización: favoritos, alertas y notificaciones de jugadores, países y competiciones. Pendiente.
 
 Arquitectura objetivo: recopilaciones y cálculos en segundo plano, Elo mensual, noticias por intervalos y retransmisiones con mayor frecuencia si están activas. La versión inicial usa caché bajo demanda; los recopiladores programados requieren almacenamiento e historial y no se presentan como implementados.
@@ -29,3 +29,7 @@ Actualidad, mapa y tendencias básicas gratuitos. Evaluar Pulse Pro solo despué
 ## Identidad y acceso v1.1
 
 Dashboard con navegación lateral inspirado en la distribución aportada; identidad visual de chedex.app (DM Sans, negro, naranja y botones con relieve). Acceso opcional exclusivamente mediante Lichess OAuth PKCE, sin permisos adicionales; la consulta continúa abierta. URL principal: https://chedexpulse.chedex-chesssociety.workers.dev. La dirección anterior redirige; no conserva una segunda aplicación.
+
+## Índices operativos v1.2
+
+Se publican fórmulas v1.0 simples y auditables: Performance como variación del Elo estándar a doce meses; Trending como variación de visitas semanales del catálogo Wikipedia verificado; Global como variación anual del censo activo FIDE. Incluyen fuentes, periodos, umbrales y exclusiones. Las series históricas y los datos se recopilan mediante el flujo programado de GitHub; no se presentan como implementados el rendimiento por partida ni el recuento exhaustivo de torneos. La cobertura y los límites de selección se muestran junto a los resultados.

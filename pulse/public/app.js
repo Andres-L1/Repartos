@@ -1,3 +1,4 @@
+import { loadAnalytics, renderAnalytics } from './analytics-ui.js';
 import { updateMap, prepareGeography, resetMaps } from './maps.js';
 import { countries, players, indices, countryByCode, matchesCountry } from './data.js';
 const $ = selector => document.querySelector(selector);
@@ -58,7 +59,7 @@ function renderCountry() {
 function renderMethodology(key) {
   const index = indices[key] || indices.performance;
   document.querySelectorAll('[data-index]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.index === key)));
-  $('#methodology').innerHTML = `<p class="eyebrow">CHEDEX ${index.name.toUpperCase()}</p><h2>${index.title}</h2><p class="lead">${index.description}</p><span class="status-label">${index.state}</span><div class="method-grid"><div><h3>Qué mediríamos</h3><p>${index.calculation}</p></div><div><h3>Periodo y actualización</h3><p>${index.period}</p></div><div><h3>Fuente principal</h3><p>${index.source}</p><a class="text-link" href="${index.url}" target="_blank" rel="noopener noreferrer">Consultar fuente ↗</a></div></div><p class="formula">${index.formula}</p><p><strong>Alcance y límites:</strong> ${index.limitation}</p><p class="fine">Documento de metodología: v1.0 · Propuesta inicial. Índice sin publicar; última actualización de datos: no disponible.</p>`;
+  $('#methodology').innerHTML = `<p class="eyebrow">CHEDEX ${index.name.toUpperCase()}</p><h2>${index.title}</h2><p class="lead">${index.description}</p><span class="status-label">${index.state}</span><div class="method-grid"><div><h3>Qué mediríamos</h3><p>${index.calculation}</p></div><div><h3>Periodo y actualización</h3><p>${index.period}</p></div><div><h3>Fuente principal</h3><p>${index.source}</p><a class="text-link" href="${index.url}" target="_blank" rel="noopener noreferrer">Consultar fuente ↗</a></div></div><p class="formula">${index.formula}</p><p><strong>Alcance y límites:</strong> ${index.limitation}</p><p class="fine">Metodología publicada: v1.0 · Los periodos, las fechas de recopilación y la cobertura aparecen junto al ranking.</p>`;
 }
 function renderPlayer(id) {
   const player = players.find(p => p.id === id);
@@ -66,7 +67,7 @@ function renderPlayer(id) {
   const country = countryByCode(player.country);
   const stories = news?.items.filter(n => relatedPlayers(n.title).includes(player)) || [];
   const tournaments = broadcasts?.items.filter(t => relatedPlayers(t.players).includes(player)) || [];
-  $('#player-profile').innerHTML = `<a class="back-link" href="#tendencias">← Explorar jugadores</a><article class="panel player-profile-card"><p class="eyebrow">FICHA CONECTADA · DIRECTORIO EDITORIAL</p><div class="player-avatar">${player.initials}</div><h1>${player.name}</h1><a class="text-link" href="#mundo/${country.code}">${country.name} · Explorar país ↗</a><div class="profile-summary"><div><span>Identificador FIDE</span><strong>${player.id}</strong></div><div><span>Elo actual</span><strong>Sin importar</strong></div><div><span>Evolución</span><strong>Histórico pendiente</strong></div></div><p class="fine">La federación del directorio se debe contrastar con la ficha oficial. No se muestran puntuaciones ni títulos sin una lista FIDE fechada.</p><div class="profile-links"><a href="https://ratings.fide.com/profile/${player.id}" target="_blank" rel="noopener noreferrer">Perfil, Elo e histórico oficiales en FIDE <span>↗</span></a><a href="#indices/performance">Cómo se medirá la progresión <span>↗</span></a><a href="#indices/trending">Cómo se medirá el interés público <span>↗</span></a></div><h2 class="profile-section-title">Actualidad relacionada</h2>${stories.length ? stories.map(n => `<p><a href="${escape(n.url)}" target="_blank" rel="noopener noreferrer">${escape(n.title)} ↗</a></p>`).join('') : '<p class="fine">Sin menciones explícitas en los titulares recibidos.</p>'}<h2 class="profile-section-title">Competiciones relacionadas</h2>${tournaments.length ? tournaments.map(t => broadcastCard(t)).join('') : '<p class="fine">Sin coincidencias explícitas en los participantes indicados por Lichess. La selección no es exhaustiva.</p>'}</article>`;
+  $('#player-profile').innerHTML = `<a class="back-link" href="#tendencias">← Explorar jugadores</a><article class="panel player-profile-card"><p class="eyebrow">FICHA CONECTADA · DIRECTORIO EDITORIAL</p><div class="player-avatar">${escape(player.initials)}</div><h1>${escape(player.name)}</h1><a class="text-link" href="#mundo/${country.code}">${escape(country.name)} · Explorar país ↗</a><div class="profile-summary"><div><span>Identificador FIDE</span><strong>${player.id}</strong></div><div><span>Elo actual</span><strong>Sin importar</strong></div><div><span>Evolución</span><strong>Histórico pendiente</strong></div></div><p class="fine">La federación del directorio se debe contrastar con la ficha oficial. No se muestran puntuaciones ni títulos sin una lista FIDE fechada.</p><div class="profile-links"><a href="https://ratings.fide.com/profile/${player.id}" target="_blank" rel="noopener noreferrer">Perfil, Elo e histórico oficiales en FIDE <span>↗</span></a><a href="#indices/performance">Cómo se medirá la progresión <span>↗</span></a><a href="#indices/trending">Cómo se medirá el interés público <span>↗</span></a></div><h2 class="profile-section-title">Actualidad relacionada</h2>${stories.length ? stories.map(n => `<p><a href="${escape(n.url)}" target="_blank" rel="noopener noreferrer">${escape(n.title)} ↗</a></p>`).join('') : '<p class="fine">Sin menciones explícitas en los titulares recibidos.</p>'}<h2 class="profile-section-title">Competiciones relacionadas</h2>${tournaments.length ? tournaments.map(t => broadcastCard(t)).join('') : '<p class="fine">Sin coincidencias explícitas en los participantes indicados por Lichess. La selección no es exhaustiva.</p>'}</article>`;
 }
 function renderTournament(id) {
   const item = broadcasts?.items.find(t => t.id === id);
@@ -90,6 +91,7 @@ function route(scroll = true) {
   if (name === 'indices') renderMethodology(indices[value] ? value : 'performance');
   if (name === 'jugador') renderPlayer(value);
   if (name === 'torneo') renderTournament(value);
+  renderAnalytics(name,value);
   document.title = `Chedex Pulse · ${{ hoy: 'El pulso del ajedrez', mundo: 'Mundo', tendencias: 'Tendencias', indices: 'Índices', fuentes: 'Fuentes y metodología', jugador: 'Jugador', torneo: 'Competición' }[name]}`;
   if (scroll) { window.scrollTo({ top: 0, behavior: 'instant' }); $('#main').focus({ preventScroll: true }); }
 }
@@ -123,5 +125,6 @@ document.addEventListener('click', event => {
 });
 window.addEventListener('hashchange', () => route());
 renderMaps(); renderCountry(); renderMethodology('performance'); route(false); loadSources();
+loadAnalytics(() => { route(false); });
 prepareGeography().then(() => { renderMaps(); route(false); }).catch(() => {});
 document.querySelectorAll('[data-reset-map]').forEach(button => button.addEventListener('click', resetMaps));

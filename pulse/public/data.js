@@ -18,9 +18,42 @@ export const players = [
   { id: '8602980', name: 'Hou Yifan', country: 'CHN', initials: 'HY', aliases: ['Hou Yifan'] }
 ];
 export const indices = {
-  performance: { name: 'Performance', title: 'La evolución sobre el tablero.', description: 'Una perspectiva sobre progresión y rendimiento competitivo. El Elo de un mes, por sí solo, no explica una trayectoria.', source: 'Listas mensuales FIDE y partidas verificadas cuando estén disponibles.', period: 'Ventana propuesta de 12 meses, comparada con el periodo anterior. Se exigirán suficientes partidas y meses de actividad.', calculation: 'Propuesta: combinar variación de Elo, actividad y rendimiento frente al nivel de los oponentes. Los pesos, mínimos de muestra y normalización se validarán y publicarán antes del primer ranking.', limitation: 'Las listas mensuales no bastan para calcular performance por partida. No se publicará esta componente sin resultados y rivales verificables.', url: 'https://ratings.fide.com/download.phtml', state: 'Pendiente de importación e histórico FIDE', formula: 'Todavía no hay una fórmula de puntuación aprobada. No se calculan ni publican valores.' },
-  trending: { name: 'Trending', title: 'La atención también se mueve.', description: 'Una perspectiva sobre el interés público. Mide atención, nunca nivel de juego ni mérito deportivo.', source: 'Wikimedia Pageviews. Solo consultas de usuarios (agent=user), con edición e identificador de artículo publicados.', period: 'Propuesta: últimos 7 días completos frente a los 7 anteriores. Fechas en UTC; no se compara un día incompleto con uno completo.', calculation: 'Variación porcentual propuesta: 100 × (visitas del periodo actual − visitas del anterior) / visitas del anterior. Si el periodo anterior es cero, el cambio se declara no comparable.', limitation: 'Antes de ordenar habrá que fijar el mínimo de visitas, la edición de Wikipedia y el tratamiento de redirecciones. Una noticia puntual puede producir picos.', url: 'https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/', state: 'Pendiente de integración y validación', formula: 'Cambio relativo de visitas, acompañado siempre del volumen absoluto. Esta propuesta aún no produce un ranking.' },
-  global: { name: 'Global', title: 'El ajedrez, a escala de país.', description: 'Una perspectiva sobre la actividad y la evolución de las federaciones. La cobertura desigual debe ser visible, nunca disimulada.', source: 'Listas FIDE y registros de torneos con fecha, federación y cobertura documentadas.', period: 'Propuesta: actividad de los últimos 12 meses, con actualización mensual y comparación interanual.', calculation: 'Propuesta: combinar jugadores activos, participación competitiva y evolución del conjunto. Se publicarán por separado los valores absolutos, relativos y la cobertura.', limitation: 'Una retransmisión no representa toda la actividad de un país. No se inferirán índices nacionales a partir de la selección de Lichess.', url: 'https://ratings.fide.com/', state: 'Pendiente de series nacionales comparables', formula: 'Los componentes y pesos se publicarán tras validar la calidad y cobertura. Todavía no hay puntuaciones nacionales.' }
+  "performance": {
+    "name": "Performance",
+    "title": "Progresión medible de Elo.",
+    "description": "Performance v1.0 expresa la progresión del Elo estándar en doce meses. La unidad son puntos Elo, sin una escala artificial de 0 a 100.",
+    "source": "Trece listas mensuales estándar FIDE consecutivas, con URLs y huellas SHA-256 conservadas.",
+    "period": "Lista actual frente al mismo mes del año anterior. Partidas: suma de los doce periodos posteriores a la lista base. Recopilación mensual; se vuelve a intentar a diario si la lista aún no se ha publicado.",
+    "calculation": "Puntuación = Elo actual − Elo de hace doce meses. Para ordenar se exigen trece listas consecutivas con Elo, al menos doce partidas en los doce periodos y estado activo en la última lista.",
+    "limitation": "No es performance por partida ni mide el nivel de los rivales. La selección se forma por Elo actual, mujeres, jóvenes y catálogo Wikipedia; no constituye un ranking de progresión de todos los jugadores del mundo.",
+    "url": "https://ratings.fide.com/download_lists.phtml",
+    "state": "Activo · v1.0 · Unidad: puntos Elo",
+    "formula": "Performance = Elo del mes actual − Elo del mismo mes del año anterior. Datos insuficientes → sin puntuación."
+  },
+  "trending": {
+    "name": "Trending",
+    "title": "La evolución del interés público.",
+    "description": "Trending v1.0 compara el volumen de consultas de Wikipedia en inglés. Mide atención, nunca mérito deportivo ni fuerza de juego.",
+    "source": "Wikimedia Pageviews: en.wikipedia.org, all-access y agent=user. Artículos canónicos vinculados a FIDE mediante la propiedad P1440 de Wikidata.",
+    "period": "Siete días completos UTC frente a los siete inmediatamente anteriores. Se dejan dos días de margen de publicación. Recopilación diaria a las 07:23 de Madrid en invierno y 08:23 en verano, sujeta a ejecución de GitHub Actions.",
+    "calculation": "Puntuación = 100 × (visitas actuales − visitas anteriores) / visitas anteriores. Mínimo de 100 visitas en el periodo base y los catorce días presentes. Los datos de una consulta fallida se conservan como históricos pero se excluyen del ranking.",
+    "limitation": "Catálogo editorial de 28 artículos en inglés. No incluye todo el ajedrez ni otros idiomas, redes sociales o búsquedas. No se suman redirecciones: se consulta el artículo canónico verificado.",
+    "url": "https://doc.wikimedia.org/generated-data-platform/aqs/analytics-api/reference/page-views.html",
+    "state": "Activo · v1.0 · Unidad: variación porcentual",
+    "formula": "Trending = 100 × (visitas de los últimos 7 días completos − visitas de los 7 anteriores) / visitas de los 7 anteriores. Base inferior a 100 → no comparable."
+  },
+  "global": {
+    "name": "Global",
+    "title": "El cambio del censo activo FIDE.",
+    "description": "Global v1.0 mide cómo varía el número de jugadores activos con Elo estándar registrados en cada federación. Es una medida concreta del censo competitivo publicado.",
+    "source": "Listas estándar FIDE completas, agregadas por código de federación. Se muestran también titulados activos, jóvenes por año de nacimiento y media de Elo de los diez activos con mayor puntuación.",
+    "period": "Lista del mes actual frente al mismo mes del año anterior. Base mínima de cien jugadores activos para reducir variaciones extremas en muestras pequeñas. Recopilación mensual.",
+    "calculation": "Puntuación = 100 × (activos actuales − activos hace doce meses) / activos hace doce meses. Activo significa: registro con Elo válido sin bandera de inactividad en la lista FIDE.",
+    "limitation": "Puede cambiar por altas, bajas, transferencias o revisiones de la fuente. No mide todos los torneos, el ajedrez escolar ni el éxito de una federación. Federación y territorio no son equivalentes; no se usan retransmisiones como censo nacional.",
+    "url": "https://ratings.fide.com/download_lists.phtml",
+    "state": "Activo · v1.0 · Unidad: variación porcentual del censo",
+    "formula": "Global = 100 × (jugadores activos actuales − jugadores activos de la lista base) / jugadores activos de la lista base. Base inferior a 100 → no comparable."
+  }
 };
 export const countryByCode = code => countries.find(c => c.code === code);
 export function matchesCountry(text, country) {

@@ -54,6 +54,29 @@ async function sourceFeed(kind, request, context) {
     return json({ status: 'unavailable', source: kind === 'news' ? 'FIDE' : 'Lichess', fetchedAt: null, items: [], message: 'La fuente no está disponible temporalmente. Inténtalo de nuevo.' }, 503);
   }
 }
+async function analytics(request, env, context) {
+  const cache = globalThis.caches?.default, cacheKey = new Request(new URL('/api/analytics', request.url));
+  const cached = cache && await cache.match(cacheKey); if (cached) return cached;
+  let snapshot, delivery = 'github';
+  try {
+    const upstream = await fetch('https://raw.githubusercontent.com/Andres-L1/Repartos/main/pulse/public/snapshots/latest.json', { signal: AbortSignal.timeout(10000) });
+    if (!upstream.ok) throw new Error('source');
+    const text = await upstream.text(); if (text.length > 3000000) throw new Error('size');
+    snapshot = JSON.parse(text);
+    if (snapshot.schema !== 1 || !Array.isArray(snapshot.fide?.players) || !Array.isArray(snapshot.interest?.players) || !snapshot.generatedAt) throw new Error('schema');
+  } catch {
+    delivery = 'bundled';
+    try {
+      const fallback = await env.ASSETS.fetch(new Request(new URL('/snapshots/latest.json', request.url)));
+      if (!fallback.ok) throw new Error('missing'); snapshot = await fallback.json();
+      if (snapshot.schema !== 1 || !Array.isArray(snapshot.fide?.players) || !Array.isArray(snapshot.interest?.players)) throw new Error('schema');
+    } catch { return json({ status: 'unavailable', message: 'La instantánea de análisis no está disponible.' }, 503); }
+  }
+  const response = json({ ...snapshot, status: 'ok', delivery, stale: Date.now() - new Date(snapshot.generatedAt).getTime() > 48 * 3600000 });
+  response.headers.set('Cache-Control', 'public, max-age=600');
+  if (cache) context.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
+}
 export default {
   async fetch(request, env, context) {
     const url = new URL(request.url);
@@ -63,6 +86,10 @@ export default {
       return auth;
     }
     if (!['GET', 'HEAD'].includes(request.method)) return json({ error: 'Método no permitido' }, 405);
+    if (url.pathname === '/api/analytics') {
+      const response = await analytics(request, env, context);
+      return request.method === 'HEAD' ? new Response(null, response) : response;
+    }
     if (url.pathname === '/api/news' || url.pathname === '/api/broadcasts') {
       const response = await sourceFeed(url.pathname.slice(5), request, context);
       return request.method === 'HEAD' ? new Response(null, response) : response;

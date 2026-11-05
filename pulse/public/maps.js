@@ -6,7 +6,7 @@ const loadGeography = async () => {
   if (!geography) geography = fetch('/geo/countries.geojson').then(r => { if (!r.ok) throw new Error('geo'); return r.json(); }).then(data => {
     for (const feature of data.features) {
       const p = feature.properties, existing = countries.find(c => c.code === p.code);
-      if (existing) { existing.lng = p.lng; existing.lat = p.lat; }
+      if (existing) { existing.lng = p.lng; existing.lat = p.lat; if (/^[A-Z]{3}$/.test(existing.name)) { existing.name = p.name; existing.aliases = [p.name,p.english]; } }
       else countries.push({ code: p.code, name: p.name, aliases: [p.name, p.english], lng: p.lng, lat: p.lat });
     }
     return data;
