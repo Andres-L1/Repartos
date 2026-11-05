@@ -12,3 +12,4 @@ main{margin-left:var(--sidebar);max-width:1900px;padding:0 30px 20px;outline:non
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 @media(max-width:640px){.login-button .login-text{font-size:0}.login-button .login-text::after{content:"Lichess";font-size:9px}.login-button>span:last-child{display:none}}
+.view{scroll-margin-top:100px}
