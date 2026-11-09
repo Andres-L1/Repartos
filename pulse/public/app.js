@@ -131,6 +131,7 @@ function renderDaily() {
   const followed = readFavorites();
   const related =
     broadcasts?.status === 'ok' ? followedBroadcasts(followed, broadcasts.items) : null;
+  if (related) document.dispatchEvent(new CustomEvent('pulse:followed-live', { detail: related }));
   const tiles = [
     ['live', broadcasts?.status === 'ok' ? data.live.length : '—', 'Retransmisiones en directo'],
     [

@@ -1,3 +1,4 @@
+import { sync } from './profile.js';
 const container = document.getElementById('session-control');
 async function loadSession() {
   try {
@@ -5,6 +6,7 @@ async function loadSession() {
     if (!response.ok) throw new Error('session');
     const session = await response.json();
     if (session.authenticated) {
+      await sync(session.user);
       container.replaceChildren();
       const profile = document.createElement('a');
       profile.href = `https://lichess.org/@/${encodeURIComponent(session.user.username)}`;

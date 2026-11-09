@@ -10,6 +10,7 @@
     />
     <meta name="theme-color" content="#101513" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="stylesheet" href="/vendor/maplibre-gl.css" />
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/styles/components.css" />
@@ -445,14 +446,28 @@
           <div id="directory-results" aria-live="polite"></div>
         </section>
         <details class="panel favorites-panel">
-          <summary>
-            Mis favoritos <span>Jugadores y países guardados en este navegador</span>
-          </summary>
+          <summary>Mis favoritos <span>Jugadores y países que sigues</span></summary>
           <div id="favorites-list" class="profile-links"></div>
-          <p class="fine">
-            Se guardan solo en este navegador. Puedes quitarlos desde cada ficha o borrando los
-            datos del sitio.
+          <p class="fine" id="sync-status" aria-live="polite">
+            Se guardan en este navegador. Entra con Lichess para sincronizarlos.
           </p>
+          <button type="button" class="favorite-toggle" id="retry-sync" hidden>
+            Recuperar cambios sin sincronizar
+          </button>
+          <div id="followed-live" class="profile-links"></div>
+          <button type="button" class="favorite-toggle" id="alerts-toggle">
+            Activar avisos en este dispositivo
+          </button>
+          <p class="fine" id="alerts-status">
+            Avisos de retransmisiones relacionadas mientras Pulse está abierto. Las coincidencias
+            dependen de los datos de Lichess.
+          </p>
+          <button type="button" class="favorite-toggle" id="install-app" hidden>
+            Instalar aplicación
+          </button>
+          <button type="button" class="favorite-toggle" id="delete-profile" hidden>
+            Borrar datos sincronizados
+          </button>
         </details>
         <section id="analytics-home" aria-label="Cambios destacados"></section>
         <div class="section-heading">

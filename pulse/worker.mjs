@@ -1,4 +1,5 @@
 import { handleAuth } from './auth.mjs';
+import { handleProfile } from './server/profile.mjs';
 import { createPublicApi } from './server/public-api.mjs';
 import { json, SECURITY_HEADERS } from './server/http.mjs';
 import { parseRoute } from './public/lib/routes.js';
@@ -46,6 +47,7 @@ export default {
         { headers: { 'Content-Type': 'text/html; charset=utf-8', ...SECURITY_HEADERS } },
       );
     let response = await handleAuth(request, env);
+    if (!response) response = await handleProfile(request, env);
     if (!response) {
       if (!['GET', 'HEAD'].includes(request.method))
         response = json({ error: 'Método no permitido' }, 405);

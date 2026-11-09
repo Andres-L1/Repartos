@@ -15,6 +15,13 @@
     "ip": "127.0.0.1",
     "port": 8787,
   },
+  "d1_databases": [
+    {
+      "binding": "PULSE_DB",
+      "database_name": "chedexpulse-users",
+      "database_id": "d6a9e3c7-fe36-429f-9850-6c704e511799",
+    },
+  ],
   "vars": {
     "PUBLIC_ORIGIN": "https://chedexpulse.app",
   },

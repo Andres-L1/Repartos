@@ -64,6 +64,11 @@ function redirect(location, cookies = []) {
   cookies.forEach((value) => headers.append('Set-Cookie', value));
   return new Response(null, { status: 303, headers });
 }
+export async function getSession(request, env) {
+  return env.SESSION_SECRET
+    ? unseal(readCookie(request, SESSION), env.SESSION_SECRET, 'session')
+    : null;
+}
 export async function handleAuth(request, env) {
   const url = new URL(request.url),
     path = url.pathname;
