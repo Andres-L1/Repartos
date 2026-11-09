@@ -40,7 +40,11 @@ export default {
       );
     }
     if (url.pathname === '/legal' && ['GET', 'HEAD'].includes(request.method))
-      return env.ASSETS.fetch(new Request(new URL('/legal.html', url.origin), request));
+      return new Response(
+        (await env.ASSETS.fetch(new Request(new URL('/legal-content.txt', url.origin), request)))
+          .body,
+        { headers: { 'Content-Type': 'text/html; charset=utf-8', ...SECURITY_HEADERS } },
+      );
     let response = await handleAuth(request, env);
     if (!response) {
       if (!['GET', 'HEAD'].includes(request.method))
