@@ -15,8 +15,8 @@
     "test": "node --test pulse/tests/*.test.mjs",
     "assets:prepare": "node scripts/vendor-assets.mjs",
     "data:collect": "node scripts/collect-analytics.mjs",
-    "format": "prettier --write \"pulse/**/*.{mjs,js,css,html}\" \"scripts/{check,collect-analytics,configure-auth,vendor-assets,wrangler}.mjs\" \"*.jsonc\" \".github/workflows/*.yml\"",
-    "format:check": "prettier --check \"pulse/**/*.{mjs,js,css,html}\" \"scripts/{check,collect-analytics,configure-auth,vendor-assets,wrangler}.mjs\" \"*.jsonc\" \".github/workflows/*.yml\""
+    "format": "prettier --write \"pulse/**/*.{mjs,js,css,html}\" \"scripts/{check,collect-analytics,collect-full-performance,configure-auth,vendor-assets,wrangler}.mjs\" \"*.jsonc\" \".github/workflows/*.yml\"",
+    "format:check": "prettier --check \"pulse/**/*.{mjs,js,css,html}\" \"scripts/{check,collect-analytics,collect-full-performance,configure-auth,vendor-assets,wrangler}.mjs\" \"*.jsonc\" \".github/workflows/*.yml\""
   },
   "devDependencies": {
     "prettier": "3.9.10",

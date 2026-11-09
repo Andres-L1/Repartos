@@ -1,3 +1,4 @@
+import { favoriteButton, refreshFavorites } from './favorites.js';
 import { requestJSON } from '../lib/requests.js';
 import { chart, federationName, geoCode } from '../analytics-ui.js';
 import { countryByCode } from '../data.js';
@@ -68,7 +69,7 @@ export async function renderDirectoryPlayer(id, container) {
     if (!target.isConnected) return;
     const p = data.player,
       code = geoCode(p.federation);
-    target.innerHTML = `<p class="eyebrow">DIRECTORIO PÚBLICO FIDE · VÍA LICHESS</p><h1>${escape(p.name)}</h1><p>${escape(p.title || 'Sin título indicado')} · Federación ${escape(federationName(p.federation))} · FIDE ${p.id}</p><div class="profile-summary">${[
+    target.innerHTML = `<p class="eyebrow">DIRECTORIO PÚBLICO FIDE · VÍA LICHESS</p><h1>${escape(p.name)}</h1>${favoriteButton('player', p.id, p.name)}<p>${escape(p.title || 'Sin título indicado')} · Federación ${escape(federationName(p.federation))} · FIDE ${p.id}</p><div class="profile-summary">${[
       ['Estándar', p.standard],
       ['Rápidas', p.rapid],
       ['Blitz', p.blitz],
@@ -76,7 +77,7 @@ export async function renderDirectoryPlayer(id, container) {
       .map(([label, value]) => `<div><span>${label}</span><strong>${number(value)}</strong></div>`)
       .join(
         '',
-      )}</div><p class="fine">${p.active ? 'Activo según la fuente' : 'Inactivo según la fuente'}${p.birthYear ? ' · Año de nacimiento: ' + p.birthYear : ''}. Consulta: ${date(data.fetchedAt)} (Madrid). ${escape(data.period)}</p><div class="profile-links"><a href="https://ratings.fide.com/profile/${p.id}" target="_blank" rel="noopener noreferrer">Verificar ficha oficial FIDE ↗</a>${countryByCode(code) ? `<a href="/mundo/${code}">Explorar federación ↗</a>` : ''}</div><p class="source-note">Esta ficha amplía el directorio de consulta. No incorpora al jugador a los rankings Chedex, que mantienen su selección y requisitos publicados.</p>${
+      )}</div><p class="fine">${p.active ? 'Activo según la fuente' : 'Inactivo según la fuente'}${p.birthYear ? ' · Año de nacimiento: ' + p.birthYear : ''}. Consulta: ${date(data.fetchedAt)} (Madrid). ${escape(data.period)}</p><div class="profile-links"><a href="https://ratings.fide.com/profile/${p.id}" target="_blank" rel="noopener noreferrer">Verificar ficha oficial FIDE ↗</a>${countryByCode(code) ? `<a href="/mundo/${code}">Explorar federación ↗</a>` : ''}</div><p class="source-note">Esta ficha procede del directorio de Lichess. El índice de progresión incluye a los jugadores que cumplen sus requisitos; Trending mantiene una selección de artículos.</p>${
       data.history
         ? `<h2>Histórico de Elo disponible</h2><p class="fine">${escape(data.historyNote)}</p>${[
             ['standard', 'Elo estándar'],
@@ -90,6 +91,20 @@ export async function renderDirectoryPlayer(id, container) {
             .join('')}`
         : '<p class="fine">La serie histórica no está disponible temporalmente; la ficha permanece consultable.</p>'
     }`;
+    refreshFavorites();
+    requestJSON('/api/performance/' + p.federation, { ttl: 600000 })
+      .then((ranking) => {
+        if (!target.isConnected || ranking.status !== 'ok') return;
+        const row = Object.values(ranking.groups)
+          .flatMap((group) => group.players)
+          .find((player) => player.id === p.id);
+        if (!row) return;
+        const note = document.createElement('p');
+        note.className = 'source-note';
+        note.textContent = `Progresión FIDE a 12 meses: ${row.score > 0 ? '+' : ''}${row.score} Elo · lista ${ranking.month} · ${row.performance.games} partidas en el periodo. Es un cálculo mensual, no Elo en directo.`;
+        target.querySelector('.profile-summary')?.insertAdjacentElement('afterend', note);
+      })
+      .catch(() => {});
   } catch {
     if (target.isConnected)
       target.innerHTML = `<h1>Ficha no disponible</h1><p>No hemos podido recuperar este identificador del directorio de Lichess.</p><a class="text-link" href="https://ratings.fide.com/profile/${id}" target="_blank" rel="noopener noreferrer">Consultar directamente en FIDE ↗</a>`;

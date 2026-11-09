@@ -51,7 +51,7 @@
         minutos. Puedes cerrar sesión desde Pulse.
       </p>
       <p>
-        Las consultas que realices al buscador se procesan para buscar jugadores en el directorio
+        Si decides guardar favoritos, el navegador conserva sus identificadores y nombres en el almacenamiento local de este dispositivo para recuperarlos en tus siguientes visitas. Puedes eliminarlos desde la ficha o borrando los datos del sitio. Las consultas que realices al buscador se procesan para buscar jugadores en el directorio
         público de Lichess.
       </p>
       <p>

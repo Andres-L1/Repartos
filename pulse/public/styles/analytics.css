@@ -798,3 +798,19 @@
 .top-ratings .source-note a {
   color: var(--accent);
 }
+
+.country-risers a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.country-risers strong {
+  color: var(--accent);
+  white-space: nowrap;
+}
+.country-data h3 {
+  margin-top: 18px;
+}

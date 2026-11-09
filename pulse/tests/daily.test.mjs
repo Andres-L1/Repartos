@@ -146,3 +146,36 @@ test('el directorio no envía consultas paralelas y espera tras un 429', async (
   time = 60001;
   assert.equal((await limited('e')).status, 200);
 });
+
+test('la progresión mundial usa la copia disponible y mantiene la caché por federación', async () => {
+  let requests = 0,
+    fallback = 0;
+  const api = createPublicApi({
+    edgeCache: () => undefined,
+    fetcher: async () => {
+      requests++;
+      return new Response('', { status: 503 });
+    },
+  });
+  const env = {
+    ASSETS: {
+      fetch: async () => {
+        fallback++;
+        return Response.json({
+          schema: 1,
+          month: '2026-11',
+          groups: { 'all:all': { total: 1, players: [] } },
+        });
+      },
+    },
+  };
+  const result = await api(req('/api/performance/ESP'), env, context);
+  const data = await result.json();
+  assert.equal(result.status, 200);
+  assert.equal(data.delivery, 'bundled');
+  assert.equal(data.groups['all:all'].total, 1);
+  await api(req('/api/performance/ESP'), env, context);
+  assert.equal(requests, 1);
+  assert.equal(fallback, 1);
+  assert.equal(await api(req('/api/performance/../../x'), env, context), null);
+});

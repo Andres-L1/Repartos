@@ -2365,3 +2365,31 @@ footer > span {
     font-size: 11px;
   }
 }
+
+.favorites-panel {
+  padding: 18px 20px;
+  margin-top: 20px;
+}
+.favorites-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.favorites-panel summary span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  margin-left: 12px;
+}
+.favorite-toggle {
+  background: #272019;
+  color: #f4ac79;
+  border: 1px solid #725034;
+  border-radius: 7px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 12px;
+}
+.favorite-toggle[aria-pressed='true'] {
+  background: #3b281c;
+  color: #ffd0ab;
+}

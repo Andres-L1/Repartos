@@ -97,22 +97,25 @@ export function createPublicApi({
       : undefined;
     if (directorySearch && (query.length < 3 || query.length > 80 || /[\p{Cc}]/u.test(query)))
       return json({ error: 'Escribe entre 3 y 80 caracteres.' }, 400);
+    const performanceCode = pathname.match(/^\/api\/performance\/(WORLD|[A-Z]{3})$/)?.[1];
     const playerId = pathname.match(/^\/api\/players\/(\d{1,12})$/)?.[1];
-    const kind = directorySearch
-      ? 'search'
-      : directoryId
-        ? 'directory'
-        : pathname === '/api/news'
-          ? 'news'
-          : pathname === '/api/broadcasts'
-            ? 'broadcasts'
-            : pathname === '/api/analytics/summary'
-              ? 'analytics'
-              : pathname === '/api/analytics'
-                ? 'snapshot'
-                : playerId
-                  ? 'player'
-                  : null;
+    const kind = performanceCode
+      ? 'performance'
+      : directorySearch
+        ? 'search'
+        : directoryId
+          ? 'directory'
+          : pathname === '/api/news'
+            ? 'news'
+            : pathname === '/api/broadcasts'
+              ? 'broadcasts'
+              : pathname === '/api/analytics/summary'
+                ? 'analytics'
+                : pathname === '/api/analytics'
+                  ? 'snapshot'
+                  : playerId
+                    ? 'player'
+                    : null;
     if (!kind) return null;
     const ttl =
       kind === 'news'
@@ -130,7 +133,34 @@ export function createPublicApi({
     try {
       const resource = await memo.get(key, ttl, async () => {
         let payload;
-        if (kind === 'search' || kind === 'directory')
+        if (kind === 'performance') {
+          let response,
+            delivery = 'github';
+          try {
+            response = await fetcher(
+              `https://raw.githubusercontent.com/Andres-L1/Repartos/main/pulse/public/snapshots/performance/${performanceCode}.json`,
+              { signal: AbortSignal.timeout(10000) },
+            );
+            if (!response.ok) throw Error('source');
+          } catch {
+            delivery = 'bundled';
+            response = await env.ASSETS.fetch(
+              new Request(new URL(`/snapshots/performance/${performanceCode}.json`, origin)),
+            );
+            if (!response.ok) throw Error('source');
+          }
+          const source = await response.text();
+          if (source.length > 500000) throw Error('size');
+          const data = JSON.parse(source);
+          if (
+            data.schema !== 1 ||
+            !/^\d{4}-\d{2}$/.test(data.month) ||
+            !data.groups ||
+            typeof data.groups !== 'object'
+          )
+            throw Error('schema');
+          payload = { status: 'ok', delivery, ...data };
+        } else if (kind === 'search' || kind === 'directory')
           payload = await readDirectory(fetchDirectory, { query, id: directoryId, now });
         else if (kind === 'news' || kind === 'broadcasts') payload = await feed(kind);
         else {

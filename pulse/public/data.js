@@ -36,7 +36,7 @@ export const indices = {
     calculation:
       'Puntuación = Elo actual − Elo de hace doce meses. Para ordenar se exigen trece listas consecutivas con Elo, al menos doce partidas en los doce periodos y estado activo en la última lista.',
     limitation:
-      'No es performance por partida ni mide el nivel de los rivales. La selección se forma por Elo actual, mujeres, jóvenes y catálogo Wikipedia; no constituye un ranking de progresión de todos los jugadores del mundo.',
+      'No es performance por partida ni mide el nivel de los rivales. Se analizan las listas completas con 13 registros consecutivos y al menos 12 partidas; se muestran los primeros 100 por filtro. La búsqueda se limita a esos resultados.',
     url: 'https://ratings.fide.com/download_lists.phtml',
     state: 'Activo · v1.0 · Unidad: puntos Elo',
     formula:

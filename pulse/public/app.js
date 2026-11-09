@@ -1,3 +1,10 @@
+import {
+  initFavorites,
+  favoriteButton,
+  refreshFavorites,
+  readFavorites,
+  followedBroadcasts,
+} from './components/favorites.js';
 import { currentRoute, navigate, installRouter } from './lib/routes.js';
 import { countryActivity, orderBroadcasts, dailyOverview } from './lib/observatory.js';
 import { requestJSON } from './lib/requests.js';
@@ -121,6 +128,9 @@ function errorMarkup(message) {
 function renderDaily() {
   if (!news && !broadcasts) return;
   const data = dailyOverview(broadcasts?.items || [], news?.items || []);
+  const followed = readFavorites();
+  const related =
+    broadcasts?.status === 'ok' ? followedBroadcasts(followed, broadcasts.items) : null;
   const tiles = [
     ['live', broadcasts?.status === 'ok' ? data.live.length : '—', 'Retransmisiones en directo'],
     [
@@ -139,7 +149,7 @@ function renderDaily() {
         ).length
       : null;
   $('#daily-brief').innerHTML =
-    `<div class="daily-edition"><strong>Tu edición de hoy</strong><button class="text-link" type="button" data-directory-scroll>Buscar un jugador ↓</button><span>${newCount !== null ? `${newCount} titulares recibidos desde tu visita del ${dateText(previousVisit)}.` : 'Directos, agenda y noticias de las fuentes conectadas.'}${news?.partial ? ' Algunas fuentes no están disponibles.' : ''}</span></div><div class="daily-tiles">${tiles.map(([filter, count, label]) => `<button type="button" data-feed="${filter}" data-scroll-feed><strong>${count}</strong><span>${label} ↗</span></button>`).join('')}</div><p class="fine">Actualización automática cada 5 minutos mientras consultas el panel. Cobertura según las fuentes; no es un censo mundial.</p>`;
+    `<div class="daily-edition"><strong>Tu edición de hoy</strong><button class="text-link" type="button" data-directory-scroll>Buscar un jugador ↓</button><span>${newCount !== null ? `${newCount} titulares recibidos desde tu visita del ${dateText(previousVisit)}.` : 'Directos, agenda y noticias de las fuentes conectadas.'}${news?.partial ? ' Algunas fuentes no están disponibles.' : ''}</span>${followed.length && related ? `<span>Tus favoritos: ${related.length} retransmisiones con coincidencias en la selección.</span>` : ''}</div><div class="daily-tiles">${tiles.map(([filter, count, label]) => `<button type="button" data-feed="${filter}" data-scroll-feed><strong>${count}</strong><span>${label} ↗</span></button>`).join('')}</div><p class="fine">Actualización automática cada 5 minutos mientras consultas el panel. Cobertura según las fuentes; no es un censo mundial.</p>`;
 }
 function renderFeeds() {
   renderDaily();
@@ -239,7 +249,7 @@ function renderCountry() {
   );
   const foundNews = news?.items.filter((n) => matchesCountry(n.title, country)) || [];
   $('#country-profile').innerHTML =
-    `<p class="eyebrow">PAÍS / FEDERACIÓN</p><span class="country-code">${country.code}</span><h2>${escape(country.name)}</h2><p>Un punto de partida para explorar su ajedrez. La cobertura competitiva depende de las fuentes conectadas.</p><h3>Jugadores en seguimiento Chedex</h3><div class="profile-links">${foundPlayers.length ? foundPlayers.map((p) => `<a href="/jugador/${p.id}">${escape(p.name)}<span>Ver ficha ↗</span></a>`).join('') : '<p>No hay jugadores de esta federación en la selección de índices. Puedes buscar otras fichas en el panel.</p>'}<a href="https://ratings.fide.com/" target="_blank" rel="noopener noreferrer">Directorio oficial FIDE <span>↗</span></a></div><h3>Competiciones en la selección</h3>${
+    `<p class="eyebrow">PAÍS / FEDERACIÓN</p><span class="country-code">${country.code}</span><h2>${escape(country.name)}</h2>${favoriteButton('country', country.code, country.name)}<p>Un punto de partida para explorar su ajedrez. La cobertura competitiva depende de las fuentes conectadas.</p><h3>Jugadores en seguimiento Chedex</h3><div class="profile-links">${foundPlayers.length ? foundPlayers.map((p) => `<a href="/jugador/${p.id}">${escape(p.name)}<span>Ver ficha ↗</span></a>`).join('') : '<p>No hay jugadores de esta federación en la selección de fichas con histórico propio. Puedes buscar otras fichas en el panel.</p>'}<a href="https://ratings.fide.com/" target="_blank" rel="noopener noreferrer">Directorio oficial FIDE <span>↗</span></a></div><h3>Competiciones en la selección</h3>${
       tournaments.length
         ? tournaments
             .slice(0, 4)
@@ -273,7 +283,7 @@ function renderPlayer(id) {
   const tournaments =
     broadcasts?.items.filter((t) => relatedPlayers(t.players).includes(player)) || [];
   $('#player-profile').innerHTML =
-    `<a class="back-link" href="/tendencias">← Explorar jugadores</a><article class="panel player-profile-card"><p class="eyebrow">FICHA CONECTADA · DIRECTORIO EDITORIAL</p><div class="player-avatar">${escape(player.initials)}</div><h1>${escape(player.name)}</h1><a class="text-link" href="/mundo/${country.code}">${escape(country.name)} · Explorar país ↗</a><div class="profile-summary"><div><span>Identificador FIDE</span><strong>${player.id}</strong></div><div><span>Elo actual</span><strong>Consultando…</strong></div><div><span>Evolución</span><strong>Consultando…</strong></div></div><p class="fine">La federación del directorio se debe contrastar con la ficha oficial. No se muestran puntuaciones ni títulos sin una lista FIDE fechada.</p><div class="profile-links"><a href="https://ratings.fide.com/profile/${player.id}" target="_blank" rel="noopener noreferrer">Perfil, Elo e histórico oficiales en FIDE <span>↗</span></a><a href="/indices/performance">Cómo se calcula la progresión <span>↗</span></a><a href="/indices/trending">Cómo se calcula el interés en Wikipedia <span>↗</span></a></div><h2 class="profile-section-title">Actualidad relacionada</h2>${stories.length ? stories.map((n) => `<p><a href="${escape(n.url)}" target="_blank" rel="noopener noreferrer">${escape(n.title)} ↗</a></p>`).join('') : '<p class="fine">Sin menciones explícitas en los titulares recibidos.</p>'}<h2 class="profile-section-title">Competiciones relacionadas</h2>${tournaments.length ? tournaments.map((t) => broadcastCard(t)).join('') : '<p class="fine">Sin coincidencias explícitas en los participantes indicados por Lichess. La selección no es exhaustiva.</p>'}</article>`;
+    `<a class="back-link" href="/tendencias">← Explorar jugadores</a><article class="panel player-profile-card"><p class="eyebrow">FICHA CONECTADA · DIRECTORIO EDITORIAL</p><div class="player-avatar">${escape(player.initials)}</div><h1>${escape(player.name)}</h1>${favoriteButton('player', player.id, player.name)}<a class="text-link" href="/mundo/${country.code}">${escape(country.name)} · Explorar país ↗</a><div class="profile-summary"><div><span>Identificador FIDE</span><strong>${player.id}</strong></div><div><span>Elo actual</span><strong>Consultando…</strong></div><div><span>Evolución</span><strong>Consultando…</strong></div></div><p class="fine">La federación del directorio se debe contrastar con la ficha oficial. No se muestran puntuaciones ni títulos sin una lista FIDE fechada.</p><div class="profile-links"><a href="https://ratings.fide.com/profile/${player.id}" target="_blank" rel="noopener noreferrer">Perfil, Elo e histórico oficiales en FIDE <span>↗</span></a><a href="/indices/performance">Cómo se calcula la progresión <span>↗</span></a><a href="/indices/trending">Cómo se calcula el interés en Wikipedia <span>↗</span></a></div><h2 class="profile-section-title">Actualidad relacionada</h2>${stories.length ? stories.map((n) => `<p><a href="${escape(n.url)}" target="_blank" rel="noopener noreferrer">${escape(n.title)} ↗</a></p>`).join('') : '<p class="fine">Sin menciones explícitas en los titulares recibidos.</p>'}<h2 class="profile-section-title">Competiciones relacionadas</h2>${tournaments.length ? tournaments.map((t) => broadcastCard(t)).join('') : '<p class="fine">Sin coincidencias explícitas en los participantes indicados por Lichess. La selección no es exhaustiva.</p>'}</article>`;
 }
 function renderTournament(id) {
   const item = broadcasts?.items.find((t) => t.id === id);
@@ -339,6 +349,7 @@ function route(scroll = true) {
   if (name === 'jugador') renderPlayer(value);
   if (name === 'torneo') renderTournament(value);
   renderAnalytics(name, value);
+  refreshFavorites();
   document.title = `Chedex Pulse · ${{ inicio: 'Inicio', hoy: 'El pulso del ajedrez', mundo: 'Mundo', tendencias: 'Tendencias', indices: 'Índices', fuentes: 'Fuentes y metodología', jugador: 'Jugador', torneo: 'Competición' }[name]}`;
   if (scroll) {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -453,6 +464,10 @@ installRouter(() => route());
 enhanceSelects();
 initLanding();
 initDirectory();
+initFavorites();
+document.addEventListener('pulse:favorites', () => {
+  if (currentRoute().section === 'hoy') renderDaily();
+});
 route(false);
 document
   .querySelectorAll('[data-reset-map]')

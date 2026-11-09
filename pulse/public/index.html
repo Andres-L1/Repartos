@@ -184,8 +184,7 @@
               ><span class="use-number">01</span>
               <h3>¿Qué está pasando?</h3>
               <p>
-                Consulta los titulares oficiales de FIDE y la selección de retransmisiones de
-                Lichess.
+                Consulta titulares de FIDE, ChessBase y Lichess, y las retransmisiones disponibles.
               </p>
               <span class="use-link">Abrir actualidad y competiciones ↗</span></a
             ><a href="/mundo"
@@ -240,8 +239,8 @@
           <div class="coverage-note">
             <span aria-hidden="true">ⓘ</span>
             <p>
-              El seguimiento de jugadores utiliza una selección declarada en el panel. El análisis
-              del censo de federaciones parte de las listas estándar FIDE completas.
+              Las fichas con histórico propio forman una selección. Performance y el censo de
+              federaciones se calculan sobre las listas estándar FIDE completas.
             </p>
             <a href="/fuentes">Ver cobertura y fuentes ↗</a>
           </div>
@@ -376,9 +375,10 @@
           <details>
             <summary>¿Los rankings incluyen a todos los jugadores?</summary>
             <p>
-              No. Performance y Trending ordenan las selecciones que se declaran en el panel. Global
-              se calcula a partir de las listas estándar FIDE completas, con un mínimo de jugadores
-              en el periodo base para publicar una comparación.
+              No. Performance analiza los jugadores comparables de las listas FIDE completas y
+              muestra hasta 100 resultados por filtro. Trending sigue una selección de artículos.
+              Global se calcula a partir de las listas estándar FIDE completas, con un mínimo de
+              jugadores en el periodo base para publicar una comparación.
             </p>
           </details>
           <details>
@@ -500,7 +500,7 @@
             <h2 id="directory-title">Encuentra un jugador.</h2>
             <p class="fine">
               Busca por nombre o identificador FIDE. La consulta se extiende al directorio público
-              de Lichess, más allá de nuestra selección de índices.
+              de Lichess, además de las fichas con histórico propio.
             </p>
           </div>
           <form id="directory-search" role="search">
@@ -516,6 +516,16 @@
           </form>
           <div id="directory-results" aria-live="polite"></div>
         </section>
+        <details class="panel favorites-panel">
+          <summary>
+            Mis favoritos <span>Jugadores y países guardados en este navegador</span>
+          </summary>
+          <div id="favorites-list" class="profile-links"></div>
+          <p class="fine">
+            Se guardan solo en este navegador. Puedes quitarlos desde cada ficha o borrando los
+            datos del sitio.
+          </p>
+        </details>
         <section id="analytics-home" aria-label="Cambios destacados"></section>
         <div class="section-heading">
           <div>

@@ -133,3 +133,57 @@ test('instantánea real: cobertura y rankings coherentes con las observaciones i
     assert.equal(p.previous, expected.previous);
   }
 });
+
+test('el índice mundial agrupa la población comparable antes de limitar resultados', async () => {
+  const { summarizeWorldPerformance } = await import('../performance-world.mjs');
+  const rows = [
+    {
+      id: '1',
+      name: 'A',
+      federation: 'ESP',
+      rating: 1800,
+      birthYear: 2012,
+      games: 12,
+      samples: 13,
+      baseline: 1600,
+    },
+    {
+      id: '2',
+      name: 'B',
+      federation: 'USA',
+      rating: 2700,
+      birthYear: 1990,
+      games: 20,
+      samples: 13,
+      baseline: 2600,
+    },
+    {
+      id: '3',
+      name: 'C',
+      federation: 'ESP',
+      rating: 2200,
+      birthYear: 2000,
+      games: 1,
+      samples: 13,
+      baseline: 1800,
+    },
+    {
+      id: '4',
+      name: 'D',
+      federation: 'ESP',
+      rating: 2400,
+      birthYear: 2000,
+      games: 30,
+      samples: 12,
+      baseline: 2100,
+    },
+  ];
+  const { eligible, groups } = summarizeWorldPerformance(rows, '2026-11');
+  assert.equal(eligible.length, 2);
+  assert.deepEqual(
+    groups.get('WORLD|all|all').players.map((p) => p.id),
+    ['1', '2'],
+  );
+  assert.equal(groups.get('ESP|u16|other').total, 1);
+  assert.equal(groups.get('WORLD|adult|elite').players[0].id, '2');
+});

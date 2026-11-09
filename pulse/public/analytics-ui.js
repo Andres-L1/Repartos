@@ -243,8 +243,8 @@ export function chart(history, value, title, labelKey = 'month') {
 function playerLink(row) {
   return `<a href="/jugador/${esc(row.id)}">${esc(row.name || row.article.replaceAll('_', ' '))} <span>↗</span></a>`;
 }
-function leaderCard(type, title, subtitle) {
-  const leader = sortedRows(type)[0];
+function leaderCard(type, title, subtitle, selected) {
+  const leader = selected || sortedRows(type)[0];
   const name = leader
     ? type === 'global'
       ? esc(leader.name)
@@ -258,14 +258,30 @@ function leaderCard(type, title, subtitle) {
         : `/indices/${type}`;
   return `<a class="analytics-leader" href="${destination}"><span class="eyebrow">${title}</span><strong>${leader ? signed(leader.score, type === 'performance' ? ' Elo' : ' %') : '—'}</strong><h3>${name}</h3><p>${subtitle}</p><span class="leader-link">${leader ? 'Ver ficha y evolución ↗' : 'Consultar índice ↗'}</span></a>`;
 }
+let homeWorld, homeWorldMonth;
 export function renderAnalytics(section, value) {
+  if (section === 'hoy' && snapshot && homeWorldMonth !== snapshot.fide.month) {
+    homeWorldMonth = snapshot.fide.month;
+    homeWorld = null;
+    requestJSON('/api/performance/WORLD', { ttl: 600000 })
+      .then((data) => {
+        if (data.status !== 'ok' || data.month !== snapshot?.fide.month) return;
+        homeWorld = data.groups['all:all']?.players?.length ? data.groups['all:all'] : null;
+        if (location.pathname === '/panel') {
+          delete $('#analytics-home').dataset.version;
+          renderAnalytics('hoy');
+        }
+      })
+      .catch(() => {});
+  }
+
   if (
     section === 'hoy' &&
     $('#analytics-home') &&
     $('#analytics-home').dataset.version !== snapshot?.generatedAt
   )
     $('#analytics-home').innerHTML = snapshot
-      ? `<div class="section-heading"><div><p class="eyebrow">LOS CAMBIOS, CON DATOS</p><h2>Tres cambios para explorar</h2></div><a class="text-link" href="/tendencias">Ver tendencias ↗</a></div><div class="three-cards">${leaderCard('performance', 'PROGRESIÓN ELO · 12 MESES', `FIDE ${snapshot.fide.month} · Mayor subida de Elo entre ${sortedRows('performance').length} jugadores comparables de la selección.`)}${leaderCard('trending', 'WIKIPEDIA · 7 VS. 7 DÍAS', `Wikimedia hasta ${snapshot.interest.endDate} · Mayor variación relativa entre ${sortedRows('trending').length} artículos comparables en inglés.`)}${leaderCard('global', 'CENSO FIDE · 12 MESES', `FIDE ${snapshot.fide.month} · Mayor variación del censo entre ${sortedRows('global').length} federaciones comparables.`)}</div>`
+      ? `<div class="section-heading"><div><p class="eyebrow">LOS CAMBIOS, CON DATOS</p><h2>Tres cambios para explorar</h2></div><a class="text-link" href="/tendencias">Ver tendencias ↗</a></div><div class="three-cards">${leaderCard('performance', 'PROGRESIÓN ELO · 12 MESES', homeWorld ? `FIDE ${snapshot.fide.month} · Mayor variación entre ${number(homeWorld.total)} jugadores comparables de las listas completas.` : `FIDE ${snapshot.fide.month} · Mayor subida de Elo entre ${sortedRows('performance').length} jugadores comparables de la selección.`, homeWorld?.players[0])}${leaderCard('trending', 'WIKIPEDIA · 7 VS. 7 DÍAS', `Wikimedia hasta ${snapshot.interest.endDate} · Mayor variación relativa entre ${sortedRows('trending').length} artículos comparables en inglés.`)}${leaderCard('global', 'CENSO FIDE · 12 MESES', `FIDE ${snapshot.fide.month} · Mayor variación del censo entre ${sortedRows('global').length} federaciones comparables.`)}</div>`
       : '';
   if (section === 'hoy' && snapshot) $('#analytics-home').dataset.version = snapshot.generatedAt;
   if (section === 'tendencias') renderTrends();
@@ -307,7 +323,7 @@ function renderTrends() {
       )
       .join(
         '',
-      )}</div><p class="source-note">Cambio del censo activo FIDE a 12 meses, con base mínima de 100 jugadores. Influido por altas, bajas, cambios de bandera y revisiones de la fuente. No mide todo el ajedrez de un país.</p></article><div class="selection-note"><strong>Qué estamos observando</strong><p>${esc(snapshot.fide.cohort)}</p><p>Los rankings de jugadores pertenecen a esta selección, no al conjunto mundial. Se conservan los datos históricos y las fuentes de las trece listas; no se publican valores cuando faltan datos suficientes.</p></div>`;
+      )}</div><p class="source-note">Cambio del censo activo FIDE a 12 meses, con base mínima de 100 jugadores. Influido por altas, bajas, cambios de bandera y revisiones de la fuente. No mide todo el ajedrez de un país.</p></article><div class="selection-note"><strong>Qué estamos observando</strong><p>${esc(snapshot.fide.cohort)}</p><p>Trending observa únicamente el catálogo indicado. Performance analiza las listas FIDE completas con trece meses consecutivos y al menos doce partidas; no se publican valores cuando faltan datos suficientes.</p></div>`;
 }
 function renderIndex(type) {
   key = ['performance', 'trending', 'global'].includes(type) ? type : 'performance';
@@ -322,45 +338,72 @@ function renderIndex(type) {
   if (container.dataset.key !== key) {
     page = 0;
     container.dataset.key = key;
-    const federations = [...new Set(snapshot.fide.players.map((p) => p.federation))].sort((a, b) =>
-      federationName(a).localeCompare(federationName(b), 'es'),
-    );
-    container.innerHTML = `<label>Buscar <input id="analytics-search" type="search" placeholder="${key === 'global' ? 'Federación o código' : 'Nombre de jugador'}"></label><label>Federación <select id="analytics-federation"><option value="">Todas</option>${(key === 'global' ? snapshot.fide.federations.map((f) => f.code).sort() : federations).map((code) => `<option value="${code}">${esc(federationName(code))} · ${code}</option>`).join('')}</select></label>${key !== 'global' ? '<label>Edad aproximada <select id="analytics-age"><option value="">Todas</option><option value="u20">Hasta 20 años</option><option value="u16">Hasta 16 años</option><option value="adult">Más de 20 años</option></select></label><label>Nivel actual <select id="analytics-level"><option value="">Todos</option><option value="elite">2600 o más</option><option value="master">2400–2599</option><option value="other">Menos de 2400</option></select></label>' : ''}`;
+    const federations = [
+      ...new Set(
+        (key === 'performance' ? snapshot.fide.federations : snapshot.fide.players).map(
+          (p) => p.code || p.federation,
+        ),
+      ),
+    ].sort((a, b) => federationName(a).localeCompare(federationName(b), 'es'));
+    container.innerHTML = `<label>Buscar <input id="analytics-search" type="search" placeholder="${key === 'global' ? 'Federación o código' : key === 'performance' ? 'Buscar entre los primeros 100' : 'Nombre de jugador'}"></label><label>Federación <select id="analytics-federation"><option value="">Todas</option>${(key === 'global' ? snapshot.fide.federations.map((f) => f.code).sort() : federations).map((code) => `<option value="${code}">${esc(federationName(code))} · ${code}</option>`).join('')}</select></label>${key !== 'global' ? '<label>Edad aproximada <select id="analytics-age"><option value="">Todas</option><option value="u20">Hasta 20 años</option><option value="u16">Hasta 16 años</option><option value="adult">Más de 20 años</option></select></label><label>Nivel actual <select id="analytics-level"><option value="">Todos</option><option value="elite">2600 o más</option><option value="master">2400–2599</option><option value="other">Menos de 2400</option></select></label>' : ''}`;
   }
   enhanceSelects(container);
   renderRanking();
 }
-function renderRanking() {
+let rankingSequence = 0;
+async function renderRanking() {
+  const sequence = ++rankingSequence;
   if (!snapshot) return;
   const term = normalize($('#analytics-search')?.value || ''),
     federation = $('#analytics-federation')?.value || '',
     age = $('#analytics-age')?.value || '',
     level = $('#analytics-level')?.value || '';
   const year = Number(snapshot.fide.month.slice(0, 4));
-  const all = sortedRows(key),
-    rows = all.filter((row) => {
-      if (
-        term &&
-        !normalize(`${row.name || row.article} ${row.code || row.federation}`).includes(term)
-      )
-        return false;
-      if (federation && (row.code || row.federation) !== federation) return false;
-      const approximate = row.birthYear ? year - row.birthYear : null;
-      if (
-        age &&
-        (approximate === null ||
-          (age === 'u20' && approximate > 20) ||
-          (age === 'u16' && approximate > 16) ||
-          (age === 'adult' && approximate <= 20))
-      )
-        return false;
-      return (
-        !level ||
-        (level === 'elite' && row.rating >= 2600) ||
-        (level === 'master' && row.rating >= 2400 && row.rating < 2600) ||
-        (level === 'other' && row.rating < 2400)
-      );
-    });
+  let all = sortedRows(key),
+    comparableCount = all.length,
+    worldwide = false;
+  if (key === 'performance') {
+    $('#index-results').innerHTML = '<div class="empty">Consultando la progresión mundial…</div>';
+    try {
+      const data = await requestJSON('/api/performance/' + (federation || 'WORLD'), {
+        ttl: 600000,
+      });
+      if (sequence !== rankingSequence || key !== 'performance') return;
+      if (data.month !== snapshot.fide.month || data.status !== 'ok') throw Error('period');
+      const group = data.groups[`${age || 'all'}:${level || 'all'}`] || { total: 0, players: [] };
+      all = group.players;
+      comparableCount = group.total;
+      worldwide = true;
+    } catch {
+      if (sequence !== rankingSequence || key !== 'performance') return;
+      $('#index-results').innerHTML =
+        '<div class="empty">La progresión mundial no está disponible para la lista actual. Vuelve a intentarlo más tarde.</div>';
+      return;
+    }
+  }
+  const rows = all.filter((row) => {
+    if (
+      term &&
+      !normalize(`${row.name || row.article} ${row.code || row.federation}`).includes(term)
+    )
+      return false;
+    if (federation && (row.code || row.federation) !== federation) return false;
+    const approximate = row.birthYear ? year - row.birthYear : null;
+    if (
+      age &&
+      (approximate === null ||
+        (age === 'u20' && approximate > 20) ||
+        (age === 'u16' && approximate > 16) ||
+        (age === 'adult' && approximate <= 20))
+    )
+      return false;
+    return (
+      !level ||
+      (level === 'elite' && row.rating >= 2600) ||
+      (level === 'master' && row.rating >= 2400 && row.rating < 2600) ||
+      (level === 'other' && row.rating < 2400)
+    );
+  });
   const pages = Math.max(1, Math.ceil(rows.length / size));
   page = Math.min(page, pages - 1);
   const visible = rows.slice(page * size, (page + 1) * size);
@@ -406,7 +449,7 @@ function renderRanking() {
     })
     .join('');
   $('#index-results').innerHTML =
-    `<p class="ranking-scope">${key === 'global' ? 'Censo de las listas estándar FIDE completas.' : key === 'trending' ? `Selección de ${snapshot.catalog.length} artículos de Wikipedia en inglés; no mide todo el interés por el ajedrez.` : `Selección de ${snapshot.fide.players.length} jugadores por Elo actual, mujeres, jóvenes y catálogo Wikipedia; no es un ranking mundial exhaustivo.`}</p><div class="ranking-heading"><p>${rows.length} resultados del filtro · ${all.length} comparables ${key === 'global' ? 'de ' + snapshot.fide.federations.length + ' códigos FIDE' : 'en la selección'}</p><span>Metodología v1.0 · ${key === 'trending' ? snapshot.interest.endDate : snapshot.fide.month}</span></div><p class="ranking-overflow-hint">Desliza la tabla para consultar todos los valores →</p><div class="rank-table-wrap"><table class="rank-table"><caption>${key === 'performance' ? 'Progresión de Elo a 12 meses en la selección' : key === 'trending' ? 'Variación del interés en Wikipedia · selección editorial' : 'Crecimiento del censo activo de federaciones FIDE'}</caption><thead><tr><th scope="col">#</th>${headers.map((h) => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${body || '<tr><td colspan="6">No hay resultados con estos filtros.</td></tr>'}</tbody></table></div><div class="ranking-pagination"><button data-analytics-page="${page - 1}" ${page === 0 ? 'disabled' : ''}>← Anterior</button><span>Página ${page + 1} de ${pages}</span><button data-analytics-page="${page + 1}" ${page === pages - 1 ? 'disabled' : ''}>Siguiente →</button></div><p class="source-note">${key === 'global' ? 'Base mínima: 100 jugadores activos hace 12 meses. Listas estándar FIDE completas. No se utiliza el número de retransmisiones como actividad nacional.' : key === 'trending' ? 'Base mínima: 100 visitas en los siete días anteriores. Excluye series incompletas o cuya última consulta falló. El idioma observado es únicamente inglés.' : 'Requiere 13 listas consecutivas, 12 partidas en los 12 meses y estado activo actual. La edad es el año de la lista menos el año de nacimiento; no una edad exacta.'}</p>`;
+    `<p class="ranking-scope">${key === 'global' ? 'Censo de las listas estándar FIDE completas.' : key === 'trending' ? `Selección de ${snapshot.catalog.length} artículos de Wikipedia en inglés; no mide todo el interés por el ajedrez.` : 'Cálculo sobre las listas estándar FIDE completas. Se muestran como máximo los 100 primeros de cada combinación de filtros; la búsqueda actúa sobre esos resultados.'}</p><div class="ranking-heading"><p>${rows.length} resultados visibles · ${worldwide ? number(comparableCount) + ' jugadores comparables con estos filtros' : all.length + ' comparables ' + (key === 'global' ? 'de ' + snapshot.fide.federations.length + ' códigos FIDE' : 'en la selección')}</p><span>Metodología v1.0 · ${key === 'trending' ? snapshot.interest.endDate : snapshot.fide.month}</span></div><p class="ranking-overflow-hint">Desliza la tabla para consultar todos los valores →</p><div class="rank-table-wrap"><table class="rank-table"><caption>${key === 'performance' ? 'Progresión de Elo a 12 meses · listas FIDE completas' : key === 'trending' ? 'Variación del interés en Wikipedia · selección editorial' : 'Crecimiento del censo activo de federaciones FIDE'}</caption><thead><tr><th scope="col">#</th>${headers.map((h) => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${body || '<tr><td colspan="6">No hay resultados con estos filtros.</td></tr>'}</tbody></table></div><div class="ranking-pagination"><button data-analytics-page="${page - 1}" ${page === 0 ? 'disabled' : ''}>← Anterior</button><span>Página ${page + 1} de ${pages}</span><button data-analytics-page="${page + 1}" ${page === pages - 1 ? 'disabled' : ''}>Siguiente →</button></div><p class="source-note">${key === 'global' ? 'Base mínima: 100 jugadores activos hace 12 meses. Listas estándar FIDE completas. No se utiliza el número de retransmisiones como actividad nacional.' : key === 'trending' ? 'Base mínima: 100 visitas en los siete días anteriores. Excluye series incompletas o cuya última consulta falló. El idioma observado es únicamente inglés.' : 'Requiere 13 listas consecutivas, 12 partidas en los 12 meses y estado activo actual. La edad es el año de la lista menos el año de nacimiento; no una edad exacta.'}</p>`;
 }
 export async function enhancePlayer(id) {
   if (!snapshot) return;
@@ -435,7 +478,11 @@ export async function enhancePlayer(id) {
   const interest = detail.interest;
   const history = player.history;
   const details = `<div class="player-analytics">${chart(history, 'rating', 'Evolución del Elo estándar')}<details class="history-details"><summary>Ver ${history.length} registros mensuales y fuentes</summary><div class="rank-table-wrap"><table><thead><tr><th>Mes</th><th>Elo</th><th>Partidas del periodo</th><th>Estado</th><th>Fuente</th></tr></thead><tbody>${history.map((row) => `<tr><td>${row.month}</td><td>${row.rating}</td><td>${row.games}</td><td>${row.active ? 'Activo' : 'Inactivo'}</td><td><a href="${esc(snapshot.fide.sources.find((s) => s.month === row.month)?.url || 'https://ratings.fide.com/download_lists.phtml')}" target="_blank" rel="noopener noreferrer">Lista FIDE ↗</a></td></tr>`).join('')}</tbody></table></div></details>${interest ? `<div class="interest-summary"><h2>Interés público</h2><p><strong>${signed(interest.score, ' %')}</strong> · ${number(interest.current)} visitas frente a ${number(interest.previous)} · ${interest.start} a ${interest.end}${interest.stale ? ' · Última consulta fallida, valor excluido del ranking' : ''}</p><a href="https://en.wikipedia.org/wiki/${encodeURIComponent(interest.article)}" target="_blank" rel="noopener noreferrer">${esc(interest.article.replaceAll('_', ' '))} · Wikipedia en inglés ↗</a></div>${chart(interest.history, 'views', 'Visitas diarias · usuarios · todos los accesos', 'date')}<details class="history-details"><summary>Ver visitas diarias y fuente</summary><p><a href="${esc(interest.sourceUrl)}" target="_blank" rel="noopener noreferrer">Respuesta de Wikimedia ↗</a></p><div class="daily-values">${interest.history.map((h) => `<span>${h.date}: <strong>${number(h.views)}</strong></span>`).join('')}</div></details>` : '<p class="fine">Este jugador no forma parte del catálogo editorial de Wikipedia seguido por Trending.</p>'}</div>`;
-  summary.insertAdjacentHTML('afterend', details);
+  summary.insertAdjacentHTML(
+    'afterend',
+    details +
+      `<details class="history-details"><summary>Rápidas y blitz · datos de Lichess</summary><p class="fine">Consulta opcional del directorio FIDE de Lichess; su API no indica la fecha de lista.</p><button class="refresh-button" type="button" data-rating-detail="${id}">Consultar datos ↗</button><div aria-live="polite"></div></details>`,
+  );
 }
 export function enhanceCountry(code) {
   if (!snapshot) return;
@@ -450,6 +497,29 @@ export function enhanceCountry(code) {
       'afterend',
       `<div class="country-data"><p class="eyebrow">LISTA ESTÁNDAR FIDE · ${snapshot.fide.month} · ${fed.code}</p><strong>${number(now.active)}</strong><span> jugadores activos registrados</span><p>Global v1.0: <b>${signed(fed.index.score, ' %')}</b> a 12 meses. Base: ${number(fed.index.baseline)} activos.</p><p>${number(now.titled)} con título · ${number(now.juniors)} de hasta 20 años por año de nacimiento · Media top 10: ${number(now.top10Average)} Elo.</p>${!fed.index.eligible ? `<p>${esc(fed.index.reason)}</p>` : ''}<p class="source-note">Federación FIDE; no equivale necesariamente al territorio o a su actividad total.</p></div>`,
     );
+  const countryData = view.querySelector('.country-data');
+  if (countryData) {
+    countryData.insertAdjacentHTML(
+      'beforeend',
+      '<div class="country-risers-loading"><p class="source-note">Consultando progresiones de la federación…</p></div>',
+    );
+    const target = countryData.querySelector('.country-risers-loading');
+    requestJSON('/api/performance/' + fed.code, { ttl: 600000 })
+      .then((data) => {
+        if (!target.isConnected) return;
+        if (data.status !== 'ok' || data.month !== snapshot.fide.month) throw Error('period');
+        const group = data.groups['all:all'] || { total: 0, players: [] };
+        const leaders = group.players.filter((p) => p.score > 0).slice(0, 3);
+        target.innerHTML = leaders.length
+          ? `<h3>Mayores progresiones de la federación</h3><div class="country-risers">${leaders.map((player) => `<a href="/jugador/${esc(player.id)}">${esc(player.name)} <strong>${signed(player.score, ' Elo')}</strong></a>`).join('')}</div><p class="source-note">Variación a 12 meses entre ${number(group.total)} jugadores comparables de esta federación en las listas FIDE completas.</p><a class="text-link" href="/indices/performance">Explorar el índice ↗</a>`
+          : '<p class="source-note">No hay progresiones positivas comparables para esta federación.</p>';
+      })
+      .catch(() => {
+        if (target.isConnected)
+          target.innerHTML =
+            '<p class="source-note">Las progresiones de la federación no están disponibles temporalmente.</p>';
+      });
+  }
   for (const p of view.querySelectorAll('p'))
     if (p.textContent.startsWith('Consulta Global para ver las federaciones'))
       p.textContent =
@@ -471,7 +541,26 @@ document.addEventListener('change', (event) => {
     renderRanking();
   }
 });
-document.addEventListener('click', (event) => {
+document.addEventListener('click', async (event) => {
+  const control = event.target.closest('[data-rating-detail]');
+  if (control && !control.disabled) {
+    const output = control.nextElementSibling;
+    control.disabled = true;
+    output.textContent = 'Consultando Lichess…';
+    try {
+      const data = await requestJSON('/api/directory/players/' + control.dataset.ratingDetail, {
+        ttl: 3600000,
+      });
+      if (!output.isConnected) return;
+      output.innerHTML = `<p>Rápidas: <strong>${number(data.player.rapid)}</strong> · Blitz: <strong>${number(data.player.blitz)}</strong></p><p class="fine">Consulta: ${esc(new Intl.DateTimeFormat('es-ES', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Madrid' }).format(new Date(data.fetchedAt)))} (Madrid). ${esc(data.period)}</p>${data.history ? ['rapid', 'blitz'].map((key) => `<details class="history-details"><summary>Histórico ${key === 'rapid' ? 'rápidas' : 'blitz'} · ${data.history[key].length} observaciones</summary>${chart(data.history[key], 'rating', key === 'rapid' ? 'Elo rápido' : 'Elo blitz')}</details>`).join('') + `<p class="fine">${esc(data.historyNote)}</p>` : '<p class="fine">El histórico no está disponible temporalmente.</p>'}`;
+      control.hidden = true;
+    } catch {
+      if (output.isConnected) {
+        output.textContent = 'No se han podido consultar los datos. Inténtalo de nuevo.';
+        control.disabled = false;
+      }
+    }
+  }
   const button = event.target.closest('[data-analytics-page]');
   if (button && !button.disabled) {
     page = Number(button.dataset.analyticsPage);
