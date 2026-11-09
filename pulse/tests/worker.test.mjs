@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import worker, { parseNews, normalizeBroadcasts, decodeXml } from '../worker.mjs';
-import { countries, matchesCountry } from '../public/data.js';
+import { countries, matchesCountry, matchesPlayer } from '../public/data.js';
 test('RSS conserva fecha y fuente y descarta enlaces ajenos o fechas inválidas', () => {
   const xml =
     '<rss><item><title><![CDATA[Chess &amp; world &#8217;]]></title><link>https://www.fide.com/news/</link><pubDate>Thu, 05 Nov 2026 13:26:42 +0000</pubDate></item><item><title>Bad</title><link>https://evil.test/</link><pubDate>Thu, 05 Nov 2026 13:26:42 +0000</pubDate></item><item><title>No date</title><link>https://www.fide.com/test/</link><pubDate>invalid</pubDate></item></rss>';
@@ -120,4 +120,29 @@ test('redirige HTTP y publica sitemap sin convertir 404 en éxito', async () => 
     context,
   );
   assert.match(await sitemap.text(), /chedexpulse.app\/indices/);
+});
+
+test('las conexiones no confunden apellidos ni códigos con palabras', () => {
+  assert.equal(matchesPlayer('Sivanandan jugará en Salamanca', { aliases: ['Anand'] }), false);
+  assert.equal(matchesPlayer('Anand jugará en Salamanca', { aliases: ['Anand'] }), true);
+  assert.equal(
+    matchesCountry('Van Wely jugará en Salamanca', { code: 'VAN', aliases: ['VAN'] }),
+    false,
+  );
+});
+test('metadatos del panel se entregan en el HTML inicial', async () => {
+  const html = '<title>Anterior</title><meta name="description" content="Anterior" />';
+  const env = {
+    ASSETS: {
+      fetch: async () =>
+        new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } }),
+    },
+  };
+  const result = await worker.fetch(new Request('https://chedexpulse.app/panel'), env, {
+    waitUntil() {},
+  });
+  const body = await result.text();
+  assert.match(body, /Panel de actualidad/);
+  assert.match(body, /rel="canonical" href="https:\/\/chedexpulse.app\/panel"/);
+  assert.match(body, /Consulta noticias/);
 });

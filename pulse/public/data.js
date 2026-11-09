@@ -86,7 +86,10 @@ export function matchesCountry(text, country) {
   if (['FID', 'FIDE'].includes(country.code) || !country.aliases?.length) return false;
   let cached = countryMatchers.get(country);
   if (!cached || cached.aliases !== country.aliases) {
-    const escaped = country.aliases.map((alias) => alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const escaped = country.aliases
+      .filter((alias) => alias !== country.code)
+      .map((alias) => alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    if (!escaped.length) return false;
     cached = {
       aliases: country.aliases,
       pattern: new RegExp('(^|[^\\p{L}])(?:' + escaped.join('|') + ')([^\\p{L}]|$)', 'iu'),
@@ -94,4 +97,11 @@ export function matchesCountry(text, country) {
     countryMatchers.set(country, cached);
   }
   return cached.pattern.test(String(text ?? ''));
+}
+
+export function matchesPlayer(text, player) {
+  return player.aliases.some((alias) => {
+    const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp('(^|[^\\p{L}])' + escaped + '([^\\p{L}]|$)', 'iu').test(String(text ?? ''));
+  });
 }

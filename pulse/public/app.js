@@ -6,7 +6,14 @@ import { initDirectory, renderDirectoryPlayer } from './components/directory.js'
 import { initLanding } from './components/landing.js';
 import { loadAnalytics, renderAnalytics } from './analytics-ui.js';
 import { updateMap, resetMaps } from './maps.js';
-import { countries, players, indices, countryByCode, matchesCountry } from './data.js';
+import {
+  countries,
+  players,
+  indices,
+  countryByCode,
+  matchesCountry,
+  matchesPlayer,
+} from './data.js';
 const $ = (selector) => document.querySelector(selector);
 const escape = (value) =>
   String(value ?? '').replace(
@@ -38,10 +45,7 @@ let news = null,
 const statusText = (item) =>
   item.status === 'live' ? 'EN DIRECTO' : item.status === 'finished' ? 'FINALIZADO' : 'PROGRAMADO';
 const relatedCountries = (text) => countries.filter((country) => matchesCountry(text, country));
-const relatedPlayers = (text) =>
-  players.filter((player) =>
-    player.aliases.some((alias) => text.toLowerCase().includes(alias.toLowerCase())),
-  );
+const relatedPlayers = (text) => players.filter((player) => matchesPlayer(text, player));
 
 function renderMaps() {
   const term = $('#country-search').value.trim().toLocaleLowerCase('es');

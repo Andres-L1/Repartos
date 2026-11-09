@@ -2353,3 +2353,15 @@ footer > span {
   color: var(--accent);
   font-size: 12px;
 }
+
+@media (max-width: 640px) {
+  .fine,
+  .source-note,
+  .subtitle {
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .map-panel .text-link {
+    font-size: 11px;
+  }
+}
