@@ -61,3 +61,10 @@ export function dailyOverview(broadcasts, news, now = Date.now()) {
     ),
   };
 }
+
+export function topRatings(players) {
+  return players
+    .filter((player) => player.active && Number.isFinite(player.rating) && player.rating > 0)
+    .sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name, 'es'))
+    .slice(0, 10);
+}

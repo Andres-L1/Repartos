@@ -1,3 +1,4 @@
+import { topRatings } from './lib/observatory.js';
 import { requestJSON } from './lib/requests.js';
 import { enhanceSelects } from './components/select.js';
 import { countries, players, countryByCode, indices } from './data.js';
@@ -280,8 +281,9 @@ function renderTrends() {
   const rising = sortedRows('performance').filter((p) => p.score > 0),
     attention = sortedRows('trending'),
     global = sortedRows('global');
+  const leaders = topRatings(snapshot.fide.players);
   $('#trends-data').innerHTML +=
-    `<div class="analytics-summary"><div><strong>${number(snapshot.fide.totalPlayers)}</strong><span>Registros en la lista estándar</span></div><div><strong>${snapshot.fide.players.length}</strong><span>Jugadores en seguimiento</span></div><div><strong>${snapshot.fide.sources.length}</strong><span>Listas mensuales verificadas</span></div><div><strong>${attention.length} / ${snapshot.catalog.length}</strong><span>Artículos con comparación válida</span></div></div><div class="trends-columns"><article class="panel trends-panel"><div class="column-title"><h2>Progresión de Elo</h2><a href="/indices/performance">Ver ranking ↗</a></div>${rising
+    `<details class="panel top-ratings"><summary><span>Mayores Elo de la selección</span><small>Lista FIDE ${esc(snapshot.fide.month)} · Ver 10 jugadores ↓</small></summary><p class="source-note">Elo estándar de la lista mensual, no Elo en directo. Ordenado dentro de la selección seguida por Pulse; los empates se muestran por nombre.</p>${leaders.map((p, i) => `<div class="trend-row"><span class="trend-position">${i + 1}</span><div>${playerLink(p)}<small>${esc(federationName(p.federation))}</small></div><strong>${number(p.rating)}</strong></div>`).join('') || '<p class="fine">No hay datos comparables disponibles.</p>'}<p class="source-note"><a href="https://ratings.fide.com/top_lists.phtml" target="_blank" rel="noopener noreferrer">Consultar los rankings oficiales de FIDE ↗</a></p></details><div class="analytics-summary"><div><strong>${number(snapshot.fide.totalPlayers)}</strong><span>Registros en la lista estándar</span></div><div><strong>${snapshot.fide.players.length}</strong><span>Jugadores en seguimiento</span></div><div><strong>${snapshot.fide.sources.length}</strong><span>Listas mensuales verificadas</span></div><div><strong>${attention.length} / ${snapshot.catalog.length}</strong><span>Artículos con comparación válida</span></div></div><div class="trends-columns"><article class="panel trends-panel"><div class="column-title"><h2>Progresión de Elo</h2><a href="/indices/performance">Ver ranking ↗</a></div>${rising
       .slice(0, 5)
       .map(
         (p, i) =>

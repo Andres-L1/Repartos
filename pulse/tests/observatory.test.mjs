@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { orderBroadcasts, countryActivity } from '../public/lib/observatory.js';
+import { orderBroadcasts, countryActivity, topRatings } from '../public/lib/observatory.js';
 import { matchesCountry } from '../public/data.js';
 
 test('directos primero, próximos por fecha y finalizados al final sin mutar el origen', () => {
@@ -44,4 +44,18 @@ test('capas separan directos, próximas y federación sin inventar ubicaciones',
   assert.equal(countryActivity(countries, items, players, 'live')[0].count, 1);
   assert.equal(countryActivity(countries, items, players, 'upcoming')[0].count, 1);
   assert.equal(countryActivity(countries, items, players, 'players')[0].count, 1);
+});
+
+test('los mayores Elo excluyen jugadores inactivos o sin dato y no modifican la selección', () => {
+  const input = [
+    { id: '1', name: 'C', rating: 2500, active: true },
+    { id: '2', name: 'B', rating: 2700, active: false },
+    { id: '3', name: 'A', rating: 2600, active: true },
+    { id: '4', name: 'D', rating: null, active: true },
+  ];
+  assert.deepEqual(
+    topRatings(input).map((p) => p.id),
+    ['3', '1'],
+  );
+  assert.equal(input[0].id, '1');
 });

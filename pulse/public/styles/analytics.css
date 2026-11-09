@@ -770,3 +770,31 @@
     font-size: 20px;
   }
 }
+
+.top-ratings {
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.top-ratings summary {
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 20px;
+  font-weight: 600;
+  font-size: 16px;
+}
+.top-ratings summary small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+.top-ratings[open] summary {
+  color: var(--accent);
+}
+.top-ratings .source-note {
+  line-height: 1.7;
+}
+.top-ratings .source-note a {
+  color: var(--accent);
+}
