@@ -108,3 +108,16 @@ test('análisis: si GitHub falla se identifica la copia publicada y se conserva 
     globalThis.fetch = original;
   }
 });
+
+test('redirige HTTP y publica sitemap sin convertir 404 en éxito', async () => {
+  const context = { waitUntil() {} };
+  const redirect = await worker.fetch(new Request('http://chedexpulse.app/panel'), {}, context);
+  assert.equal(redirect.status, 301);
+  assert.equal(redirect.headers.get('Location'), 'https://chedexpulse.app/panel');
+  const sitemap = await worker.fetch(
+    new Request('https://chedexpulse.app/sitemap.xml'),
+    {},
+    context,
+  );
+  assert.match(await sitemap.text(), /chedexpulse.app\/indices/);
+});

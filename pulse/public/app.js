@@ -34,8 +34,7 @@ let news = null,
   showAllBroadcasts = false,
   homeMapFilter = 'all',
   shownNews = 5,
-  previousVisit = null,
-  rememberedVisit = false;
+  previousVisit = null;
 const statusText = (item) =>
   item.status === 'live' ? 'EN DIRECTO' : item.status === 'finished' ? 'FINALIZADO' : 'PROGRAMADO';
 const relatedCountries = (text) => countries.filter((country) => matchesCountry(text, country));
@@ -117,16 +116,6 @@ function errorMarkup(message) {
 }
 function renderDaily() {
   if (!news && !broadcasts) return;
-  if (!rememberedVisit) {
-    rememberedVisit = true;
-    try {
-      const value = Number(localStorage.getItem('pulse:lastVisit'));
-      if (value > 0 && value < Date.now()) previousVisit = value;
-      localStorage.setItem('pulse:lastVisit', String(Date.now()));
-    } catch {
-      /* La consulta también funciona sin almacenamiento local. */
-    }
-  }
   const data = dailyOverview(broadcasts?.items || [], news?.items || []);
   const tiles = [
     ['live', broadcasts?.status === 'ok' ? data.live.length : '—', 'Retransmisiones en directo'],
