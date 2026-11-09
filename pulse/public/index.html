@@ -117,10 +117,10 @@
           <p class="eyebrow">
             <span class="small-dot"></span> CHEDEX PULSE · OBSERVATORIO DE AJEDREZ
           </p>
-          <h1 id="landing-title">El ajedrez mundial,<br /><span>con contexto.</span></h1>
+          <h1 id="landing-title">Sigue el pulso<br /><span>del ajedrez mundial.</span></h1>
           <p class="landing-description">
-            Noticias de FIDE, ChessBase en español y Lichess; retransmisiones, buscador de jugadores
-            y evolución de federaciones. Conecta la actualidad con los datos desde un mismo panel.
+            Noticias, competiciones y evolución de jugadores y federaciones. Todo conectado en un
+            mismo panel, con fuentes y fechas visibles.
           </p>
           <div class="landing-actions">
             <a class="login-button landing-primary" href="/panel"
@@ -136,29 +136,36 @@
           </div>
           <p class="landing-open">Consulta gratuita · Sin registro obligatorio</p>
         </div>
-        <figure class="product-preview">
-          <a
-            class="preview-window"
-            href="/panel"
-            aria-label="Captura real del panel de Chedex Pulse. Abrir el panel."
-          >
-            <div class="preview-bar">
-              <span class="preview-dots" aria-hidden="true"><i></i><i></i><i></i></span
-              ><span>chedexpulse.app/panel</span><span class="preview-open">Abrir panel ↗</span>
+        <section class="landing-signal panel" aria-label="Una muestra de Pulse">
+          <div class="signal-top">
+            <div>
+              <p class="eyebrow"><span class="small-dot"></span> UNA MIRADA A PULSE</p>
+              <h2>El ajedrez, en movimiento.</h2>
             </div>
-            <img
-              class="dashboard-capture"
-              src="/dashboard-preview.jpg"
-              width="1265"
-              height="1050"
-              alt="Panel real de Chedex Pulse: mapa por capas, retransmisiones y cambios de Elo, Wikipedia y censo FIDE."
-              fetchpriority="high"
-            />
-          </a>
-          <figcaption>
-            Captura del panel · 5 de noviembre de 2026. Consulta los datos actualizados al abrirlo.
-          </figcaption>
-        </figure>
+            <a class="text-link" href="/panel">Abrir el panel ↗</a>
+          </div>
+          <div class="signal-grid" aria-live="polite">
+            <a href="/panel" class="signal-card"
+              ><span>RETRANSMISIONES · LICHESS</span><strong id="landing-live-count">—</strong>
+              <h3>En directo</h3>
+              <p id="landing-live-status">Consultando retransmisiones…</p></a
+            >
+            <a href="/indices/performance" class="signal-card"
+              ><span>PROGRESIÓN · FIDE</span><strong id="landing-leader-score">—</strong>
+              <h3 id="landing-leader-name">Mayor progresión comparable</h3>
+              <p id="landing-leader-status">Consultando la lista mensual…</p></a
+            >
+            <a href="/indices/global" class="signal-card"
+              ><span>FEDERACIONES · FIDE</span><strong id="landing-fed-count">—</strong>
+              <h3>Federaciones comparables</h3>
+              <p id="landing-fed-status">Consultando la lista mensual…</p></a
+            >
+          </div>
+          <p class="signal-footnote">
+            Cobertura parcial · Las retransmisiones pertenecen a la selección de Lichess. La
+            progresión usa listas FIDE mensuales, no Elo en directo.
+          </p>
+        </section>
         <div class="landing-section-nav" role="navigation" aria-label="Secciones de la portada">
           <button type="button" data-landing-scroll="landing-uses" aria-controls="landing-uses">
             Qué puedes consultar
@@ -182,14 +189,14 @@
           <div class="landing-use-grid">
             <a href="/panel"
               ><span class="use-number">01</span>
-              <h3>¿Qué está pasando?</h3>
+              <h3>Actualidad.</h3>
               <p>
                 Consulta titulares de FIDE, ChessBase y Lichess, y las retransmisiones disponibles.
               </p>
               <span class="use-link">Abrir actualidad y competiciones ↗</span></a
             ><a href="/mundo"
               ><span class="use-number">02</span>
-              <h3>¿Qué encuentro en un país?</h3>
+              <h3>Mundo.</h3>
               <p>
                 Selecciona un país y explora las fichas, competiciones y noticias relacionadas que
                 estén disponibles.
@@ -197,7 +204,7 @@
               <span class="use-link">Explorar el mapa ↗</span></a
             ><a href="/indices"
               ><span class="use-number">03</span>
-              <h3>¿Qué está cambiando?</h3>
+              <h3>Evolución.</h3>
               <p>
                 Revisa la progresión de Elo, el interés en Wikipedia y la variación del censo activo
                 FIDE.
@@ -219,23 +226,21 @@
               cobertura, no el total del ajedrez mundial.
             </p>
           </div>
-          <div id="landing-example" class="landing-example" aria-live="polite"></div>
           <div class="coverage-grid" aria-live="polite">
             <div>
-              <strong data-coverage="players">—</strong><span>Jugadores en seguimiento</span>
+              <strong data-coverage="comparable">—</strong
+              ><span>Jugadores comparables en Performance</span>
             </div>
-            <div><strong data-coverage="months">—</strong><span>Listas mensuales FIDE</span></div>
+            <div>
+              <strong data-coverage="players">—</strong><span>Fichas con histórico propio</span>
+            </div>
             <div>
               <strong data-coverage="articles">—</strong
               ><span>Artículos de Wikipedia en inglés</span>
             </div>
-            <div>
-              <strong data-coverage="federations">—</strong><span>Códigos de federación FIDE</span>
-            </div>
+            <div><strong data-coverage="months">—</strong><span>Listas mensuales FIDE</span></div>
           </div>
-          <p id="landing-coverage-status" class="coverage-status">
-            La cobertura se carga al llegar a esta sección.
-          </p>
+          <p id="landing-coverage-status" class="coverage-status">Consultando la cobertura…</p>
           <div class="coverage-note">
             <span aria-hidden="true">ⓘ</span>
             <p>
@@ -243,45 +248,6 @@
               federaciones se calculan sobre las listas estándar FIDE completas.
             </p>
             <a href="/fuentes">Ver cobertura y fuentes ↗</a>
-          </div>
-        </section>
-        <section class="landing-section" aria-labelledby="landing-indices-title">
-          <div class="landing-section-heading">
-            <p class="eyebrow">TRES PERSPECTIVAS</p>
-            <h2 id="landing-indices-title">Una cifra tiene sentido<br />cuando sabes qué mide.</h2>
-          </div>
-          <div class="landing-index-list">
-            <a href="/indices/performance"
-              ><span class="index-label">PERFORMANCE</span>
-              <div>
-                <h3>Progresión del Elo estándar.</h3>
-                <p>
-                  Diferencia entre el Elo actual y el de hace doce meses, con requisitos de
-                  continuidad y actividad. No es rendimiento por partida.
-                </p>
-              </div>
-              <span class="index-unit">Puntos Elo ↗</span></a
-            ><a href="/indices/trending"
-              ><span class="index-label">TRENDING</span>
-              <div>
-                <h3>Cambio del interés público.</h3>
-                <p>
-                  Visitas de siete días completos a los artículos de Wikipedia en inglés que
-                  seguimos, frente a los siete días anteriores.
-                </p>
-              </div>
-              <span class="index-unit">Variación % ↗</span></a
-            ><a href="/indices/global"
-              ><span class="index-label">GLOBAL</span>
-              <div>
-                <h3>Evolución del censo activo.</h3>
-                <p>
-                  Variación anual de jugadores activos con Elo estándar registrados en cada
-                  federación. No representa toda la actividad de un país.
-                </p>
-              </div>
-              <span class="index-unit">Variación % ↗</span></a
-            >
           </div>
         </section>
         <section
@@ -297,52 +263,14 @@
               estado de cada fuente.
             </p>
           </div>
-          <div class="landing-source-grid">
-            <article>
-              <span>ChessBase · Español</span>
-              <h3>Prensa especializada.</h3>
-              <p>
-                Titulares del canal RSS en español. Se enlaza siempre al artículo original; no se
-                reproducen los textos completos.
-              </p>
-              <a href="https://es.chessbase.com/feed/20" target="_blank" rel="noopener noreferrer"
-                >RSS en español ↗</a
-              >
-            </article>
-            <article>
-              <span class="source-wordmark">FIDE</span>
-              <h3>Actualidad y Elo.</h3>
-              <p>
-                Titulares oficiales y listas mensuales de Elo estándar. Las fichas permiten
-                consultar los registros importados.
-              </p>
-              <a
-                href="https://ratings.fide.com/download_lists.phtml"
-                target="_blank"
-                rel="noopener noreferrer"
-                >Listas oficiales ↗</a
-              >
-            </article>
-            <article>
-              <span class="source-wordmark">Lichess</span>
-              <h3>Retransmisiones.</h3>
-              <p>
-                Selección de competiciones de Lichess Broadcast, con el estado de la ronda
-                comunicado por la fuente.
-              </p>
-              <a href="https://lichess.org/broadcast" target="_blank" rel="noopener noreferrer"
-                >Lichess Broadcast ↗</a
-              >
-            </article>
-            <article>
-              <span class="source-wordmark">Wikimedia</span>
-              <h3>Interés público.</h3>
-              <p>
-                Visitas de usuarios a los artículos seguidos en Wikipedia en inglés. Los artículos
-                se vinculan a FIDE mediante Wikidata.
-              </p>
-              <a href="/indices/trending">Ver el método ↗</a>
-            </article>
+          <div class="landing-source-strip">
+            <a href="https://www.fide.com/" target="_blank" rel="noopener noreferrer"
+              >FIDE <span>Listas y noticias ↗</span></a
+            ><a href="https://es.chessbase.com/" target="_blank" rel="noopener noreferrer"
+              >ChessBase <span>Noticias en español ↗</span></a
+            ><a href="https://lichess.org/broadcast" target="_blank" rel="noopener noreferrer"
+              >Lichess <span>Retransmisiones y jugadores ↗</span></a
+            ><a href="/indices/trending">Wikimedia <span>Interés público ↗</span></a>
           </div>
           <a class="all-sources-link" href="/fuentes"
             >Consultar todas las fuentes, periodos y límites ↗</a

@@ -5,62 +5,89 @@ export function initLanding() {
   const status = document.getElementById('landing-coverage-status');
   if (!coverage || !status) return;
 
-  async function loadCoverage() {
-    status.textContent = 'Consultando la cobertura de la instantánea…';
-    try {
-      const data = await requestJSON('/api/analytics/summary', { ttl: 600000 });
-      if (data.status !== 'ok' || data.schema !== 1) throw new Error('source');
+  const $ = (selector) => document.querySelector(selector);
+  const count = new Intl.NumberFormat('es-ES');
+  const date = (value) =>
+    new Intl.DateTimeFormat('es-ES', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+      timeZone: 'Europe/Madrid',
+    }).format(new Date(value));
+  const summary = () => requestJSON('/api/analytics/summary', { ttl: 600000 });
+  const performance = () => requestJSON('/api/performance/WORLD', { ttl: 600000 });
+  let started = false;
+  async function loadSignals() {
+    const [broadcasts, analytics, ranking] = await Promise.allSettled([
+      requestJSON('/api/broadcasts', { ttl: 300000 }),
+      summary(),
+      performance(),
+    ]);
+    const live =
+      broadcasts.status === 'fulfilled' && broadcasts.value.status === 'ok'
+        ? broadcasts.value
+        : null;
+    if (live) {
+      $('#landing-live-count').textContent = count.format(
+        live.items.filter((item) => item.status === 'live').length,
+      );
+      $('#landing-live-status').textContent =
+        `Selección de Lichess · Consultada ${date(live.fetchedAt)} (Madrid).`;
+    } else
+      $('#landing-live-status').textContent = 'Retransmisiones no disponibles en este momento.';
+    const data =
+      analytics.status === 'fulfilled' && analytics.value.status === 'ok' ? analytics.value : null;
+    const world =
+      ranking.status === 'fulfilled' &&
+      ranking.value.status === 'ok' &&
+      data &&
+      ranking.value.month === data.fide.month
+        ? ranking.value
+        : null;
+    if (data) {
+      const federations = data.fide.federations.filter((item) => item.index?.eligible).length;
+      $('#landing-fed-count').textContent = count.format(federations);
+      $('#landing-fed-status').textContent =
+        `Variación del censo activo · FIDE ${data.fide.month}.`;
+    } else $('#landing-fed-status').textContent = 'Censo FIDE no disponible en este momento.';
+    const group = world?.groups?.['all:all'],
+      leader = group?.players?.[0];
+    if (leader) {
+      $('#landing-leader-score').textContent =
+        `${leader.score > 0 ? '+' : ''}${count.format(leader.score)} Elo`;
+      $('#landing-leader-name').textContent = leader.name;
+      $('#landing-leader-status').textContent =
+        `Mayor variación a 12 meses entre ${count.format(group.total)} comparables · FIDE ${world.month}.`;
+      const link = $('#landing-leader-score').closest('a');
+      link.href = `/jugador/${encodeURIComponent(leader.id)}`;
+    } else
+      $('#landing-leader-status').textContent =
+        'Progresión mundial no disponible para la lista actual.';
+    if (world)
+      coverage.querySelector('[data-coverage="comparable"]').textContent = count.format(
+        world.totalComparable,
+      );
+    else coverage.querySelector('[data-coverage="comparable"]').textContent = '—';
+    if (data) {
       const counts = {
         players: data.fide.players.length,
         months: data.fide.sources.length,
         articles: data.catalog.length,
-        federations: data.fide.federations.length,
       };
-      const format = new Intl.NumberFormat('es-ES');
-      const leader = data.fide.players
-        .filter((player) => player.performance.eligible)
-        .sort((a, b) => b.performance.score - a.performance.score)[0];
-      const example = document.getElementById('landing-example');
-      if (example && leader) {
-        example.replaceChildren();
-        const label = document.createElement('span');
-        label.textContent = 'UN EJEMPLO CON LOS DATOS DISPONIBLES';
-        const link = document.createElement('a');
-        link.href = `/jugador/${leader.id}`;
-        link.textContent = `${leader.name}: ${leader.performance.score > 0 ? '+' : ''}${format.format(leader.performance.score)} puntos Elo en doce meses ↗`;
-        const note = document.createElement('p');
-        note.textContent = `Abre su ficha para consultar la evolución mensual y las fuentes. Mayor progresión comparable dentro de nuestra selección, según FIDE ${data.fide.month}.`;
-        example.append(label, link, note);
-      }
-      for (const element of coverage.querySelectorAll('[data-coverage]')) {
-        element.textContent = format.format(counts[element.dataset.coverage]);
-      }
-      const date = new Intl.DateTimeFormat('es-ES', {
-        dateStyle: 'short',
-        timeStyle: 'short',
-        timeZone: 'Europe/Madrid',
-      }).format(new Date(data.generatedAt));
-      status.textContent = `Lista FIDE: ${data.fide.month} · Recopilación: ${date} (Madrid).${data.stale ? ' Datos con más de 48 horas sin actualizar.' : ''}${data.delivery === 'bundled' ? ' Copia incluida en la publicación.' : data.delivery === 'last-good' ? ' Última copia verificada; fuente temporalmente no disponible.' : ''}`;
-    } catch {
+      for (const [key, value] of Object.entries(counts))
+        coverage.querySelector(`[data-coverage="${key}"]`).textContent = count.format(value);
+      status.textContent = `Lista FIDE: ${data.fide.month} · Recopilación: ${date(data.generatedAt)} (Madrid).${data.stale ? ' Datos con más de 48 horas sin actualizar.' : ''}${data.delivery === 'bundled' ? ' Copia incluida en la publicación.' : data.delivery === 'last-good' ? ' Última copia verificada; fuente temporalmente no disponible.' : ''}${!world ? ' Progresión mundial temporalmente no disponible.' : ''}`;
+    } else
       status.textContent =
         'No se ha podido consultar la cobertura. Puedes revisar las fuentes en el panel.';
-      const retry = document.createElement('button');
-      retry.type = 'button';
-      retry.textContent = 'Volver a consultar ↻';
-      retry.addEventListener('click', loadCoverage, { once: true });
-      status.append(retry);
-    }
   }
-  const observer = new IntersectionObserver((entries) => {
-    if (
-      entries.some((entry) => entry.isIntersecting) &&
-      document.body.classList.contains('landing-mode')
-    ) {
-      observer.disconnect();
-      loadCoverage();
-    }
-  });
-  observer.observe(coverage);
+  function start() {
+    if (started || location.pathname !== '/') return;
+    started = true;
+    loadSignals();
+  }
+  start();
+  window.addEventListener('pulse:navigate', start);
+  window.addEventListener('popstate', start);
 
   document.addEventListener('click', (event) => {
     const button = event.target.closest('[data-landing-scroll]');
