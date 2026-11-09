@@ -34,3 +34,30 @@ export function countryActivity(list, broadcasts, players = [], filter = 'all') 
     return { country, items, live, upcoming, players: roster, count };
   });
 }
+
+const madridDay = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Europe/Madrid',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+export function dailyOverview(broadcasts, news, now = Date.now()) {
+  const today = madridDay.format(new Date(now));
+  const items = orderBroadcasts(broadcasts);
+  return {
+    live: items.filter((item) => item.status === 'live'),
+    today: items.filter(
+      (item) =>
+        item.status === 'upcoming' &&
+        item.startsAt &&
+        madridDay.format(new Date(item.startsAt)) === today,
+    ),
+    upcoming: items.filter(
+      (item) => item.status === 'upcoming' && item.startsAt && Date.parse(item.startsAt) >= now,
+    ),
+    recentNews: news.filter(
+      (item) =>
+        Date.parse(item.publishedAt) <= now && Date.parse(item.publishedAt) > now - 86400000,
+    ),
+  };
+}

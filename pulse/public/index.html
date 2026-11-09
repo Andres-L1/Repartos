@@ -119,8 +119,8 @@
           </p>
           <h1 id="landing-title">El ajedrez mundial,<br /><span>con contexto.</span></h1>
           <p class="landing-description">
-            Titulares de FIDE, retransmisiones de Lichess y evolución de jugadores y federaciones.
-            Conecta la actualidad con los datos desde un mismo panel.
+            Noticias de FIDE, ChessBase en español y Lichess; retransmisiones, buscador de jugadores
+            y evolución de federaciones. Conecta la actualidad con los datos desde un mismo panel.
           </p>
           <div class="landing-actions">
             <a class="login-button landing-primary" href="/panel"
@@ -300,10 +300,21 @@
           </div>
           <div class="landing-source-grid">
             <article>
+              <span>ChessBase · Español</span>
+              <h3>Prensa especializada.</h3>
+              <p>
+                Titulares del canal RSS en español. Se enlaza siempre al artículo original; no se
+                reproducen los textos completos.
+              </p>
+              <a href="https://es.chessbase.com/feed/20" target="_blank" rel="noopener noreferrer"
+                >RSS en español ↗</a
+              >
+            </article>
+            <article>
               <span class="source-wordmark">FIDE</span>
               <h3>Actualidad y Elo.</h3>
               <p>
-                Titulares del RSS oficial y listas mensuales de Elo estándar. Las fichas permiten
+                Titulares oficiales y listas mensuales de Elo estándar. Las fichas permiten
                 consultar los registros importados.
               </p>
               <a
@@ -406,6 +417,9 @@
             ><span class="edition-note">Fuentes abiertas · Sin registro obligatorio</span>
           </div>
         </div>
+        <section class="daily-brief" aria-label="Tu resumen diario" id="daily-brief">
+          <p class="fine">Preparando la edición de hoy…</p>
+        </section>
         <div class="overview">
           <article class="map-panel panel">
             <div class="panel-top">
@@ -473,7 +487,7 @@
             <div class="metric">
               <div>
                 <span class="metric-number" id="news-count">—</span
-                ><span class="metric-label">Titulares FIDE</span>
+                ><span class="metric-label">Titulares recibidos</span>
               </div>
               <span class="metric-icon" aria-hidden="true">≋</span>
             </div>
@@ -481,32 +495,82 @@
             <button class="refresh-button" id="refresh" type="button">↻ Actualizar fuentes</button>
           </aside>
         </div>
+        <section class="panel directory-panel" aria-labelledby="directory-title">
+          <div>
+            <h2 id="directory-title">Encuentra un jugador.</h2>
+            <p class="fine">
+              Busca por nombre o identificador FIDE. La consulta se extiende al directorio público
+              de Lichess, más allá de nuestra selección de índices.
+            </p>
+          </div>
+          <form id="directory-search" role="search">
+            <label for="directory-query" class="sr-only">Nombre o identificador FIDE</label
+            ><input
+              type="search"
+              id="directory-query"
+              minlength="3"
+              maxlength="80"
+              placeholder="Nombre completo o ID FIDE…"
+              autocomplete="off"
+            /><button type="submit">Buscar ↗</button>
+          </form>
+          <div id="directory-results" aria-live="polite"></div>
+        </section>
         <section id="analytics-home" aria-label="Cambios destacados"></section>
         <div class="section-heading">
           <div>
             <p class="eyebrow">PARA SEGUIR EL JUEGO</p>
-            <h2>Lo más relevante</h2>
+            <h2>Actualidad y agenda</h2>
           </div>
           <div class="segmented" role="group" aria-label="Contenido destacado">
             <button type="button" data-feed="all" aria-pressed="true">Todo</button
             ><button type="button" data-feed="live" aria-pressed="false">En directo</button
+            ><button type="button" data-feed="today" aria-pressed="false">Hoy</button
+            ><button type="button" data-feed="upcoming" aria-pressed="false">Próximas</button
+            ><button type="button" data-feed="finished" aria-pressed="false">Finalizadas</button
             ><button type="button" data-feed="news" aria-pressed="false">Actualidad</button>
           </div>
         </div>
-        <div class="feed-grid">
+        <div class="feed-filters">
+          <label
+            >Buscar en noticias y torneos<input
+              type="search"
+              id="feed-query"
+              placeholder="Jugador, torneo, país…"
+          /></label>
+          <label
+            >Idioma de noticias<select id="news-language">
+              <option value="">Todos</option>
+              <option value="es">Español</option>
+              <option value="en">Inglés</option>
+            </select></label
+          >
+          <label
+            >Fuente de noticias<select id="news-publisher">
+              <option value="">Todas</option>
+              <option value="FIDE">FIDE</option>
+              <option value="ChessBase">ChessBase · español</option>
+              <option value="Lichess">Lichess</option>
+            </select></label
+          >
+        </div>
+        <div class="feed-grid" id="daily-content">
           <section class="news-column" id="news-column">
             <div class="column-title">
               <h3>Actualidad internacional</h3>
-              <span class="tag">FIDE</span>
+              <span class="tag">RSS / Atom</span>
             </div>
             <div id="news-list" aria-live="polite">
               <div class="empty">Cargando los últimos titulares…</div>
             </div>
+            <button class="refresh-button" type="button" data-more-news hidden>
+              Ver más titulares ↓
+            </button>
             <p class="source-note" id="news-source"></p>
           </section>
           <section class="broadcast-column" id="broadcast-column">
             <div class="column-title">
-              <h3>Sobre el tablero</h3>
+              <h3 id="broadcast-heading">Retransmisiones y partidas</h3>
               <a href="https://lichess.org/broadcast" target="_blank" rel="noopener noreferrer"
                 >Lichess ↗</a
               >
@@ -630,10 +694,21 @@
             </thead>
             <tbody>
               <tr>
-                <td>Titulares oficiales</td>
+                <td>Titulares oficiales y prensa especializada</td>
                 <td>
                   <a href="https://www.fide.com/feed/" target="_blank" rel="noopener noreferrer"
                     >RSS FIDE ↗</a
+                  >
+                  ·
+                  <a
+                    href="https://es.chessbase.com/feed/20"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >ChessBase en español ↗</a
+                  >
+                  ·
+                  <a href="https://lichess.org/blog.atom" target="_blank" rel="noopener noreferrer"
+                    >Lichess Atom ↗</a
                   >
                 </td>
                 <td>Conectada · Sujeta a disponibilidad</td>
@@ -646,11 +721,24 @@
                     >Lichess Broadcast ↗</a
                   >
                 </td>
-                <td>Conectada · Selección destacada</td>
+                <td>Activos y primera página de recientes · Directorio destacado</td>
                 <td>Caché de 5 minutos</td>
               </tr>
               <tr>
-                <td>Elo e histórico</td>
+                <td>Buscador de jugadores e históricos</td>
+                <td>
+                  <a
+                    href="https://lichess.org/api#tag/FIDE"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Directorio FIDE de Lichess ↗</a
+                  >
+                </td>
+                <td>Nombre o ID · Cobertura según Lichess; sin fecha de lista en la API</td>
+                <td>Búsquedas: 5 minutos · Fichas: 1 hora</td>
+              </tr>
+              <tr>
+                <td>Elo e histórico de los índices</td>
                 <td>
                   <a
                     href="https://ratings.fide.com/download.phtml"
@@ -730,7 +818,7 @@
     <footer>
       <a class="brand footer-brand" href="/panel">CHEDEX <strong>PULSE.</strong></a>
       <p>El mundo del ajedrez, de un vistazo.</p>
-      <a href="/fuentes">Fuentes y metodología ↗</a><span>Una iniciativa de Chedex · v1.3</span>
+      <a href="/fuentes">Fuentes y metodología ↗</a><span>Una iniciativa de Chedex · v1.4</span>
     </footer>
     <noscript
       ><p class="noscript">

@@ -214,7 +214,7 @@ const sortedRows = (type) => {
     );
   return rankCache.get(type);
 };
-function chart(history, value, title, labelKey = 'month') {
+export function chart(history, value, title, labelKey = 'month') {
   const rows = history.filter((row) => Number.isFinite(row[value]));
   if (!rows.length) return '<p class="fine">Sin serie histórica disponible.</p>';
   const values = rows.map((row) => row[value]),
