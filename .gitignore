@@ -5,3 +5,4 @@ data/*.db*
 node_modules
 dist
 test/validation/last-run.json
+.superpowers/

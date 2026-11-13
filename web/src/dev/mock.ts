@@ -278,19 +278,67 @@ function json(body: unknown, status = 200): Response {
 }
 const err = (status: number, error: string) => json({ error }, status);
 
-/** Temario público simulado (sin contenido de lecciones). */
+/** Temario simulado: las mismas 6 unidades y 24 lecciones que sirve /api/outline en producción. */
 const OUTLINE: OutlineUnit[] = [
   {
-    id: 'u01', order: 1, title: 'Primeros pasos', description: 'Las piezas y cómo se mueven.', level: 'beginner',
-    lessons: [{ id: L1.id, title: L1.title }, { id: L2.id, title: L2.title }],
+    id: "u01", order: 1, title: "El tablero y las piezas", level: "beginner",
+    description: "Aprende a leer el tablero y cómo se mueve cada pieza: torre, alfil, dama, rey, caballo y peón. Es el primer paso para jugar tu primera partida.",
+    lessons: [
+      { id: "u01.l01", title: "El tablero y la torre" },
+      { id: "u01.l02", title: "El alfil y la dama" },
+      { id: "u01.l03", title: "El rey y el caballo" },
+      { id: "u01.l04", title: "El peón" },
+    ],
   },
   {
-    id: 'u02', order: 2, title: 'Mates básicos', description: 'Los primeros mates con pocas piezas.', level: 'initiation',
-    lessons: [{ id: L3.id, title: L3.title }, { id: 'u02.l02', title: 'Mate de dama y rey' }, { id: 'u02.l03', title: 'Mate del pasillo' }],
+    id: "u02", order: 2, title: "Capturar y proteger", level: "beginner",
+    description: "Aprende a capturar con cabeza: qué piezas están atacadas o protegidas, cuánto vale cada pieza y cuándo conviene (o no) hacer un cambio.",
+    lessons: [
+      { id: "u02.l01", title: "Capturar piezas" },
+      { id: "u02.l02", title: "Piezas atacadas y protegidas" },
+      { id: "u02.l03", title: "El valor de las piezas" },
+      { id: "u02.l04", title: "Cambiar piezas con sentido" },
+    ],
   },
   {
-    id: 'u03', order: 3, title: 'Tácticas simples', description: 'Horquillas, clavadas y piezas sin defender.', level: 'initiation',
-    lessons: [{ id: 'u03.l01', title: 'Piezas sin defender' }, { id: 'u03.l02', title: 'La horquilla' }],
+    id: "u03", order: 3, title: "Reglas especiales y fin de partida", level: "beginner",
+    description: "Aprende el jaque y el jaque mate, el enroque, la promoción del peón, la captura al paso y todas las formas de terminar en tablas. Con esto ya conoces todas las reglas del ajedrez.",
+    lessons: [
+      { id: "u03.l01", title: "El jaque y cómo salir de él" },
+      { id: "u03.l02", title: "El jaque mate" },
+      { id: "u03.l03", title: "Enroque, promoción y captura al paso" },
+      { id: "u03.l04", title: "Las tablas" },
+    ],
+  },
+  {
+    id: "u04", order: 4, title: "Mates básicos", level: "initiation",
+    description: "Aprende a terminar la partida: mate de escalera y del pasillo, mate con dama o torre apoyadas por el rey, mate de la coz, mate del pastor (y cómo evitarlo) y los primeros mates en dos jugadas.",
+    lessons: [
+      { id: "u04.l01", title: "Mate de escalera y mate del pasillo" },
+      { id: "u04.l02", title: "Dama o torre apoyadas por el rey" },
+      { id: "u04.l03", title: "Mate de la coz y mate del pastor" },
+      { id: "u04.l04", title: "Mate en dos jugadas" },
+    ],
+  },
+  {
+    id: "u05", order: 5, title: "Tácticas básicas", level: "initiation",
+    description: "Gana material con tácticas sencillas: piezas colgadas y cambios desfavorables, horquillas, clavadas y jaques a la descubierta. Aprenderás a verlas en tus partidas y a no sufrirlas.",
+    lessons: [
+      { id: "u05.l01", title: "Piezas colgadas y cambios desfavorables" },
+      { id: "u05.l02", title: "La horquilla" },
+      { id: "u05.l03", title: "La clavada" },
+      { id: "u05.l04", title: "El jaque a la descubierta" },
+    ],
+  },
+  {
+    id: "u06", order: 6, title: "Principios de apertura", level: "initiation",
+    description: "Los principios que te hacen jugar bien las primeras jugadas: controla el centro, desarrolla tus piezas, enroca pronto, no muevas la misma pieza dos veces ni saques la dama demasiado pronto, y conoce las trampas que castigan romper estas ideas.",
+    lessons: [
+      { id: "u06.l01", title: "Controla el centro" },
+      { id: "u06.l02", title: "Desarrolla tus piezas y enroca" },
+      { id: "u06.l03", title: "No repitas piezas ni saques la dama pronto" },
+      { id: "u06.l04", title: "Trampas que castigan romper los principios" },
+    ],
   },
 ];
 

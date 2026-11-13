@@ -85,7 +85,7 @@ export function BillingScreen() {
           10 € <span>/ mes</span>
         </p>
         <ul className="ticks">
-          <li>Todas las unidades y lecciones de 0 a 800 Elo</li>
+          <li>Todas las unidades y lecciones disponibles</li>
           <li>Seguimiento de racha y lecciones aprendidas</li>
           <li>Cancela cuando quieras</li>
         </ul>

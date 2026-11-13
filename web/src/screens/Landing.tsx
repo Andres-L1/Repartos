@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { BoardMark, Lesson } from '../../../src/content/schema';
-import type { OutlineUnit } from '../../../src/shared/api';
-import { STREAK_DAYS_PER_CHEDEX } from '../../../src/shop/catalog';
 import { api, ApiError } from '../api';
 import { Board, marksToShapes } from '../components/Board';
 import { LessonPlayer } from '../components/LessonPlayer';
 import { PracticeBoard } from '../components/PracticeBoard';
-import { Coin, MiniBoard as ShopMiniBoard } from '../components/ShopVisuals';
-import { LEVEL_LABEL } from './MapScreen';
+import { Coin } from '../components/ShopVisuals';
+import { Cycle, Pricing, Path, Problem, Quality, ShopLine, Trainer } from './LandingSections';
 import { applyUci, lastMoveOf, turnOf } from '../chess';
 import { navigate } from '../router';
 import { useSession } from '../session';
@@ -190,7 +188,7 @@ function LessonParts({ lesson }: { lesson: Lesson | null }) {
       <div className="wrap">
         <header className="band-head">
           <h2 id="parts-title">Cada lección tiene cinco partes</h2>
-          <p>Los tableros son los de la lección de demostración. Puedes recorrerlos de lado a lado.</p>
+          <p>Así se aprende en Chedex Pulse hoy. Los tableros son los de la lección de demostración.</p>
         </header>
       </div>
       <div className="parts-scroller" role="region" aria-label="Las cinco partes de una lección" tabIndex={0}>
@@ -208,184 +206,6 @@ function LessonParts({ lesson }: { lesson: Lesson | null }) {
             </li>
           ))}
         </ol>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- Capturas reales de la app ---------- */
-
-function Inside() {
-  const shots = [
-    { cls: 'shot-main', src: '/landing/leccion.webp', w: 1000, h: 680, alt: 'Una lección en la fase de práctica: el tablero grande a la izquierda y el enunciado a la derecha.', cap: 'Una lección en práctica: mueves tú y te corrige al momento.' },
-    { cls: 'shot-a', src: '/landing/aprender.webp', w: 800, h: 620, alt: 'La pantalla Aprender con las unidades y las lecciones en orden.', cap: 'Aprender: tus unidades y lecciones, en orden.' },
-    { cls: 'shot-b', src: '/landing/tienda.webp', w: 800, h: 620, alt: 'La tienda con los tableros y los juegos de piezas.', cap: 'La tienda: tableros y piezas para el tuyo.' },
-  ];
-  return (
-    <section className="band band-ink" aria-labelledby="inside-title">
-      <div className="wrap">
-        <header className="band-head">
-          <h2 id="inside-title">Así se ve por dentro</h2>
-          <p>Capturas de la propia aplicación, con datos de ejemplo.</p>
-        </header>
-        <div className="inside">
-          {shots.map((s) => (
-            <figure key={s.cls} className={`shot ${s.cls}`}>
-              <img src={s.src} width={s.w} height={s.h} alt={s.alt} loading="lazy" decoding="async" />
-              <figcaption>{s.cap}</figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- El temario ---------- */
-
-function levelText(level: OutlineUnit['level']): string {
-  const [name, range] = LEVEL_LABEL[level].split(' · ');
-  return range ? `${name}, ${range.replace('-', ' a ')} Elo` : (name ?? '');
-}
-
-function Route() {
-  const [units, setUnits] = useState<OutlineUnit[] | null>(null);
-  const [failed, setFailed] = useState(false);
-  const [attempt, setAttempt] = useState(0);
-  const [open, setOpen] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    let live = true;
-    api
-      .outline()
-      .then((r) => {
-        if (!live) return;
-        const sorted = [...r.units].sort((a, b) => a.order - b.order);
-        setUnits(sorted);
-        const first = sorted[0];
-        if (first) setOpen(new Set([first.id]));
-      })
-      .catch(() => {
-        if (live) setFailed(true);
-      });
-    return () => {
-      live = false;
-    };
-  }, [attempt]);
-  const total = units?.reduce((n, u) => n + u.lessons.length, 0) ?? 0;
-  const toggle = (id: string) =>
-    setOpen((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  return (
-    <section className="band band-raised" aria-labelledby="route-title">
-      <div className="wrap route-grid">
-        <header className="route-head">
-          <h2 id="route-title">Lo que vas a aprender</h2>
-          <p>
-            {units
-              ? `${units.length} unidades y ${total} lecciones, en este orden. Empiezas por las piezas y llegas a las primeras tácticas.`
-              : 'Un camino ordenado, de las piezas a las primeras tácticas.'}
-          </p>
-        </header>
-        <div className="route-body">
-          {failed && (
-            <div className="route-error" role="alert">
-              <p>No hemos podido cargar el temario. Comprueba tu conexión e inténtalo de nuevo.</p>
-              <button
-                className="t-btn t-btn-secondary"
-                onClick={() => {
-                  setFailed(false);
-                  setAttempt((n) => n + 1);
-                }}
-              >
-                Reintentar
-              </button>
-            </div>
-          )}
-          {!units && !failed && (
-            <div className="route-loading" role="status" aria-label="Cargando el temario">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="route-skel">
-                  <span className="skeleton" />
-                  <span className="skeleton" />
-                </div>
-              ))}
-            </div>
-          )}
-          {units && (
-            <ol className="route">
-              {units.map((u) => {
-                const isOpen = open.has(u.id);
-                const listId = `route-l-${u.id}`;
-                return (
-                  <li key={u.id} className="route-unit">
-                    <span className={`route-node ${u.order % 2 ? 'light' : 'dark'}`} aria-hidden="true">
-                      {u.order}
-                    </span>
-                    <h3>
-                      <span className="sr-only">Unidad {u.order}: </span>
-                      {u.title}
-                    </h3>
-                    <p className="route-level">{levelText(u.level)}</p>
-                    <p className="route-desc">{u.description}</p>
-                    <button className="route-toggle" aria-expanded={isOpen} aria-controls={listId} onClick={() => toggle(u.id)}>
-                      <span className="route-chev" aria-hidden="true" />
-                      {isOpen ? 'Ocultar' : 'Ver'} {u.lessons.length} {u.lessons.length === 1 ? 'lección' : 'lecciones'}
-                      <span className="sr-only"> de la unidad {u.order}</span>
-                    </button>
-                    <ol id={listId} className="route-lessons" hidden={!isOpen}>
-                      {u.lessons.map((l, i) => (
-                        <li key={l.id}>
-                          <span className="route-ln" aria-hidden="true">
-                            {u.order}.{i + 1}
-                          </span>
-                          {l.title}
-                        </li>
-                      ))}
-                    </ol>
-                  </li>
-                );
-              })}
-            </ol>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- Tienda y racha ---------- */
-
-function ShopBand() {
-  const looks = [
-    { board: 'noche', name: 'Noche' },
-    { board: 'clasico', name: 'Clásico' },
-    { board: 'pizarra', name: 'Pizarra' },
-    { board: 'bosque', name: 'Bosque' },
-    { board: 'papel', name: 'Papel' },
-    { board: 'brasa', name: 'Brasa' },
-  ];
-  return (
-    <section className="band band-ember" aria-labelledby="shop-title">
-      <div className="wrap shop-grid">
-        <div className="shop-copy">
-          <Coin size={72} className="shop-coin" />
-          <h2 id="shop-title">Tu racha se convierte en Chedex</h2>
-          <p>
-            Por cada {STREAK_DAYS_PER_CHEDEX} días seguidos de estudio ganas 1 Chedex. Los gastas en la tienda, en piezas y tableros diseñados para Chedex.
-          </p>
-        </div>
-        <ul className="shop-boards" aria-label="Tableros de la tienda">
-          {looks.map((l) => (
-            <li key={l.board}>
-              <ShopMiniBoard board={l.board} pieces="contorno" label={`Tablero ${l.name} con piezas Contorno`} />
-              <span>{l.name}</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </section>
   );
@@ -433,6 +253,9 @@ function LichessData() {
           </div>
         </div>
       </div>
+      <div className="wrap">
+        <ShopLine />
+      </div>
     </section>
   );
 }
@@ -450,8 +273,8 @@ function Closing() {
             <img key={p} src={`/pieces/contorno/${p}.svg`} width="96" height="96" alt="" loading="lazy" />
           ))}
         </div>
-        <h2 id="close-title">Tu primera jugada te espera</h2>
-        <p>{billingMode === 'beta_open' ? 'Beta abierta: gratis mientras la probamos.' : 'Sin permanencia: cancela cuando quieras.'}</p>
+        <h2 id="close-title">Empieza por tu primera jugada</h2>
+        <p>{billingMode === 'beta_open' ? 'Gratis durante la beta. Después, 10 € al mes con todo incluido.' : 'Una sola suscripción de 10 € al mes, con todo incluido.'}</p>
         <div className="actions">
           {user ? (
             <button className="t-btn t-btn-primary t-btn-lg" onClick={() => navigate('/aprender')}>
@@ -477,7 +300,7 @@ export function SiteFooter() {
           <Coin size={28} /> Chedex Pulse
         </p>
         <p className="muted footer-text">
-          Entrenamiento de ajedrez de 0 a 800 Elo. No estamos afiliados a Lichess; solo usamos su acceso para identificarte.
+          Academia digital de ajedrez, de los primeros pasos a los 2000 Elo. No estamos afiliados a Lichess; solo usamos su acceso para identificarte.
         </p>
         <nav className="footer-links" aria-label="Pie de página">
           <Link href="/privacidad">Privacidad</Link>
@@ -499,9 +322,9 @@ export function Landing() {
         <div className="wrap hero-grid">
           <div className="hero-side">
           <div className="hero-copy">
-            <h1 id="hero-title">Aprende ajedrez moviendo las piezas</h1>
+            <h1 id="hero-title">Aprende ajedrez con un camino claro, comprende tus errores y entrena con un propósito</h1>
             <p className="lead">
-              Lecciones cortas de 0 a 800 Elo sobre un tablero real. Si te equivocas, te explicamos el error y avanzas cuando lo has entendido.
+              Una academia digital que te acompaña desde tus primeros pasos hasta los 2000 Elo. Aquí entiendes el ajedrez, no solo resuelves ejercicios.
             </p>
             <div className="actions">
               {user ? (
@@ -516,7 +339,7 @@ export function Landing() {
               </Link>
             </div>
             <p className="hero-note">
-              {billingMode === 'beta_open' ? 'Beta abierta: gratis mientras la probamos.' : 'Sin permanencia: cancela cuando quieras.'}
+              {billingMode === 'beta_open' ? 'Gratis durante la beta. Después, una sola suscripción de 10 € al mes con todo incluido.' : 'Una sola suscripción de 10 € al mes, con todo incluido.'}
             </p>
           </div>
           <HeroKnight />
@@ -528,10 +351,13 @@ export function Landing() {
         </div>
       </section>
 
+      <Problem />
+      <Cycle />
       <LessonParts lesson={lesson} />
-      <Inside />
-      <Route />
-      <ShopBand />
+      <Trainer />
+      <Path />
+      <Quality />
+      <Pricing />
       <LichessData />
       <Closing />
     </div>
