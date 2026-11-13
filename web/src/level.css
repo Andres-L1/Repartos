@@ -6,6 +6,8 @@
 
 .lvl-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
 @media (min-width: 700px) { .lvl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* La rejilla ya separa las tarjetas: sin el margen inferior de .t-card las filas no quedan más separadas que las columnas. */
+.lvl-grid > .lvl-card { margin: 0; }
 
 .lvl-card {
   display: flex; align-items: flex-start; gap: 0.9rem; min-height: 44px; min-width: 0;
@@ -41,4 +43,5 @@
 /* Aviso del mapa cuando el nivel elegido aún no tiene lecciones. */
 .map-soon { display: flex; align-items: flex-start; gap: 0.75rem; margin: 0 0 1.25rem; min-width: 0; overflow-wrap: anywhere; box-shadow: inset 0 0 0 2px var(--t-orange-deep), var(--t-sh-raise); }
 .map-soon .icon { flex: none; color: var(--t-orange-text); margin-top: 2px; }
-.map-soon a { color: var(--t-orange-text); font-weight: 700; display: inline-block; min-height: 24px; }
+/* Enlace dentro del texto: el relleno vertical (compensado con margen negativo) da 44 px de toque sin mover las líneas. */
+.map-soon a { color: var(--t-orange-text); font-weight: 700; display: inline-block; min-height: 24px; padding-block: 10px; margin-block: -10px; }

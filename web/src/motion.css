@@ -99,7 +99,7 @@
 .sound-toggle { gap: 0.4rem; }
 .sound-toggle[aria-pressed='false'] { color: var(--t-muted); }
 /* En móviles de 320-359 px la barra no cabe con el botón: el nombre de la marca queda para lectores (la ficha sigue visible). */
-@media (max-width: 359px) { .sidebar .brand-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+@media (max-width: 359px) { .sidebar .brand { min-width: 44px; justify-content: center; } .sidebar .brand-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
 @media (max-width: 899px) { .sound-toggle-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } .sound-toggle { padding-inline: 0.5rem; min-width: 44px; } }
 
 /* ---------- Reducir movimiento: nada se desplaza ni rebota; quedan fundidos cortos ---------- */

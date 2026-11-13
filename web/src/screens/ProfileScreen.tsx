@@ -41,7 +41,11 @@ export function ProfileScreen() {
     .filter((x) => x.lessons.length > 0);
   const learnedCount = units ? learned.reduce((n, x) => n + x.lessons.length, 0) : profile.lessonsCompleted;
 
-  const weak = topWeakConcepts(profile.weakConcepts ?? {}).map(({ conceptId, count }) => {
+  // Solo conceptos que sabemos nombrar o practicar: un id desconocido (contenido antiguo) no ocupa uno de los 3 huecos.
+  const nameable = Object.fromEntries(
+    Object.entries(profile.weakConcepts ?? {}).filter(([id]) => CONCEPTS.some((c) => c.id === id) || lessonsForConcept(id).length > 0),
+  );
+  const weak = topWeakConcepts(nameable).map(({ conceptId, count }) => {
     const lessons = lessonsForConcept(conceptId);
     const known = CONCEPTS.find((c) => c.id === conceptId);
     return {
@@ -63,7 +67,7 @@ export function ProfileScreen() {
           <h1>{user ? user.username : 'Tu perfil'}</h1>
           {user && (
             <p className="muted">
-              <a href={`https://lichess.org/@/${encodeURIComponent(user.username)}`} target="_blank" rel="noopener noreferrer">
+              <a className="profile-lichess" href={`https://lichess.org/@/${encodeURIComponent(user.username)}`} target="_blank" rel="noopener noreferrer">
                 Ver mi cuenta en Lichess<span className="sr-only"> (se abre en una pestaña nueva)</span>
               </a>
             </p>

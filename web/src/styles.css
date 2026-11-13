@@ -397,6 +397,7 @@ a.lesson-link:hover .node-go { transform: translateX(3px); }
 .profile-head { display: flex; align-items: center; gap: var(--s-4); }
 .profile-head h1 { margin-bottom: 0.15rem; }
 .profile-head p { margin: 0; }
+.profile-lichess { display: inline-flex; align-items: center; min-height: 44px; }
 .avatar { flex: none; display: inline-grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; background: var(--t-orange); color: var(--t-ink); font-size: var(--fs-xl); font-weight: 800; box-shadow: var(--t-sh-raise-orange); margin-bottom: 4px; }
 .streaks { display: grid; gap: 0; }
 @media (min-width: 600px) { .streaks { grid-template-columns: repeat(2, 1fr); gap: 0 var(--s-5); } }

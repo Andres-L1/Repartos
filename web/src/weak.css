@@ -1,5 +1,7 @@
 .weak-list { list-style: none; margin: 0 0 var(--space-3, 12px); padding: 0; display: grid; gap: 12px; }
 .weak-item { display: grid; gap: 4px; min-width: 0; }
+/* Cada punto débil se separa del anterior con una línea fina: el botón Practicar no se pega al título siguiente. */
+.weak-item + .weak-item { border-top: 1px solid var(--t-edge); padding-top: 12px; }
 .weak-item h3 { margin: 0; overflow-wrap: anywhere; }
 .weak-count { margin: 0; }
 .weak-rule { margin: 0; overflow-wrap: anywhere; }

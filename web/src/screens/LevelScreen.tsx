@@ -153,7 +153,7 @@ export function LevelScreen() {
           También vemos {hint.rating} en {PERF_LABEL[hint.perf]}, aún provisional.
         </p>
       )}
-      {!info.suggested && !current && (
+      {!info.suggested && !info.chosen && (
         <p className="muted lvl-hint">No tenemos datos de Lichess suficientes para sugerirte uno: elige el que te encaje.</p>
       )}
 
