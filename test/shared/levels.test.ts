@@ -23,7 +23,7 @@ describe('levelForRating', () => {
     const cases: [number, string][] = [
       [0, 'beginner'], [399, 'beginner'], [400, 'initiation'], [799, 'initiation'], [800, 'basic'], [1099, 'basic'],
       [1100, 'intermediate'], [1399, 'intermediate'], [1400, 'advanced'], [1699, 'advanced'], [1700, 'competitive'],
-      [1999, 'competitive'], [2400, 'competitive'],
+      [1999, 'competitive'], [2000, 'competitive'], [2400, 'competitive'],
     ];
     for (const [r, l] of cases) expect(levelForRating(r), String(r)).toBe(l);
   });
