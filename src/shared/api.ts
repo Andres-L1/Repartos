@@ -26,6 +26,7 @@
  */
 import type { Lesson } from '../content/schema.js';
 import type { Level } from '../types.js';
+import type { ReviewPosition } from '../review/srs.js';
 import type { LevelHint } from './levels.js';
 
 /** Usuario de Lichess. */
@@ -220,6 +221,8 @@ export interface MeShopExtras {
 export interface CompleteReviewBody {
   gameId: string;
   concepts: string[];
+  /** Errores propios (máx. 3) para repasar con calendario; opcional por compatibilidad. */
+  positions?: ReviewPosition[];
 }
 /** `counted` es true solo en la primera llamada por usuario y partida (la única que suma a cp_weak_concepts). */
 export interface CompleteReviewResponse {

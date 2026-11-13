@@ -676,6 +676,37 @@ describe('partidas repasadas', () => {
     expect(rs.filter((r) => r.json.counted).length).toBe(1);
     expect(weak(s)).toEqual({ [a!]: 2, [b!]: 1 });
   });
+
+  const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  const pos = (ply: number) => ({ ply, conceptId: 'tactics.fork', fen: START, bestUci: 'e2e4' });
+  const count = (s: ReturnType<typeof setup>, t: string) => (s.db.raw.prepare(`SELECT COUNT(*) AS n FROM ${t}`).get() as any).n;
+
+  it('positions: guarda filas y calendario solo la primera vez; sin positions sigue funcionando', async () => {
+    const s = setup(); await s.login();
+    const body = { gameId: 'abcd1234', concepts: ['tactics.fork'], positions: [pos(3), pos(5)] };
+    expect((await s.req('POST', '/api/review/complete', body)).json).toEqual({ counted: true });
+    expect(count(s, 'cp_review_positions')).toBe(2);
+    expect(count(s, 'cp_review_schedule')).toBe(1);
+    await s.req('POST', '/api/review/complete', body);
+    expect(count(s, 'cp_review_positions')).toBe(2);
+    expect((await s.req('POST', '/api/review/complete', { gameId: 'wxyz5678', concepts: [] })).status).toBe(200);
+  });
+
+  it('positions inválidas: 400', async () => {
+    const s = setup(); await s.login();
+    for (const positions of [[{ ...pos(1), bestUci: 'e2e5' }], [pos(1), pos(2), pos(3), pos(4)], 'x'])
+      expect((await s.req('POST', '/api/review/complete', { gameId: 'abcd1234', concepts: [], positions })).status).toBe(400);
+    expect(count(s, 'cp_review_positions')).toBe(0);
+  });
+
+  it('tope de 100 sin resolver: se conservan las más recientes', async () => {
+    const s = setup(); await s.login();
+    for (let g = 0; g < 34; g++)
+      await s.req('POST', '/api/review/complete', { gameId: `game${String(g).padStart(4, '0')}`, concepts: [], positions: [pos(1), pos(2), pos(3)] });
+    expect(count(s, 'cp_review_positions')).toBe(100);
+    expect((s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE game_id = 'game0000'").get() as any).n).toBe(1);
+    expect((s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE game_id = 'game0033'").get() as any).n).toBe(3);
+  });
 });
 
 describe('migraciones D1', () => {
@@ -700,6 +731,6 @@ describe('migraciones D1', () => {
     const { raw } = openTestDb();
     for (const f of sqlFiles) raw.exec(readFileSync(new URL(f, dir), 'utf8')); // segunda aplicación
     const names = (raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((r) => r.name);
-    expect(names.sort()).toEqual(['cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_reviewed_games', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
+    expect(names.sort()).toEqual(['cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
   });
 });

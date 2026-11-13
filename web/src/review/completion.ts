@@ -1,8 +1,10 @@
 import { api } from '../api';
+import type { ReviewPosition } from '../../../src/review/srs';
 
 interface Pending {
   gameId: string;
   concepts: string[];
+  positions?: ReviewPosition[];
 }
 
 const KEY = 'chedex-review-pending';
@@ -47,8 +49,8 @@ async function flush(): Promise<void> {
 }
 
 /** Avisa al servidor de que se repasó una partida. Nunca lanza ni bloquea: si falla, se reintenta una vez más tarde. */
-export function reportReviewed(gameId: string, concepts: string[]): void {
-  pending = [...pending.filter((p) => p.gameId !== gameId), { gameId, concepts }];
+export function reportReviewed(gameId: string, concepts: string[], positions?: ReviewPosition[]): void {
+  pending = [...pending.filter((p) => p.gameId !== gameId), { gameId, concepts, positions }];
   save(pending);
   void flush().then(() => {
     if (pending.length === 0 || timer !== undefined) return;

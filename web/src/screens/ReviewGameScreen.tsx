@@ -52,7 +52,15 @@ export function ReviewGameScreen({ index, game, analysis, onReviewed }: Props) {
   function finish() {
     if (finished.current || !game) return;
     finished.current = true;
-    reportReviewed(game.id, [...new Set(errors.flatMap((e) => e.diagnosis.conceptIds))]);
+    reportReviewed(
+      game.id,
+      [...new Set(errors.flatMap((e) => e.diagnosis.conceptIds))],
+      errors.flatMap((e) =>
+        e.diagnosis.conceptIds[0]
+          ? [{ ply: e.move.ply, conceptId: e.diagnosis.conceptIds[0], fen: e.move.fenBefore, bestUci: e.move.bestUci }]
+          : [],
+      ),
+    );
     onReviewed?.(index);
     navigate('/partidas');
   }

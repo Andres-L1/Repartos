@@ -32,6 +32,7 @@ import {
   type ProgressRow,
 } from './progress.js';
 import { completeReview, parseCompleteReview } from './review.js';
+import { CONCEPT_IDS, touchSchedule } from './srs.js';
 import { advanceStreak, buildShop, buyItem, effectiveStreak, equipItem, equippedFor, protectorCount, streakRewardStmts } from './shop.js';
 
 export interface AppDeps {
@@ -432,6 +433,7 @@ export function createApp(deps: AppDeps) {
                 last_key=excluded.last_key, last_at=excluded.last_at, last_xp=excluded.last_xp`,
         params: [userId, lesson.id, completed ? 1 : 0, best, attempts, completed ? t.toISOString() : null, key, t.getTime(), xpGained],
       },
+      ...body.mistakes.filter((m) => CONCEPT_IDS.has(m)).map((m) => touchSchedule(userId, m, t.getTime())),
       ...body.mistakes.map(
         (m): Stmt => ({
           sql: `INSERT INTO cp_weak_concepts (user_id, concept_id, count) VALUES (?,?,1)
@@ -474,7 +476,7 @@ export function createApp(deps: AppDeps) {
   app.post('/api/review/complete', requireAuth, async (c) => {
     const parsed = parseCompleteReview(await readJson(c));
     if (typeof parsed === 'string') throw new HttpError(400, parsed);
-    const counted = await completeReview(db, c.get('user').id, parsed.gameId, parsed.concepts, now().toISOString());
+    const counted = await completeReview(db, c.get('user').id, parsed.gameId, parsed.concepts, now().toISOString(), parsed.positions);
     return c.json({ counted } satisfies CompleteReviewResponse);
   });
 
