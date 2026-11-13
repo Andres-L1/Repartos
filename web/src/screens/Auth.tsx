@@ -14,7 +14,7 @@ export function LichessLogin({ large = false, small = false }: { large?: boolean
     e.preventDefault();
     try {
       const r = await api.mockLogin();
-      setSession(r.user);
+      await setSession(r.user);
       navigate('/aprender');
     } catch {
       /* sin efecto */

@@ -25,7 +25,8 @@ interface SessionValue {
   shop: Shop | null;
   setShop(s: Shop): void;
   refreshShop(): Promise<void>;
-  setSession(user: User | null, subscription?: Subscription | null): void;
+  /** Fija la sesión; sin suscripción dada, espera a /api/me para saber el nivel antes de exponer el usuario. */
+  setSession(user: User | null, subscription?: Subscription | null): Promise<void>;
   setSubscription(s: Subscription): void;
   clearPaywall(): void;
   logout(): Promise<void>;
@@ -108,22 +109,27 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setLevelChosen(true);
   }, []);
 
-  const setSession = useCallback((u: User | null, s?: Subscription | null) => {
-    setUser(u);
+  const setSession = useCallback(async (u: User | null, s?: Subscription | null) => {
     if (s !== undefined) setSub(s);
     if (u && s === undefined) {
       api
         .billing()
         .then((r) => setSub(r.subscription))
         .catch(() => {});
-      api
-        .me()
-        .then((r) => {
-          if (r.level) setLevelState(r.level);
-          setLevelChosen(r.levelChosen === true);
-        })
-        .catch(() => {});
+      // El nivel se conoce antes de exponer el usuario: si no, la redirección de primer acceso
+      // llevaría a /bienvenida a quien ya eligió nivel.
+      try {
+        const r = await api.me();
+        setLevelState(r.level ?? 'initiation');
+        setLevelChosen(r.levelChosen === true);
+      } catch {
+        /* sin /api/me se conserva lo anterior */
+      }
+    } else if (!u) {
+      setLevelState('initiation');
+      setLevelChosen(false);
     }
+    setUser(u);
   }, []);
 
   const value = useMemo<SessionValue>(
@@ -151,6 +157,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         }
         setUser(null);
         setSub(null);
+        setLevelState('initiation');
+        setLevelChosen(false);
         navigate('/');
       },
     }),
