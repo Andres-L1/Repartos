@@ -11,11 +11,11 @@ export const CONCEPT_IDS = new Set(CONCEPTS.map((c) => c.id));
 export const MAX_POSITIONS = 3;
 export const MAX_UNSOLVED = 100;
 
-/** Concepto sin fila: caja 1 y vence en 1 día. Un fallo nuevo en caja > 1 la devuelve a la 1 (mismo vencimiento); en caja 1 no cambia. */
+/** Concepto sin fila: caja 1 y vence en 1 día. Un fallo nuevo la devuelve a la caja 1 y adelanta el vencimiento a 1 día como mucho. */
 export function touchSchedule(userId: string, conceptId: string, nowMs: number): Stmt {
   return {
     sql: `INSERT INTO cp_review_schedule (user_id, concept_id, box, due_at, last_at) VALUES (?,?,1,?,NULL)
-          ON CONFLICT(user_id, concept_id) DO UPDATE SET box = 1`,
+          ON CONFLICT(user_id, concept_id) DO UPDATE SET box = 1, due_at = MIN(cp_review_schedule.due_at, excluded.due_at)`,
     params: [userId, conceptId, dueAfter(1, nowMs)],
   };
 }

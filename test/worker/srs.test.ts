@@ -25,6 +25,12 @@ describe('touchSchedule', () => {
     await db.batch([touchSchedule('u', 'tactics.fork', 1000)]);
     expect(row(db)).toEqual({ box: 1, due_at: 5000 });
   });
+  it('caja 4 con vencimiento lejano: vuelve a la 1 y vence en 1 día', async () => {
+    const db = await setup();
+    db.raw.exec(`INSERT INTO cp_review_schedule VALUES ('u','tactics.fork',4,${1000 + 8 * DAY},NULL)`);
+    await db.batch([touchSchedule('u', 'tactics.fork', 1000)]);
+    expect(row(db)).toEqual({ box: 1, due_at: 1000 + DAY });
+  });
   it('caja 1: sin cambios', async () => {
     const db = await setup();
     db.raw.exec("INSERT INTO cp_review_schedule VALUES ('u','tactics.fork',1,5000,NULL)");
