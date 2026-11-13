@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Lesson } from '../../../src/content/schema';
 import type { LessonProgress, Profile } from '../../../src/shared/api';
 import { api, ApiError } from '../api';
@@ -19,7 +19,6 @@ interface Outcome {
   correct: number;
   total: number;
   passed: boolean;
-  xpGained?: number;
   profile?: Profile;
   progress?: LessonProgress;
   error?: string;
@@ -90,7 +89,7 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
     const mistakes = correct < total ? [...new Set(lesson.conceptIds ?? [])] : [];
     try {
       const r = await api.complete(lesson.id, { correct, total, mistakes });
-      setOutcome({ correct, total, passed: r.progress.completed, xpGained: r.xpGained, profile: r.profile, progress: r.progress });
+      setOutcome({ correct, total, passed: r.progress.completed, profile: r.profile, progress: r.progress });
     } catch (e) {
       if (e instanceof ApiError && (e.status === 401 || e.status === 402)) return;
       setOutcome({
@@ -253,6 +252,26 @@ function ResultView({
   passMark: number;
   onRestart(): void;
 }) {
+  const [nextId, setNextId] = useState<string | null>(null);
+  const passed = outcome?.passed === true;
+  useEffect(() => {
+    if (demo || saving || !passed) return;
+    let live = true;
+    api
+      .map()
+      .then((r) => {
+        const lessons = [...r.units].sort((a, b) => a.order - b.order).flatMap((u) => (u.status === 'locked' ? [] : u.lessons));
+        const at = lessons.findIndex((l) => l.id === lesson.id);
+        const open = (l: { id: string; status: string }) => l.status === 'available' && l.id !== lesson.id;
+        const next = lessons.slice(at + 1).find(open) ?? lessons.find(open);
+        if (live) setNextId(next?.id ?? null);
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [demo, saving, passed, lesson.id]);
+
   if (saving || !outcome) {
     return (
       <section className="card result" aria-busy="true">
@@ -261,42 +280,24 @@ function ResultView({
       </section>
     );
   }
-  const { correct, total, passed } = outcome;
+  const { correct, total } = outcome;
   return (
     <section className="card result" aria-live="polite">
       <p className={`result-icon${passed ? ' result-pass' : ' result-retry'}`} aria-hidden="true">
-        <Icon name={passed ? 'trophy' : 'repeat'} size={44} />
+        <Icon name={passed ? 'check' : 'repeat'} size={44} />
       </p>
-      <h2>{passed ? '¡Lección completada!' : 'Casi lo tienes'}</h2>
+      <h2>{passed ? 'Lección completada' : 'Casi lo tienes'}</h2>
       <p className="lead">
         Aciertos en la evaluación: <strong>{correct} de {total}</strong>.
-        {!passed && ` Necesitas al menos ${passMark} para completarla.`}
+        {!passed && ` Necesitas al menos ${passMark} para completarla; puedes repasar y volver a intentarlo cuando quieras.`}
       </p>
-      {outcome.xpGained !== undefined && (
-        <p className="xp-badge">+{outcome.xpGained} XP</p>
-      )}
-      {outcome.profile && (
-        <ul className="result-stats">
-          <li>
-            <Icon name="star" size={18} filled />
-            <strong>{outcome.profile.xp}</strong>
-            <span>XP en total</span>
-          </li>
-          <li>
-            <Icon name="flame" size={18} />
-            <strong>
-              {outcome.profile.streakDays} {outcome.profile.streakDays === 1 ? 'día' : 'días'}
-            </strong>
-            <span>de racha</span>
-          </li>
-          <li>
-            <Icon name="target" size={18} />
-            <strong>
-              {outcome.profile.xpToday}/{outcome.profile.dailyGoalXp}
-            </strong>
-            <span>XP hoy</span>
-          </li>
-        </ul>
+      {outcome.profile && passed && (
+        <p className="result-streak">
+          <Icon name="flame" size={18} /> Racha actual:{' '}
+          <strong>
+            {outcome.profile.streakDays} {outcome.profile.streakDays === 1 ? 'día' : 'días'}
+          </strong>
+        </p>
       )}
       {outcome.error && (
         <p className="field-error" role="alert">
@@ -315,10 +316,22 @@ function ResultView({
           </>
         ) : (
           <>
-            <button className="btn btn-primary" onClick={() => navigate('/mapa')} autoFocus>
-              Volver a la ruta
-            </button>
-            <button className="btn" onClick={onRestart}>
+            {passed && nextId ? (
+              <button className="btn btn-primary" onClick={() => navigate(`/leccion/${encodeURIComponent(nextId)}`)} autoFocus>
+                Siguiente lección
+                <Icon name="chevron" size={18} />
+              </button>
+            ) : (
+              <button className="btn btn-primary" onClick={() => navigate('/mapa')} autoFocus>
+                Volver a la ruta
+              </button>
+            )}
+            {passed && nextId && (
+              <button className="btn" onClick={() => navigate('/mapa')}>
+                Volver a la ruta
+              </button>
+            )}
+            <button className={passed && nextId ? 'btn btn-ghost' : 'btn'} onClick={onRestart}>
               {passed ? 'Repasar' : 'Intentarlo de nuevo'}
             </button>
           </>

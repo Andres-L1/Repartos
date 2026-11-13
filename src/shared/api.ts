@@ -22,6 +22,7 @@
  * POST /api/billing/subscribe                                  -> {subscription}  ('dev': activa al instante; 'beta_open': 501)
  * POST /api/billing/cancel                                     -> {subscription}  ('beta_open': 501)
  * GET  /api/demo                                               -> {lesson}         (lección demo, sin sesión)
+ * GET  /api/outline                                            -> {units: OutlineUnit[]}   (público, solo lectura: unidades y títulos de lección, SIN contenido)
  */
 import type { Lesson } from '../content/schema.js';
 import type { Level } from '../types.js';
@@ -117,6 +118,20 @@ export interface MapUnit {
   /** true: unidad recomendada para empezar según la colocación. */
   recommended?: boolean;
   lessons: MapLesson[];
+}
+
+/** Vista pública del temario: sin contenido de lecciones, sin estado ni progreso. */
+export interface OutlineLesson {
+  id: string;
+  title: string;
+}
+export interface OutlineUnit {
+  id: string;
+  order: number;
+  title: string;
+  description: string;
+  level: Level;
+  lessons: OutlineLesson[];
 }
 
 export interface LessonProgress {

@@ -271,6 +271,28 @@ describe('cabeceras, CORS y límites', () => {
   });
 });
 
+describe('temario público /api/outline', () => {
+  it('sin sesión: unidades ordenadas y títulos de lección, sin contenido ni estado; cacheable', async () => {
+    const s = setup();
+    const r = await s.req('GET', '/api/outline', undefined, { cookie: '' });
+    expect(r.status).toBe(200);
+    expect(r.headers.get('cache-control')).toBe('public, max-age=300');
+    expect(r.headers.get('set-cookie')).toBeNull();
+    const json = r.json as { units: Record<string, unknown>[] };
+    expect(json.units.map((u) => u.id)).toEqual(['a', 'b']);
+    expect(Object.keys(json.units[0]!).sort()).toEqual(['description', 'id', 'lessons', 'level', 'order', 'title']);
+    expect(json.units[0]!.lessons).toEqual([
+      { id: 'a.1', title: 'T a.1' },
+      { id: 'a.2', title: 'T a.2' },
+      { id: 'a.3', title: 'T a.3' },
+    ]);
+    const text = JSON.stringify(json);
+    for (const k of ['intro', 'objective', 'practice', 'evaluation', 'explanation', 'demo', 'status']) expect(text).not.toContain(`"${k}"`);
+    // el resto de /api sigue sin caché
+    expect((await s.req('GET', '/api/demo', undefined, { cookie: '' })).headers.get('cache-control')).toBe('no-store');
+  });
+});
+
 describe('modo beta_open (por defecto)', () => {
   it('/api/config y /api/me informan beta; todas las lecciones accesibles sin suscripción', async () => {
     const s = setup('beta_open');

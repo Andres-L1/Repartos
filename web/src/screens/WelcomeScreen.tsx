@@ -109,7 +109,7 @@ export function WelcomeScreen() {
           {reviewCount > 0 && (
             <p className="muted">
               Las unidades anteriores te quedan abiertas con la etiqueta «Repaso», para que las repases cuando quieras. No cuentan como
-              completadas ni te dan XP por adelantado.
+              completadas.
             </p>
           )}
           {placement.chosen && (

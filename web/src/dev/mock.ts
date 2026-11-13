@@ -1,5 +1,5 @@
 /** API simulada para desarrollar sin servidor (activar con ?mock=1; ?mock=1&billing=dev simula pagos). */
-import type { BillingMode, MapUnit, Placement, PlacementMode, Profile, Subscription, User } from '../../../src/shared/api';
+import type { BillingMode, MapUnit, OutlineUnit, Placement, PlacementMode, Profile, Subscription, User } from '../../../src/shared/api';
 import type { Lesson } from '../../../src/content/schema';
 
 const L1: Lesson = {
@@ -208,6 +208,22 @@ function json(body: unknown, status = 200): Response {
 }
 const err = (status: number, error: string) => json({ error }, status);
 
+/** Temario público simulado (sin contenido de lecciones). */
+const OUTLINE: OutlineUnit[] = [
+  {
+    id: 'u01', order: 1, title: 'Primeros pasos', description: 'Las piezas y cómo se mueven.', level: 'beginner',
+    lessons: [{ id: L1.id, title: L1.title }, { id: L2.id, title: L2.title }],
+  },
+  {
+    id: 'u02', order: 2, title: 'Mates básicos', description: 'Los primeros mates con pocas piezas.', level: 'initiation',
+    lessons: [{ id: L3.id, title: L3.title }, { id: 'u02.l02', title: 'Mate de dama y rey' }, { id: 'u02.l03', title: 'Mate del pasillo' }],
+  },
+  {
+    id: 'u03', order: 3, title: 'Tácticas simples', description: 'Horquillas, clavadas y piezas sin defender.', level: 'initiation',
+    lessons: [{ id: 'u03.l01', title: 'Piezas sin defender' }, { id: 'u03.l02', title: 'La horquilla' }],
+  },
+];
+
 function buildMap(): MapUnit[] {
   const done1 = state.completed[L1.id] !== undefined;
   const done2 = state.completed[L2.id] !== undefined;
@@ -275,6 +291,7 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   const body = init.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {};
 
   if (path === '/demo') return json({ lesson: L1 });
+  if (path === '/outline') return json({ units: OUTLINE });
   if (path === '/config') return json({ billingMode: MODE });
   if (path === '/auth/login' && method === 'GET') {
     state.user = { id: 'mockuser', username: 'MockUser' };
@@ -327,13 +344,6 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     });
   }
   if (path === '/profile') return json({ profile: state.profile });
-  if (path === '/profile/daily-goal' && method === 'PUT') {
-    const xp = Number(body.xp);
-    if (!Number.isFinite(xp) || xp < 5 || xp > 500) return err(400, 'El objetivo debe estar entre 5 y 500 XP.');
-    state.profile.dailyGoalXp = xp;
-    save();
-    return json({ profile: state.profile });
-  }
   if (path === '/billing') return json({ subscription: state.sub });
   if (MODE === 'beta_open' && path.startsWith('/billing/')) return err(501, 'Los pagos llegarán próximamente.');
   if (path === '/billing/subscribe') {

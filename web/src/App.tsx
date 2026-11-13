@@ -2,7 +2,8 @@ import { useEffect, type ReactNode } from 'react';
 import { USE_MOCK } from './api';
 import { navigate, usePath } from './router';
 import { useSession } from './session';
-import { Landing, DemoScreen } from './screens/Landing';
+import { Landing, DemoScreen, SiteFooter } from './screens/Landing';
+import { PrivacyScreen } from './screens/Privacy';
 import { AuthScreen, LichessLogin } from './screens/Auth';
 import { MapScreen } from './screens/MapScreen';
 import { LessonScreen } from './screens/LessonScreen';
@@ -32,6 +33,7 @@ export function App() {
   else if (isPrivate && !user) screen = <Loading label="Redirigiendo al acceso…" />;
   else if (path === '/') screen = <Landing />;
   else if (path === '/demo') screen = <DemoScreen />;
+  else if (path === '/privacidad') screen = <PrivacyScreen />;
   else if (path === '/entrar' || path === '/registro') screen = <AuthScreen />;
   else if (path === '/mapa') screen = <MapScreen />;
   else if (path.startsWith('/leccion/')) screen = <LessonScreen id={decodeURIComponent(path.slice('/leccion/'.length))} />;
@@ -61,31 +63,71 @@ export function App() {
     );
   };
 
-  return (
-    <>
-      <a className="skip" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus(); }}>
-        Saltar al contenido
-      </a>
-      <header className="topbar">
-        <a href="#/" className="brand" aria-label="Chedex Pulse, inicio">
-          <span className="brand-mark" aria-hidden="true">♞&#xFE0E;</span>
-          <span className="brand-name">Chedex Pulse</span>
-        </a>
-        {user ? (
-          <>
-            <nav className="nav" aria-label="Principal">
+  const brand = (
+    <a href="#/" className="brand" aria-label="Chedex Pulse, inicio">
+      <span className="brand-mark" aria-hidden="true">♞&#xFE0E;</span>
+      <span className="brand-name">Chedex Pulse</span>
+    </a>
+  );
+  const skip = (
+    <a className="skip" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus(); }}>
+      Saltar al contenido
+    </a>
+  );
+  const mock = USE_MOCK && <p className="mockbar">Modo simulado (?mock=1): los datos no son reales.</p>;
+
+  // App con barra lateral (escritorio) o barra inferior (móvil): solo con sesión y en las pantallas privadas.
+  if (user && isPrivate) {
+    return (
+      <>
+        {skip}
+        <div className="shell">
+          <header className="sidebar">
+            {brand}
+            <nav className="nav side-nav" aria-label="Principal">
               {link('/mapa', 'Aprender', 'learn')}
               {link('/perfil', 'Perfil', 'user')}
               {billingMode === 'dev' && link('/suscripcion', 'Suscripción', 'card')}
             </nav>
-            {billingMode === 'beta_open' && <span className="chip chip-beta">Beta abierta</span>}
-            <span className="whoami" title="Cuenta de Lichess">
-              {user.username}
-            </span>
+            <div className="side-user">
+              {billingMode === 'beta_open' && <span className="chip chip-beta">Beta abierta</span>}
+              <span className="whoami" title="Cuenta de Lichess">
+                <span className="whoami-avatar" aria-hidden="true">{user.username.slice(0, 1).toUpperCase()}</span>
+                <span className="whoami-text">
+                  <span className="whoami-name">{user.username}</span>
+                  <span className="whoami-sub">Cuenta de Lichess</span>
+                </span>
+              </span>
+              <button className="btn btn-ghost btn-small" onClick={() => void logout()}>
+                Salir
+              </button>
+            </div>
+          </header>
+          <div className="shell-body">
+            {mock}
+            <main id="main" tabIndex={-1} className="main main-shell">
+              {screen}
+            </main>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {skip}
+      <header className="topbar">
+        {brand}
+        {user ? (
+          <nav className="nav nav-guest" aria-label="Principal">
+            <a className="btn btn-primary btn-small" href="#/mapa">
+              Ir a Aprender
+            </a>
             <button className="btn btn-ghost btn-small" onClick={() => void logout()}>
               Salir
             </button>
-          </>
+          </nav>
         ) : (
           <nav className="nav nav-guest" aria-label="Principal">
             {billingMode === 'beta_open' && <span className="chip chip-beta">Beta abierta</span>}
@@ -93,10 +135,11 @@ export function App() {
           </nav>
         )}
       </header>
-      {USE_MOCK && <p className="mockbar">Modo simulado (?mock=1): los datos no son reales.</p>}
+      {mock}
       <main id="main" tabIndex={-1} className="main">
         {screen}
       </main>
+      <SiteFooter />
     </>
   );
 }

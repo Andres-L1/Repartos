@@ -133,7 +133,8 @@ export function createApp(deps: AppDeps) {
       c.header('X-Frame-Options', 'DENY');
       c.header('Referrer-Policy', 'no-referrer');
       c.header('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
-      c.header('Cache-Control', 'no-store');
+      // El temario público (/api/outline) no depende de la sesión: cacheable unos minutos. Todo lo demás, nunca.
+      c.header('Cache-Control', p === '/api/outline' && c.res.status === 200 ? 'public, max-age=300' : 'no-store');
     }
   });
   app.use(
@@ -251,6 +252,22 @@ export function createApp(deps: AppDeps) {
   };
 
   app.get('/api/config', (c) => c.json({ billingMode }));
+
+  // Temario público: solo ids, títulos, orden, descripción y nivel. Nunca el contenido de las lecciones.
+  app.get('/api/outline', (c) =>
+    c.json({
+      units: [...content.units]
+        .sort((a, b) => a.order - b.order)
+        .map((u) => ({
+          id: u.id,
+          order: u.order,
+          title: u.title,
+          description: u.description,
+          level: u.level,
+          lessons: u.lessons.map((l) => ({ id: l.id, title: l.title })),
+        })),
+    }),
+  );
 
   app.get('/api/me', requireAuth, async (c) => {
     const user = c.get('user');

@@ -3,6 +3,7 @@ import type {
   CompleteLessonBody,
   LessonProgress,
   MapUnit,
+  OutlineUnit,
   Placement,
   PlacementMode,
   Profile,
@@ -76,6 +77,7 @@ export const api = {
     request<{ user: User; subscription: Subscription; billingMode: BillingMode }>('GET', '/api/me', undefined, { silent401: true }),
   map: () => request<{ units: MapUnit[] }>('GET', '/api/map'),
   lesson: (id: string) => request<{ lesson: Lesson }>('GET', `/api/lessons/${encodeURIComponent(id)}`),
+  outline: () => request<{ units: OutlineUnit[] }>('GET', '/api/outline', undefined, { silent401: true }),
   demo: () => request<{ lesson: Lesson }>('GET', '/api/demo', undefined, { silent401: true }),
   complete: (id: string, b: CompleteLessonBody) =>
     request<{ progress: LessonProgress; xpGained: number; profile: Profile }>(
@@ -86,7 +88,6 @@ export const api = {
   placement: () => request<Placement>('GET', '/api/placement'),
   setPlacement: (mode: PlacementMode) => request<Placement>('POST', '/api/placement', { mode }),
   profile: () => request<{ profile: Profile }>('GET', '/api/profile'),
-  setDailyGoal: (xp: number) => request<{ profile: Profile }>('PUT', '/api/profile/daily-goal', { xp }),
   billing: () => request<{ subscription: Subscription }>('GET', '/api/billing'),
   subscribe: () => request<{ subscription: Subscription }>('POST', '/api/billing/subscribe'),
   cancel: () => request<{ subscription: Subscription }>('POST', '/api/billing/cancel'),

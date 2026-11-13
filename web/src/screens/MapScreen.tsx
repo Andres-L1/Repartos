@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { LessonStatus, MapLesson, MapUnit } from '../../../src/shared/api';
+import type { LessonStatus, MapLesson, MapUnit, Profile } from '../../../src/shared/api';
 import type { Level } from '../../../src/types';
 import { api, ApiError } from '../api';
 import { navigate } from '../router';
@@ -14,15 +14,24 @@ export const LEVEL_LABEL: Record<Level, string> = {
   competitive: 'Competitivo · 1700-2000',
 };
 
-const STATUS_LABEL: Record<LessonStatus, string> = {
-  locked: 'Bloqueada',
-  available: 'Disponible',
-  completed: 'Completada',
-};
 const STATUS_ICON: Record<LessonStatus, IconName> = { locked: 'lock', available: 'play', completed: 'check' };
+
+const dayWord = (n: number) => `${n} ${n === 1 ? 'día' : 'días'}`;
+
+/** Siguiente lección sugerida: la unidad recomendada por la colocación, si no la primera con algo pendiente. */
+function pickNext(units: MapUnit[]): { unit: MapUnit; lesson: MapLesson } | null {
+  const pending = (u: MapUnit) => (u.status === 'locked' ? undefined : u.lessons.find((l) => l.status === 'available'));
+  const rec = units.find((u) => u.recommended && pending(u));
+  const normal = units.find((u) => !(u.placedOpen && !u.recommended) && pending(u));
+  const any = units.find((u) => pending(u));
+  const unit = rec ?? normal ?? any;
+  const lesson = unit ? pending(unit) : undefined;
+  return unit && lesson ? { unit, lesson } : null;
+}
 
 export function MapScreen() {
   const [units, setUnits] = useState<MapUnit[] | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState('');
   useEffect(() => {
     Promise.all([api.map(), api.placement().catch(() => null)])
@@ -37,6 +46,10 @@ export function MapScreen() {
       .catch((e) => {
         if (!(e instanceof ApiError && e.status === 401)) setError(e instanceof ApiError ? e.message : 'Error al cargar la ruta.');
       });
+    api
+      .profile()
+      .then((r) => setProfile(r.profile))
+      .catch(() => {});
   }, []);
 
   if (error) return <ErrorBox>{error}</ErrorBox>;
@@ -44,43 +57,71 @@ export function MapScreen() {
 
   const all = units.flatMap((u) => u.lessons);
   const done = all.filter((l) => l.status === 'completed').length;
-  const pct = all.length ? Math.round((done / all.length) * 100) : 0;
+  const next = pickNext(units);
 
   return (
     <div className="map">
-      <header className="page-head route-head">
-        <div>
-          <p className="kicker">Aprender</p>
-          <h1>Tu ruta de aprendizaje</h1>
-          <p className="muted">
-            {done} de {all.length} lecciones completadas
-          </p>
-        </div>
-        <div
-          className="route-total"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={pct}
-          aria-label="Progreso total de la ruta"
-        >
-          <span className="route-total-n">{pct}%</span>
-          <span className="progress">
-            <span className="progress-fill" style={{ width: `${pct}%` }} />
-          </span>
-        </div>
+      <header className="page-head">
+        <p className="kicker">Aprender</p>
+        <h1>Tu ruta de aprendizaje</h1>
       </header>
+
+      <section className="continue card" aria-labelledby="continue-title">
+        <div className="continue-main">
+          {next ? (
+            <>
+              <p className="kicker">{done === 0 ? 'Para empezar' : 'Continuar'}</p>
+              <h2 id="continue-title">{next.lesson.title}</h2>
+              <p className="muted continue-meta">
+                Unidad {next.unit.order} · {next.unit.title}
+              </p>
+              <p className="continue-obj">{next.lesson.objective}</p>
+              <a
+                className="btn btn-primary"
+                href={`#/leccion/${encodeURIComponent(next.lesson.id)}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(`/leccion/${encodeURIComponent(next.lesson.id)}`);
+                }}
+              >
+                {done === 0 ? 'Empezar lección' : 'Continuar'}
+                <Icon name="chevron" size={18} />
+              </a>
+            </>
+          ) : (
+            <>
+              <p className="kicker">Ruta completada</p>
+              <h2 id="continue-title">Has recorrido todas las lecciones disponibles</h2>
+              <p className="continue-obj">Puedes repasar cualquiera cuando quieras; iremos añadiendo más.</p>
+            </>
+          )}
+        </div>
+        <dl className="summary" aria-label="Resumen">
+          <div>
+            <dt>
+              <Icon name="flame" size={16} /> Racha actual
+            </dt>
+            <dd>{profile ? dayWord(profile.streakDays) : '–'}</dd>
+          </div>
+          <div>
+            <dt>
+              <Icon name="book" size={16} /> Lecciones aprendidas
+            </dt>
+            <dd>{done}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <h2 className="section-title">Unidades</h2>
       {units.map((u) => (
-        <UnitView key={u.id} unit={u} />
+        <UnitView key={u.id} unit={u} nextId={next?.lesson.id} />
       ))}
     </div>
   );
 }
 
-function UnitView({ unit }: { unit: MapUnit }) {
+function UnitView({ unit, nextId }: { unit: MapUnit; nextId: string | undefined }) {
   const done = unit.lessons.filter((l) => l.status === 'completed').length;
-  const pct = unit.lessons.length ? Math.round((done / unit.lessons.length) * 100) : 0;
-  const nextId = unit.status === 'locked' ? undefined : unit.lessons.find((l) => l.status === 'available')?.id;
   return (
     <section
       className={`unit unit-${unit.status}${unit.recommended ? ' unit-recommended' : ''}`}
@@ -88,7 +129,7 @@ function UnitView({ unit }: { unit: MapUnit }) {
     >
       <div className="unit-head">
         <span className="unit-badge" aria-hidden="true">
-          {unit.status === 'locked' ? <Icon name="lock" size={22} /> : unit.status === 'completed' ? <Icon name="check" size={24} /> : unit.order}
+          {unit.status === 'locked' ? <Icon name="lock" size={20} /> : unit.status === 'completed' ? <Icon name="check" size={22} /> : unit.order}
         </span>
         <div className="unit-head-main">
           <p className="kicker">
@@ -96,11 +137,16 @@ function UnitView({ unit }: { unit: MapUnit }) {
           </p>
           <h2 id={`u-${unit.id}`}>{unit.title}</h2>
         </div>
+        <p className="unit-count">
+          <span className="sr-only">Lecciones completadas: </span>
+          {done} de {unit.lessons.length}
+        </p>
       </div>
+      <p className="muted unit-desc">{unit.description}</p>
       <p className="unit-tags">
         {unit.status === 'locked' && (
           <span className="chip chip-locked">
-            <Icon name="lock" size={14} /> Bloqueada
+            <Icon name="lock" size={14} /> Se abre al terminar la unidad anterior
           </span>
         )}
         {unit.status === 'completed' && (
@@ -110,7 +156,7 @@ function UnitView({ unit }: { unit: MapUnit }) {
         )}
         {unit.recommended && (
           <span className="chip chip-recommended">
-            <Icon name="star" size={14} filled /> Recomendada
+            <Icon name="star" size={14} filled /> Recomendada para ti
           </span>
         )}
         {unit.placedOpen && !unit.recommended && (
@@ -119,22 +165,6 @@ function UnitView({ unit }: { unit: MapUnit }) {
           </span>
         )}
       </p>
-      <p className="muted unit-desc">{unit.description}</p>
-      <div className="unit-progress">
-        <div
-          className="progress"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={pct}
-          aria-label={`Progreso de la unidad ${unit.title}: ${done} de ${unit.lessons.length}`}
-        >
-          <div className="progress-fill" style={{ width: `${pct}%` }} />
-        </div>
-        <span className="unit-count" aria-hidden="true">
-          {done}/{unit.lessons.length}
-        </span>
-      </div>
       <ol className="path">
         {unit.lessons.map((l) => (
           <LessonNode key={l.id} lesson={l} next={l.id === nextId} unitLocked={unit.status === 'locked'} />
@@ -146,37 +176,31 @@ function UnitView({ unit }: { unit: MapUnit }) {
 
 function LessonNode({ lesson, next, unitLocked }: { lesson: MapLesson; next: boolean; unitLocked: boolean }) {
   const status: LessonStatus = unitLocked ? 'locked' : lesson.status;
-  const stars = lesson.bestScore === undefined ? 0 : lesson.bestScore >= 0.99 ? 3 : lesson.bestScore >= 0.66 ? 2 : 1;
   const content = (
     <>
       <span className={`node node-${status}${next ? ' node-next' : ''}`} aria-hidden="true">
-        <Icon name={STATUS_ICON[status]} size={status === 'available' ? 22 : 24} />
+        <Icon name={STATUS_ICON[status]} size={status === 'available' ? 18 : 20} />
       </span>
       <span className="node-text">
         <span className="node-title">{lesson.title}</span>
-        <span className="node-meta">
-          <span className={`chip chip-${status}`}>
-            <Icon name={STATUS_ICON[status]} size={13} />
-            {STATUS_LABEL[status]}
-          </span>
-          {next && <span className="chip chip-next">Siguiente</span>}
-          {lesson.demo && <span className="chip chip-demo">Gratis</span>}
-          {status === 'completed' && lesson.bestScore !== undefined && (
-            <span className="stars" role="img" aria-label={`Mejor resultado ${Math.round(lesson.bestScore * 100)} por ciento`}>
-              {[0, 1, 2].map((n) => (
-                <Icon key={n} name="star" size={15} filled={n < stars} className={n < stars ? 'star-on' : 'star-off'} />
-              ))}
-              <span className="stars-pct">{Math.round(lesson.bestScore * 100)}%</span>
-            </span>
-          )}
-        </span>
         <span className="node-obj">{lesson.objective}</span>
       </span>
+      {status === 'completed' && (
+        <span className="chip chip-completed">
+          <Icon name="check" size={13} /> Completada
+        </span>
+      )}
+      {next && <span className="chip chip-next">Siguiente</span>}
+      {status === 'locked' && (
+        <span className="chip chip-locked">
+          <Icon name="lock" size={13} /> Bloqueada
+        </span>
+      )}
       {status !== 'locked' && <Icon name="chevron" size={20} className="node-go" />}
     </>
   );
   return (
-    <li className={`path-item is-${status}`}>
+    <li className={`path-item is-${status}${next ? ' is-next' : ''}`}>
       {status === 'locked' ? (
         <div className="lesson-link is-locked" aria-disabled="true">
           {content}
