@@ -2,13 +2,9 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import type { Score } from '../types.js';
+import type { EngineLike, EngineResult } from './engine-like.js';
 
-export interface EngineResult {
-  /** Siempre desde el punto de vista de las blancas. */
-  score: Score;
-  bestUci: string;
-  pv: string[];
-}
+export type { EngineResult } from './engine-like.js';
 
 /** Tamaño fijo de la tabla hash (MB); parte del contrato de determinismo. */
 export const HASH_MB = 32;
@@ -25,7 +21,7 @@ function enginePath(): string {
  * Envoltorio de Stockfish 16 (WASM) ejecutado en un proceso hijo de Node, hablando UCI por stdin/stdout.
  * El proceso hijo se cierra limpiamente con `quit` (y se mata si no responde).
  */
-export class Engine {
+export class Engine implements EngineLike {
   private proc: ChildProcessWithoutNullStreams | null = null;
   private buffer = '';
   private listeners: ((line: string) => void)[] = [];
