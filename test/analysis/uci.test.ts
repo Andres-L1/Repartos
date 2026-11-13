@@ -79,6 +79,46 @@ describe('UciSession', () => {
     }
   });
 
+  it('abort rechaza el comando en curso, limpia temporizadores y deja la sesión usable', async () => {
+    vi.useFakeTimers();
+    try {
+      const { sent, session } = fake((c) => (c.startsWith('go depth') ? [] : protocol(c)));
+      const ready = session.init();
+      await vi.advanceTimersByTimeAsync(0);
+      await ready;
+      const p = session.analyze(START, { depth: 12 });
+      const assertion = expect(p).rejects.toThrow('Motor caído');
+      await vi.advanceTimersByTimeAsync(0);
+      session.abort(new Error('Motor caído'));
+      await assertion;
+      expect(vi.getTimerCount()).toBe(0);
+      expect((session as unknown as { listeners: unknown[] }).listeners).toHaveLength(0);
+      // ya no está ocupada: un nuevo analyze envía comandos otra vez
+      sent.length = 0;
+      void session.analyze(START).catch(() => {});
+      await vi.advanceTimersByTimeAsync(0);
+      expect(sent[0]).toBe('ucinewgame');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('si el transporte lanza al enviar, rechaza y no deja temporizador ni oyente', async () => {
+    vi.useFakeTimers();
+    try {
+      const session = new UciSession({
+        send() {
+          throw new Error('sin transporte');
+        },
+      });
+      await expect(session.init()).rejects.toThrow('sin transporte');
+      expect(vi.getTimerCount()).toBe(0);
+      expect((session as unknown as { listeners: unknown[] }).listeners).toHaveLength(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('quit envía quit', async () => {
     const { sent, session } = fake(protocol);
     session.quit();

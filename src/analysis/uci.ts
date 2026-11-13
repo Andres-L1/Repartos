@@ -16,6 +16,7 @@ export interface UciTransport {
  */
 export class UciSession {
   private listeners: ((line: string) => void)[] = [];
+  private pending = new Set<{ fail: (err: Error) => void }>();
   private busy = false;
 
   constructor(private readonly transport: UciTransport) {}
@@ -35,20 +36,41 @@ export class UciSession {
 
   private command(cmd: string, done: (line: string) => boolean, timeoutMs: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
+      const finish = () => {
+        clearTimeout(timer);
         this.listeners = this.listeners.filter((l) => l !== listener);
+        this.pending.delete(entry);
+      };
+      const timer = setTimeout(() => {
+        finish();
         reject(new Error(`Tiempo de espera agotado esperando respuesta del motor a "${cmd}".`));
       }, timeoutMs);
       const listener = (line: string) => {
         if (done(line)) {
-          clearTimeout(timer);
-          this.listeners = this.listeners.filter((l) => l !== listener);
+          finish();
           resolve();
         }
       };
+      const entry = {
+        fail: (err: Error) => {
+          finish();
+          reject(err);
+        },
+      };
+      this.pending.add(entry);
       this.listeners.push(listener);
-      this.transport.send(cmd);
+      try {
+        this.transport.send(cmd);
+      } catch (e) {
+        finish();
+        reject(e);
+      }
     });
+  }
+
+  /** Rechaza ya todo comando en curso con `err` y libera sus temporizadores y oyentes. La sesión sigue usable. */
+  abort(err: Error): void {
+    for (const p of [...this.pending]) p.fail(err);
   }
 
   /** Analiza una posición a profundidad fija. La evaluación se devuelve desde el punto de vista de blancas. */

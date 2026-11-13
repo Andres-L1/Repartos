@@ -65,6 +65,7 @@ export class Engine implements EngineLike {
     const proc = this.proc;
     if (!proc) return;
     this.proc = null;
+    this.session.abort(new Error('El motor se cerró antes de terminar el análisis.'));
     await new Promise<void>((resolve) => {
       let finished = false;
       const end = () => {
