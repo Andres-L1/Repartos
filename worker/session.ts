@@ -219,14 +219,17 @@ export async function finishPlan(
   const finished = rows.filter((r) => r.status === 'done' || r.status === 'counted');
   if (!finished.length) return 'empty';
   const reviewed: FinishResult['reviewed'] = [];
-  for (const r of finished)
-    if (!reviewed.some((x) => x.conceptId === r.concept_id)) reviewed.push({ conceptId: r.concept_id, correct: r.first_try_ok === 1 });
+  for (const r of finished) {
+    const seen = reviewed.find((x) => x.conceptId === r.concept_id);
+    if (seen) seen.misses += r.attempts;
+    else reviewed.push({ conceptId: r.concept_id, correct: r.first_try_ok === 1, misses: r.attempts });
+  }
   if (!rows.some((r) => r.status === 'done')) return { reviewed, stmts: [] };
 
   const boxes = new Map(
     (await db.all<{ concept_id: string; box: number }>('SELECT concept_id, box FROM cp_review_schedule WHERE user_id = ?', [userId])).map((b) => [b.concept_id, b.box]),
   );
-  const stmts: Stmt[] = reviewed.map(({ conceptId, correct }) => {
+  const stmts: Stmt[] = reviewed.map(({ conceptId, correct }): Stmt => {
     const box = nextBox(boxes.get(conceptId) ?? 1, correct);
     return {
       sql: `INSERT INTO cp_review_schedule (user_id, concept_id, box, due_at, last_at) VALUES (?,?,?,?,?)

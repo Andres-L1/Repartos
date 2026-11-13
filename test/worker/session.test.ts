@@ -10,6 +10,7 @@ import { openTestDb } from './sqlite-db.js';
 const ORIGIN = 'https://chedexpulse.app';
 const SECRET = base64url(new Uint8Array(32).map((_, i) => i * 7 + 3));
 const DAY = 86_400_000;
+const SESSION_TTL = DAY;
 const { puzzles } = JSON.parse(readFileSync(new URL('../fixtures/lichess-puzzles.json', import.meta.url), 'utf8')) as { puzzles: any[] };
 
 const fetch429 = () => {
@@ -192,7 +193,7 @@ describe('sesión diaria', () => {
     expect((await bea('POST', '/api/session/finish', { sessionId: start.sessionId })).status).toBe(404);
     const f1 = await ana('POST', '/api/session/finish', { sessionId: start.sessionId });
     expect(f1.status).toBe(200);
-    expect(f1.json.reviewed).toEqual([{ conceptId: 'tactics.fork', correct: true }, { conceptId: 'tactics.pin', correct: true }]);
+    expect(f1.json.reviewed).toEqual([{ conceptId: 'tactics.fork', correct: true, misses: 0 }, { conceptId: 'tactics.pin', correct: true, misses: 0 }]);
     expect(f1.json.streak).toBe(1);
     expect(s.box('ana', 'tactics.fork')).toEqual({ box: 3, due_at: s.now() + 4 * DAY });
     expect(s.box('ana', 'tactics.pin')).toEqual({ box: 3, due_at: s.now() + DAY });
@@ -218,7 +219,65 @@ describe('sesión diaria', () => {
     await ana('POST', '/api/session/answer', { itemId: it.itemId, uci: 'a2a3' });
     await ana('POST', '/api/session/answer', { itemId: it.itemId, uci: s.solutionOf(it.fen)[0] });
     const f = await ana('POST', '/api/session/finish', { sessionId: start.sessionId });
-    expect(f.json.reviewed).toEqual([{ conceptId: 'tactics.fork', correct: false }]);
+    expect(f.json.reviewed).toEqual([{ conceptId: 'tactics.fork', correct: false, misses: 1 }]);
     expect(s.box('ana', 'tactics.fork')).toEqual({ box: 1, due_at: s.now() + DAY });
+  });
+
+  it('coronación: la pieza elegida cuenta; a dama no vale si la solución es a caballo', async () => {
+    const s = setup();
+    const ana = await s.user('ana');
+    s.due('ana', 'tactics.fork');
+    const fen = '8/1P4k1/8/8/8/8/6K1/8 w - - 0 1';
+    s.db.raw.prepare("INSERT INTO cp_review_positions (id, user_id, game_id, ply, concept_id, fen, best_uci, created_at) VALUES ('p1','ana','g1',10,'tactics.fork',?,?,1)").run(fen, 'b7b8n');
+    const item = (await ana('GET', '/api/session')).json.items[0];
+    expect((await ana('POST', '/api/session/answer', { itemId: item.itemId, uci: 'b7b8q' })).json).toEqual({ correct: false, done: false, tryAgain: true });
+    expect((await ana('POST', '/api/session/answer', { itemId: item.itemId, uci: 'b7b8n' })).json).toEqual({ correct: true, done: true });
+  });
+
+  it('caduca a las 24 h: responder da 404 y se crea una sesión nueva', async () => {
+    const s = setup();
+    const ana = await s.user('ana');
+    s.due('ana', 'tactics.fork');
+    const first = (await ana('GET', '/api/session')).json;
+    s.advance(SESSION_TTL);
+    expect((await ana('POST', '/api/session/answer', { itemId: first.items[0].itemId, uci: 'a2a3' })).status).toBe(404);
+    const second = (await ana('GET', '/api/session')).json;
+    expect(second.sessionId).not.toBe(first.sessionId);
+  });
+
+  it('finish choca con el Chedex que otra petición ya registró: se revierte y aun así mueve la caja una vez', async () => {
+    const s = setup();
+    const ana = await s.user('ana');
+    s.due('ana', 'tactics.fork', 2);
+    const today = new Date(s.now()).toISOString().slice(0, 10);
+    s.db.raw.prepare("INSERT INTO cp_profiles (user_id, streak_days, last_active_date) VALUES ('ana', 4, ?)").run(new Date(s.now() - DAY).toISOString().slice(0, 10));
+    // Como si una lección terminada a la vez ya hubiera escrito el hito de hoy antes de que finish confirme.
+    s.db.raw.prepare("INSERT INTO cp_wallet_ledger (user_id, delta, reason, ref, created_at) VALUES ('ana', 1, 'streak_milestone', ?, 'x')").run(`${today}:5`);
+    const start = (await ana('GET', '/api/session')).json;
+    await ana('POST', '/api/session/answer', { itemId: start.items[0].itemId, uci: s.solutionOf(start.items[0].fen)[0] });
+    expect((await ana('POST', '/api/session/finish', { sessionId: start.sessionId })).status).toBe(200);
+    expect(s.box('ana', 'tactics.fork')).toEqual({ box: 3, due_at: s.now() + 4 * DAY });
+    expect(s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_wallet_ledger WHERE user_id = 'ana'").get()).toEqual({ n: 1 });
+    expect(s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_session_items WHERE status = 'done'").get()).toEqual({ n: 0 });
+  });
+
+  it('dos respuestas y dos finish en paralelo: nada se cuenta dos veces', async () => {
+    const s = setup();
+    const ana = await s.user('ana');
+    s.due('ana', 'tactics.fork', 2);
+    // Racha 4 ayer: hoy llega a 5 y da un Chedex de hito (prueba el índice único con dos finish a la vez).
+    s.db.raw.prepare("INSERT INTO cp_profiles (user_id, streak_days, last_active_date) VALUES ('ana', 4, ?)").run(new Date(s.now() - DAY).toISOString().slice(0, 10));
+    const start = (await ana('GET', '/api/session')).json;
+    const it = start.items[0];
+    const uci = s.solutionOf(it.fen)[0];
+    const answers = await Promise.all([1, 2].map(() => ana('POST', '/api/session/answer', { itemId: it.itemId, uci })));
+    expect(answers.filter((a) => a.status === 200)).toHaveLength(1);
+    expect(s.db.raw.prepare('SELECT step, attempts FROM cp_session_items WHERE id = ?').get(it.itemId)).toMatchObject({ attempts: 0 });
+    const [f1, f2] = await Promise.all([1, 2].map(() => ana('POST', '/api/session/finish', { sessionId: start.sessionId })));
+    expect([f1!.status, f2!.status]).toEqual([200, 200]);
+    expect(f2!.json.reviewed).toEqual(f1!.json.reviewed);
+    expect(s.box('ana', 'tactics.fork')).toEqual({ box: 3, due_at: s.now() + 4 * DAY });
+    expect(s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_wallet_ledger WHERE user_id = 'ana' AND reason = 'streak_milestone'").get()).toEqual({ n: 1 });
+    expect(s.db.raw.prepare("SELECT streak_days FROM cp_profiles WHERE user_id = 'ana'").get()).toEqual({ streak_days: 5 });
   });
 });

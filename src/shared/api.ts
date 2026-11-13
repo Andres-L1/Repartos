@@ -267,7 +267,8 @@ export interface FinishBody {
   sessionId: string;
 }
 export interface FinishResult {
-  reviewed: { conceptId: string; correct: boolean }[];
+  /** Por concepto: `correct` = primera posición a la primera (mueve la caja); `misses` = jugadas falladas en la sesión. */
+  reviewed: { conceptId: string; correct: boolean; misses: number }[];
   nextDueAt: string | null;
   streak: number;
 }

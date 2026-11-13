@@ -517,8 +517,10 @@ export function createApp(deps: AppDeps) {
           ...s.rewards,
         ]);
       } catch (e) {
-        // Doble envío concurrente: el otro ya registró el ingreso/consumo (índice único); esta transacción se revierte.
+        // Doble envío o lección terminada a la vez: otra transacción ya registró el ingreso/consumo (índice único) y esta se
+        // revierte entera. Se reaplican solo cajas y elementos: las cajas exigen due_at <= ahora, así que nada se mueve dos veces.
         if (!(s.rewards.length && /UNIQUE|constraint/i.test(e instanceof Error ? e.message : ''))) throw e;
+        await db.batch(plan.stmts);
       }
     }
     return c.json({
