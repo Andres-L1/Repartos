@@ -20,7 +20,8 @@ export function PrivacyScreen() {
         <li>Tu usuario de Lichess, para identificarte.</li>
         <li>Tu Elo y número de partidas en rápidas, clásicas y blitz (bullet no cuenta), solo para recomendarte dónde empezar.</li>
         <li>Las lecciones que completas y tu racha de días, para mostrarte tu progreso.</li>
-        <li>Los conceptos en los que has fallado, para preparar repasos en el futuro.</li>
+        <li>Los conceptos en los que has fallado y las posiciones de tus errores (la posición del tablero y la jugada mejor), para prepararte los repasos y la sesión «Entrenar hoy».</li>
+        <li>Qué conceptos has repasado y cuándo te toca volver a verlos.</li>
       </ul>
 
       <h2>Cookies</h2>

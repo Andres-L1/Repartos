@@ -20,6 +20,13 @@ describe('router: rutas privadas', () => {
   });
 });
 
+describe('router: entrenar', () => {
+  it('/entrenar es privada', () => {
+    expect(isPrivatePath('/entrenar')).toBe(true);
+    expect(isPrivatePath('/entrenarx')).toBe(false);
+  });
+});
+
 describe('router: partidas', () => {
   it('/partidas y sus subrutas son privadas', () => {
     for (const p of ['/partidas', '/partidas/informe', '/partidas/repaso/3']) expect(isPrivatePath(p)).toBe(true);

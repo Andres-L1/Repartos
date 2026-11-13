@@ -5,6 +5,7 @@ import { api, ApiError } from '../api';
 import { useSession } from '../session';
 import { LEVELS } from '../../../src/shared/levels';
 import { Link } from '../components/Link';
+import { TrainCard } from './SessionScreen';
 import { Icon, Loading, ErrorBox, type IconName } from '../components/Icon';
 import '../level.css';
 
@@ -118,6 +119,8 @@ export function MapScreen() {
           </div>
         </dl>
       </section>
+
+      <TrainCard />
 
       <h2 className="section-title">Unidades</h2>
       {units.map((u) => (

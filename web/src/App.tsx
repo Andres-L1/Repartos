@@ -13,6 +13,7 @@ import { BillingScreen } from './screens/BillingScreen';
 import { ReviewScreen } from './screens/ReviewScreen';
 import { LevelScreen } from './screens/LevelScreen';
 import { ShopScreen } from './screens/ShopScreen';
+import { SessionScreen } from './screens/SessionScreen';
 import { CreditsScreen } from './screens/CreditsScreen';
 import { Coin } from './components/ShopVisuals';
 import { chedexText } from './shop';
@@ -54,6 +55,7 @@ export function App() {
   else if (path === '/aprender') screen = <MapScreen />;
   else if (path.startsWith('/leccion/')) screen = <LessonScreen id={decodeURIComponent(path.slice('/leccion/'.length))} />;
   else if (path === '/partidas' || path === '/partidas/informe' || path.startsWith('/partidas/repaso/')) screen = <ReviewScreen path={path} />;
+  else if (path === '/entrenar') screen = <SessionScreen />;
   else if (path === '/perfil') screen = <ProfileScreen />;
   else if (path === '/bienvenida') screen = <LevelScreen />;
   else if (path === '/suscripcion') screen = <BillingScreen />;

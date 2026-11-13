@@ -4,6 +4,7 @@ import { api, ApiError } from '../api';
 import { useSession } from '../session';
 import { LEVELS } from '../../../src/shared/levels';
 import { Link } from '../components/Link';
+import { TrainCard } from './SessionScreen';
 import { Icon, Loading, ErrorBox } from '../components/Icon';
 import { CONCEPTS } from '../../../src/pedagogy/concepts';
 import { ruleFor } from '../../../src/pedagogy/review-copy';
@@ -134,6 +135,8 @@ export function ProfileScreen() {
           Ir a la ruta
         </Link>
       </section>
+
+      <TrainCard />
 
       <section className="t-card" aria-labelledby="weak-title">
         <h2 id="weak-title">Tus puntos débiles</h2>
