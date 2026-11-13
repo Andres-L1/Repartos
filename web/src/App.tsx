@@ -70,7 +70,7 @@ export function App() {
 
   const brand = (
     <Link href="/" className="brand" aria-label="Chedex Pulse, inicio">
-      <span className="brand-mark" aria-hidden="true">♞&#xFE0E;</span>
+      <Coin size={34} />
       <span className="brand-name">Chedex Pulse</span>
     </Link>
   );

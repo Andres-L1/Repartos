@@ -181,7 +181,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Pro
       </div>
       <div className="step-side">
         <p className="step-kicker">
-          {mode === 'practice' ? 'Práctica' : 'Evaluación'} · mueven {orientation === 'white' ? 'las blancas' : 'las negras'}
+          {mode === 'practice' ? 'Práctica' : 'Evaluación'}{plain ? ':' : ' ·'} mueven {orientation === 'white' ? 'las blancas' : 'las negras'}
         </p>
         <p className="step-prompt">{step.prompt}</p>
 
