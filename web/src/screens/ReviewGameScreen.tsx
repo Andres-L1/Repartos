@@ -6,6 +6,8 @@ import { navigate } from '../router';
 import { Link } from '../components/Link';
 import { Icon } from '../components/Icon';
 import { ErrorLessonPlayer } from '../components/ErrorLessonPlayer';
+import { GameViewer } from '../components/GameViewer';
+import { indexBeforePly } from '../review/gameViewer';
 import { useSession } from '../session';
 import { reportReviewed } from '../review/completion';
 import { RESULT_WORD } from '../review/summary';
@@ -23,6 +25,8 @@ export function ReviewGameScreen({ index, game, analysis, onReviewed }: Props) {
   const errors = useMemo(() => (analysis ? keyErrors(analysis) : []), [analysis]);
   const [i, setI] = useState(0);
   const finished = useRef(false);
+  /** Posición con la que está abierto el visor de la partida; null = cerrado. */
+  const [view, setView] = useState<number | null>(null);
 
   // Una sola lección a la vez: las comprobaciones de unicidad son costosas.
   const lesson = useMemo(() => {
@@ -94,13 +98,31 @@ export function ReviewGameScreen({ index, game, analysis, onReviewed }: Props) {
 
   return (
     <section className="rg" aria-labelledby="rg-title">
-      <div className="t-card rv-card">
-        {heading}
-        <p className="rg-progress" aria-live="polite">
-          Error {i + 1} de {errors.length}
-        </p>
+      {/* La lección sigue montada (solo oculta) mientras se ve la partida, para no perder su paso ni su pausa. */}
+      <div className="rg" hidden={view !== null}>
+        <div className="t-card rv-card">
+          {heading}
+          <p className="rg-progress" aria-live="polite">
+            Error {i + 1} de {errors.length}
+          </p>
+          <div className="rv-actions">
+            <button type="button" className="t-btn t-btn-secondary t-btn-sm" onClick={() => setView(0)}>
+              <Icon name="eye" size={20} />
+              Ver la partida
+            </button>
+          </div>
+        </div>
+        {lesson && <ErrorLessonPlayer key={`${game.id}-${i}`} lesson={lesson} onFinish={next} />}
+        {lesson && errors[i] && (
+          <div className="rv-actions">
+            <button type="button" className="t-btn t-btn-secondary t-btn-sm" onClick={() => setView(indexBeforePly(analysis.moves, errors[i]!.move.ply))}>
+              <Icon name="eye" size={20} />
+              Ver cómo se llegó aquí
+            </button>
+          </div>
+        )}
       </div>
-      {lesson && <ErrorLessonPlayer key={`${game.id}-${i}`} lesson={lesson} onFinish={next} />}
+      {view !== null && <GameViewer analysis={analysis} startIndex={view} onClose={() => setView(null)} />}
     </section>
   );
 }

@@ -1,0 +1,26 @@
+/* Visor de la partida (repaso). */
+.gv { display: grid; gap: var(--s-3); min-width: 0; }
+.gv-top .t-btn { margin-bottom: 0; }
+.gv-main { display: grid; gap: var(--s-3); grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.gv-board { min-width: 0; width: 100%; max-width: 32rem; margin-inline: auto; }
+.gv-side { display: grid; gap: var(--s-2); min-width: 0; align-content: start; }
+.gv-side > * { min-width: 0; margin: 0; }
+.gv-now { font-weight: 700; overflow-wrap: anywhere; }
+.gv-lost { color: var(--t-bad); font-weight: 800; }
+.gv-nav { display: flex; gap: var(--s-2); }
+.gv-nav .t-btn { flex: 1; margin-bottom: 0; min-height: 48px; min-width: 44px; }
+.gv-hint { font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.gv-errors { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.gv-errors .t-btn { margin-bottom: 0; max-width: 100%; text-align: left; }
+.gv-list { list-style: none; margin: 0; display: grid; gap: 2px; max-height: 14rem; overflow-y: auto; overflow-x: hidden; border-radius: var(--r-md); background: var(--t-ink); padding: 4px; }
+.gv-row { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 2px; }
+.gv-num { color: var(--muted); font-weight: 700; padding-left: 4px; }
+.gv-move { font: inherit; font-weight: 700; display: inline-flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; min-height: 44px; padding: 0 0.6rem; border: 0; border-radius: 10px; background: transparent; color: inherit; cursor: pointer; text-align: left; min-width: 0; }
+.gv-move:hover { background: var(--t-graphite-3); }
+.gv-move[aria-current='step'] { background: var(--t-orange); color: var(--t-ink); }
+.gv-move-err { box-shadow: inset 0 0 0 2px var(--t-bad); }
+.gv-tag { font-size: 0.75rem; font-weight: 800; }
+@media (min-width: 860px) {
+  .gv-main { grid-template-columns: minmax(0, 32rem) minmax(0, 1fr); align-items: start; }
+  .gv-list { max-height: 22rem; }
+}

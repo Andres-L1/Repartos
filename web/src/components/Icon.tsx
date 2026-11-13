@@ -104,6 +104,11 @@ const PATHS: Record<string, ReactNode> = {
       <path d="M12 9c.3 1.6 2.4 2.5 2.4 4.6a2.4 2.4 0 0 1-4.8 0c0-1 .5-1.6 1-2.1.1.8.4 1.2.8 1.3.1-1.1.1-2.6.6-3.8z" />
     </>
   ),
+  skipStart: <path d="M6 5v14M19 5.5v13L9 12z" />,
+  skipEnd: <path d="M18 5v14M5 5.5v13L15 12z" />,
+  prev: <path d="M17.5 5.5v13L7.5 12z" />,
+  next: <path d="M6.5 5.5v13l10-6.5z" />,
+  flag: <path d="M6 21V4M6 5h11l-2.5 3.5L17 12H6" />,
 };
 
 export type IconName = keyof typeof PATHS;
