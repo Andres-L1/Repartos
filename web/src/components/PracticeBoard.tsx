@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PracticeStep } from '../../../src/content/schema';
 import { Board, marksToShapes } from './Board';
 import { Icon } from './Icon';
+import { playSound } from '../sound';
 import { applyUci, canonicalUci, lastMoveOf, needsPromotion, parseTypedMove, PROMO_ROLES, sanOfUci, turnOf } from '../chess';
 
 export interface StepResult {
@@ -59,6 +60,9 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
   function finishCorrect(msg: string) {
     setStatus('correct');
     setFeedback(msg);
+    // Tras el sonido de la jugada, un aviso breve de acierto (uno por ejercicio).
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => playSound('correct'), 180);
   }
 
   function attempt(rawUci: string) {

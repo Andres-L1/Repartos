@@ -10,6 +10,7 @@ import { PracticeBoard, type StepResult } from './PracticeBoard';
 import { turnOf } from '../chess';
 import { Icon } from './Icon';
 import { Coin } from './ShopVisuals';
+import { playSound } from '../sound';
 
 type Phase =
   | { kind: 'intro' }
@@ -271,6 +272,10 @@ function ResultView({
 }) {
   const [nextId, setNextId] = useState<string | null>(null);
   const passed = outcome?.passed === true;
+  // Un solo sonido de victoria al completar la lección (nunca al suspender).
+  useEffect(() => {
+    if (!saving && passed) playSound('victory');
+  }, [saving, passed]);
   useEffect(() => {
     if (demo || saving || !passed) return;
     let live = true;

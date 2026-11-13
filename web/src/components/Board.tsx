@@ -8,6 +8,7 @@ import 'chessground/assets/chessground.brown.css';
 import 'chessground/assets/chessground.cburnett.css';
 import type { BoardMark } from '../../../src/content/schema';
 import { isInCheck, legalDests, turnOf } from '../chess';
+import { moveSoundOf, playSound, primeSounds } from '../sound';
 import { useSession } from '../session';
 import { appearanceClass } from '../shop';
 
@@ -36,9 +37,11 @@ interface Props {
   onSelectSquare?: (sq: string) => void;
   /** Casilla marcada (solo con onSelectSquare): se resalta con un círculo. */
   selectedSquare?: string | null;
+  /** Sonido al cambiar de posición con una jugada (por defecto, sí). */
+  sound?: boolean;
 }
 
-export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, plain = false, appearance, onMove, onSelectSquare, selectedSquare }: Props) {
+export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, plain = false, appearance, onMove, onSelectSquare, selectedSquare, sound = true }: Props) {
   const { equipped } = useSession();
   const el = useRef<HTMLDivElement>(null);
   const cg = useRef<Api | null>(null);
@@ -47,6 +50,13 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
   const onSelectRef = useRef(onSelectSquare);
   onSelectRef.current = onSelectSquare;
   const wantsSelect = !!onSelectSquare;
+  const prevFen = useRef<string | null>(null);
+  const touchable = interactive || wantsSelect;
+
+  // Los sonidos se preparan (sin reproducir nada) solo donde se juega o se toca el tablero.
+  useEffect(() => {
+    if (touchable) primeSounds();
+  }, [touchable]);
 
   useEffect(() => {
     if (!el.current) return;
@@ -61,25 +71,39 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
     const api = cg.current;
     if (!api) return;
     const turn = turnOf(fen);
+    // Una posición nueva con jugada marcada suena (mover, capturar o jaque). Al montar no suena nada.
+    const prev = prevFen.current;
+    prevFen.current = fen;
+    if (sound && prev && prev !== fen && lastMove) {
+      try {
+        playSound(moveSoundOf(prev, fen, isInCheck(fen)));
+      } catch {
+        /* sin sonido */
+      }
+    }
+    // Elegir casilla sin jugar (pausa de la mini lección): las piezas propias se pueden levantar y mirar,
+    // pero sin destinos: al soltarlas vuelven a su sitio y no cuenta como respuesta.
+    const liftOnly = wantsSelect && !interactive;
     api.set({
       fen,
       orientation: orientation ?? turn,
       turnColor: turn,
       check: isInCheck(fen),
       lastMove: lastMove as Key[] | undefined,
-      viewOnly: !interactive && !wantsSelect,
+      viewOnly: !touchable,
       movable: {
         free: false,
-        color: interactive ? turn : undefined,
+        color: interactive || liftOnly ? turn : undefined,
         dests: interactive ? (legalDests(fen) as Map<Key, Key[]>) : new Map(),
         showDests: true,
         events: { after: (o, d) => onMoveRef.current?.(o, d) },
       },
       events: { select: (k) => onSelectRef.current?.(k) },
       premovable: { enabled: false },
-      draggable: wantsSelect && !interactive ? { enabled: false } : { showGhost: true },
+      draggable: { enabled: true, showGhost: true },
       animation: { enabled: true, duration: 200 },
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fen, interactive, wantsSelect, orientation, lastMove?.[0], lastMove?.[1], nonce]);
 
   const allShapes: DrawShape[] = selectedSquare && wantsSelect ? [...shapes, { orig: selectedSquare as Key, brush: 'yellow' }] : shapes;
@@ -90,7 +114,7 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
   }, [shapesKey, nonce]);
 
   return (
-    <div className={`board-frame ${appearance ?? appearanceClass(plain ? null : equipped)}${interactive || wantsSelect ? ' board-touch' : ''}`} role="group" aria-label={label}>
+    <div className={`board-frame ${appearance ?? appearanceClass(plain ? null : equipped)}${touchable ? ' board-touch' : ''}`} role="group" aria-label={label}>
       <div className="board-square">
         <div ref={el} className="board-cg" />
       </div>

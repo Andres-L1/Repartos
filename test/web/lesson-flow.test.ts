@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { initLessonState, lessonReducer, type LessonState } from '../../web/src/review/lessonFlow.js';
+import { initLessonState, judgeBestMove, lessonReducer, type LessonState } from '../../web/src/review/lessonFlow.js';
 import type { ErrorLesson } from '../../src/pedagogy/error-lesson.js';
 
 const lesson = (withPause: boolean): ErrorLesson => ({
@@ -69,5 +69,22 @@ describe('lessonReducer', () => {
     const done = run(initLessonState(lesson(false)), { type: 'next' }, { type: 'next' }, { type: 'next' }, { type: 'next' });
     expect(done.step).toBe('done');
     expect(lessonReducer(done, { type: 'next' })).toBe(done);
+  });
+});
+
+describe('judgeBestMove', () => {
+  const start = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  it('acierta con la mejor, falla con otra legal y rechaza una ilegal', () => {
+    expect(judgeBestMove(start, 'e2e4', 'e2', 'e4')).toMatchObject({ kind: 'correct', uci: 'e2e4' });
+    expect(judgeBestMove(start, 'e2e4', 'd2', 'd4')).toMatchObject({ kind: 'wrong', uci: 'd2d4' });
+    expect(judgeBestMove(start, 'e2e4', 'e2', 'e5')).toEqual({ kind: 'illegal' });
+  });
+  it('acepta el enroque como rey a torre', () => {
+    const castle = 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1';
+    expect(judgeBestMove(castle, 'e1g1', 'e1', 'h1').kind).toBe('correct');
+  });
+  it('en una coronación toma la pieza de la mejor jugada', () => {
+    const promo = '8/4P3/8/8/8/8/k7/4K3 w - - 0 1';
+    expect(judgeBestMove(promo, 'e7e8n', 'e7', 'e8')).toMatchObject({ kind: 'correct', uci: 'e7e8n' });
   });
 });
