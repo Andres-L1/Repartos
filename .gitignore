@@ -1,10 +1,7 @@
+data/*.db*
 .env
 .dev.vars
-.dev.vars.*
-data/
-node_modules/
-*.log
-coverage/
-.wrangler/
-.cloudflare-build/
-.pulse-data-cache/
+.wrangler
+node_modules
+dist
+test/validation/last-run.json

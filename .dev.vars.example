@@ -1,0 +1,6 @@
+# Copia a .dev.vars (ignorado por git). Solo para `wrangler dev --local`.
+# Generar el secreto: node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+SESSION_SECRET=
+PUBLIC_ORIGIN=http://localhost:8787
+# beta_open (por defecto) | dev (pago simulado, solo local)
+BILLING_MODE=beta_open

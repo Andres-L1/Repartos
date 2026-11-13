@@ -1,0 +1,56 @@
+{
+ "depth": 10,
+ "games": {
+  "v01_limpia.pgn": [],
+  "v02_mate_perdido.pgn": [
+   "5 Qh5 inaccuracy -> null",
+   "6 Nf6 blunder -> mate_threat",
+   "7 Qd1 blunder -> mate_threat"
+  ],
+  "v03_mate_recibido.pgn": [
+   "8 g6 inaccuracy -> null",
+   "10 Bxd1 blunder -> mate_threat"
+  ],
+  "v04_pieza_colgada.pgn": [
+   "14 Nd5 blunder -> hanging_piece",
+   "26 Rb8 inaccuracy -> null",
+   "27 Nxe5 inaccuracy -> null"
+  ],
+  "v05_dama_colgada.pgn": [
+   "17 Qg4 blunder -> hanging_piece",
+   "28 Qb6 inaccuracy -> null",
+   "30 a5 inaccuracy -> null",
+   "34 h5 mistake -> null",
+   "43 Ba1 inaccuracy -> null"
+  ],
+  "v06_cambio_malo.pgn": [
+   "17 Bxh7+ mistake -> bad_exchange",
+   "25 e4 inaccuracy -> null",
+   "27 Nxe4 inaccuracy -> null",
+   "31 Re1 inaccuracy -> null"
+  ],
+  "v07_trampa_petroff.pgn": [
+   "8 Nf6 blunder -> discovered_attack",
+   "16 Ng8 inaccuracy -> null",
+   "17 h4 inaccuracy -> null",
+   "37 Ne4 inaccuracy -> null"
+  ],
+  "v08_horquilla_dama.pgn": [
+   "17 Bh3 blunder -> fork",
+   "39 exd5 inaccuracy -> null"
+  ],
+  "v09_mate_pastor.pgn": [
+   "3 Qh5 inaccuracy -> null",
+   "6 Nf6 blunder -> mate_threat"
+  ],
+  "v10_limpia_qgd.pgn": [],
+  "v11_clavada.pgn": [
+   "17 Rf1 mistake -> pin",
+   "18 Ng4 inaccuracy -> null",
+   "20 O-O inaccuracy -> null",
+   "22 Qc5 inaccuracy -> null",
+   "33 Ng5 mistake -> null",
+   "37 h3 mistake -> null"
+  ]
+ }
+}

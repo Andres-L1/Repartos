@@ -1,0 +1,6 @@
+[Event "Validacion: horquilla de dama (9.Bh3 Qh4+)"]
+[White "Alumno"]
+[Black "Rival"]
+[Result "*"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Be3 e6 7. f3 b5 8. g4 Nfd7 9. Bh3 Qh4+ 10. Kd2 Qxh3 11. Qf1 Qxf1 12. Raxf1 Be7 13. a4 bxa4 14. Ra1 Bb7 15. Rxa4 Nc6 16. Rha1 Nxd4 17. Bxd4 O-O 18. b3 Rfd8 19. Ne2 d5 20. exd5 Bxd5 21. f4 Rac8 22. h3 Nb8 *

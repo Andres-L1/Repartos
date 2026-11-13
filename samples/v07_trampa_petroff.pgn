@@ -1,0 +1,6 @@
+[Event "Validacion: trampa Petroff (4...Nf6 5.Nc6+)"]
+[White "Rival"]
+[Black "Alumno"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nf6 3. Nxe5 Nxe4 4. Qe2 Nf6 5. Nc6+ Qe7 6. Nxe7 Bxe7 7. g4 Nc6 8. g5 Ng8 9. h4 d5 10. Qb5 h6 11. Bg2 Kf8 12. Qxd5 hxg5 13. hxg5 Be6 14. Rxh8 Bxd5 15. Bxd5 Bxg5 16. Nc3 Re8+ 17. Kd1 Ne5 18. Bxb7 Ng4 19. Ne4 Rxe4 20. Bxe4 Nxf2+ 21. Ke1 Nxe4 22. a4 Bf6 *

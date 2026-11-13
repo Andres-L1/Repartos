@@ -1,0 +1,6 @@
+[Event "Validacion: mate desaprovechado (3...Nf6 4.Qd1 en vez de Qxf7#)"]
+[White "Alumno"]
+[Black "Rival"]
+[Result "*"]
+
+1. e4 e5 2. Bc4 Nc6 3. Qh5 Nf6 4. Qd1 d5 5. exd5 Nxd5 *

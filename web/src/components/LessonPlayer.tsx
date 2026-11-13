@@ -1,0 +1,304 @@
+import { useMemo, useState } from 'react';
+import type { Lesson } from '../../../src/content/schema';
+import type { LessonProgress, Profile } from '../../../src/shared/api';
+import { api, ApiError } from '../api';
+import { navigate } from '../router';
+import { Board, marksToShapes } from './Board';
+import { PracticeBoard, type StepResult } from './PracticeBoard';
+import { turnOf } from '../chess';
+
+type Phase =
+  | { kind: 'intro' }
+  | { kind: 'explain'; i: number }
+  | { kind: 'practice'; i: number }
+  | { kind: 'evaluation'; i: number }
+  | { kind: 'result' };
+
+interface Outcome {
+  correct: number;
+  total: number;
+  passed: boolean;
+  xpGained?: number;
+  profile?: Profile;
+  progress?: LessonProgress;
+  error?: string;
+}
+
+const STAGES = ['Introducción', 'Explicación', 'Práctica', 'Evaluación'] as const;
+
+export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: boolean }) {
+  const [phase, setPhase] = useState<Phase>({ kind: 'intro' });
+  const [evalResults, setEvalResults] = useState<boolean[]>([]);
+  const [outcome, setOutcome] = useState<Outcome | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [run, setRun] = useState(0);
+
+  const total = lesson.evaluation.length;
+  const passMark = lesson.passMark ?? Math.max(1, total - 1);
+
+  const stageIndex =
+    phase.kind === 'intro' ? 0 : phase.kind === 'explain' ? 1 : phase.kind === 'practice' ? 2 : phase.kind === 'evaluation' ? 3 : 4;
+
+  const stepCount =
+    phase.kind === 'explain'
+      ? lesson.explanation.length
+      : phase.kind === 'practice'
+        ? lesson.practice.length
+        : phase.kind === 'evaluation'
+          ? lesson.evaluation.length
+          : 0;
+  const stepNo = phase.kind === 'explain' || phase.kind === 'practice' || phase.kind === 'evaluation' ? phase.i + 1 : 0;
+
+  // progreso global: pasos totales
+  const totalSteps = 1 + lesson.explanation.length + lesson.practice.length + lesson.evaluation.length;
+  const doneSteps =
+    phase.kind === 'intro'
+      ? 0
+      : phase.kind === 'explain'
+        ? 1 + phase.i
+        : phase.kind === 'practice'
+          ? 1 + lesson.explanation.length + phase.i
+          : phase.kind === 'evaluation'
+            ? 1 + lesson.explanation.length + lesson.practice.length + phase.i
+            : totalSteps;
+  const pct = Math.round((doneSteps / totalSteps) * 100);
+
+  function toExplain() {
+    if (lesson.explanation.length) setPhase({ kind: 'explain', i: 0 });
+    else toPractice();
+  }
+  function toPractice() {
+    if (lesson.practice.length) setPhase({ kind: 'practice', i: 0 });
+    else toEval();
+  }
+  function toEval() {
+    setEvalResults([]);
+    if (lesson.evaluation.length) setPhase({ kind: 'evaluation', i: 0 });
+    else void finish([]);
+  }
+
+  async function finish(results: boolean[]) {
+    const correct = results.filter(Boolean).length;
+    const passed = correct >= passMark;
+    setPhase({ kind: 'result' });
+    if (demo) {
+      setOutcome({ correct, total, passed });
+      return;
+    }
+    setSaving(true);
+    const mistakes = correct < total ? [...new Set(lesson.conceptIds ?? [])] : [];
+    try {
+      const r = await api.complete(lesson.id, { correct, total, mistakes });
+      setOutcome({ correct, total, passed: r.progress.completed, xpGained: r.xpGained, profile: r.profile, progress: r.progress });
+    } catch (e) {
+      if (e instanceof ApiError && (e.status === 401 || e.status === 402)) return;
+      setOutcome({
+        correct,
+        total,
+        passed,
+        error: e instanceof ApiError ? e.message : 'No se pudo guardar tu progreso.',
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function restart() {
+    setOutcome(null);
+    setEvalResults([]);
+    setRun((r) => r + 1);
+    setPhase({ kind: 'intro' });
+  }
+
+  return (
+    <article className="lesson" aria-labelledby="lesson-title">
+      <header className="lesson-head">
+        <button className="btn btn-ghost btn-small" onClick={() => navigate(demo ? '/' : '/mapa')}>
+          <span aria-hidden="true">← </span>Salir
+        </button>
+        <div className="lesson-head-main">
+          <h1 id="lesson-title">{lesson.title}</h1>
+          <div
+            className="progress"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={pct}
+            aria-label="Progreso de la lección"
+          >
+            <div className="progress-fill" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      </header>
+
+      {phase.kind !== 'result' && (
+        <ol className="stages" aria-label="Fases de la lección">
+          {STAGES.map((s, i) => (
+            <li
+              key={s}
+              className={i === stageIndex ? 'stage current' : i < stageIndex ? 'stage done' : 'stage'}
+              aria-current={i === stageIndex ? 'step' : undefined}
+            >
+              <span className="stage-n" aria-hidden="true">
+                {i < stageIndex ? '✓' : i + 1}
+              </span>
+              {s}
+              {i === stageIndex && stepCount > 1 && (
+                <span className="stage-count">
+                  {' '}
+                  ({stepNo}/{stepCount})
+                </span>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
+
+      <div className="lesson-body" key={`${run}-${phase.kind}-${'i' in phase ? phase.i : 0}`}>
+        {phase.kind === 'intro' && (
+          <section className="card intro">
+            <p className="kicker">Objetivo</p>
+            <h2>{lesson.objective}</h2>
+            <p className="lead">{lesson.intro}</p>
+            <button className="btn btn-primary" onClick={toExplain} autoFocus>
+              Empezar
+            </button>
+          </section>
+        )}
+
+        {phase.kind === 'explain' && <ExplainStepView lesson={lesson} i={phase.i} onNext={() => (phase.i + 1 < lesson.explanation.length ? setPhase({ kind: 'explain', i: phase.i + 1 }) : toPractice())} onPrev={phase.i > 0 ? () => setPhase({ kind: 'explain', i: phase.i - 1 }) : undefined} />}
+
+        {phase.kind === 'practice' && (
+          <PracticeBoard
+            step={lesson.practice[phase.i]!}
+            mode="practice"
+            isLast={phase.i + 1 >= lesson.practice.length}
+            onDone={() => (phase.i + 1 < lesson.practice.length ? setPhase({ kind: 'practice', i: phase.i + 1 }) : toEval())}
+          />
+        )}
+
+        {phase.kind === 'evaluation' && (
+          <PracticeBoard
+            step={lesson.evaluation[phase.i]!}
+            mode="evaluation"
+            isLast={phase.i + 1 >= lesson.evaluation.length}
+            onDone={(r: StepResult) => {
+              const next = [...evalResults, r.ok];
+              setEvalResults(next);
+              if (phase.i + 1 < lesson.evaluation.length) setPhase({ kind: 'evaluation', i: phase.i + 1 });
+              else void finish(next);
+            }}
+          />
+        )}
+
+        {phase.kind === 'result' && (
+          <ResultView lesson={lesson} demo={demo} saving={saving} outcome={outcome} passMark={passMark} onRestart={restart} />
+        )}
+      </div>
+    </article>
+  );
+}
+
+function ExplainStepView({ lesson, i, onNext, onPrev }: { lesson: Lesson; i: number; onNext(): void; onPrev: (() => void) | undefined }) {
+  const step = lesson.explanation[i]!;
+  const shapes = useMemo(() => marksToShapes(step), [step]);
+  const last = i + 1 >= lesson.explanation.length;
+  return (
+    <div className="step-layout">
+      <div className="step-board">
+        <Board fen={step.fen} orientation={turnOf(step.fen)} shapes={shapes} label="Tablero de la explicación" />
+      </div>
+      <div className="step-side">
+        <p className="step-kicker">Explicación</p>
+        <p className="step-text">{step.text}</p>
+        {(step.squares?.length || step.arrows?.length) && (
+          <p className="muted">Las casillas y flechas verdes del tablero señalan lo importante.</p>
+        )}
+        <div className="actions">
+          {onPrev && (
+            <button className="btn btn-ghost" onClick={onPrev}>
+              Anterior
+            </button>
+          )}
+          <button className="btn btn-primary" onClick={onNext} autoFocus>
+            {last ? 'Pasar a la práctica' : 'Siguiente'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ResultView({
+  lesson,
+  demo,
+  saving,
+  outcome,
+  passMark,
+  onRestart,
+}: {
+  lesson: Lesson;
+  demo: boolean;
+  saving: boolean;
+  outcome: Outcome | null;
+  passMark: number;
+  onRestart(): void;
+}) {
+  if (saving || !outcome) {
+    return (
+      <section className="card result" aria-busy="true">
+        <p role="status">Guardando tu resultado…</p>
+      </section>
+    );
+  }
+  const { correct, total, passed } = outcome;
+  return (
+    <section className="card result" aria-live="polite">
+      <p className="result-icon" aria-hidden="true">
+        {passed ? '🏆' : '💪'}
+      </p>
+      <h2>{passed ? '¡Lección completada!' : 'Casi lo tienes'}</h2>
+      <p className="lead">
+        Aciertos en la evaluación: <strong>{correct} de {total}</strong>.
+        {!passed && ` Necesitas al menos ${passMark} para completarla.`}
+      </p>
+      {outcome.xpGained !== undefined && (
+        <p className="xp-badge">
+          +{outcome.xpGained} XP
+        </p>
+      )}
+      {outcome.profile && (
+        <p className="muted">
+          Total: {outcome.profile.xp} XP · racha {outcome.profile.streakDays} {outcome.profile.streakDays === 1 ? 'día' : 'días'} · hoy {outcome.profile.xpToday}/{outcome.profile.dailyGoalXp} XP
+        </p>
+      )}
+      {outcome.error && (
+        <p className="field-error" role="alert">
+          {outcome.error}
+        </p>
+      )}
+      <div className="actions">
+        {demo ? (
+          <>
+            <a className="btn btn-primary" href="/auth/login">
+              Entrar con Lichess para seguir
+            </a>
+            <button className="btn" onClick={onRestart}>
+              Repetir la demostración
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="btn btn-primary" onClick={() => navigate('/mapa')} autoFocus>
+              Volver al mapa
+            </button>
+            <button className="btn" onClick={onRestart}>
+              {passed ? 'Repasar' : 'Intentarlo de nuevo'}
+            </button>
+          </>
+        )}
+      </div>
+      <p className="sr-only">{lesson.title}</p>
+    </section>
+  );
+}

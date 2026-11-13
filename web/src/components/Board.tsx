@@ -1,0 +1,83 @@
+import { useEffect, useRef } from 'react';
+import { Chessground } from 'chessground';
+import type { Api } from 'chessground/api';
+import type { DrawShape } from 'chessground/draw';
+import type { Key } from 'chessground/types';
+import 'chessground/assets/chessground.base.css';
+import 'chessground/assets/chessground.brown.css';
+import 'chessground/assets/chessground.cburnett.css';
+import type { BoardMark } from '../../../src/content/schema';
+import { isInCheck, legalDests, turnOf } from '../chess';
+
+export function marksToShapes(mark: BoardMark | undefined): DrawShape[] {
+  const shapes: DrawShape[] = [];
+  for (const s of mark?.squares ?? []) shapes.push({ orig: s as Key, brush: 'green' });
+  for (const [a, b] of mark?.arrows ?? []) shapes.push({ orig: a as Key, dest: b as Key, brush: 'green' });
+  return shapes;
+}
+
+interface Props {
+  fen: string;
+  interactive?: boolean;
+  orientation?: 'white' | 'black';
+  lastMove?: [string, string] | undefined;
+  shapes?: DrawShape[];
+  /** cambia para forzar el redibujado de la misma posición (reintentos) */
+  nonce?: number;
+  label: string;
+  onMove?: (from: string, to: string) => void;
+}
+
+export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, onMove }: Props) {
+  const el = useRef<HTMLDivElement>(null);
+  const cg = useRef<Api | null>(null);
+  const onMoveRef = useRef(onMove);
+  onMoveRef.current = onMove;
+
+  useEffect(() => {
+    if (!el.current) return;
+    cg.current = Chessground(el.current, { drawable: { enabled: false }, coordinates: true });
+    return () => {
+      cg.current?.destroy();
+      cg.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const api = cg.current;
+    if (!api) return;
+    const turn = turnOf(fen);
+    api.set({
+      fen,
+      orientation: orientation ?? turn,
+      turnColor: turn,
+      check: isInCheck(fen),
+      lastMove: lastMove as Key[] | undefined,
+      viewOnly: !interactive,
+      movable: {
+        free: false,
+        color: interactive ? turn : undefined,
+        dests: interactive ? (legalDests(fen) as Map<Key, Key[]>) : new Map(),
+        showDests: true,
+        events: { after: (o, d) => onMoveRef.current?.(o, d) },
+      },
+      premovable: { enabled: false },
+      draggable: { showGhost: true },
+      animation: { enabled: true, duration: 200 },
+    });
+  }, [fen, interactive, orientation, lastMove?.[0], lastMove?.[1], nonce]);
+
+  const shapesKey = JSON.stringify(shapes);
+  useEffect(() => {
+    cg.current?.setAutoShapes(shapes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shapesKey, nonce]);
+
+  return (
+    <div className="board-frame" role="group" aria-label={label}>
+      <div className="board-square">
+        <div ref={el} className="board-cg" />
+      </div>
+    </div>
+  );
+}

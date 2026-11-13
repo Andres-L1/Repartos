@@ -1,0 +1,478 @@
+import { Hono, type Context } from 'hono';
+import { cors } from 'hono/cors';
+import { bodyLimit } from 'hono/body-limit';
+import type {
+  BillingMode,
+  CompleteLessonBody,
+  LessonProgress,
+  Placement,
+  PlacementMode,
+  Profile,
+  Subscription,
+  SubscriptionStatus,
+  User,
+} from '../src/shared/api.js';
+import type { Db, Stmt } from './db.js';
+import type { BillingProvider, SubscriptionRecord } from './billing.js';
+import { handleCallback, handleLogin, handleLogout, readSession, type AuthConfig } from './auth.js';
+import { planForRating, selectPerf } from './placement.js';
+import {
+  buildMap,
+  computeStatuses,
+  computeXp,
+  dayOf,
+  findLesson,
+  levelForXp,
+  passMarkFor,
+  yesterdayOf,
+  type ContentSource,
+  type ProgressRow,
+} from './progress.js';
+
+export interface AppDeps {
+  db: Db;
+  content: ContentSource;
+  billingMode: BillingMode;
+  /** Proveedor de pago; solo se usa con billingMode 'dev'. */
+  billing: BillingProvider;
+  /** SESSION_SECRET (32 bytes base64url). */
+  sessionSecret: string | undefined;
+  /** PUBLIC_ORIGIN, p. ej. https://chedexpulse.app. */
+  publicOrigin: string | undefined;
+  now?: () => Date;
+  /** Origen de desarrollo extra permitido por CORS (solo local). */
+  devOrigin?: string | undefined;
+  /** Sirve los estáticos para rutas que no son /api ni /auth (binding ASSETS). */
+  assets?: { fetch(req: Request): Promise<Response> } | undefined;
+}
+
+const MAX_BODY = 16 * 1024;
+const DEFAULT_DAILY_GOAL = 20;
+
+type Env = { Variables: { user: User } };
+type Ctx = Context<Env>;
+
+class HttpError extends Error {
+  constructor(public status: 400 | 401 | 402 | 403 | 404 | 409 | 413 | 415 | 501, message: string) {
+    super(message);
+  }
+}
+
+const isInt = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v);
+const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
+
+async function readJson(c: Context): Promise<Record<string, unknown>> {
+  const ct = c.req.header('content-type') ?? '';
+  if (!ct.toLowerCase().includes('application/json')) throw new HttpError(415, 'Content-Type debe ser application/json');
+  let v: unknown;
+  try {
+    v = JSON.parse(await c.req.text());
+  } catch {
+    throw new HttpError(400, 'JSON no válido');
+  }
+  if (!isObj(v)) throw new HttpError(400, 'Se esperaba un objeto JSON');
+  return v;
+}
+
+interface ProfileRow {
+  xp: number;
+  streak_days: number;
+  longest_streak: number;
+  last_active_date: string | null;
+  daily_goal_xp: number;
+  xp_today: number;
+  xp_today_date: string | null;
+}
+
+export function createApp(deps: AppDeps) {
+  const { db, content, billing, billingMode } = deps;
+  const now = deps.now ?? (() => new Date());
+  const app = new Hono<Env>();
+
+  const auth: AuthConfig = {
+    secret: deps.sessionSecret,
+    origin: deps.publicOrigin,
+    now,
+    onLogin: async (u, perfs) => {
+      const t = now().toISOString();
+      const sel = selectPerf(perfs); // validación estricta; lo no fiable o fuera de rango se descarta
+      await db.batch([
+        {
+          sql: `INSERT INTO cp_users (id, username, created_at, last_login_at) VALUES (?,?,?,?)
+                ON CONFLICT(id) DO UPDATE SET username = excluded.username, last_login_at = excluded.last_login_at`,
+          params: [u.id, u.username, t, t],
+        },
+        ensureProfileStmt(u.id),
+        // Se refresca en cada login; la elección del usuario (mode) no se toca.
+        {
+          sql: `INSERT INTO cp_placement (user_id, source, perf, rating, games, mode, fetched_at) VALUES (?,?,?,?,?,NULL,?)
+                ON CONFLICT(user_id) DO UPDATE SET source = excluded.source, perf = excluded.perf,
+                  rating = excluded.rating, games = excluded.games, fetched_at = excluded.fetched_at`,
+          params: [u.id, sel.source, sel.perf, sel.rating, sel.games, t],
+        },
+      ]);
+    },
+  };
+  const ensureProfileStmt = (userId: string): Stmt => ({
+    sql: 'INSERT OR IGNORE INTO cp_profiles (user_id, daily_goal_xp) VALUES (?, ?)',
+    params: [userId, DEFAULT_DAILY_GOAL],
+  });
+
+  // ---------- cabeceras, CORS, límites ----------
+  app.use('*', async (c, next) => {
+    await next();
+    const p = new URL(c.req.url).pathname;
+    if (p.startsWith('/api/') || p.startsWith('/auth/')) {
+      c.header('X-Content-Type-Options', 'nosniff');
+      c.header('X-Frame-Options', 'DENY');
+      c.header('Referrer-Policy', 'no-referrer');
+      c.header('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
+      c.header('Cache-Control', 'no-store');
+    }
+  });
+  app.use(
+    '/api/*',
+    cors({
+      origin: (o) => (deps.devOrigin && o === deps.devOrigin ? o : null),
+      credentials: true,
+      allowHeaders: ['Content-Type'],
+      allowMethods: ['GET', 'POST', 'PUT', 'OPTIONS'],
+      maxAge: 600,
+    }),
+  );
+  // Defensa CSRF adicional: peticiones que cambian estado solo desde el origen propio (o el de desarrollo).
+  app.use('/api/*', async (c, next) => {
+    if (c.req.method !== 'GET' && c.req.method !== 'OPTIONS') {
+      const origin = c.req.header('origin');
+      if (origin) {
+        let ok = origin === deps.publicOrigin || (!!deps.devOrigin && origin === deps.devOrigin);
+        try {
+          ok = ok || new URL(origin).host === new URL(c.req.url).host;
+        } catch {
+          ok = false;
+        }
+        if (!ok) return c.json({ error: 'Origen no permitido' }, 403);
+      }
+    }
+    await next();
+  });
+  app.use(
+    '/api/*',
+    bodyLimit({ maxSize: MAX_BODY, onError: (c) => c.json({ error: 'Cuerpo demasiado grande' }, 413) }),
+  );
+  app.onError((err, c) => {
+    if (err instanceof HttpError) return c.json({ error: err.message }, err.status);
+    console.error('error interno:', err instanceof Error ? err.message : 'desconocido'); // sin cuerpos ni secretos
+    return c.json({ error: 'Error interno' }, 500);
+  });
+  app.notFound(async (c) => {
+    const p = new URL(c.req.url).pathname;
+    if (!p.startsWith('/api/') && !p.startsWith('/auth/') && deps.assets) return deps.assets.fetch(c.req.raw);
+    return c.json({ error: 'No encontrado' }, 404);
+  });
+
+  // ---------- helpers de datos ----------
+  async function subscriptionFor(userId: string): Promise<Subscription> {
+    const base = { priceEurPerMonth: 10 as const };
+    if (billingMode === 'beta_open') return { status: 'none', provider: 'none', beta: true, ...base };
+    const row = await db.first<{ status: string; provider: string; current_period_end: string | null }>(
+      'SELECT status, provider, current_period_end FROM cp_subscriptions WHERE user_id = ?',
+      [userId],
+    );
+    if (!row) return { status: 'none', provider: 'dev', beta: false, ...base };
+    let status = row.status as SubscriptionStatus;
+    const end = row.current_period_end ?? undefined;
+    if (end && new Date(end).getTime() <= now().getTime()) status = 'none'; // periodo vencido
+    return {
+      status,
+      ...base,
+      provider: row.provider as 'dev' | 'stripe',
+      beta: false,
+      ...(status !== 'none' && end ? { currentPeriodEnd: end } : {}),
+    };
+  }
+  /** Acceso a lecciones de pago: siempre en beta abierta; en 'dev', suscripción activa o cancelada dentro del periodo. */
+  const hasAccess = async (userId: string) =>
+    billingMode === 'beta_open' || (await subscriptionFor(userId)).status !== 'none';
+
+  async function progressMap(userId: string): Promise<Map<string, ProgressRow>> {
+    const rows = await db.all<{ lesson_id: string; completed: number; best_score: number }>(
+      'SELECT lesson_id, completed, best_score FROM cp_lesson_progress WHERE user_id = ?',
+      [userId],
+    );
+    return new Map(rows.map((r) => [r.lesson_id, { completed: r.completed === 1, bestScore: r.best_score }]));
+  }
+
+  async function loadProfile(userId: string): Promise<ProfileRow> {
+    await db.run(ensureProfileStmt(userId).sql, ensureProfileStmt(userId).params);
+    return (await db.first<ProfileRow>('SELECT * FROM cp_profiles WHERE user_id = ?', [userId]))!;
+  }
+
+  async function profileFor(userId: string): Promise<Profile> {
+    const p = await loadProfile(userId);
+    const t = now();
+    const streakAlive = p.last_active_date === dayOf(t) || p.last_active_date === yesterdayOf(t);
+    const weak = await db.all<{ concept_id: string; count: number }>(
+      'SELECT concept_id, count FROM cp_weak_concepts WHERE user_id = ?',
+      [userId],
+    );
+    const completed = await db.first<{ n: number }>(
+      'SELECT COUNT(*) AS n FROM cp_lesson_progress WHERE user_id = ? AND completed = 1',
+      [userId],
+    );
+    return {
+      xp: p.xp,
+      level: levelForXp(p.xp),
+      streakDays: streakAlive ? p.streak_days : 0,
+      longestStreak: p.longest_streak,
+      dailyGoalXp: p.daily_goal_xp,
+      xpToday: p.xp_today_date === dayOf(t) ? p.xp_today : 0,
+      lessonsCompleted: completed?.n ?? 0,
+      weakConcepts: Object.fromEntries(weak.map((w) => [w.concept_id, w.count])),
+    };
+  }
+
+  // ---------- auth (solo Lichess) ----------
+  app.get('/auth/login', (c) => handleLogin(c, auth));
+  app.get('/auth/callback', (c) => handleCallback(c, auth));
+  app.post('/auth/logout', (c) => handleLogout(c, auth));
+
+  const requireAuth = async (c: Ctx, next: () => Promise<void>) => {
+    const s = await readSession(c, auth);
+    if (!s) return c.json({ error: 'Sesión requerida' }, 401);
+    c.set('user', { id: s.id, username: s.username });
+    await next();
+  };
+
+  app.get('/api/config', (c) => c.json({ billingMode }));
+
+  app.get('/api/me', requireAuth, async (c) => {
+    const user = c.get('user');
+    return c.json({ user, subscription: await subscriptionFor(user.id), billingMode });
+  });
+
+  // ---------- mapa y lecciones ----------
+  interface PlacementRow {
+    source: string;
+    perf: string | null;
+    rating: number | null;
+    games: number | null;
+    mode: string | null;
+  }
+
+  /** Colocación del usuario: sugerencia (con el contenido actual) y modo efectivo. */
+  async function placementFor(userId: string): Promise<Placement> {
+    const row = await db.first<PlacementRow>('SELECT source, perf, rating, games, mode FROM cp_placement WHERE user_id = ?', [
+      userId,
+    ]);
+    const reliable = row?.source === 'lichess' && row.rating !== null && (row.perf === 'rapid' || row.perf === 'classical');
+    const plan = planForRating(reliable ? row.rating : null, content);
+    const mode: PlacementMode = reliable && row.mode !== 'scratch' ? 'lichess' : 'scratch';
+    return {
+      source: reliable ? 'lichess' : 'none',
+      perf: reliable ? (row.perf as 'rapid' | 'classical') : null,
+      rating: reliable ? row.rating : null,
+      games: reliable ? row.games : null,
+      mode,
+      chosen: row?.mode === 'lichess' || row?.mode === 'scratch',
+      ...plan,
+    };
+  }
+  /** Efecto en el mapa: solo con modo 'lichess'. */
+  async function placementEffect(userId: string) {
+    const p = await placementFor(userId);
+    return p.mode === 'lichess'
+      ? { openUnitIds: new Set(p.openUnitIds), recommendedUnitId: p.recommendedUnitId }
+      : { openUnitIds: new Set<string>(), recommendedUnitId: null };
+  }
+
+  app.get('/api/map', requireAuth, async (c) => {
+    const userId = c.get('user').id;
+    return c.json({ units: buildMap(content.units, await progressMap(userId), await placementEffect(userId)) });
+  });
+
+  app.get('/api/placement', requireAuth, async (c) => c.json(await placementFor(c.get('user').id)));
+
+  app.post('/api/placement', requireAuth, async (c) => {
+    const userId = c.get('user').id;
+    const b = await readJson(c);
+    if (b.mode !== 'lichess' && b.mode !== 'scratch') throw new HttpError(400, "mode debe ser 'lichess' o 'scratch'");
+    if (b.mode === 'lichess' && (await placementFor(userId)).source !== 'lichess')
+      throw new HttpError(400, 'No hay un Elo de Lichess fiable para recomendar un punto de partida');
+    await db.run(
+      `INSERT INTO cp_placement (user_id, source, perf, rating, games, mode, fetched_at) VALUES (?, 'none', NULL, NULL, NULL, ?, ?)
+       ON CONFLICT(user_id) DO UPDATE SET mode = excluded.mode`,
+      [userId, b.mode, now().toISOString()],
+    );
+    return c.json(await placementFor(userId));
+  });
+
+  /** Valida existencia, suscripción (solo 'dev') y bloqueo por progreso. */
+  async function lessonAccess(userId: string, id: string) {
+    const lesson = findLesson(content, id);
+    if (!lesson) throw new HttpError(404, 'Lección no encontrada');
+    if (!lesson.demo && !(await hasAccess(userId))) throw new HttpError(402, 'Requiere suscripción activa');
+    const st = computeStatuses(content.units, await progressMap(userId), await placementEffect(userId)).lessonStatus.get(id);
+    if (st === 'locked') throw new HttpError(403, 'Lección bloqueada: completa antes las anteriores');
+    return lesson;
+  }
+
+  app.get('/api/lessons/:id', requireAuth, async (c) =>
+    c.json({ lesson: await lessonAccess(c.get('user').id, c.req.param('id') ?? '') }),
+  );
+
+  app.get('/api/demo', (c) => {
+    for (const u of content.units) for (const l of u.lessons) if (l.demo) return c.json({ lesson: l });
+    throw new HttpError(404, 'No hay lección demo');
+  });
+
+  app.post('/api/lessons/:id/complete', requireAuth, async (c) => {
+    const userId = c.get('user').id;
+    const lesson = await lessonAccess(userId, c.req.param('id') ?? '');
+    const b = await readJson(c);
+    const { correct, total } = b;
+    if (!isInt(correct) || !isInt(total) || total < 1 || total > 100 || correct < 0 || correct > total)
+      throw new HttpError(400, 'correct/total no válidos');
+    if (lesson.evaluation.length > 0 && total !== lesson.evaluation.length)
+      throw new HttpError(400, 'total no coincide con la evaluación de la lección');
+    const rawMistakes = b.mistakes ?? [];
+    if (
+      !Array.isArray(rawMistakes) ||
+      rawMistakes.length > 50 ||
+      !rawMistakes.every((m) => typeof m === 'string' && /^[\w.:-]{1,64}$/.test(m))
+    )
+      throw new HttpError(400, 'mistakes no válido');
+    const body: CompleteLessonBody = { correct, total, mistakes: rawMistakes as string[] };
+
+    const t = now();
+    const prev = await db.first<{
+      completed: number;
+      best_score: number;
+      attempts: number;
+      last_key: string | null;
+      last_at: number | null;
+      last_xp: number;
+    }>('SELECT * FROM cp_lesson_progress WHERE user_id = ? AND lesson_id = ?', [userId, lesson.id]);
+    const key = JSON.stringify([body.correct, body.total, [...body.mistakes].sort()]);
+    const toProgress = (r: { completed: number; best_score: number; attempts: number }): LessonProgress => ({
+      lessonId: lesson.id,
+      completed: r.completed === 1,
+      bestScore: r.best_score,
+      attempts: r.attempts,
+    });
+    // Doble envío (mismo resultado en <10 s): no se vuelve a contar nada.
+    if (prev && prev.last_key === key && prev.last_at !== null && t.getTime() - prev.last_at < 10_000) {
+      return c.json({ progress: toProgress(prev), xpGained: prev.last_xp, profile: await profileFor(userId) });
+    }
+
+    const passed = body.correct >= passMarkFor(lesson, body.total);
+    const alreadyCompleted = prev?.completed === 1;
+    const xpGained = computeXp({ correct: body.correct, total: body.total, alreadyCompleted, passed });
+    const score = body.correct / body.total;
+    const completed = alreadyCompleted || passed;
+    const best = Math.max(prev?.best_score ?? 0, score);
+    const attempts = (prev?.attempts ?? 0) + 1;
+
+    // Perfil: XP, XP de hoy y racha (día natural UTC; solo cuenta una lección superada).
+    const p = await loadProfile(userId);
+    const today = dayOf(t);
+    let streak = p.streak_days;
+    let lastActive = p.last_active_date;
+    if (passed && lastActive !== today) {
+      streak = lastActive === yesterdayOf(t) ? streak + 1 : 1;
+      lastActive = today;
+    }
+    const xpToday = (p.xp_today_date === today ? p.xp_today : 0) + xpGained;
+
+    const stmts: Stmt[] = [
+      {
+        sql: `INSERT INTO cp_lesson_progress (user_id, lesson_id, completed, best_score, attempts, completed_at, last_key, last_at, last_xp)
+              VALUES (?,?,?,?,?,?,?,?,?)
+              ON CONFLICT(user_id, lesson_id) DO UPDATE SET completed=excluded.completed, best_score=excluded.best_score,
+                attempts=excluded.attempts, completed_at=COALESCE(cp_lesson_progress.completed_at, excluded.completed_at),
+                last_key=excluded.last_key, last_at=excluded.last_at, last_xp=excluded.last_xp`,
+        params: [userId, lesson.id, completed ? 1 : 0, best, attempts, completed ? t.toISOString() : null, key, t.getTime(), xpGained],
+      },
+      ...body.mistakes.map(
+        (m): Stmt => ({
+          sql: `INSERT INTO cp_weak_concepts (user_id, concept_id, count) VALUES (?,?,1)
+                ON CONFLICT(user_id, concept_id) DO UPDATE SET count = count + 1`,
+          params: [userId, m],
+        }),
+      ),
+      {
+        sql: `UPDATE cp_profiles SET xp = xp + ?, streak_days = ?, longest_streak = ?, last_active_date = ?,
+                xp_today = ?, xp_today_date = ? WHERE user_id = ?`,
+        params: [xpGained, streak, Math.max(p.longest_streak, streak), lastActive, xpToday, today, userId],
+      },
+    ];
+    await db.batch(stmts);
+    return c.json({
+      progress: toProgress({ completed: completed ? 1 : 0, best_score: best, attempts }),
+      xpGained,
+      profile: await profileFor(userId),
+    });
+  });
+
+  // ---------- perfil ----------
+  app.get('/api/profile', requireAuth, async (c) => c.json({ profile: await profileFor(c.get('user').id) }));
+
+  app.put('/api/profile/daily-goal', requireAuth, async (c) => {
+    const b = await readJson(c);
+    if (!isInt(b.xp) || b.xp < 5 || b.xp > 1000) throw new HttpError(400, 'xp debe ser un entero entre 5 y 1000');
+    const userId = c.get('user').id;
+    await loadProfile(userId); // asegura fila
+    await db.run('UPDATE cp_profiles SET daily_goal_xp = ? WHERE user_id = ?', [b.xp, userId]);
+    return c.json({ profile: await profileFor(userId) });
+  });
+
+  // ---------- facturación ----------
+  const saveSub = (userId: string, r: SubscriptionRecord) =>
+    db.run(
+      `INSERT INTO cp_subscriptions (user_id, status, provider, current_period_end, external_id) VALUES (?,?,?,?,?)
+       ON CONFLICT(user_id) DO UPDATE SET status=excluded.status, provider=excluded.provider,
+         current_period_end=excluded.current_period_end, external_id=excluded.external_id`,
+      [userId, r.status, r.provider, r.currentPeriodEnd ?? null, r.externalId ?? null],
+    );
+  const comingSoon = () => {
+    if (billingMode === 'beta_open') throw new HttpError(501, 'Los pagos llegarán próximamente. Ahora estamos en beta abierta.');
+  };
+
+  app.get('/api/billing', requireAuth, async (c) => c.json({ subscription: await subscriptionFor(c.get('user').id) }));
+
+  app.post('/api/billing/subscribe', requireAuth, async (c) => {
+    comingSoon();
+    const userId = c.get('user').id;
+    if ((await subscriptionFor(userId)).status === 'active') return c.json({ subscription: await subscriptionFor(userId) }); // idempotente
+    await saveSub(userId, await billing.subscribe(userId, now()));
+    return c.json({ subscription: await subscriptionFor(userId) });
+  });
+
+  app.post('/api/billing/cancel', requireAuth, async (c) => {
+    comingSoon();
+    const userId = c.get('user').id;
+    const cur = await subscriptionFor(userId);
+    if (cur.status === 'none') throw new HttpError(409, 'No hay suscripción que cancelar');
+    if (cur.status === 'canceled') return c.json({ subscription: cur });
+    const row = await db.first<{ external_id: string | null }>(
+      'SELECT external_id FROM cp_subscriptions WHERE user_id = ?',
+      [userId],
+    );
+    await saveSub(
+      userId,
+      await billing.cancel(
+        userId,
+        {
+          status: cur.status,
+          provider: cur.provider === 'stripe' ? 'stripe' : 'dev',
+          currentPeriodEnd: cur.currentPeriodEnd,
+          externalId: row?.external_id ?? undefined,
+        },
+        now(),
+      ),
+    );
+    return c.json({ subscription: await subscriptionFor(userId) });
+  });
+
+  return app;
+}

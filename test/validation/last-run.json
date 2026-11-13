@@ -1,0 +1,332 @@
+{
+ "v01_limpia.pgn": [],
+ "v02_mate_perdido.pgn": [
+  {
+   "ply": 5,
+   "san": "Qh5",
+   "cls": "inaccuracy",
+   "cpLoss": 84,
+   "best": "Nf3",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 6,
+   "san": "Nf6",
+   "cls": "blunder",
+   "cpLoss": 1000,
+   "best": "Qe7",
+   "type": "mate_threat",
+   "fact": "Tras Nf6, las blancas dan mate en 1 jugada: Qxf7#.",
+   "verified": true
+  },
+  {
+   "ply": 7,
+   "san": "Qd1",
+   "cls": "blunder",
+   "cpLoss": 1000,
+   "best": "Qxf7#",
+   "type": "mate_threat",
+   "fact": "Había mate en 1 jugada con Qxf7# (Qxf7#) y se jugó Qd1.",
+   "verified": true
+  }
+ ],
+ "v03_mate_recibido.pgn": [
+  {
+   "ply": 8,
+   "san": "g6",
+   "cls": "inaccuracy",
+   "cpLoss": 65,
+   "best": "Nc6",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 10,
+   "san": "Bxd1",
+   "cls": "blunder",
+   "cpLoss": 878,
+   "best": "dxe5",
+   "type": "mate_threat",
+   "fact": "Tras Bxd1, las blancas dan mate en 2 jugadas: Bxf7+ Ke7 Nd5#.",
+   "verified": true
+  }
+ ],
+ "v04_pieza_colgada.pgn": [
+  {
+   "ply": 14,
+   "san": "Nd5",
+   "cls": "blunder",
+   "cpLoss": 274,
+   "best": "Bb6",
+   "type": "hanging_piece",
+   "fact": "El caballo en d5, recién movido, queda sin defensa y es capturado por el alfil desde c4 (Bxd5).",
+   "verified": true
+  },
+  {
+   "ply": 26,
+   "san": "Rb8",
+   "cls": "inaccuracy",
+   "cpLoss": 62,
+   "best": "Ng6",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 27,
+   "san": "Nxe5",
+   "cls": "inaccuracy",
+   "cpLoss": 75,
+   "best": "d4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  }
+ ],
+ "v05_dama_colgada.pgn": [
+  {
+   "ply": 17,
+   "san": "Qg4",
+   "cls": "blunder",
+   "cpLoss": 785,
+   "best": "O-O",
+   "type": "hanging_piece",
+   "fact": "La dama en g4, recién movido, queda sin defensa y es capturado por el caballo desde f6 (Nxg4).",
+   "verified": true
+  },
+  {
+   "ply": 28,
+   "san": "Qb6",
+   "cls": "inaccuracy",
+   "cpLoss": 68,
+   "best": "Qd4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 30,
+   "san": "a5",
+   "cls": "inaccuracy",
+   "cpLoss": 64,
+   "best": "Qd4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 34,
+   "san": "h5",
+   "cls": "mistake",
+   "cpLoss": 101,
+   "best": "Nxf2",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 43,
+   "san": "Ba1",
+   "cls": "inaccuracy",
+   "cpLoss": 53,
+   "best": "hxg4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  }
+ ],
+ "v06_cambio_malo.pgn": [
+  {
+   "ply": 17,
+   "san": "Bxh7+",
+   "cls": "mistake",
+   "cpLoss": 212,
+   "best": "O-O",
+   "type": "bad_exchange",
+   "fact": "En h7 se produce el cambio Bxh7+ Nxh7: se entrega alfil (valor 3) y se recibe peón (valor 1).",
+   "verified": true
+  },
+  {
+   "ply": 25,
+   "san": "e4",
+   "cls": "inaccuracy",
+   "cpLoss": 62,
+   "best": "h3",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 27,
+   "san": "Nxe4",
+   "cls": "inaccuracy",
+   "cpLoss": 57,
+   "best": "Ng5",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 31,
+   "san": "Re1",
+   "cls": "inaccuracy",
+   "cpLoss": 78,
+   "best": "Rxd4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  }
+ ],
+ "v07_trampa_petroff.pgn": [
+  {
+   "ply": 8,
+   "san": "Nf6",
+   "cls": "blunder",
+   "cpLoss": 441,
+   "best": "d5",
+   "type": "discovered_attack",
+   "fact": "El caballo se mueve de e5 a c6 (Nc6+) y descubre jaque de la dama en e2 sobre el rey; la línea Nc6+ Be7 Nxd8 cuesta 6 peones de material.",
+   "verified": true
+  },
+  {
+   "ply": 16,
+   "san": "Ng8",
+   "cls": "inaccuracy",
+   "cpLoss": 73,
+   "best": "Nd5",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 17,
+   "san": "h4",
+   "cls": "inaccuracy",
+   "cpLoss": 69,
+   "best": "Nc3",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 37,
+   "san": "Ne4",
+   "cls": "inaccuracy",
+   "cpLoss": 52,
+   "best": "Ne2",
+   "type": null,
+   "fact": null,
+   "verified": false
+  }
+ ],
+ "v08_horquilla_dama.pgn": [
+  {
+   "ply": 17,
+   "san": "Bh3",
+   "cls": "blunder",
+   "cpLoss": 277,
+   "best": "Qd2",
+   "type": "fork",
+   "fact": "La dama salta a h4 (Qh4+) y ataca a la vez el rey en e1 y el alfil en h3; después captura el alfil en h3 (Qxh3).",
+   "verified": true
+  },
+  {
+   "ply": 39,
+   "san": "exd5",
+   "cls": "inaccuracy",
+   "cpLoss": 82,
+   "best": "e5",
+   "type": null,
+   "fact": null,
+   "verified": false
+  }
+ ],
+ "v09_mate_pastor.pgn": [
+  {
+   "ply": 3,
+   "san": "Qh5",
+   "cls": "inaccuracy",
+   "cpLoss": 53,
+   "best": "d4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 6,
+   "san": "Nf6",
+   "cls": "blunder",
+   "cpLoss": 1000,
+   "best": "Qe7",
+   "type": "mate_threat",
+   "fact": "Tras Nf6, las blancas dan mate en 1 jugada: Qxf7#.",
+   "verified": true
+  }
+ ],
+ "v10_limpia_qgd.pgn": [],
+ "v11_clavada.pgn": [
+  {
+   "ply": 17,
+   "san": "Rf1",
+   "cls": "mistake",
+   "cpLoss": 219,
+   "best": "O-O",
+   "type": "pin",
+   "fact": "El caballo en c3 está clavado por el alfil en b4 contra el rey, atacado antes con d4, y es capturado por el peón (dxc3).",
+   "verified": true
+  },
+  {
+   "ply": 18,
+   "san": "Ng4",
+   "cls": "inaccuracy",
+   "cpLoss": 66,
+   "best": "d4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 20,
+   "san": "O-O",
+   "cls": "inaccuracy",
+   "cpLoss": 76,
+   "best": "d4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 22,
+   "san": "Qc5",
+   "cls": "inaccuracy",
+   "cpLoss": 53,
+   "best": "d4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 33,
+   "san": "Ng5",
+   "cls": "mistake",
+   "cpLoss": 105,
+   "best": "cxd4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  },
+  {
+   "ply": 37,
+   "san": "h3",
+   "cls": "mistake",
+   "cpLoss": 101,
+   "best": "c4",
+   "type": null,
+   "fact": null,
+   "verified": false
+  }
+ ]
+}

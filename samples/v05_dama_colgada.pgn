@@ -1,0 +1,6 @@
+[Event "Validacion: dama colgada (9.Qg4)"]
+[White "Alumno"]
+[Black "Rival"]
+[Result "*"]
+
+1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Nxd4 Nf6 5. Nc3 Bb4 6. Nxc6 bxc6 7. Bd3 d5 8. e5 Qe7 9. Qg4 Nxg4 10. Bf4 d4 11. a3 dxc3 12. axb4 cxb2 13. Rb1 Qxb4+ 14. Bd2 Qb6 15. O-O a5 16. Bc3 a4 17. Bxb2 h5 18. e6 Qc5 19. h3 a3 20. Bxg7 Rg8 21. exf7+ Kxf7 22. Ba1 Nh6 *
