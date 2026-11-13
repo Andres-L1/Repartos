@@ -34,6 +34,25 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
   const [bestShown, setBestShown] = useState(false);
   const { step, pauseResult, selected } = state;
   const textRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const firstStep = useRef(true);
+
+  // Al cambiar de momento, si la explicación quedó fuera de la vista (p. ej. se pulsó el botón con el tablero en pantalla),
+  // se lleva a la vista: en el móvil está encima del tablero.
+  useEffect(() => {
+    if (firstStep.current) {
+      firstStep.current = false;
+      return;
+    }
+    const panel = panelRef.current;
+    if (!panel || typeof panel.scrollIntoView !== 'function') return;
+    const top = panel.getBoundingClientRect().top;
+    const margin = parseFloat(getComputedStyle(panel).scrollMarginTop) || 0;
+    if (top < margin || top > window.innerHeight * 0.6) {
+      const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      panel.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+    }
+  }, [state.step]);
   const [locked, setLocked] = useState(false);
 
   // Tras responder la pausa, el botón «Siguiente» aparece donde estaba «Comprobar»: se bloquea un instante
@@ -120,12 +139,12 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
           />
         </div>
 
-        <div className="rl-panel">
+        <div className="rl-panel" ref={panelRef}>
           <h3 className="rl-title">{heading}</h3>
           <div className="rl-text" aria-live="polite" ref={textRef} tabIndex={-1}>
             {step === 'look' && <p>Esta es la posición antes de tu jugada ({lesson.yourMoveSan}). Mírala un momento: ¿qué ves?</p>}
             {step === 'pause' && <p className="rl-question">{lesson.pause?.question}</p>}
-            {step === 'pause' && <p className="rl-hint">Toca una casilla del tablero para elegirla y pulsa «Comprobar». Puedes cambiar de casilla.</p>}
+            {step === 'pause' && <p className="rl-hint">Toca una casilla del tablero y pulsa «Comprobar». Puedes cambiarla.</p>}
             {step === 'pause' && <p className="rl-selected" aria-live="polite">{selected ? `Has elegido ${selected}` : 'Aún no has elegido casilla'}</p>}
             {(step === 'happened' || finished) && feedback && (
               <p className={`rl-feedback ${pauseResult === 'correct' ? 'is-good' : 'is-kind'}`}>
@@ -145,34 +164,35 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
             )}
             {step === 'done' && <p>Lección terminada.</p>}
           </div>
+        </div>
 
-          <div className="rl-actions">
-            {step === 'pause' && (
-              <>
-                <button type="button" className="t-btn t-btn-primary rl-btn" disabled={!selected} onClick={() => dispatch({ type: 'confirm' })}>
-                  Comprobar
-                </button>
-                <button type="button" className="t-btn rl-btn" onClick={() => dispatch({ type: 'skip' })}>
-                  No lo sé, enséñamelo
-                </button>
-              </>
-            )}
-            {finished && (
-              <button type="button" className="t-btn t-btn-primary rl-btn" onClick={onFinish}>
-                Continuar
+        {/* Fuera del panel para poder fijarse abajo en el móvil mientras se mira el tablero. */}
+        <div className="rl-actions">
+          {step === 'pause' && (
+            <>
+              <button type="button" className="t-btn t-btn-primary rl-btn" disabled={!selected} onClick={() => dispatch({ type: 'confirm' })}>
+                Comprobar
               </button>
-            )}
-            {(step === 'look' || step === 'happened' || step === 'why') && !finished && (
-              <button type="button" className="t-btn t-btn-primary rl-btn" disabled={locked} onClick={() => dispatch({ type: 'next' })}>
-                Siguiente
+              <button type="button" className="t-btn rl-btn" onClick={() => dispatch({ type: 'skip' })}>
+                No lo sé, enséñamelo
               </button>
-            )}
-            {step === 'best' && (
-              <button type="button" className="t-btn t-btn-primary rl-btn" onClick={onFinish}>
-                Terminar
-              </button>
-            )}
-          </div>
+            </>
+          )}
+          {finished && (
+            <button type="button" className="t-btn t-btn-primary rl-btn" onClick={onFinish}>
+              Continuar
+            </button>
+          )}
+          {(step === 'look' || step === 'happened' || step === 'why') && !finished && (
+            <button type="button" className="t-btn t-btn-primary rl-btn" disabled={locked} onClick={() => dispatch({ type: 'next' })}>
+              Siguiente
+            </button>
+          )}
+          {step === 'best' && (
+            <button type="button" className="t-btn t-btn-primary rl-btn" onClick={onFinish}>
+              Terminar
+            </button>
+          )}
         </div>
       </div>
     </section>

@@ -1,5 +1,6 @@
 /* Reproductor de la mini lección del error. */
-.rl { display: grid; gap: 16px; width: 100%; }
+/* overflow-anchor: al cambiar de momento el texto crece y el navegador no debe desplazar la página por su cuenta. */
+.rl { display: grid; gap: 16px; width: 100%; overflow-anchor: none; container-type: inline-size; }
 .rl-progress { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
 .rl-dot { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 2px 10px; border-radius: var(--t-r-pill); background: var(--t-graphite); border: 1.5px solid var(--t-edge); color: var(--t-muted); font-size: 0.8125rem; }
 .rl-dot.is-done { color: var(--t-ok); border-color: var(--t-ok); }
@@ -7,13 +8,14 @@
 .rl-dot-label { white-space: nowrap; }
 .rl-layout { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); align-items: start; }
 .rl-board { min-width: 0; }
-.rl-board .board-frame { max-width: 520px; }
+/* En vertical el tablero cede algo de alto para que la pregunta y los botones queden cerca. */
+.rl-board .board-frame { max-width: min(520px, max(260px, 100svh - 280px)); margin-bottom: 0; }
 .rl-panel { min-width: 0; display: grid; gap: 12px; padding: 16px; background: var(--t-graphite); border-radius: var(--t-r-card-sm); box-shadow: var(--t-sh-raise); }
 .rl-title { margin: 0; font-size: 1.125rem; }
 .rl-text { display: grid; gap: 10px; line-height: 1.5; overflow-wrap: anywhere; }
 .rl-text p { margin: 0; }
 .rl-question { font-size: 1.0625rem; font-weight: 600; }
-.rl-hint { color: var(--t-muted); font-size: 0.9375rem; }
+.rl-hint { color: var(--t-muted); font-size: 1rem; }
 .rl-selected { font-weight: 700; }
 .rl-text:focus-visible { outline: 3px solid var(--t-focus); outline-offset: 4px; border-radius: var(--t-r-chip); }
 .rl-btn:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -22,10 +24,41 @@
 .rl-feedback.is-good { background: var(--t-ok-bg); color: var(--t-ok); }
 .rl-feedback.is-kind { background: var(--t-warn-bg); color: var(--t-warn-ink); }
 .rl-rule { display: grid; gap: 4px; padding: 12px 14px; border-left: 4px solid var(--t-orange); border-radius: var(--t-r-chip); background: var(--t-graphite-3); font-size: 1.0625rem; font-weight: 700; }
-.rl-rule-tag { color: var(--t-orange-text); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-.rl-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.rl-btn { min-height: 44px; min-width: 44px; }
+.rl-rule-tag { color: var(--t-orange-text); font-size: 0.875rem; font-weight: 800; }
+.rl-actions { display: flex; flex-wrap: wrap; gap: 10px; min-width: 0; }
+.rl-actions .t-btn { margin-bottom: 0; max-width: 100%; }
+.rl-btn { min-height: 48px; min-width: 44px; }
 .rl button:focus-visible { outline: 3px solid var(--t-focus); outline-offset: 3px; }
-@media (min-width: 768px) {
-  .rl-layout { grid-template-columns: minmax(280px, 520px) minmax(0, 1fr); }
+@container (width < 52rem) {
+  /* Botones al alcance del pulgar: se quedan pegados abajo (sobre la barra de navegación) mientras se ve el tablero. */
+  .rl-actions {
+    position: sticky; bottom: calc(var(--bottom-nav, 0px) + 8px); z-index: 5;
+    gap: 8px; padding: 8px; border-radius: var(--t-r-card-sm); background: var(--t-graphite); box-shadow: var(--t-sh-raise), 0 -8px 20px rgb(0 0 0 / 0.35);
+  }
+  /* Siempre en una fila: si no cabe, el texto del botón pasa a dos líneas en lugar de apilar los botones. */
+  .rl-actions { flex-wrap: nowrap; }
+  .rl-actions .t-btn { flex: 1 1 0; min-width: 0; padding: 0.55rem 0.6rem; font-size: 1rem; text-align: center; white-space: normal; }
+  /* Primero se lee (pregunta o explicación), luego se mira el tablero y justo debajo se responde. */
+  .rl-panel { order: -1; padding: 14px 16px; scroll-margin-top: calc(60px + 12px); }
+  /* El nombre del momento ya se ve en la pastilla actual: el título queda solo para lectores de pantalla. */
+  .rl-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  /* Pastillas de progreso compactas: solo el momento actual muestra su nombre. */
+  .rl-progress { gap: 6px; }
+  .rl-dot { padding: 2px 9px; }
+  .rl-dot:not(.is-current) .rl-dot-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+/* Dos columnas según el ancho de la lección, no de la ventana (con barra lateral el hueco es menor). */
+@container (width >= 52rem) {
+  .rl-layout { grid-template-columns: minmax(280px, 520px) minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .rl-board { grid-row: 1 / span 2; }
+  .rl-board .board-frame { max-width: 520px; }
+  .rl-actions { grid-column: 2; align-self: start; }
+}
+/* Móvil en horizontal: tablero y explicación lado a lado, sin barras pegadas que tapen la poca altura. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .rl-layout { grid-template-columns: minmax(0, max(200px, 100svh - 150px)) minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .rl-board { grid-column: 1; grid-row: 1 / span 2; }
+  .rl-board .board-frame { max-width: 100%; }
+  .rl-panel { grid-column: 2; grid-row: 1; }
+  .rl-actions { grid-column: 2; grid-row: 2; align-self: start; position: static; padding: 0; background: none; box-shadow: none; }
 }

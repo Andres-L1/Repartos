@@ -127,6 +127,7 @@ export function ReviewScreen({ path = '/partidas' }: { path?: string }) {
     const index = Number(m[1]);
     return (
       <ReviewGameScreen
+        key={index}
         index={index}
         game={r.games[index - 1]}
         analysis={r.analyses[index - 1]}
@@ -186,7 +187,7 @@ export function ReviewScreen({ path = '/partidas' }: { path?: string }) {
             <GameRow key={g.id} game={g} i={i} r={r} highlight={next === i} />
           ))}
         </ol>
-        <div className="rv-actions">
+        <div className={r.analyzedCount >= MIN_GAMES ? 'rv-actions rv-cta' : 'rv-actions'}>
           {r.analyzedCount >= MIN_GAMES ? (
             <button className="t-btn t-btn-primary" onClick={() => navigate('/partidas/informe')}>
               <Icon name="chart" size={20} />

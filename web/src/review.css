@@ -19,16 +19,43 @@
 .rv-hint { font-size: var(--fs-sm); overflow-wrap: anywhere; }
 .rv-fail { color: var(--ink); font-size: var(--fs-sm); }
 .rv-err .rv-status { color: var(--ink); }
-@media (max-width: 420px) {
-  .rv-row-main { flex-wrap: wrap; }
-  .rv-status { margin-left: calc(32px + var(--s-3)); text-align: left; }
+.rv-card p.muted, .rv-hint, .rv-fail { font-size: 1rem; }
+/* El estado va bajo el título en pantallas estrechas: si no, el título se parte letra a letra. */
+@media (max-width: 480px) {
+  .rv-row-main { display: grid; grid-template-columns: 32px minmax(0, 1fr); column-gap: var(--s-3); row-gap: var(--s-1); align-items: start; }
+  .rv-num { grid-row: 1 / span 2; }
+  .rv-status { grid-column: 2; justify-content: flex-start; text-align: left; }
+  .rv-row .t-btn { justify-self: stretch; }
+}
+@media (max-width: 899px) {
+  /* «Ver mi informe» siempre a mano mientras se recorre la lista. */
+  .rv-cta { position: sticky; bottom: calc(var(--bottom-nav, 0px) + 8px); z-index: 5; padding: var(--s-2); margin-inline: calc(-1 * var(--s-2)); border-radius: var(--t-r-card-sm); background: var(--t-graphite); box-shadow: 0 -8px 20px rgb(0 0 0 / 0.35); }
+  .rv-cta .t-btn { flex: 1 1 auto; margin-bottom: 0; }
+}
+@media (max-width: 480px) {
+  .rv-card, .rp-card, .gv { padding: 18px 16px; }
 }
 
 /* Repaso de una partida */
-.rg { display: grid; gap: var(--s-3); max-width: 60rem; margin-inline: auto; min-width: 0; }
+/* width: 100%: con margin-inline auto un elemento de rejilla se encoge a su contenido, y la lección
+   y el visor (container-type: inline-size) no aportan ancho propio. */
+.rg { display: grid; gap: var(--s-3); width: 100%; max-width: 60rem; margin-inline: auto; min-width: 0; }
 .rg-head { display: grid; gap: 0.25rem; }
 .rg-head h1, .rg-head p { margin: 0; overflow-wrap: anywhere; }
 .rg-progress { margin: 0; font-weight: 800; color: var(--t-orange-text); }
+/* `display: grid` de .rg anulaba el atributo hidden: la lección seguía visible bajo el visor. */
+.rg[hidden] { display: none; }
+.rg-card { margin: 0; }
+.rg-more { padding-top: 0; }
+@media (max-width: 899px) {
+  /* Cabecera compacta para que el tablero suba. */
+  .rg-card { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 var(--s-3); padding: 12px 16px; }
+  .rg-card .rg-head { display: contents; }
+  .rg-card .rg-head h1 { font-size: 1.375rem; }
+  /* La apertura y el resultado ya se ven en la lista: en la lección se ocultan para que el tablero suba. */
+  .rg-card .rg-head p { display: none; }
+  .rg-card .rg-progress { order: 2; }
+}
 .rv-next { box-shadow: inset 0 0 0 2px var(--t-orange); }
 
 /* Informe final */
@@ -56,6 +83,8 @@
 .rp-board { flex: 0 1 22rem; width: min(100%, 22rem); min-width: 0; aspect-ratio: 1; }
 .rp-board > * { width: 100%; height: 100%; }
 .rp-star-text { flex: 1 1 14rem; display: grid; gap: var(--s-2); min-width: 0; }
+.rp-star-text .muted { font-size: 1rem; }
+.rp-board .board-frame { margin-bottom: 0; }
 .rp-rule { background: var(--t-orange); color: var(--t-ink); border-radius: var(--t-r-card-sm); padding: 1.1rem 1.4rem; display: grid; gap: 0.4rem; box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.45), 0 5px 0 var(--t-orange-deep), 0 6px 0 2px var(--t-ink); margin-bottom: 6px; }
 .rp-rule h2, .rp-rule p { margin: 0; overflow-wrap: anywhere; }
 .rp-rule-tag { font-size: 0.85rem; font-weight: 800; text-transform: none; opacity: 0.8; }
@@ -68,6 +97,11 @@
 .rp-step .t-btn { max-width: 100%; }
 .rp-practice { display: grid; gap: var(--s-3); min-width: 0; }
 .rp-done { display: flex; align-items: center; gap: 0.4rem; color: var(--t-ok); font-weight: 700; }
+@media (max-width: 480px) {
+  /* Número y texto en la misma fila; el botón, debajo y a todo el ancho. */
+  .rp-step-body { flex: 1 1 0; }
+  .rp-step .t-btn { flex: 1 1 100%; }
+}
 @media (max-width: 420px) {
   .rp-strip { gap: 3px; }
   .rp-cell { min-height: 44px; }

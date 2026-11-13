@@ -27,6 +27,16 @@ export function ReviewGameScreen({ index, game, analysis, onReviewed }: Props) {
   const finished = useRef(false);
   /** Posición con la que está abierto el visor de la partida; null = cerrado. */
   const [view, setView] = useState<number | null>(null);
+  /** Desplazamiento de la lección al abrir el visor, para volver al mismo sitio al cerrarlo. */
+  const savedY = useRef(0);
+  const openView = (at: number) => {
+    savedY.current = window.scrollY;
+    setView(at);
+  };
+  const viewing = view !== null;
+  useEffect(() => {
+    window.scrollTo(0, viewing ? 0 : savedY.current);
+  }, [viewing]);
 
   // Una sola lección a la vez: las comprobaciones de unicidad son costosas.
   const lesson = useMemo(() => {
@@ -82,6 +92,12 @@ export function ReviewGameScreen({ index, game, analysis, onReviewed }: Props) {
   );
 
   if (errors.length === 0) {
+    if (view !== null)
+      return (
+        <section className="rg" aria-label={`Partida ${index}`}>
+          <GameViewer analysis={analysis} startIndex={view} closeLabel="Volver al repaso" onClose={() => setView(null)} />
+        </section>
+      );
     return (
       <section className="t-card rv-card" aria-labelledby="rg-title">
         {heading}
@@ -89,6 +105,10 @@ export function ReviewGameScreen({ index, game, analysis, onReviewed }: Props) {
         <div className="rv-actions">
           <button type="button" className="t-btn t-btn-primary" onClick={finish}>
             Continuar
+          </button>
+          <button type="button" className="t-btn t-btn-secondary" onClick={() => openView(0)}>
+            <Icon name="eye" size={20} />
+            Ver la partida
           </button>
           {back}
         </div>
@@ -100,27 +120,26 @@ export function ReviewGameScreen({ index, game, analysis, onReviewed }: Props) {
     <section className="rg" aria-labelledby="rg-title">
       {/* La lección sigue montada (solo oculta) mientras se ve la partida, para no perder su paso ni su pausa. */}
       <div className="rg" hidden={view !== null}>
-        <div className="t-card rv-card">
+        <div className="t-card rv-card rg-card">
           {heading}
           <p className="rg-progress" aria-live="polite">
             Error {i + 1} de {errors.length}
           </p>
-          <div className="rv-actions">
-            <button type="button" className="t-btn t-btn-secondary t-btn-sm" onClick={() => setView(0)}>
-              <Icon name="eye" size={20} />
-              Ver la partida
-            </button>
-          </div>
         </div>
         {lesson && <ErrorLessonPlayer key={`${game.id}-${i}`} lesson={lesson} onFinish={next} />}
-        {lesson && errors[i] && (
-          <div className="rv-actions">
-            <button type="button" className="t-btn t-btn-secondary t-btn-sm" onClick={() => setView(indexBeforePly(analysis.moves, errors[i]!.move.ply))}>
+        {/* Acciones secundarias debajo de la lección, no encima del tablero. */}
+        <div className="rv-actions rg-more">
+          {lesson && errors[i] && (
+            <button type="button" className="t-btn t-btn-secondary t-btn-sm" onClick={() => openView(indexBeforePly(analysis.moves, errors[i]!.move.ply))}>
               <Icon name="eye" size={20} />
               Ver cómo se llegó aquí
             </button>
-          </div>
-        )}
+          )}
+          <button type="button" className="t-btn t-btn-secondary t-btn-sm" onClick={() => openView(0)}>
+            <Icon name="eye" size={20} />
+            Ver la partida
+          </button>
+        </div>
       </div>
       {view !== null && <GameViewer analysis={analysis} startIndex={view} onClose={() => setView(null)} />}
     </section>
