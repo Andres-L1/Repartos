@@ -3,13 +3,16 @@ import type { EngineLike, EngineResult } from '../../src/analysis/engine-like.js
 import { analysisKey } from '../../src/review/config.js';
 import type { ReviewGame } from '../../src/review/types.js';
 import { memoryStore } from '../../web/src/review/cache.js';
-import { createReviewRunner, NotEnoughGamesError, type ReviewEvent } from '../../web/src/review/runner.js';
+import { BusyError, createReviewRunner, EngineError, NotEnoughGamesError } from '../../web/src/review/runner.js';
 
 class FakeEngine implements EngineLike {
   calls = 0;
+  inits = 0;
   closed = 0;
   failAt = Infinity;
-  async init() {}
+  async init() {
+    this.inits++;
+  }
   async analyze(): Promise<EngineResult> {
     if (++this.calls > this.failAt) throw new Error('boom');
     return { score: { cp: 0 }, bestUci: 'e2e4', pv: [] };
@@ -30,71 +33,85 @@ const mk = (id: string): ReviewGame => ({
 const games = (n: number) => Array.from({ length: n }, (_, i) => mk(`g${i}`));
 
 function setup(n = 3, engine = new FakeEngine(), store = memoryStore()) {
-  const runner = createReviewRunner({ engine, store, depth: 12, fetchGames: async () => games(n) });
-  const events: ReviewEvent[] = [];
-  return { engine, store, runner, events, run: () => runner.start((e) => events.push(e)) };
+  const runner = createReviewRunner({ createEngine: () => engine, store, depth: 12, fetchGames: async () => games(n) });
+  return { engine, store, runner };
 }
 
-describe('review runner', () => {
-  it('analiza en orden y emite game-ready partida a partida, y done al final', async () => {
-    const t = setup(3);
-    await t.run();
-    const ready = t.events.filter((e) => e.type === 'game-ready');
-    expect(ready.map((e) => (e as { gameIndex: number }).gameIndex)).toEqual([0, 1, 2]);
-    expect(t.events[0]!.type).toBe('games');
-    expect(t.events.at(-1)!.type).toBe('done');
-    expect(t.engine.closed).toBe(1);
-  });
-
-  it('con la caché llena no llama al motor', async () => {
-    const store = memoryStore();
-    await setup(3, new FakeEngine(), store).run();
-    const t = setup(3, new FakeEngine(), store);
-    await t.run();
-    expect(t.engine.calls).toBe(0);
-    expect(t.events.filter((e) => e.type === 'game-ready')).toHaveLength(3);
-    expect(t.events.at(-1)!.type).toBe('done');
-  });
-
-  it('cancel detiene el análisis sin emitir done', async () => {
-    const t = setup(3);
-    const p = t.runner.start((e) => {
-      t.events.push(e);
-      if (e.type === 'game-ready') t.runner.cancel();
-    });
-    await p;
-    expect(t.events.filter((e) => e.type === 'game-ready')).toHaveLength(1);
-    expect(t.events.some((e) => e.type === 'done' || e.type === 'error')).toBe(false);
-    expect(t.engine.closed).toBe(1);
-  });
-
-  it('un error del motor emite error y conserva lo ya guardado', async () => {
+describe('review runner (análisis a demanda)', () => {
+  it('loadGames solo descarga: cero llamadas al motor y no lo crea', async () => {
+    let created = 0;
     const engine = new FakeEngine();
-    engine.failAt = 7; // la partida 0 usa 5 posiciones; falla dentro de la 1
-    const t = setup(3, engine);
-    await t.run();
-    const err = t.events.at(-1)!;
-    expect(err.type).toBe('error');
-    expect((err as { error: Error }).error.name).toBe('EngineError');
-    expect(await t.store.get(analysisKey('g0'))).toBeDefined();
-    expect(await t.store.get(analysisKey('g1'))).toBeUndefined();
+    const runner = createReviewRunner({
+      createEngine: () => (created++, engine),
+      store: memoryStore(),
+      depth: 12,
+      fetchGames: async () => games(3),
+    });
+    const { games: g, analyses } = await runner.loadGames();
+    expect(g).toHaveLength(3);
+    expect(analyses).toEqual([undefined, undefined, undefined]);
+    expect(created).toBe(0);
+    expect(engine.calls + engine.inits).toBe(0);
   });
 
-  it('menos de 3 partidas válidas emite un error identificable', async () => {
-    const t = setup(2);
-    await t.run();
-    expect(t.events).toHaveLength(1);
-    const e = t.events[0] as { type: 'error'; error: Error };
-    expect(e.error).toBeInstanceOf(NotEnoughGamesError);
-    expect((e.error as NotEnoughGamesError).available).toBe(2);
-  });
-
-  it('dos start simultáneos no solapan el análisis', async () => {
+  it('analyzeOne analiza solo esa partida, la guarda y cierra el motor', async () => {
     const t = setup(3);
-    const a = t.run();
-    const b = t.run();
-    await Promise.all([a, b]);
-    expect(t.events.filter((e) => e.type === 'game-ready')).toHaveLength(3);
-    expect(t.engine.calls).toBeGreaterThan(0);
+    const { games: g } = await t.runner.loadGames();
+    const progress: number[] = [];
+    const a = await t.runner.analyzeOne(g[1]!, (e) => progress.push(e.done));
+    expect(a?.gameId).toBe('g1');
+    expect(progress.length).toBeGreaterThan(0);
+    expect(await t.store.get(analysisKey('g1'))).toBeDefined();
+    expect(await t.store.get(analysisKey('g0'))).toBeUndefined();
+    expect(await t.store.get(analysisKey('g2'))).toBeUndefined();
+    expect(t.engine.inits).toBe(1);
+    expect(t.engine.closed).toBe(1);
+  });
+
+  it('una partida ya guardada se devuelve en loadGames y analyzeOne no usa el motor', async () => {
+    const store = memoryStore();
+    const first = setup(3, new FakeEngine(), store);
+    const g = (await first.runner.loadGames()).games;
+    await first.runner.analyzeOne(g[0]!);
+    const t = setup(3, new FakeEngine(), store);
+    const loaded = await t.runner.loadGames();
+    expect(loaded.analyses.map(Boolean)).toEqual([true, false, false]);
+    expect((await t.runner.analyzeOne(g[0]!))?.gameId).toBe('g0');
+    expect(t.engine.calls + t.engine.inits).toBe(0);
+  });
+
+  it('cancel devuelve null, no guarda y cierra el motor', async () => {
+    const t = setup(3);
+    const g = (await t.runner.loadGames()).games;
+    const a = await t.runner.analyzeOne(g[0]!, () => t.runner.cancel());
+    expect(a).toBeNull();
+    expect(await t.store.get(analysisKey('g0'))).toBeUndefined();
+    expect(t.engine.closed).toBe(1);
+  });
+
+  it('un error del motor lanza EngineError y no guarda esa partida', async () => {
+    const engine = new FakeEngine();
+    engine.failAt = 2;
+    const t = setup(3, engine);
+    const g = (await t.runner.loadGames()).games;
+    await expect(t.runner.analyzeOne(g[0]!)).rejects.toBeInstanceOf(EngineError);
+    expect(await t.store.get(analysisKey('g0'))).toBeUndefined();
+    expect(engine.closed).toBe(1);
+  });
+
+  it('menos de 3 partidas válidas lanza un error identificable', async () => {
+    const t = setup(2);
+    const e = await t.runner.loadGames().catch((x: unknown) => x);
+    expect(e).toBeInstanceOf(NotEnoughGamesError);
+    expect((e as NotEnoughGamesError).available).toBe(2);
+  });
+
+  it('una segunda analyzeOne mientras corre otra se rechaza con BusyError', async () => {
+    const t = setup(3);
+    const g = (await t.runner.loadGames()).games;
+    const first = t.runner.analyzeOne(g[0]!);
+    await expect(t.runner.analyzeOne(g[1]!)).rejects.toBeInstanceOf(BusyError);
+    expect((await first)?.gameId).toBe('g0');
+    expect((await t.runner.analyzeOne(g[1]!))?.gameId).toBe('g1');
   });
 });

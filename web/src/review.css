@@ -16,6 +16,9 @@
 .rv-busy .rv-status { color: var(--ink); }
 .rv-row .t-btn { justify-self: start; margin-bottom: 0; max-width: 100%; }
 .rv-bar { width: 100%; height: 8px; accent-color: var(--brand); }
+.rv-hint { font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.rv-fail { color: var(--ink); font-size: var(--fs-sm); }
+.rv-err .rv-status { color: var(--ink); }
 @media (max-width: 420px) {
   .rv-row-main { flex-wrap: wrap; }
   .rv-status { margin-left: calc(32px + var(--s-3)); text-align: left; }

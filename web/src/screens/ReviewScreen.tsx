@@ -13,7 +13,7 @@ const WAIT_SECONDS = 60;
 const RESULT_LABEL = { win: 'Ganada', loss: 'Perdida', draw: 'Tablas' } as const;
 const SPEED_LABEL: Record<string, string> = { blitz: 'Blitz', rapid: 'Rápida', classical: 'Clásica', correspondence: 'Por correo' };
 
-type Failure = 'not-found' | 'rate-limited' | 'offline' | 'engine' | 'few' | 'other';
+type Failure = 'not-found' | 'rate-limited' | 'offline' | 'few' | 'other';
 
 function failureOf(error: Error | undefined): Failure {
   if (error instanceof NotEnoughGamesError) return 'few';
@@ -21,7 +21,6 @@ function failureOf(error: Error | undefined): Failure {
   if (kind === 'not_found') return 'not-found';
   if (kind === 'rate_limited') return 'rate-limited';
   if (kind === 'network') return 'offline';
-  if (error?.name === 'EngineError') return 'engine';
   return 'other';
 }
 
@@ -61,20 +60,24 @@ function RateLimited({ onRetry }: { onRetry: () => void }) {
   );
 }
 
-function rowState(i: number, r: UseReview): { label: string; cls: string } {
-  if (i < r.ready.length) return { label: 'Lista', cls: 'ready' };
-  if (r.status === 'analyzing' && i === r.ready.length) {
-    const p = r.progress && r.progress.gameIndex === i ? r.progress : undefined;
-    return { label: p ? `Analizando, ${Math.round((p.done / p.total) * 100)} %` : 'Analizando', cls: 'busy' };
-  }
-  return { label: 'En espera', cls: 'wait' };
-}
-
 function GameRow({ game, i, r, highlight }: { game: ReviewGame; i: number; r: UseReview; highlight: boolean }) {
-  const st = rowState(i, r);
-  const p = st.cls === 'busy' && r.progress?.gameIndex === i ? r.progress : undefined;
+  const st = r.statuses[i]!;
+  const anyBusy = r.statuses.includes('analyzing');
+  const p = st === 'analyzing' && r.progress?.gameIndex === i ? r.progress : undefined;
+  const label =
+    st === 'ready'
+      ? 'Lista'
+      : st === 'analyzing'
+        ? p
+          ? `Analizando, ${Math.round((p.done / p.total) * 100)} %`
+          : 'Analizando'
+        : st === 'error'
+          ? 'No se pudo analizar'
+          : 'Sin analizar';
+  const cls = st === 'analyzing' ? 'busy' : st === 'ready' ? 'ready' : st === 'error' ? 'err' : 'wait';
+  const hintId = `rv-hint-${i}`;
   return (
-    <li className={`rv-row rv-${st.cls}${highlight ? ' rv-next' : ''}`} aria-current={highlight ? 'true' : undefined}>
+    <li className={`rv-row rv-${cls}${highlight ? ' rv-next' : ''}`} aria-current={highlight ? 'true' : undefined}>
       <div className="rv-row-main">
         <span className="rv-num" aria-hidden="true">{i + 1}</span>
         <div className="rv-row-text">
@@ -84,16 +87,34 @@ function GameRow({ game, i, r, highlight }: { game: ReviewGame; i: number; r: Us
           <span className="muted">{[SPEED_LABEL[game.speed] ?? game.speed, game.opening].filter(Boolean).join(' · ')}</span>
         </div>
         <span className="rv-status">
-          {st.cls === 'ready' && <Icon name="check" size={18} />}
-          {st.label}
+          {st === 'ready' && <Icon name="check" size={18} />}
+          {label}
         </span>
       </div>
       {p && <progress className="rv-bar" value={p.done} max={p.total} aria-label={`Progreso de la partida ${i + 1}`} />}
-      {st.cls === 'ready' && (
+      {st === 'ready' && (
         <button className="t-btn t-btn-secondary t-btn-sm" onClick={() => navigate(`/partidas/repaso/${i + 1}`)}>
           Repasar la partida {i + 1}
         </button>
       )}
+      {st === 'analyzing' && (
+        <button className="t-btn t-btn-secondary t-btn-sm" onClick={r.cancel}>
+          Cancelar
+        </button>
+      )}
+      {(st === 'pending' || st === 'error') && (
+        <>
+          <button className="t-btn t-btn-secondary t-btn-sm" disabled={anyBusy} aria-describedby={anyBusy ? hintId : undefined} onClick={() => r.analyze(i)}>
+            {st === 'error' ? `Reintentar la partida ${i + 1}` : `Analizar la partida ${i + 1}`}
+          </button>
+          {anyBusy && (
+            <span id={hintId} className="muted rv-hint">
+              Espera a que termine el análisis en curso.
+            </span>
+          )}
+        </>
+      )}
+      {st === 'error' && <p className="rv-fail" role="alert">El analizador no ha podido arrancar o se ha detenido en este navegador. Prueba de nuevo.</p>}
     </li>
   );
 }
@@ -108,12 +129,18 @@ export function ReviewScreen({ path = '/partidas' }: { path?: string }) {
       <ReviewGameScreen
         index={index}
         game={r.games[index - 1]}
-        analysis={r.ready[index - 1]}
-        onReviewed={(n) => setNext(n < r.ready.length ? n : null)}
+        analysis={r.analyses[index - 1]}
+        onReviewed={(n) => {
+          const k = r.analyses.findIndex((a, i) => i >= n && a);
+          setNext(k >= 0 ? k : null);
+        }}
       />
     );
   }
-  if (path === '/partidas/informe') return <ReportScreen games={r.games} analyses={r.ready} />;
+  if (path === '/partidas/informe') {
+    const done = r.games.flatMap((g, i) => (r.analyses[i] ? [{ g, a: r.analyses[i]! }] : []));
+    return <ReportScreen games={done.map((d) => d.g)} analyses={done.map((d) => d.a)} />;
+  }
 
   if (r.status === 'idle')
     return (
@@ -121,16 +148,19 @@ export function ReviewScreen({ path = '/partidas' }: { path?: string }) {
         icon="eye"
         title="Repasa tus últimas partidas"
         actions={
-          <button className="t-btn t-btn-primary t-btn-lg" onClick={r.start}>
-            Analizar mis partidas
+          <button className="t-btn t-btn-primary t-btn-lg" onClick={r.load}>
+            Buscar mis partidas
           </button>
         }
       >
         <p>
-          Buscaremos tus últimas 10 partidas de Lichess, las analizaremos en tu propio navegador y te enseñaremos los errores que más
-          pesaron, con su porqué.
+          Buscaremos tus últimas 10 partidas de Lichess y tú eliges cuáles analizar. El análisis se hace en tu propio dispositivo y te
+          enseñamos los errores que más pesaron, con su porqué.
         </p>
-        <p className="muted">Tarda unos minutos. Puedes cancelar cuando quieras; lo ya analizado se guarda en este dispositivo.</p>
+        <p className="muted">
+          Cada partida tarda un rato. Puedes cancelar cuando quieras; lo ya analizado se guarda en este dispositivo. Con 3 partidas analizadas
+          podrás ver tu informe.
+        </p>
       </Panel>
     );
 
@@ -138,49 +168,41 @@ export function ReviewScreen({ path = '/partidas' }: { path?: string }) {
     return (
       <section className="t-card rv-card" aria-live="polite">
         <Loading label="Buscando tus partidas en Lichess…" />
-        <div className="rv-actions">
-          <button className="t-btn t-btn-secondary" onClick={r.cancel}>
-            Cancelar
-          </button>
-        </div>
       </section>
     );
 
-  if (r.status === 'analyzing' || r.status === 'done')
+  if (r.status === 'loaded') {
+    const busyNow = r.statuses.includes('analyzing');
     return (
       <section className="t-card rv-card" aria-labelledby="rv-title">
-        <h1 id="rv-title">{r.status === 'done' ? 'Análisis terminado' : 'Analizando tus partidas'}</h1>
+        <h1 id="rv-title">Tus últimas partidas</h1>
         <p className="muted" aria-live="polite">
-          {r.status === 'done'
-            ? `Las ${r.games.length} partidas están listas para repasar.`
-            : `${r.ready.length} de ${r.games.length} partidas listas. Puedes repasar cada una en cuanto esté lista.`}
+          {busyNow
+            ? `Analizando la partida ${r.statuses.indexOf('analyzing') + 1}. Solo se analiza una a la vez.`
+            : `${r.analyzedCount} de ${r.games.length} partidas analizadas. Elige cuáles quieres analizar; se hace en tu dispositivo.`}
         </p>
         <ol className="rv-list">
           {r.games.map((g, i) => (
             <GameRow key={g.id} game={g} i={i} r={r} highlight={next === i} />
           ))}
         </ol>
-        {r.ready.length >= MIN_GAMES && (
-          <div className="rv-actions">
+        <div className="rv-actions">
+          {r.analyzedCount >= MIN_GAMES ? (
             <button className="t-btn t-btn-primary" onClick={() => navigate('/partidas/informe')}>
               <Icon name="chart" size={20} />
-              {r.status === 'done' ? 'Ver mi informe' : `Ver informe con las ${r.ready.length} listas`}
+              Ver mi informe
             </button>
-          </div>
-        )}
-        {r.status === 'analyzing' && (
-          <div className="rv-actions">
-            <button className="t-btn t-btn-secondary" onClick={r.cancel}>
-              Cancelar
-            </button>
-          </div>
-        )}
+          ) : (
+            <p className="muted">Analiza al menos {MIN_GAMES} partidas para ver tu informe (llevas {r.analyzedCount}).</p>
+          )}
+        </div>
       </section>
     );
+  }
 
   // status === 'error'
   const retry = (
-    <button className="t-btn t-btn-primary" onClick={r.start}>
+    <button className="t-btn t-btn-primary" onClick={r.load}>
       Reintentar
     </button>
   );
@@ -192,17 +214,11 @@ export function ReviewScreen({ path = '/partidas' }: { path?: string }) {
         </Panel>
       );
     case 'rate-limited':
-      return <RateLimited onRetry={r.start} />;
+      return <RateLimited onRetry={r.load} />;
     case 'offline':
       return (
         <Panel icon="alert" title="Sin conexión con Lichess" actions={retry}>
           <p>No hemos podido conectar. Revisa tu conexión a internet y vuelve a probar.</p>
-        </Panel>
-      );
-    case 'engine':
-      return (
-        <Panel icon="alert" title="El motor de análisis no está disponible" actions={retry}>
-          <p>El analizador no ha podido arrancar en este navegador. Lo ya analizado sigue guardado. Prueba de nuevo o usa otro navegador.</p>
         </Panel>
       );
     case 'few': {
@@ -220,7 +236,7 @@ export function ReviewScreen({ path = '/partidas' }: { path?: string }) {
     }
     default:
       return (
-        <Panel icon="alert" title="No hemos podido analizar tus partidas" actions={retry}>
+        <Panel icon="alert" title="No hemos podido cargar tus partidas" actions={retry}>
           <p>Algo ha fallado de forma inesperada. Prueba de nuevo en un momento.</p>
         </Panel>
       );
