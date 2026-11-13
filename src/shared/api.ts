@@ -228,3 +228,46 @@ export interface CompleteReviewBody {
 export interface CompleteReviewResponse {
   counted: boolean;
 }
+
+// Sesión diaria de repaso (con sesión). El servidor guarda las soluciones y verifica cada jugada.
+// GET /api/session/status -> SessionStatus. GET /api/session -> SessionStart (409 { error } si no hay nada que repasar).
+// POST /api/session/answer (AnswerBody) -> AnswerResult (404 si el elemento no es del usuario, está cerrado o caducó).
+// POST /api/session/finish (FinishBody) -> FinishResult (404 sesión ajena o inexistente; 409 sin elementos terminados).
+export interface SessionStatus {
+  /** Conceptos vencidos hoy. */
+  due: number;
+  /** Próximo vencimiento futuro (ISO) o null. */
+  nextDueAt: string | null;
+}
+/** Sin soluciones: el alumno mueve primero desde `fen`. */
+export interface SessionItem {
+  itemId: string;
+  kind: 'own' | 'puzzle' | 'bank';
+  conceptId: string;
+  fen: string;
+  prompt: string;
+}
+export interface SessionStart {
+  sessionId: string;
+  items: SessionItem[];
+}
+export interface AnswerBody {
+  itemId: string;
+  uci: string;
+}
+/** `reply`: jugada del rival tras un acierto. `solution`: resto de la línea, solo tras el segundo fallo. */
+export interface AnswerResult {
+  correct: boolean;
+  reply?: string;
+  done: boolean;
+  solution?: string[];
+  tryAgain?: boolean;
+}
+export interface FinishBody {
+  sessionId: string;
+}
+export interface FinishResult {
+  reviewed: { conceptId: string; correct: boolean }[];
+  nextDueAt: string | null;
+  streak: number;
+}

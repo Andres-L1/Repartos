@@ -5,6 +5,7 @@ import type {
   BillingMode,
   CompleteLessonBody,
   CompleteReviewResponse,
+  FinishResult,
   LessonProgress,
   LevelCard,
   LevelInfo,
@@ -32,6 +33,7 @@ import {
   type ProgressRow,
 } from './progress.js';
 import { completeReview, parseCompleteReview } from './review.js';
+import { answerItem, finishPlan, nextDueAt, sessionStatus, startSession, UCI_RE } from './session.js';
 import { CONCEPT_IDS, touchSchedule } from './srs.js';
 import { buildShop, buyItem, effectiveStreak, equipItem, equippedFor, protectorCount, streakAdvance } from './shop.js';
 
@@ -50,6 +52,8 @@ export interface AppDeps {
   devOrigin?: string | undefined;
   /** Sirve los estáticos para rutas que no son /api ni /auth (binding ASSETS). */
   assets?: { fetch(req: Request): Promise<Response> } | undefined;
+  /** fetch para la API anónima de Lichess (puzles); por defecto el global. Los tests lo sustituyen. */
+  fetchImpl?: typeof fetch | undefined;
 }
 
 const MAX_BODY = 16 * 1024;
@@ -468,6 +472,60 @@ export function createApp(deps: AppDeps) {
     if (typeof parsed === 'string') throw new HttpError(400, parsed);
     const counted = await completeReview(db, c.get('user').id, parsed.gameId, parsed.concepts, now().toISOString(), parsed.positions);
     return c.json({ counted } satisfies CompleteReviewResponse);
+  });
+
+  // ---------- sesión diaria de repaso ----------
+  app.get('/api/session/status', requireAuth, async (c) => c.json(await sessionStatus(db, c.get('user').id, now().getTime())));
+
+  app.get('/api/session', requireAuth, async (c) => {
+    const userId = c.get('user').id;
+    const level = (await chosenLevel(userId)) ?? 'initiation';
+    const s = await startSession(db, userId, level, now().getTime(), deps.fetchImpl);
+    if (!s) throw new HttpError(409, 'Hoy no toca repasar');
+    return c.json(s);
+  });
+
+  app.post('/api/session/answer', requireAuth, async (c) => {
+    const b = await readJson(c);
+    if (typeof b.itemId !== 'string' || b.itemId.length > 64 || typeof b.uci !== 'string' || !UCI_RE.test(b.uci))
+      throw new HttpError(400, 'itemId/uci no válidos');
+    const r = await answerItem(db, c.get('user').id, b.itemId, b.uci, now().getTime());
+    if (r === null) throw new HttpError(404, 'Ejercicio no encontrado');
+    if (r === 'race') throw new HttpError(409, 'Respuesta ya registrada');
+    return c.json(r);
+  });
+
+  app.post('/api/session/finish', requireAuth, async (c) => {
+    const userId = c.get('user').id;
+    const b = await readJson(c);
+    if (typeof b.sessionId !== 'string' || b.sessionId.length > 64) throw new HttpError(400, 'sessionId no válido');
+    const t = now();
+    const plan = await finishPlan(db, userId, b.sessionId, t.getTime());
+    if (plan === 'missing') throw new HttpError(404, 'Sesión no encontrada');
+    if (plan === 'empty') throw new HttpError(409, 'Responde al menos un ejercicio antes de terminar');
+    if (plan.stmts.length) {
+      // Racha con la misma regla que las lecciones (sin XP); cajas, elementos y racha en una sola transacción.
+      const p = await loadProfile(userId);
+      const s = await streakAdvance(db, userId, p, t);
+      try {
+        await db.batch([
+          ...plan.stmts,
+          {
+            sql: 'UPDATE cp_profiles SET streak_days = ?, longest_streak = ?, last_active_date = ? WHERE user_id = ?',
+            params: [s.streak, Math.max(p.longest_streak, s.streak), s.lastActive, userId],
+          },
+          ...s.rewards,
+        ]);
+      } catch (e) {
+        // Doble envío concurrente: el otro ya registró el ingreso/consumo (índice único); esta transacción se revierte.
+        if (!(s.rewards.length && /UNIQUE|constraint/i.test(e instanceof Error ? e.message : ''))) throw e;
+      }
+    }
+    return c.json({
+      reviewed: plan.reviewed,
+      nextDueAt: await nextDueAt(db, userId, t.getTime()),
+      streak: (await profileFor(userId)).streakDays,
+    } satisfies FinishResult);
   });
 
   // ---------- perfil ----------
