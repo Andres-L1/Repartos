@@ -45,6 +45,15 @@ describe('takePuzzle', () => {
     expect(await takePuzzle(db, 'fork', 'easier', NOW, fakeFetch({ nada: 1 }))).toBeNull();
     expect(rows(db)).toBe(0);
   });
+  it('tras un 429 no vuelve a llamar a Lichess durante un minuto', async () => {
+    const db = openTestDb();
+    const f = fakeFetch({}, 429);
+    await takePuzzle(db, 'fork', 'easier', NOW, f);
+    await takePuzzle(db, 'pin', 'normal', NOW + 59_000, f);
+    expect(f.calls).toBe(1);
+    await takePuzzle(db, 'fork', 'easier', NOW + 60_000, f);
+    expect(f.calls).toBe(2);
+  });
   it('no entrega el mismo puzle dos veces', async () => {
     const db = openTestDb(); const f = fakeFetch({ puzzles });
     const ids = new Set<string>();

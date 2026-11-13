@@ -14,12 +14,16 @@ export interface TakenPuzzle {
 }
 
 const inflight = new Map<string, Promise<void>>(); // una sola petición a la vez por tema y dificultad
+/** Tras un 429, Lichess pide esperar un minuto: hasta entonces no se le vuelve a llamar (por Db = por isolate en producción). */
+const PAUSE_MS = 60_000;
+const pausedUntil = new WeakMap<Db, number>();
 
 async function refill(db: Db, theme: string, difficulty: string, nowMs: number, fetchImpl: typeof fetch): Promise<void> {
   const res = await fetchImpl(
     `https://lichess.org/api/puzzle/batch/${encodeURIComponent(theme)}?nb=${BATCH}&difficulty=${encodeURIComponent(difficulty)}`,
     { headers: { Accept: 'application/json' } },
   );
+  if (res.status === 429) pausedUntil.set(db, nowMs + PAUSE_MS);
   if (!res.ok) return;
   const list = ((await res.json()) as { puzzles?: unknown }).puzzles;
   if (!Array.isArray(list)) return;
@@ -52,7 +56,8 @@ export async function takePuzzle(
       'SELECT SUM(used_at IS NULL) AS unused, MAX(fetched_at) AS last FROM cp_puzzle_pool WHERE theme = ? AND difficulty = ?',
       [theme, difficulty],
     );
-    if ((st?.unused ?? 0) < MIN_UNUSED || st?.last == null || nowMs - st.last > MAX_AGE_MS) {
+    const stale = (st?.unused ?? 0) < MIN_UNUSED || st?.last == null || nowMs - st.last > MAX_AGE_MS;
+    if (stale && nowMs >= (pausedUntil.get(db) ?? 0)) {
       const key = `${theme}|${difficulty}`;
       let p = inflight.get(key);
       if (!p) {
