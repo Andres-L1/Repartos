@@ -11,6 +11,8 @@ interface Props {
   analysis: GameAnalysis;
   /** Posición con la que se abre (0 = inicio). */
   startIndex?: number;
+  /** Texto del botón de cierre (por defecto, «Volver a la lección»). */
+  closeLabel?: string;
   onClose: () => void;
 }
 
@@ -22,7 +24,7 @@ function isTextField(el: EventTarget | null): boolean {
   return el.tagName === 'INPUT' && !['button', 'checkbox', 'radio'].includes((el as HTMLInputElement).type);
 }
 
-export function GameViewer({ analysis, startIndex = 0, onClose }: Props) {
+export function GameViewer({ analysis, startIndex = 0, closeLabel = 'Volver a la lección', onClose }: Props) {
   const { moves } = analysis;
   const [state, dispatch] = useReducer(viewerReducer, undefined, () => initViewer(moves.length, startIndex));
   const { index, count } = state;
@@ -45,7 +47,16 @@ export function GameViewer({ analysis, startIndex = 0, onClose }: Props) {
 
   // La jugada actual siempre queda a la vista dentro de la lista.
   useEffect(() => {
-    listRef.current?.querySelector<HTMLElement>('[aria-current="step"]')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    // Solo se desplaza la lista (en vertical o, en el móvil, en horizontal), nunca la página.
+    const list = listRef.current;
+    const el = list?.querySelector<HTMLElement>('[aria-current="step"]');
+    if (!list || !el) return;
+    const l = list.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    // En horizontal se centra, para ver también las jugadas que vienen.
+    if (r.left < l.left || r.right > l.right) list.scrollLeft += r.left + r.width / 2 - (l.left + l.width / 2);
+    if (r.top < l.top) list.scrollTop += r.top - l.top - 4;
+    else if (r.bottom > l.bottom) list.scrollTop += r.bottom - l.bottom + 4;
   }, [index]);
 
   const fen = fenAt(moves, index);
@@ -77,7 +88,7 @@ export function GameViewer({ analysis, startIndex = 0, onClose }: Props) {
       <div className="gv-top">
         <button type="button" className="t-btn t-btn-secondary t-btn-sm" onClick={onClose}>
           <Icon name="back" size={20} />
-          Volver a la lección
+          {closeLabel}
         </button>
       </div>
       <div className="gv-main">

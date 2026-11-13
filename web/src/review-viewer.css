@@ -1,5 +1,6 @@
 /* Visor de la partida (repaso). */
-.gv { display: grid; gap: var(--s-3); min-width: 0; }
+/* Se decide por el ancho del propio visor (con barra lateral a 900-1180 px no caben dos columnas). */
+.gv { display: grid; gap: var(--s-3); min-width: 0; container-type: inline-size; }
 .gv-top .t-btn { margin-bottom: 0; }
 .gv-main { display: grid; gap: var(--s-3); grid-template-columns: minmax(0, 1fr); min-width: 0; }
 .gv-board { min-width: 0; width: 100%; max-width: 32rem; margin-inline: auto; }
@@ -20,7 +21,33 @@
 .gv-move[aria-current='step'] { background: var(--t-orange); color: var(--t-ink); }
 .gv-move-err { box-shadow: inset 0 0 0 2px var(--t-bad); }
 .gv-tag { font-size: 0.75rem; font-weight: 800; }
-@media (min-width: 860px) {
+.gv-board .board-frame { margin-bottom: 0; }
+@media (max-width: 859px) {
+  .gv { padding: 16px; }
+}
+@container (width < 50rem) {
+  /* Orden en el móvil: tablero, qué pasa, botones y jugadas juntos al alcance del pulgar; lo demás debajo. */
+  .gv-now { order: 1; }
+  .gv-lost { order: 2; }
+  .gv-nav { order: 3; }
+  .gv-list { order: 4; }
+  .gv-errors { order: 5; }
+  .gv-hint { order: 6; }
+  /* Jugadas en una tira horizontal: se desliza con un dedo y no obliga a desplazar la página. */
+  .gv-list { display: flex; gap: 2px; max-height: none; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: thin; padding: 4px; }
+  .gv-row { display: flex; flex: none; grid-template-columns: none; gap: 2px; align-items: center; }
+  .gv-num { padding: 0 2px 0 6px; }
+  .gv-move { flex-wrap: nowrap; white-space: nowrap; padding: 0 0.55rem; min-width: 44px; justify-content: center; }
+}
+/* Las flechas del teclado no sirven en una pantalla táctil sin teclado. */
+@media (hover: none) and (pointer: coarse) {
+  .gv-hint { display: none; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .gv-main { grid-template-columns: minmax(0, max(200px, 100svh - 150px)) minmax(0, 1fr); align-items: start; }
+  .gv-board { max-width: none; }
+}
+@container (width >= 50rem) {
   .gv-main { grid-template-columns: minmax(0, 32rem) minmax(0, 1fr); align-items: start; }
   .gv-list { max-height: 22rem; }
 }
