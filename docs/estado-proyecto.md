@@ -17,7 +17,7 @@ Academia digital de ajedrez, de principiante a ~2000 Elo: ruta de aprendizaje co
 |---|---|
 | 1. Prototipo pedagógico | Hecho como CLI: PGN, Stockfish, 6 tipos de error (piezas sin defensa, cambios, horquillas, clavadas, jaques a la descubierta, mates), explicaciones por nivel, ejercicios recomendados. Falta validarlo con posiciones revisadas por profesores. |
 | 2. Plataforma inicial | Hecho: acceso con Lichess, mapa de aprendizaje, 6 unidades y 24 lecciones (0 a 800 Elo), lecciones interactivas con corrección y evaluación, progreso y racha, colocación inicial por Elo de Lichess. **Falta:** evaluación de nivel (prueba de conocimientos) y suscripción con pagos reales (hoy solo un proveedor simulado y beta abierta). |
-| 3. Personalización | Pendiente. |
+| 3. Personalización | Primer paso hecho: **análisis de las últimas 10 partidas de Lichess del alumno** en `/partidas`, a demanda (el alumno elige cuáles; se analiza una a la vez en su navegador con Stockfish WASM a profundidad 12 y se guarda en el dispositivo), repaso de cada partida con mini lecciones de sus errores clave (posición, pausa en la que elige casilla, qué pasó, por qué importa, qué debía hacer y su regla), visor de la partida jugada a jugada e informe final con 3 o más partidas analizadas (resumen, lo que hace bien, lo que más le cuesta, su error más repetido, su regla y práctica con sus propias posiciones). Revisado en móvil (320 a 768 px y en horizontal). **Falta:** perfil de conceptos débiles e historial, repasos espaciados, sesión diaria y validación con profesores. |
 | 4. Contenido hasta 2000 Elo | Pendiente. |
 
 ## Decisiones del usuario que cambian el documento original
@@ -34,11 +34,13 @@ Academia digital de ajedrez, de principiante a ~2000 Elo: ruta de aprendizaje co
 1. **Probar con tu cuenta real de Lichess**: la bienvenida muestra, por ritmo (rápidas, clásicas, blitz), qué devuelve Lichess y por qué cuenta o no. Nunca se ha visto con datos reales.
 2. Revisar el texto de `/privacidad` (cookies y analítica no verificadas).
 3. Cerrar la Fase 2: evaluación de nivel y suscripción con Stripe (hacen falta claves de modo test del usuario; nunca en el repositorio).
-4. Fase 3, empezando por **analizar las partidas de Lichess del alumno**: traer sus partidas públicas, analizarlas en el navegador (Stockfish WASM; el Worker no puede ejecutarlo) y explicar los errores con el diagnóstico existente; después historial de dificultades (`cp_weak_concepts` ya recoge conceptos fallados), repasos espaciados y sesión diaria.
+4. Seguir la Fase 3 (el análisis de las partidas de Lichess ya está hecho): perfil de conceptos débiles e historial de dificultades (`cp_weak_concepts` ya recoge los conceptos de los errores repasados), repasos espaciados y sesión diaria; validar las mini lecciones con profesores.
 5. Fase 4 y validación: contenido de 800 a 2000 Elo con revisión de profesores; mientras tanto el contenido solo está verificado por código.
 
 ## Cosas conocidas por pulir
 - La consulta «¿hay sesión?» da 401 en consola para visitantes (esperado, pero ruidoso).
 - El caballo del hero puede quedar cortado en pantallas de poca altura; las piezas negras sobre casilla oscura dependen del contorno naranja.
 - La atomicidad de las compras está probada con SQLite local y D1 local, no con una carga real en producción.
+- Los textos del repaso de partidas siempre usan el nivel «iniciación»: `/api/me` no devuelve el nivel del alumno.
+- Analizar las 10 partidas tarda unos 4 minutos en total a profundidad 12 (depende del dispositivo); por eso se hace a demanda y una a la vez.
 - Los tests de contenido son lentos (búsquedas de ajedrez): `vitest.config.ts` fija 30 s por test.
