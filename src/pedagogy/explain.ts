@@ -17,11 +17,11 @@ const PIECE_ES: Record<string, { name: string; article: string }> = {
   king: { name: 'rey', article: 'el' },
 };
 
-function pieceName(p: string): string {
+export function pieceName(p: string): string {
   return PIECE_ES[p]?.name ?? p;
 }
 
-function withArticle(p: string): string {
+export function withArticle(p: string): string {
   const e = PIECE_ES[p];
   return e ? `${e.article} ${e.name}` : p;
 }
@@ -42,7 +42,7 @@ function pawnsText(cp: number): string {
 }
 
 /** SAN de un UCI en la posición dada; undefined si no es legal ahí. */
-function sanIn(fen: string, uci: string): string | undefined {
+export function sanIn(fen: string, uci: string): string | undefined {
   try {
     const setup = parseFen(fen).unwrap();
     const pos = Chess.fromSetup(setup).unwrap();
