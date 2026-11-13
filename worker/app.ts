@@ -6,6 +6,7 @@ import type {
   CompleteLessonBody,
   LessonProgress,
   Placement,
+  PlacementPerf,
   PlacementMode,
   Profile,
   Subscription,
@@ -288,14 +289,14 @@ export function createApp(deps: AppDeps) {
     const row = await db.first<PlacementRow>('SELECT source, perf, rating, games, mode FROM cp_placement WHERE user_id = ?', [
       userId,
     ]);
-    const reliable = row?.source === 'lichess' && row.rating !== null && (row.perf === 'rapid' || row.perf === 'classical');
+    const reliable = row?.source === 'lichess' && row.rating !== null && (row.perf === 'rapid' || row.perf === 'classical' || row.perf === 'blitz');
     const plan = planForRating(reliable ? row.rating : null, content);
     const mode: PlacementMode = reliable && row.mode !== 'scratch' ? 'lichess' : 'scratch';
     const seenRow = await db.first<{ seen_json: string }>('SELECT seen_json FROM cp_placement_seen WHERE user_id = ?', [userId]);
     return {
       seen: parseSeen(seenRow?.seen_json),
       source: reliable ? 'lichess' : 'none',
-      perf: reliable ? (row.perf as 'rapid' | 'classical') : null,
+      perf: reliable ? (row.perf as PlacementPerf) : null,
       rating: reliable ? row.rating : null,
       games: reliable ? row.games : null,
       mode,

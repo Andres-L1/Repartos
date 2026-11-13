@@ -116,7 +116,7 @@ describe('OAuth con Lichess', () => {
     for (const q of [`code=abc&state=otro`, `code=abc`, `error=access_denied&state=${state}`, `state=${state}`, `code=${encodeURIComponent('a b')}&state=${state}`]) {
       const res = await s.raw('GET', `/auth/callback?${q}`);
       expect(res.status).toBe(303);
-      expect(res.headers.get('location')).toBe(`${ORIGIN}/?auth=failed#/entrar`);
+      expect(res.headers.get('location')).toBe(`${ORIGIN}/entrar?auth=failed`);
       expect(res.headers.getSetCookie().some((c) => c.startsWith('__Host-chedex_session=') && !c.startsWith('__Host-chedex_session=;'))).toBe(false);
     }
     expect(lichess.calls).toHaveLength(0);
@@ -126,7 +126,7 @@ describe('OAuth con Lichess', () => {
   it('callback sin cookie de OAuth (o manipulada) falla', async () => {
     const s = setup();
     const res = await s.raw('GET', '/auth/callback?code=abc&state=x', undefined, { cookie: '__Host-chedex_oauth=basura.basura' });
-    expect(res.headers.get('location')).toBe(`${ORIGIN}/?auth=failed#/entrar`);
+    expect(res.headers.get('location')).toBe(`${ORIGIN}/entrar?auth=failed`);
     expect(lichess.calls).toHaveLength(0);
   });
 
@@ -134,7 +134,7 @@ describe('OAuth con Lichess', () => {
     const s = setup();
     lichess.tokenStatus = 400;
     const res = await s.login();
-    expect(res.headers.get('location')).toBe(`${ORIGIN}/?auth=failed#/entrar`);
+    expect(res.headers.get('location')).toBe(`${ORIGIN}/entrar?auth=failed`);
     expect(lichess.calls.map((c) => c.method)).toEqual(['POST']);
     expect((await s.req('GET', '/api/me')).status).toBe(401);
   });
@@ -143,7 +143,7 @@ describe('OAuth con Lichess', () => {
     const s = setup();
     lichess.account = { id: 'x', username: '<script>' };
     const res = await s.login();
-    expect(res.headers.get('location')).toBe(`${ORIGIN}/?auth=failed#/entrar`);
+    expect(res.headers.get('location')).toBe(`${ORIGIN}/entrar?auth=failed`);
     expect(lichess.calls.at(-1)).toMatchObject({ method: 'DELETE', url: 'https://lichess.org/api/token', auth: `Bearer ${TOKEN}` });
     expect((await s.req('GET', '/api/me')).status).toBe(401);
   });
@@ -155,7 +155,7 @@ describe('OAuth con Lichess', () => {
     const state = new URL(start.headers.get('location')!).searchParams.get('state')!;
     const res = await s.raw('GET', `/auth/callback?code=abc123&state=${state}`);
     expect(res.status).toBe(303);
-    expect(res.headers.get('location')).toBe(`${ORIGIN}/#/mapa`);
+    expect(res.headers.get('location')).toBe(`${ORIGIN}/aprender`);
 
     // intercambio con verifier PKCE correcto y revocación posterior
     const exchange = lichess.calls[0]!;
@@ -479,7 +479,7 @@ describe('colocación por Elo de Lichess', () => {
   const unitMap = async (s: Awaited<ReturnType<typeof loginWith>>) =>
     Object.fromEntries(((await s.req('GET', '/api/map')).json.units as any[]).map((u) => [u.id, u]));
 
-  it('el callback guarda solo rápidas/clásicas validadas y el token sigue sin guardarse y revocándose', async () => {
+  it('el callback guarda solo rápidas/clásicas/blitz validadas y el token sigue sin guardarse y revocándose', async () => {
     const s = await loginWith({ rapid: perf(1180, 40), classical: perf(1350, 25), blitz: perf(2900, 900), bullet: perf(3000, 900) });
     expect(s.db.raw.prepare('SELECT * FROM cp_placement').all().map((r) => ({ ...r }))).toEqual([
       { user_id: 'ana', source: 'lichess', perf: 'classical', rating: 1350, games: 25, mode: null, fetched_at: new Date(clock).toISOString() },
@@ -499,16 +499,49 @@ describe('colocación por Elo de Lichess', () => {
     expect(s.db.raw.prepare('SELECT rating, mode FROM cp_placement').all().map((r) => ({ ...r }))).toEqual([{ rating: 1500, mode: 'scratch' }]);
   });
 
-  it('guarda y devuelve qué envió Lichess de cada ritmo (estado, Elo y partidas), sin blitz ni bullet', async () => {
-    const s = await loginWith({ rapid: perf(1500, 4, { prov: true }), classical: perf(1230, 6), blitz: perf(2900, 900) });
+  it('guarda y devuelve qué envió Lichess de cada ritmo (estado, Elo y partidas), sin bullet', async () => {
+    const s = await loginWith({ rapid: perf(1500, 4, { prov: true }), classical: perf(1230, 6), blitz: perf(1300, 5, { prov: true }), bullet: perf(2900, 900) });
     const p = (await s.req('GET', '/api/placement')).json;
     expect(p.source).toBe('none');
     expect(p.seen).toEqual({
       perfsPresent: true,
       rapid: { state: 'provisional', rating: 1500, games: 4 },
       classical: { state: 'few_games', rating: 1230, games: 6 },
+      blitz: { state: 'provisional', rating: 1300, games: 5 },
     });
     expect(JSON.stringify(p.seen)).not.toContain('2900');
+  });
+
+  it('solo blitz fiable: login guarda perf blitz, /api/placement lo devuelve con seen y el mapa se coloca', async () => {
+    const s = await loginWith({ rapid: perf(1600, 4, { prov: true }), blitz: perf(1250, 70), bullet: perf(3000, 900) });
+    expect(s.db.raw.prepare('SELECT source, perf, rating, games FROM cp_placement').all().map((r) => ({ ...r }))).toEqual([
+      { source: 'lichess', perf: 'blitz', rating: 1250, games: 70 },
+    ]);
+    const p = (await s.req('GET', '/api/placement')).json;
+    expect(p).toMatchObject({ source: 'lichess', perf: 'blitz', rating: 1250, games: 70, mode: 'lichess', recommendedUnitId: 'p3', openUnitIds: ['p1', 'p2'] });
+    expect(p.seen.blitz).toEqual({ state: 'reliable', rating: 1250, games: 70 });
+    expect(JSON.stringify(p.seen)).not.toContain('3000');
+    const m = await unitMap(s);
+    expect(m.p1).toMatchObject({ placedOpen: true, status: 'available' });
+    expect(m.p3).toMatchObject({ recommended: true, status: 'available' });
+  });
+
+  it('rápidas fiables tienen prioridad sobre un blitz más alto', async () => {
+    const s = await loginWith({ rapid: perf(1100), blitz: perf(1900) });
+    expect((await s.req('GET', '/api/placement')).json).toMatchObject({ perf: 'rapid', rating: 1100 });
+  });
+
+  it('un registro antiguo de seen sin blitz se sigue leyendo (blitz ausente)', async () => {
+    const s = await loginWith({ rapid: perf(1500) });
+    s.db.raw.prepare('UPDATE cp_placement_seen SET seen_json = ?').run(
+      JSON.stringify({ perfsPresent: true, rapid: { state: 'reliable', rating: 1500, games: 50 }, classical: { state: 'absent' } }),
+    );
+    expect((await s.req('GET', '/api/placement')).json.seen).toEqual({
+      perfsPresent: true,
+      rapid: { state: 'reliable', rating: 1500, games: 50 },
+      classical: { state: 'absent' },
+      blitz: { state: 'absent' },
+    });
   });
 
   it('seen distingue ritmo ausente, dato ilegible y fiable; y perfs ausentes', async () => {
@@ -517,12 +550,14 @@ describe('colocación por Elo de Lichess', () => {
       perfsPresent: true,
       rapid: { state: 'invalid' },
       classical: { state: 'reliable', rating: 1400, games: 30 },
+      blitz: { state: 'absent' },
     });
     s = await loginWith(undefined);
     expect((await s.req('GET', '/api/placement')).json.seen).toEqual({
       perfsPresent: false,
       rapid: { state: 'absent' },
       classical: { state: 'absent' },
+      blitz: { state: 'absent' },
     });
   });
 
@@ -530,7 +565,9 @@ describe('colocación por Elo de Lichess', () => {
     for (const perfs of [
       { rapid: perf(1600, 80, { prov: true }), classical: perf(1700, 5) },
       { rapid: perf(1600, 9) },
-      { blitz: perf(2000, 500) },
+      { blitz: perf(2000, 500, { prov: true }), classical: perf(1000, 3) },
+      { blitz: perf(2000, 9) },
+      { bullet: perf(2000, 500) },
       undefined,
       'basura',
     ]) {

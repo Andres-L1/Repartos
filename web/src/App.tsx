@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { USE_MOCK } from './api';
-import { navigate, usePath } from './router';
+import { isPrivatePath, navigate, usePath } from './router';
+import { Link } from './components/Link';
 import { useSession } from './session';
 import { Landing, DemoScreen, SiteFooter } from './screens/Landing';
 import { PrivacyScreen } from './screens/Privacy';
@@ -12,15 +13,13 @@ import { BillingScreen } from './screens/BillingScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { Icon, Loading, type IconName } from './components/Icon';
 
-const PRIVATE_PREFIXES = ['/mapa', '/leccion', '/perfil', '/suscripcion', '/bienvenida'];
-
 export function App() {
   const path = usePath();
   const { loading, user, logout, billingMode } = useSession();
-  const isPrivate = PRIVATE_PREFIXES.some((p) => path === p || path.startsWith(p + '/'));
+  const isPrivate = isPrivatePath(path);
 
   useEffect(() => {
-    if (!loading && !user && isPrivate) navigate('/entrar');
+    if (!loading && !user && isPrivate) navigate('/entrar', { replace: true });
   }, [loading, user, isPrivate]);
 
   useEffect(() => {
@@ -34,8 +33,8 @@ export function App() {
   else if (path === '/') screen = <Landing />;
   else if (path === '/demo') screen = <DemoScreen />;
   else if (path === '/privacidad') screen = <PrivacyScreen />;
-  else if (path === '/entrar' || path === '/registro') screen = <AuthScreen />;
-  else if (path === '/mapa') screen = <MapScreen />;
+  else if (path === '/entrar') screen = <AuthScreen />;
+  else if (path === '/aprender') screen = <MapScreen />;
   else if (path.startsWith('/leccion/')) screen = <LessonScreen id={decodeURIComponent(path.slice('/leccion/'.length))} />;
   else if (path === '/perfil') screen = <ProfileScreen />;
   else if (path === '/bienvenida') screen = <WelcomeScreen />;
@@ -47,27 +46,27 @@ export function App() {
           <Icon name="target" size={28} />
         </span>
         <h1>Página no encontrada</h1>
-        <a className="btn btn-primary" href="#/">
+        <Link className="btn btn-primary" href="/">
           Volver al inicio
-        </a>
+        </Link>
       </div>
     );
 
   const link = (to: string, label: string, icon: IconName) => {
     const active = path === to || path.startsWith(to + '/');
     return (
-      <a href={`#${to}`} className={active ? 'nav-link active' : 'nav-link'} aria-current={active ? 'page' : undefined}>
+      <Link href={to} className={active ? 'nav-link active' : 'nav-link'} aria-current={active ? 'page' : undefined}>
         <Icon name={icon} size={22} />
         <span>{label}</span>
-      </a>
+      </Link>
     );
   };
 
   const brand = (
-    <a href="#/" className="brand" aria-label="Chedex Pulse, inicio">
+    <Link href="/" className="brand" aria-label="Chedex Pulse, inicio">
       <span className="brand-mark" aria-hidden="true">♞&#xFE0E;</span>
       <span className="brand-name">Chedex Pulse</span>
-    </a>
+    </Link>
   );
   const skip = (
     <a className="skip" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById('main')?.focus(); }}>
@@ -85,7 +84,7 @@ export function App() {
           <header className="sidebar">
             {brand}
             <nav className="nav side-nav" aria-label="Principal">
-              {link('/mapa', 'Aprender', 'learn')}
+              {link('/aprender', 'Aprender', 'learn')}
               {link('/perfil', 'Perfil', 'user')}
               {billingMode === 'dev' && link('/suscripcion', 'Suscripción', 'card')}
             </nav>
@@ -121,9 +120,9 @@ export function App() {
         {brand}
         {user ? (
           <nav className="nav nav-guest" aria-label="Principal">
-            <a className="btn btn-primary btn-small" href="#/mapa">
+            <Link className="btn btn-primary btn-small" href="/aprender">
               Ir a Aprender
-            </a>
+            </Link>
             <button className="btn btn-ghost btn-small" onClick={() => void logout()}>
               Salir
             </button>

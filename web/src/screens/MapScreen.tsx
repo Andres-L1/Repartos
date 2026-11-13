@@ -3,6 +3,7 @@ import type { LessonStatus, MapLesson, MapUnit, Profile } from '../../../src/sha
 import type { Level } from '../../../src/types';
 import { api, ApiError } from '../api';
 import { navigate } from '../router';
+import { Link } from '../components/Link';
 import { Icon, Loading, ErrorBox, type IconName } from '../components/Icon';
 
 export const LEVEL_LABEL: Record<Level, string> = {
@@ -38,7 +39,7 @@ export function MapScreen() {
       .then(([r, p]) => {
         // Primer acceso: antes de mostrar la ruta, la bienvenida pregunta por dónde empezar.
         if (p && !p.chosen) {
-          navigate('/bienvenida');
+          navigate('/bienvenida', { replace: true });
           return;
         }
         setUnits([...r.units].sort((a, b) => a.order - b.order));
@@ -76,17 +77,10 @@ export function MapScreen() {
                 Unidad {next.unit.order} · {next.unit.title}
               </p>
               <p className="continue-obj">{next.lesson.objective}</p>
-              <a
-                className="btn btn-primary"
-                href={`#/leccion/${encodeURIComponent(next.lesson.id)}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate(`/leccion/${encodeURIComponent(next.lesson.id)}`);
-                }}
-              >
+              <Link className="btn btn-primary" href={`/leccion/${encodeURIComponent(next.lesson.id)}`}>
                 {done === 0 ? 'Empezar lección' : 'Continuar'}
                 <Icon name="chevron" size={18} />
-              </a>
+              </Link>
             </>
           ) : (
             <>
@@ -206,16 +200,9 @@ function LessonNode({ lesson, next, unitLocked }: { lesson: MapLesson; next: boo
           {content}
         </div>
       ) : (
-        <a
-          className="lesson-link"
-          href={`#/leccion/${encodeURIComponent(lesson.id)}`}
-          onClick={(e) => {
-            e.preventDefault();
-            navigate(`/leccion/${encodeURIComponent(lesson.id)}`);
-          }}
-        >
+        <Link className="lesson-link" href={`/leccion/${encodeURIComponent(lesson.id)}`}>
           {content}
-        </a>
+        </Link>
       )}
     </li>
   );

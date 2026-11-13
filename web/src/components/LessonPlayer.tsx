@@ -113,7 +113,7 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
   return (
     <article className="lesson" aria-labelledby="lesson-title">
       <header className="lesson-head">
-        <button className="btn btn-ghost btn-small" onClick={() => navigate(demo ? '/' : '/mapa')}>
+        <button className="btn btn-ghost btn-small" onClick={() => navigate(demo ? '/' : '/aprender')}>
           <Icon name="back" size={18} />
           Salir
         </button>
@@ -322,12 +322,12 @@ function ResultView({
                 <Icon name="chevron" size={18} />
               </button>
             ) : (
-              <button className="btn btn-primary" onClick={() => navigate('/mapa')} autoFocus>
+              <button className="btn btn-primary" onClick={() => navigate('/aprender')} autoFocus>
                 Volver a la ruta
               </button>
             )}
             {passed && nextId && (
-              <button className="btn" onClick={() => navigate('/mapa')}>
+              <button className="btn" onClick={() => navigate('/aprender')}>
                 Volver a la ruta
               </button>
             )}

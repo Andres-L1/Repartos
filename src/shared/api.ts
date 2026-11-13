@@ -5,14 +5,14 @@
  *
  * Acceso: SOLO con Lichess (OAuth PKCE sin scopes; el token de Lichess nunca se guarda y se revoca al terminar).
  *   GET  /auth/login                                           -> 303 a lichess.org/oauth
- *   GET  /auth/callback?code&state                             -> 303 a /#/mapa (o /?auth=failed#/entrar)
+ *   GET  /auth/callback?code&state                             -> 303 a /aprender (o /entrar?auth=failed)
  *   POST /auth/logout                                          -> {ok:true}   (borra la cookie)
  *
  * API (JSON, bajo /api):
  * GET  /api/config                                             -> {billingMode}                    (público)
  * GET  /api/me                                                 -> {user, subscription, billingMode}   (401 sin sesión)
  * GET  /api/map                                                -> {units: MapUnit[]}   (con colocación: placedOpen/recommended)
- * GET  /api/placement                                          -> Placement   (colocación inicial por Elo de Lichess)
+ * GET  /api/placement                                          -> Placement   (colocación inicial por Elo de Lichess: rápidas/clásicas, o blitz si no hay)
  * POST /api/placement {mode:'lichess'|'scratch'}                -> Placement   (guarda la elección; 'lichess' sin Elo fiable: 400)
  * GET  /api/lessons/:id                                        -> {lesson}   (402 solo en 'dev' si no demo y sin suscripción)
  * POST /api/lessons/:id/complete {correct, total, mistakes}    -> {progress, xpGained, profile}
@@ -71,8 +71,8 @@ export interface MapLesson {
   status: LessonStatus;
   bestScore?: number; // 0..1
 }
-/** Ritmos de Lichess que cuentan para la colocación (blitz y bullet no). */
-export type PlacementPerf = 'rapid' | 'classical';
+/** Ritmos de Lichess que cuentan para la colocación: rápidas y clásicas primero; blitz solo si no hay Elo fiable en ellas (bullet no). */
+export type PlacementPerf = 'rapid' | 'classical' | 'blitz';
 export type PlacementMode = 'lichess' | 'scratch';
 /**
  * Colocación inicial. `recommendedUnitId` y `openUnitIds` son la SUGERENCIA calculada con el Elo y el contenido actual;
@@ -91,6 +91,7 @@ export interface PlacementSeen {
   perfsPresent: boolean;
   rapid: SeenPerf;
   classical: SeenPerf;
+  blitz: SeenPerf;
 }
 export interface Placement {
   /** null si todavía no hay registro (cuentas anteriores a esta función: vuelve a entrar para verlo). */

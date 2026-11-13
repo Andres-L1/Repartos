@@ -59,7 +59,7 @@ export function BillingScreen() {
             Estamos en beta abierta: todas las lecciones están disponibles sin coste y no hace falta suscribirse. Los
             planes de pago llegarán más adelante y te avisaremos antes de cambiar nada.
           </p>
-          <button className="btn btn-primary" onClick={() => navigate('/mapa')}>
+          <button className="btn btn-primary" onClick={() => navigate('/aprender')}>
             Ir a la ruta
           </button>
         </section>

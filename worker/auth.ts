@@ -67,12 +67,12 @@ export interface AuthConfig {
   origin: string | undefined;
   now: () => Date;
   /**
-   * Se llama al terminar el login correcto (upsert del usuario). `perfs` lleva SOLO los perfs de rápidas y clásicas
+   * Se llama al terminar el login correcto (upsert del usuario). `perfs` lleva SOLO los perfs de rápidas, clásicas y blitz
    * tal como los envía Lichess, SIN validar (la validación estricta es de quien los usa).
    */
   onLogin: (
     user: { id: string; username: string },
-    perfs: { rapid?: unknown; classical?: unknown; present?: boolean },
+    perfs: { rapid?: unknown; classical?: unknown; blitz?: unknown; present?: boolean },
   ) => Promise<void>;
   clientId?: string;
 }
@@ -150,7 +150,7 @@ export async function handleCallback(c: Context, cfg: AuthConfig): Promise<Respo
   const { origin, secret } = cfg;
   const n = cookieNames(origin);
   const clearOauth = cookieHeader(n.oauth, '', 0, n.secure);
-  const failed = () => redirect(`${origin}/?auth=failed#/entrar`, [clearOauth]);
+  const failed = () => redirect(`${origin}/entrar?auth=failed`, [clearOauth]);
 
   const pending = await unseal(readCookie(c, n.oauth), secret, 'oauth', cfg.now().getTime());
   if (!pending || url.searchParams.get('state') !== pending.state || url.searchParams.has('error')) return failed();
@@ -194,13 +194,14 @@ export async function handleCallback(c: Context, cfg: AuthConfig): Promise<Respo
     await cfg.onLogin(me, {
       rapid: rawPerfs.rapid,
       classical: rawPerfs.classical,
+      blitz: rawPerfs.blitz,
       present: typeof user.perfs === 'object' && user.perfs !== null,
     });
     const session = await seal(
       { kind: 'session', id: me.id, username: me.username, exp: cfg.now().getTime() + SESSION_MS },
       secret,
     );
-    return redirect(`${origin}/#/mapa`, [clearOauth, cookieHeader(n.session, session, SESSION_MS / 1000, n.secure)]);
+    return redirect(`${origin}/aprender`, [clearOauth, cookieHeader(n.session, session, SESSION_MS / 1000, n.secure)]);
   } catch {
     return failed();
   } finally {

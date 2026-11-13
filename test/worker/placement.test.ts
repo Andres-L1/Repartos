@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computePlacement, PLACEMENT_BANDS, PLACEMENT_MIN_GAMES, parsePerf } from '../../worker/placement.js';
+import { computePlacement, describePerfs, parseSeen, selectPerf, PLACEMENT_BANDS, PLACEMENT_MIN_GAMES, parsePerf } from '../../worker/placement.js';
 import type { Unit } from '../../src/content/schema.js';
 
 const u = (id: string, order: number, level: Unit['level']): Unit => ({
@@ -59,6 +59,40 @@ describe('computePlacement', () => {
     const oneInit = { units: [u('a', 1, 'beginner'), u('b', 2, 'initiation')] };
     expect(computePlacement({ rapid: p(1800) }, oneInit).recommendedUnitId).toBe('b'); // índice 1 no existe: última del nivel
     expect(computePlacement({ rapid: p(1800) }, { units: [] })).toMatchObject({ source: 'lichess', recommendedUnitId: null, openUnitIds: [] });
+  });
+});
+
+describe('blitz como respaldo', () => {
+  it('solo blitz fiable: se usa', () => {
+    expect(computePlacement({ blitz: p(1200) }, content)).toMatchObject({ source: 'lichess', perf: 'blitz', rating: 1200, games: 100, recommendedUnitId: 'u04' });
+    expect(selectPerf({ blitz: p(1200, 10) }).perf).toBe('blitz');
+  });
+  it('blitz provisional o con pocas partidas: no cuenta', () => {
+    expect(selectPerf({ blitz: p(1800, 500, true) }).source).toBe('none');
+    expect(selectPerf({ blitz: p(1800, 9) }).source).toBe('none');
+  });
+  it('rápidas o clásicas fiables tienen prioridad sobre un blitz más alto', () => {
+    expect(selectPerf({ rapid: p(1100), blitz: p(2000) })).toMatchObject({ perf: 'rapid', rating: 1100 });
+    expect(selectPerf({ classical: p(1000), blitz: p(2000) })).toMatchObject({ perf: 'classical', rating: 1000 });
+    expect(selectPerf({ classical: p(1300), blitz: p(1700) })).toMatchObject({ perf: 'classical', rating: 1300 });
+  });
+  it('rápidas/clásicas no fiables: cae a blitz; si blitz tampoco, none', () => {
+    expect(selectPerf({ rapid: p(1500, 500, true), classical: p(1500, 3), blitz: p(1300) })).toMatchObject({ perf: 'blitz', rating: 1300 });
+    expect(selectPerf({ rapid: p(1500, 500, true), classical: p(1500, 3), blitz: p(1300, 2) })).toMatchObject({ source: 'none', perf: null });
+    expect(selectPerf({ rapid: p(1500, 500, true) }).source).toBe('none');
+  });
+  it('describePerfs incluye blitz con los mismos estados', () => {
+    expect(describePerfs({ present: true, blitz: p(1300, 20) }).blitz).toEqual({ state: 'reliable', rating: 1300, games: 20 });
+    expect(describePerfs({ present: true, blitz: p(1300, 5, true) }).blitz.state).toBe('provisional');
+    expect(describePerfs({ present: true, blitz: p(1300, 5) }).blitz.state).toBe('few_games');
+    expect(describePerfs({ present: true, blitz: { rating: 'x' } }).blitz.state).toBe('invalid');
+    expect(describePerfs({ present: true }).blitz.state).toBe('absent');
+  });
+  it('parseSeen: JSON antiguo sin blitz se lee como ausente; blitz inválido se rechaza', () => {
+    const old = { perfsPresent: true, rapid: { state: 'absent' }, classical: { state: 'absent' } };
+    expect(parseSeen(JSON.stringify(old))).toEqual({ ...old, blitz: { state: 'absent' } });
+    expect(parseSeen(JSON.stringify({ ...old, blitz: { state: 'reliable', rating: 1300, games: 20 } }))?.blitz).toEqual({ state: 'reliable', rating: 1300, games: 20 });
+    expect(parseSeen(JSON.stringify({ ...old, blitz: { state: 'otro' } }))).toBeNull();
   });
 });
 

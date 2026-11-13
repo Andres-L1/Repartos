@@ -1,5 +1,5 @@
 /**
- * Colocación inicial según el Elo de Lichess (solo partidas RÁPIDAS y CLÁSICAS; blitz y bullet no cuentan).
+ * Colocación inicial según el Elo de Lichess: primero rápidas y clásicas; si ninguno es fiable, blitz. Bullet y demás no cuentan.
  * Funciones puras: sin base de datos ni red.
  *
  * El mapeo rating -> unidades vive en UNA constante (PLACEMENT_BANDS) y se resuelve por `unit.level` y orden,
@@ -28,6 +28,8 @@ export interface PlacementBand {
  *  - 1000-1399: unidades 'beginner' abiertas como repaso; recomendada la primera 'initiation'.
  *  - >=1400: todo el contenido actual (0-800) abierto como repaso; recomendada la segunda 'initiation' (tácticas).
  * Al añadir contenido (basic, intermediate...) se añaden bandas o se cambian `open`/`recommend` aquí.
+ * Las MISMAS bandas valen para cualquier ritmo. CALIBRACIÓN PENDIENTE con datos reales: el Elo de blitz suele diferir
+ * del de rápidas/clásicas; por ahora no se aplica ningún ajuste.
  */
 export const PLACEMENT_BANDS: readonly PlacementBand[] = [
   { minRating: 0, open: [], recommend: { level: 'beginner', index: 0 } },
@@ -59,6 +61,7 @@ export const isReliable = (p: ValidPerf | null): p is ValidPerf => p !== null &&
 export interface PerfsInput {
   rapid?: unknown;
   classical?: unknown;
+  blitz?: unknown;
   /** true si Lichess envió el objeto `perfs` (aunque venga vacío). Solo informativo. */
   present?: boolean;
 }
@@ -74,6 +77,7 @@ export interface PerfsSeen {
   perfsPresent: boolean;
   rapid: SeenPerf;
   classical: SeenPerf;
+  blitz: SeenPerf;
 }
 
 function describePerf(raw: unknown): SeenPerf {
@@ -85,7 +89,11 @@ function describePerf(raw: unknown): SeenPerf {
 }
 
 export function describePerfs(perfs: PerfsInput | null | undefined): PerfsSeen {
-  return { perfsPresent: perfs?.present === true, rapid: describePerf(perfs?.rapid), classical: describePerf(perfs?.classical) };
+  return {
+    perfsPresent: perfs?.present === true,
+    rapid: describePerf(perfs?.rapid), classical: describePerf(perfs?.classical),
+    blitz: describePerf(perfs?.blitz),
+  };
 }
 
 /** Lee el JSON guardado validando su forma; null si no es válido. */
@@ -104,8 +112,10 @@ export function parseSeen(json: string | null | undefined): PerfsSeen | null {
     };
     const rapid = one(v.rapid);
     const classical = one(v.classical);
-    if (!rapid || !classical || typeof v.perfsPresent !== 'boolean') return null;
-    return { perfsPresent: v.perfsPresent, rapid, classical };
+    // JSON anteriores a blitz: se trata como ausente.
+    const blitz = v.blitz === undefined ? ({ state: 'absent' } as SeenPerf) : one(v.blitz);
+    if (!rapid || !classical || !blitz || typeof v.perfsPresent !== 'boolean') return null;
+    return { perfsPresent: v.perfsPresent, rapid, classical, blitz };
   } catch {
     return null;
   }
@@ -118,14 +128,20 @@ export interface PlacementSelection {
   games: number | null;
 }
 
-/** Elige el mayor Elo fiable entre rápidas y clásicas (empate: rápidas). */
+/**
+ * Elige el mayor Elo fiable entre rápidas y clásicas (empate: rápidas). Si ninguno es fiable, usa blitz si es fiable.
+ */
 export function selectPerf(perfs: PerfsInput | null | undefined): PlacementSelection {
   const rapid = parsePerf(perfs?.rapid);
   const classical = parsePerf(perfs?.classical);
   const cands: [PlacementPerf, ValidPerf][] = [];
   if (isReliable(rapid)) cands.push(['rapid', rapid]);
   if (isReliable(classical)) cands.push(['classical', classical]);
-  if (cands.length === 0) return { source: 'none', perf: null, rating: null, games: null };
+  if (cands.length === 0) {
+    const blitz = parsePerf(perfs?.blitz);
+    if (isReliable(blitz)) return { source: 'lichess', perf: 'blitz', rating: blitz.rating, games: blitz.games };
+    return { source: 'none', perf: null, rating: null, games: null };
+  }
   const [perf, best] = cands.reduce((a, b) => (b[1].rating > a[1].rating ? b : a));
   return { source: 'lichess', perf, rating: best.rating, games: best.games };
 }

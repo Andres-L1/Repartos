@@ -11,6 +11,7 @@ import { navigate } from '../router';
 import { useSession } from '../session';
 import { LichessLogin } from './Auth';
 import { Icon, Loading } from '../components/Icon';
+import { Link } from '../components/Link';
 
 function useDemo() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -202,7 +203,7 @@ function LichessData() {
               <Icon name="check" size={16} />
             </span>
             <span>
-              Tu <strong>Elo en rápidas y clásicas</strong>, solo para recomendarte dónde empezar. Puedes ignorarlo y empezar
+              Tu <strong>Elo en rápidas, clásicas y blitz</strong>, solo para recomendarte dónde empezar. Puedes ignorarlo y empezar
               desde el principio.
             </span>
           </li>
@@ -216,7 +217,7 @@ function LichessData() {
           </li>
         </ul>
         <p className="muted">
-          <a href="#/privacidad">Leer la explicación completa de privacidad</a>
+          <Link href="/privacidad">Leer la explicación completa de privacidad</Link>
         </p>
       </div>
     </section>
@@ -237,8 +238,8 @@ export function SiteFooter() {
           Entrenamiento de ajedrez de 0 a 800 Elo. No estamos afiliados a Lichess; solo usamos su acceso para identificarte.
         </p>
         <nav className="footer-links" aria-label="Pie de página">
-          <a href="#/privacidad">Privacidad</a>
-          <a href="#/demo">Probar una lección</a>
+          <Link href="/privacidad">Privacidad</Link>
+          <Link href="/demo">Probar una lección</Link>
           <span className="chip chip-beta">Beta abierta</span>
         </nav>
       </div>
@@ -263,7 +264,7 @@ export function Landing() {
           </p>
           <div className="actions">
             {user ? (
-              <button className="btn btn-primary btn-large" onClick={() => navigate('/mapa')}>
+              <button className="btn btn-primary btn-large" onClick={() => navigate('/aprender')}>
                 Ir a mi ruta de aprendizaje
               </button>
             ) : (

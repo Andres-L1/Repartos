@@ -4,7 +4,7 @@ import { api, ApiError } from '../api';
 import { navigate } from '../router';
 import { Icon, Loading, ErrorBox } from '../components/Icon';
 
-const PERF_LABEL = { rapid: 'partidas rápidas', classical: 'partidas clásicas' } as const;
+const PERF_LABEL = { rapid: 'partidas rápidas', classical: 'partidas clásicas', blitz: 'blitz' } as const;
 /** Mismo mínimo que usa el servidor (worker/placement.ts: PLACEMENT_MIN_GAMES). */
 const MIN_GAMES = 10;
 
@@ -39,6 +39,9 @@ export function SeenSummary({ seen }: { seen: PlacementSeen | null }) {
         </li>
         <li>
           <strong>Clásicas:</strong> {seenText(seen.classical)}
+        </li>
+        <li>
+          <strong>Blitz:</strong> {seenText(seen.blitz)}
         </li>
       </ul>
     </div>
@@ -78,7 +81,7 @@ export function WelcomeScreen() {
     setSaving(true);
     try {
       await api.setPlacement(mode);
-      navigate('/mapa');
+      navigate('/aprender');
     } catch (e) {
       if (!(e instanceof ApiError && e.status === 401)) setError(e instanceof ApiError ? e.message : 'No se pudo guardar tu elección.');
       setSaving(false);
@@ -101,10 +104,17 @@ export function WelcomeScreen() {
       <h1>Bienvenido a Chedex Pulse</h1>
       {placement.source === 'lichess' && placement.perf && placement.rating !== null ? (
         <>
-          <p>
-            Hemos visto tu Elo de Lichess en {PERF_LABEL[placement.perf]} (<strong>{placement.rating}</strong>) y te recomendamos
-            empezar en <strong>{recName}</strong>.
-          </p>
+          {placement.perf === 'blitz' ? (
+            <p>
+              Hemos visto tu Elo de Lichess en blitz (<strong>{placement.rating}</strong>) y te recomendamos empezar en{' '}
+              <strong>{recName}</strong>, como orientación, porque no tienes un Elo fiable en rápidas o clásicas.
+            </p>
+          ) : (
+            <p>
+              Hemos visto tu Elo de Lichess en {PERF_LABEL[placement.perf]} (<strong>{placement.rating}</strong>) y te recomendamos
+              empezar en <strong>{recName}</strong>.
+            </p>
+          )}
           <SeenSummary seen={placement.seen} />
           {reviewCount > 0 && (
             <p className="muted">
@@ -129,7 +139,7 @@ export function WelcomeScreen() {
       ) : (
         <>
           <p>
-            No hemos podido recomendarte un punto de partida con tu Elo de Lichess en rápidas o clásicas; empezamos por el principio.
+            No hemos podido recomendarte un punto de partida con tu Elo de Lichess en rápidas, clásicas o blitz; empezamos por el principio.
           </p>
           <SeenSummary seen={placement.seen} />
           <div className="actions">

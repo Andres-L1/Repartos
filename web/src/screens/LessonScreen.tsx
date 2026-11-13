@@ -28,7 +28,7 @@ export function LessonScreen({ id }: { id: string }) {
           <Icon name="alert" size={28} />
         </span>
         <p>{error}</p>
-        <button className="btn" onClick={() => navigate('/mapa')}>
+        <button className="btn" onClick={() => navigate('/aprender')}>
           Volver a la ruta
         </button>
       </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { MapUnit, Placement, Profile } from '../../../src/shared/api';
 import { api, ApiError } from '../api';
 import { useSession } from '../session';
+import { Link } from '../components/Link';
 import { Icon, Loading, ErrorBox } from '../components/Icon';
 
 const dayWord = (n: number) => `${n} ${n === 1 ? 'día' : 'días'}`;
@@ -112,23 +113,23 @@ export function ProfileScreen() {
             ))}
           </div>
         )}
-        <a className="btn" href="#/mapa">
+        <Link className="btn" href="/aprender">
           Ir a la ruta
-        </a>
+        </Link>
       </section>
 
       <section className="card" aria-labelledby="start-title">
         <h2 id="start-title">Punto de partida</h2>
         <p>
           {placement?.source === 'lichess' && placement.perf && placement.rating !== null
-            ? `Según tu Elo de Lichess en partidas ${placement.perf === 'rapid' ? 'rápidas' : 'clásicas'} (${placement.rating}), ${
+            ? `Según tu Elo de Lichess en ${{ rapid: 'partidas rápidas', classical: 'partidas clásicas', blitz: 'blitz' }[placement.perf]} (${placement.rating}), ${
                 placement.mode === 'lichess' ? 'la ruta usa la recomendación de inicio.' : 'has elegido empezar desde el principio.'
               }`
-            : 'No tenemos partidas rápidas o clásicas suficientes para recomendar un punto de partida; empezamos por el principio.'}
+            : 'No tenemos partidas suficientes en rápidas, clásicas o blitz para recomendar un punto de partida; empezamos por el principio.'}
         </p>
-        <a className="btn" href="#/bienvenida">
+        <Link className="btn" href="/bienvenida">
           Ver o cambiar mi punto de partida
-        </a>
+        </Link>
       </section>
     </div>
   );

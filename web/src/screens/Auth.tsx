@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api, USE_MOCK } from '../api';
-import { navigate } from '../router';
+import { navigate, replaceSearch } from '../router';
 import { useSession } from '../session';
 
 /**
@@ -15,7 +15,7 @@ export function LichessLogin({ large = false, small = false }: { large?: boolean
     try {
       const r = await api.mockLogin();
       setSession(r.user);
-      navigate('/mapa');
+      navigate('/aprender');
     } catch {
       /* sin efecto */
     }
@@ -30,12 +30,20 @@ export function LichessLogin({ large = false, small = false }: { large?: boolean
 export function AuthScreen() {
   const { user } = useSession();
   const [failed] = useState(() => new URLSearchParams(window.location.search).get('auth') === 'failed');
+  // Tras mostrar el error se quita ?auth=failed de la URL (conservando el resto, p. ej. ?mock=1).
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('auth') === null) return;
+    p.delete('auth');
+    const q = p.toString();
+    replaceSearch(q ? '?' + q : '');
+  }, []);
   if (user) {
     return (
       <div className="auth card">
         <h1>Ya has entrado</h1>
         <p>Sesión iniciada como {user.username}.</p>
-        <button className="btn btn-primary" onClick={() => navigate('/mapa')}>
+        <button className="btn btn-primary" onClick={() => navigate('/aprender')}>
           Ir a la ruta
         </button>
       </div>

@@ -1,3 +1,5 @@
+import { Link } from '../components/Link';
+
 export function PrivacyScreen() {
   return (
     <article className="prose card">
@@ -16,7 +18,7 @@ export function PrivacyScreen() {
       <h2>Qué guardamos</h2>
       <ul>
         <li>Tu usuario de Lichess, para identificarte.</li>
-        <li>Tu Elo y número de partidas en rápidas y clásicas (blitz y bullet no cuentan), solo para recomendarte dónde empezar.</li>
+        <li>Tu Elo y número de partidas en rápidas, clásicas y blitz (bullet no cuenta), solo para recomendarte dónde empezar.</li>
         <li>Las lecciones que completas y tu racha de días, para mostrarte tu progreso.</li>
         <li>Los conceptos en los que has fallado, para preparar repasos en el futuro.</li>
       </ul>
@@ -33,9 +35,9 @@ export function PrivacyScreen() {
         momento con el botón «Salir».
       </p>
       <p className="actions">
-        <a className="btn" href="#/">
+        <Link className="btn" href="/">
           Volver al inicio
-        </a>
+        </Link>
       </p>
     </article>
   );

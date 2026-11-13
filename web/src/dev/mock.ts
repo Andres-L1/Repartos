@@ -125,7 +125,17 @@ interface MockState {
   placementMode?: PlacementMode | null;
 }
 
-/** Caso de colocación simulado: Elo 1250 en rápidas (?mock=1&elo=none simula sin Elo fiable; &elo=900 un Elo bajo). */
+/** Caso de colocación simulado: Elo 1250 en rápidas (?mock=1&elo=none simula sin Elo fiable; &elo=900 un Elo bajo; &perf=blitz el Elo viene de blitz). */
+const MOCK_PERF: 'rapid' | 'blitz' = (() => {
+  try {
+    const q = new URLSearchParams(window.location.search).get('perf');
+    if (q) sessionStorage.setItem('chedex-mock-perf', q);
+    return sessionStorage.getItem('chedex-mock-perf') === 'blitz' ? 'blitz' : 'rapid';
+  } catch {
+    return 'rapid';
+  }
+})();
+
 const MOCK_ELO: number | null = (() => {
   try {
     const q = new URLSearchParams(window.location.search).get('elo');
@@ -146,11 +156,15 @@ function placementFor(): Placement {
   return {
     seen: {
       perfsPresent: true,
-      rapid: reliable ? { state: 'reliable', rating: MOCK_ELO ?? undefined, games: 60 } : { state: 'provisional', rating: 1500, games: 4 },
+      rapid:
+        reliable && MOCK_PERF === 'rapid'
+          ? { state: 'reliable', rating: MOCK_ELO ?? undefined, games: 60 }
+          : { state: 'provisional', rating: 1500, games: 4 },
       classical: { state: 'absent' },
+      blitz: reliable && MOCK_PERF === 'blitz' ? { state: 'reliable', rating: MOCK_ELO ?? undefined, games: 60 } : { state: 'absent' },
     },
     source: reliable ? 'lichess' : 'none',
-    perf: reliable ? 'rapid' : null,
+    perf: reliable ? MOCK_PERF : null,
     rating: MOCK_ELO,
     games: reliable ? 60 : null,
     mode,
