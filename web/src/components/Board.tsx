@@ -8,6 +8,8 @@ import 'chessground/assets/chessground.brown.css';
 import 'chessground/assets/chessground.cburnett.css';
 import type { BoardMark } from '../../../src/content/schema';
 import { isInCheck, legalDests, turnOf } from '../chess';
+import { useSession } from '../session';
+import { appearanceClass } from '../shop';
 
 export function marksToShapes(mark: BoardMark | undefined): DrawShape[] {
   const shapes: DrawShape[] = [];
@@ -25,10 +27,13 @@ interface Props {
   /** cambia para forzar el redibujado de la misma posición (reintentos) */
   nonce?: number;
   label: string;
+  /** Usa el tablero y las piezas por defecto (landing y demostración pública), no lo equipado. */
+  plain?: boolean;
   onMove?: (from: string, to: string) => void;
 }
 
-export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, onMove }: Props) {
+export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, plain = false, onMove }: Props) {
+  const { equipped } = useSession();
   const el = useRef<HTMLDivElement>(null);
   const cg = useRef<Api | null>(null);
   const onMoveRef = useRef(onMove);
@@ -74,7 +79,7 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
   }, [shapesKey, nonce]);
 
   return (
-    <div className="board-frame" role="group" aria-label={label}>
+    <div className={`board-frame ${appearanceClass(plain ? null : equipped)}`} role="group" aria-label={label}>
       <div className="board-square">
         <div ref={el} className="board-cg" />
       </div>

@@ -1,0 +1,103 @@
+/* ---------- Temas de tablero (solo CSS propio, sin imágenes de terceros) ----------
+   Cada tema redefine las variables del tablero en el contenedor (.theme-*); las reglas de abajo las usan
+   para casillas, última jugada, selección, destinos, coordenadas y flechas. «clasico» usa los valores de :root. */
+.theme-pizarra { --sq-light: #d7dfe8; --sq-dark: #6f839b; --sq-last: rgb(255 208 64 / 0.55); --sq-sel: rgb(255 208 64 / 0.6); --coord-on-light: #44566b; --coord-on-dark: #f4f7fa; --dest-fill: rgb(255 255 255 / 0.9); --dest-edge: rgb(20 35 60 / 0.65); --dest-oc: rgb(255 208 64 / 0.85); --arrow-green: #15781b; }
+.theme-bosque { --sq-light: #eae5cf; --sq-dark: #4b7a58; --sq-last: rgb(255 214 90 / 0.6); --sq-sel: rgb(255 214 90 / 0.65); --coord-on-light: #2f5a3b; --coord-on-dark: #f6f2e0; --dest-fill: rgb(255 255 255 / 0.9); --dest-edge: rgb(15 45 25 / 0.7); --dest-oc: rgb(255 214 90 / 0.9); --arrow-green: #f2c230; }
+.theme-papel { --sq-light: #f3eee2; --sq-dark: #d8ccb6; --sq-last: rgb(235 160 40 / 0.5); --sq-sel: rgb(235 160 40 / 0.55); --coord-on-light: #8a7a60; --coord-on-dark: #6f6149; --dest-fill: rgb(70 55 30 / 0.5); --dest-edge: transparent; --dest-oc: rgb(70 55 30 / 0.35); --arrow-green: #15781b; }
+.theme-brasa { --sq-light: #f3b27d; --sq-dark: #5b504a; --sq-last: rgb(255 240 120 / 0.6); --sq-sel: rgb(255 240 120 / 0.7); --coord-on-light: #4a2c14; --coord-on-dark: #ffd9b8; --dest-fill: rgb(255 255 255 / 0.9); --dest-edge: rgb(30 20 15 / 0.75); --dest-oc: rgb(255 255 255 / 0.85); --arrow-green: #9be58c; }
+
+/* Marcas de chessground con las variables del tema */
+.board-cg cg-board square.move-dest { background: radial-gradient(circle, var(--dest-fill) 0 20%, var(--dest-edge) 21% 25%, transparent 26%); }
+.board-cg cg-board square.oc.move-dest { background: radial-gradient(transparent 0%, transparent 78%, var(--dest-oc) 79%); }
+.board-cg cg-board square.move-dest:hover { background: radial-gradient(circle, var(--dest-fill) 0 20%, var(--dest-edge) 21% 25%, rgb(255 255 255 / 0.22) 26%); }
+.board-cg cg-board square.oc.move-dest:hover { background: radial-gradient(rgb(255 255 255 / 0.2) 0%, rgb(255 255 255 / 0.2) 78%, var(--dest-oc) 79%); }
+.board-cg cg-board square.check { background: radial-gradient(ellipse at center, #ff2020 0%, #e00000 28%, rgb(190 0 0 / 0) 88%); }
+.board-cg .cg-shapes line[stroke='#15781B'], .board-cg .cg-shapes circle[stroke='#15781B'] { stroke: var(--arrow-green); }
+.board-cg .cg-shapes marker path[fill='#15781B'] { fill: var(--arrow-green); }
+.cg-wrap .cg-shapes { opacity: 0.75; }
+
+/* ---------- Conjuntos de piezas ----------
+   «cburnett» es el predeterminado (lo pinta chessground.cburnett.css). «geo» solo se aplica bajo su clase. */
+.pieces-geo .cg-wrap piece.pawn.white { background-image: url('/pieces/geo/wP.svg'); }
+.pieces-geo .cg-wrap piece.knight.white { background-image: url('/pieces/geo/wN.svg'); }
+.pieces-geo .cg-wrap piece.bishop.white { background-image: url('/pieces/geo/wB.svg'); }
+.pieces-geo .cg-wrap piece.rook.white { background-image: url('/pieces/geo/wR.svg'); }
+.pieces-geo .cg-wrap piece.queen.white { background-image: url('/pieces/geo/wQ.svg'); }
+.pieces-geo .cg-wrap piece.king.white { background-image: url('/pieces/geo/wK.svg'); }
+.pieces-geo .cg-wrap piece.pawn.black { background-image: url('/pieces/geo/bP.svg'); }
+.pieces-geo .cg-wrap piece.knight.black { background-image: url('/pieces/geo/bN.svg'); }
+.pieces-geo .cg-wrap piece.bishop.black { background-image: url('/pieces/geo/bB.svg'); }
+.pieces-geo .cg-wrap piece.rook.black { background-image: url('/pieces/geo/bR.svg'); }
+.pieces-geo .cg-wrap piece.queen.black { background-image: url('/pieces/geo/bQ.svg'); }
+.pieces-geo .cg-wrap piece.king.black { background-image: url('/pieces/geo/bK.svg'); }
+
+/* ---------- Tienda ---------- */
+.coin { flex: none; display: inline-block; vertical-align: middle; }
+.balance { display: flex; align-items: center; gap: 0.5rem; min-height: 44px; padding: 0 0.85rem; border-radius: var(--r-md); text-decoration: none; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; border: 1px solid var(--line); background: var(--surface-2); }
+.balance:hover { border-color: var(--brand); }
+.balance-unit { color: var(--muted); font-weight: 500; font-size: var(--fs-sm); }
+@media (max-width: 899px) {
+  .balance { padding: 0 0.6rem; margin-inline-end: var(--s-1); }
+  .balance-unit { display: none; }
+}
+
+.shop { max-width: 920px; }
+.shop-head { margin-bottom: var(--s-4); }
+.shop-head h1 { margin-bottom: var(--s-3); }
+.shop-wallet { display: grid; gap: var(--s-4) var(--s-6); align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s-4) var(--s-5); }
+@media (min-width: 720px) { .shop-wallet { grid-template-columns: auto minmax(0, 1fr) auto; } }
+.wallet-balance { margin: 0; display: flex; align-items: center; gap: 0.6rem; }
+.wallet-num { font-size: 2.4rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.wallet-unit { color: var(--muted); font-weight: 600; }
+.wallet-protectors { margin: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--muted); }
+.wallet-protectors .icon { color: var(--brand-dark); }
+.streak-progress { min-width: 0; }
+.marks { display: flex; align-items: center; gap: 6px; max-width: 22rem; }
+.mark { flex: 1; height: 14px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--line-strong); }
+.mark.filled { background: var(--brand); border-color: var(--brand); }
+.mark-goal { margin-inline-start: 6px; opacity: 0.55; }
+.streak-line { margin: var(--s-2) 0 0; font-size: var(--fs-sm); color: var(--muted); }
+
+.tabs { display: flex; gap: var(--s-1); border-bottom: 1px solid var(--line); margin-bottom: var(--s-3); }
+.tab { font: inherit; font-weight: 700; color: var(--muted); background: none; border: 0; border-bottom: 3px solid transparent; padding: 0.6rem 1.1rem; min-height: 48px; cursor: pointer; margin-bottom: -1px; }
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--ink); border-bottom-color: var(--brand); }
+.notice { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin: 0 0 var(--s-3); padding: 0.55rem 0.9rem; border-radius: var(--r-md); background: var(--ok-bg); color: var(--ink); border: 1px solid var(--ok); }
+.notice .icon { color: var(--ok); }
+.shop-panel { outline-offset: 4px; }
+.shop-section { margin-block: var(--s-5) var(--s-6); }
+.shop-section h2 { font-size: var(--fs-xl); margin-bottom: var(--s-3); }
+.shop-foot { margin-top: var(--s-6); }
+
+.pieces-list, .boards-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-4); }
+.pieces-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+.boards-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr)); }
+.item h3 { font-size: var(--fs-md); margin: 0 0 2px; }
+.item p { margin: 0 0 var(--s-2); }
+.item-pieces { display: flex; gap: var(--s-4); align-items: flex-start; }
+.item-pieces .mini-board { flex: none; width: 8.5rem; }
+.item-body { min-width: 0; flex: 1; }
+.item-board .mini-board { margin-bottom: var(--s-3); }
+.item-protector { display: flex; gap: var(--s-4); align-items: flex-start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s-4); max-width: 34rem; }
+.protector-art { flex: none; }
+.protector-count { font-variant-numeric: tabular-nums; }
+
+.mini-board { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.18); background-color: var(--sq-light); background-image: repeating-conic-gradient(var(--sq-dark) 0 25%, var(--sq-light) 0 50%); background-size: 50% 50%; }
+.mini-grid { position: absolute; inset: 0; }
+.mini-grid piece { width: 25%; height: 25%; transform: none; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.3)); }
+.collection-preview { display: flex; align-items: center; gap: var(--s-4); margin-bottom: var(--s-4); }
+.collection-preview .mini-board { width: 7rem; flex: none; }
+.collection-preview p { margin: 0; }
+
+.price-tag { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.buy-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+.buy-note { margin: var(--s-2) 0 0; }
+.confirm-step { background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--r-md); padding: var(--s-3); }
+.confirm-step p { margin-bottom: var(--s-3); }
+.own-state { display: flex; align-items: center; gap: 0.35rem; color: var(--ok); font-weight: 700; margin: 0; min-height: 38px; }
+.link-btn { font: inherit; font-weight: 600; background: none; border: 0; padding: 0; color: var(--brand-dark); text-decoration: underline; cursor: pointer; min-height: 44px; }
+.result > .result-reward { display: flex; align-items: center; gap: 0.5rem; width: fit-content; max-width: 100%; margin: var(--s-3) auto 0; padding: 0.4rem 1rem; border-radius: var(--r-pill); background: var(--surface-2); border: 1px solid var(--line); text-align: left; }
+.credit-list { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: grid; gap: var(--s-3); }
+.credit-list li { display: grid; gap: 2px; }
+.shop-foot a { display: inline-flex; align-items: center; min-height: 44px; }
+.credits h3 { font-size: var(--fs-md); margin: var(--s-4) 0 var(--s-2); }

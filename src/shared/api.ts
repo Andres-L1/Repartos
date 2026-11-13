@@ -150,3 +150,63 @@ export interface CompleteLessonBody {
 }
 
 export type LessonResponse = { lesson: Lesson };
+
+// ---------------------------------------------------------------------------------------------
+// Tienda y moneda Chedex (ver docs/shop-design.md y src/shop/catalog.ts)
+//
+// GET  /api/shop                                  -> Shop
+// POST /api/shop/buy   {itemId}                   -> Shop   (400 sin saldo / ya lo tienes / protector al máximo; 404 id desconocido)
+// POST /api/shop/equip {kind:'pieces'|'board', itemId} -> Shop   (400 si no lo tienes)
+// GET  /api/me incluye `equipped` para pintar los tableros desde el primer momento.
+// POST /api/lessons/:id/complete devuelve además `chedexEarned` y `protectorUsed`.
+// ---------------------------------------------------------------------------------------------
+export type ShopKind = 'pieces' | 'board' | 'protector';
+
+export interface ShopItem {
+  id: string;
+  kind: ShopKind;
+  name: string;
+  description: string;
+  price: number;
+  /** Incluido desde el inicio (precio 0). */
+  free: boolean;
+  owned: boolean;
+  equipped: boolean;
+  credit: string;
+}
+
+export interface Equipped {
+  pieces: string;
+  board: string;
+}
+
+export interface Shop {
+  /** Chedex disponibles. */
+  balance: number;
+  /** Chedex ganados en total (informativo). */
+  earnedTotal: number;
+  protectors: { count: number; max: number };
+  streak: {
+    days: number;
+    /** Días de racha que faltan para el siguiente Chedex (1..5; si hoy cumple el hito, 5). */
+    daysToNextChedex: number;
+    daysPerChedex: number;
+  };
+  equipped: Equipped;
+  items: ShopItem[];
+}
+
+// Ampliación (servidor de la tienda): formas de respuesta añadidas, sin cambiar lo anterior.
+/** POST /api/lessons/:id/complete: además de {progress, xpGained, profile}. */
+export interface CompleteLessonShopExtras {
+  /** Chedex ganados con esta lección (0 o 1). */
+  chedexEarned: number;
+  /** Se consumió un protector para cubrir un día sin estudiar. */
+  protectorUsed: boolean;
+}
+/** GET /api/me: además de {user, subscription, billingMode}. */
+export interface MeShopExtras {
+  equipped: Equipped;
+}
+// Errores: itemId con formato no válido -> 400; id que no existe en el catálogo -> 404; equip con kind que no
+// corresponde al objeto -> 400. Los precios los fija siempre el servidor (se ignora cualquier precio del cuerpo).

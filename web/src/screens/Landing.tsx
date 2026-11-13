@@ -64,7 +64,7 @@ function HeroDemo({ lesson }: { lesson: Lesson | null }) {
           </div>
         </div>
       ) : (
-        <PracticeBoard key={round} step={step} mode="practice" isLast onDone={() => setDone(true)} />
+        <PracticeBoard key={round} step={step} mode="practice" isLast plain onDone={() => setDone(true)} />
       )}
     </div>
   );
@@ -73,7 +73,7 @@ function HeroDemo({ lesson }: { lesson: Lesson | null }) {
 function MiniBoard({ step, label }: { step: (BoardMark & { fen: string }) | undefined; label: string }) {
   const shapes = useMemo(() => marksToShapes(step), [step]);
   if (!step) return <div className="board-placeholder" role="img" aria-label="Cargando tablero" />;
-  return <Board fen={step.fen} orientation={turnOf(step.fen)} shapes={shapes} label={label} />;
+  return <Board fen={step.fen} orientation={turnOf(step.fen)} shapes={shapes} plain label={label} />;
 }
 
 function HowItWorks({ lesson }: { lesson: Lesson | null }) {
@@ -239,6 +239,7 @@ export function SiteFooter() {
         </p>
         <nav className="footer-links" aria-label="Pie de página">
           <Link href="/privacidad">Privacidad</Link>
+          <Link href="/creditos">Créditos</Link>
           <Link href="/demo">Probar una lección</Link>
           <span className="chip chip-beta">Beta abierta</span>
         </nav>

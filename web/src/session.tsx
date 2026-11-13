@@ -1,7 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { BillingMode, Subscription, User } from '../../src/shared/api';
+import type { BillingMode, Equipped, Shop, Subscription, User } from '../../src/shared/api';
 import { api, setApiHandlers } from './api';
 import { navigate } from './router';
+import { DEFAULT_EQUIPPED, sanitizeEquipped } from './shop';
 
 interface SessionValue {
   loading: boolean;
@@ -11,6 +12,12 @@ interface SessionValue {
   billingMode: BillingMode;
   /** id de la lección que devolvió 402 (para mostrar el aviso en Suscripción) */
   paywallLesson: string | null;
+  /** Tablero y piezas equipados (los de por defecto hasta saber otra cosa). */
+  equipped: Equipped;
+  /** Tienda (saldo, protectores, objetos); null hasta que carga o si falla. */
+  shop: Shop | null;
+  setShop(s: Shop): void;
+  refreshShop(): Promise<void>;
   setSession(user: User | null, subscription?: Subscription | null): void;
   setSubscription(s: Subscription): void;
   clearPaywall(): void;
@@ -31,6 +38,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [subscription, setSub] = useState<Subscription | null>(null);
   const [billingMode, setBillingMode] = useState<BillingMode>('beta_open');
   const [paywallLesson, setPaywall] = useState<string | null>(null);
+  const [equipped, setEquipped] = useState<Equipped>(DEFAULT_EQUIPPED);
+  const [shop, setShopState] = useState<Shop | null>(null);
+
+  const setShop = useCallback((s: Shop) => {
+    setShopState(s);
+    setEquipped(sanitizeEquipped(s.equipped));
+  }, []);
+  const refreshShop = useCallback(async () => {
+    try {
+      setShop(await api.shop());
+    } catch {
+      /* el saldo es informativo: si falla, se conserva lo anterior */
+    }
+  }, [setShop]);
 
   useEffect(() => {
     setApiHandlers({
@@ -54,10 +75,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         setUser(r.user);
         setSub(r.subscription);
         setBillingMode(r.billingMode);
+        if (r.equipped) setEquipped(sanitizeEquipped(r.equipped));
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  // Con sesión, el saldo se carga aparte: la barra lo muestra en cuanto llega.
+  const userId = user?.id ?? null;
+  useEffect(() => {
+    if (userId === null) {
+      setShopState(null);
+      setEquipped(DEFAULT_EQUIPPED);
+      return;
+    }
+    void refreshShop();
+  }, [userId, refreshShop]);
 
   const setSession = useCallback((u: User | null, s?: Subscription | null) => {
     setUser(u);
@@ -77,6 +110,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       subscription,
       billingMode,
       paywallLesson,
+      equipped,
+      shop,
+      setShop,
+      refreshShop,
       setSession,
       setSubscription: setSub,
       clearPaywall: () => setPaywall(null),
@@ -91,7 +128,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         navigate('/');
       },
     }),
-    [loading, user, subscription, billingMode, paywallLesson, setSession],
+    [loading, user, subscription, billingMode, paywallLesson, equipped, shop, setShop, refreshShop, setSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

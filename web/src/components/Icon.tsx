@@ -90,6 +90,18 @@ const PATHS: Record<string, ReactNode> = {
   ),
   sparkle: <path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z" />,
   chevron: <path d="M9 6l6 6-6 6" />,
+  shop: (
+    <>
+      <path d="M5 8.5h14l-1 11.5H6z" />
+      <path d="M9 8.5V7a3 3 0 0 1 6 0v1.5" />
+    </>
+  ),
+  shield: (
+    <>
+      <path d="M12 3l7.5 2.7v6c0 4.6-3.1 7.9-7.5 9.3-4.4-1.4-7.5-4.7-7.5-9.3v-6z" />
+      <path d="M12 9c.3 1.6 2.4 2.5 2.4 4.6a2.4 2.4 0 0 1-4.8 0c0-1 .5-1.6 1-2.1.1.8.4 1.2.8 1.3.1-1.1.1-2.6.6-3.8z" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof PATHS;

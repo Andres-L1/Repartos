@@ -674,6 +674,6 @@ describe('migraciones D1', () => {
     const { raw } = openTestDb();
     for (const f of sqlFiles) raw.exec(readFileSync(new URL(f, dir), 'utf8')); // segunda aplicación
     const names = (raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((r) => r.name);
-    expect(names.sort()).toEqual(['cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_subscriptions', 'cp_users', 'cp_weak_concepts']);
+    expect(names.sort()).toEqual(['cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_subscriptions', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
   });
 });

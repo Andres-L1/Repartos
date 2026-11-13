@@ -44,6 +44,14 @@
   --sq-dark: #b8825a;
   --sq-last: rgb(255 211 77 / 0.5);
   --topbar-bg: rgb(20 22 26 / 0.82);
+  /* tablero (tema «clásico»; los demás temas redefinen estas variables en .theme-*) */
+  --sq-sel: rgb(241 139 66 / 0.55);
+  --coord-on-light: #5c3d20;
+  --coord-on-dark: #fff3dc;
+  --dest-fill: rgb(20 85 30 / 0.5);
+  --dest-edge: transparent;
+  --dest-oc: rgb(20 85 0 / 0.3);
+  --arrow-green: #15781b;
 
   /* escala tipográfica */
   --fs-xs: 0.78rem;
@@ -346,7 +354,7 @@ fieldset { border: 0; padding: 0; margin: var(--s-4) 0; min-width: 0; }
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15);
 }
 .board-cg cg-board square.last-move { background-color: var(--sq-last); }
-.board-cg cg-board square.selected { background-color: rgb(241 139 66 / 0.55); }
+.board-cg cg-board square.selected { background-color: var(--sq-sel); }
 .board-cg cg-board piece { filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.3)); }
 /* Coordenadas: números en la columna h, letras en la fila 1, cada una en la esquina de su casilla */
 .board-cg coords { opacity: 1; font-family: inherit; font-weight: 700; font-size: 10px; line-height: 1.2; }
@@ -355,9 +363,9 @@ fieldset { border: 0; padding: 0; margin: var(--s-4) 0; min-width: 0; }
 .board-cg coords.files { left: 0; bottom: 1px; width: 100%; height: auto; text-transform: uppercase; }
 .board-cg coords.files coord { text-align: right; padding-right: 3px; }
 .board-cg.orientation-white .ranks :nth-child(odd), .board-cg.orientation-white .files :nth-child(even),
-.board-cg.orientation-black .ranks :nth-child(even), .board-cg.orientation-black .files :nth-child(odd) { color: #5c3d20; }
+.board-cg.orientation-black .ranks :nth-child(even), .board-cg.orientation-black .files :nth-child(odd) { color: var(--coord-on-light); }
 .board-cg.orientation-white .ranks :nth-child(even), .board-cg.orientation-white .files :nth-child(odd),
-.board-cg.orientation-black .ranks :nth-child(odd), .board-cg.orientation-black .files :nth-child(even) { color: #fff3dc; }
+.board-cg.orientation-black .ranks :nth-child(odd), .board-cg.orientation-black .files :nth-child(even) { color: var(--coord-on-dark); }
 .step-layout { display: grid; gap: var(--s-5); }
 .step-board { position: relative; min-width: 0; }
 .step-prompt, .step-text { font-size: var(--fs-lg); font-weight: 600; }

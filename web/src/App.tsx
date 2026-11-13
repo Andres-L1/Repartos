@@ -11,11 +11,15 @@ import { LessonScreen } from './screens/LessonScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { BillingScreen } from './screens/BillingScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
+import { ShopScreen } from './screens/ShopScreen';
+import { CreditsScreen } from './screens/CreditsScreen';
+import { Coin } from './components/ShopVisuals';
+import { chedexText } from './shop';
 import { Icon, Loading, type IconName } from './components/Icon';
 
 export function App() {
   const path = usePath();
-  const { loading, user, logout, billingMode } = useSession();
+  const { loading, user, logout, billingMode, shop } = useSession();
   const isPrivate = isPrivatePath(path);
 
   useEffect(() => {
@@ -33,6 +37,8 @@ export function App() {
   else if (path === '/') screen = <Landing />;
   else if (path === '/demo') screen = <DemoScreen />;
   else if (path === '/privacidad') screen = <PrivacyScreen />;
+  else if (path === '/creditos') screen = <CreditsScreen />;
+  else if (path === '/tienda') screen = <ShopScreen />;
   else if (path === '/entrar') screen = <AuthScreen />;
   else if (path === '/aprender') screen = <MapScreen />;
   else if (path.startsWith('/leccion/')) screen = <LessonScreen id={decodeURIComponent(path.slice('/leccion/'.length))} />;
@@ -85,9 +91,17 @@ export function App() {
             {brand}
             <nav className="nav side-nav" aria-label="Principal">
               {link('/aprender', 'Aprender', 'learn')}
+              {link('/tienda', 'Tienda', 'shop')}
               {link('/perfil', 'Perfil', 'user')}
               {billingMode === 'dev' && link('/suscripcion', 'Suscripción', 'card')}
             </nav>
+            {shop && (
+              <Link href="/tienda" className="balance" aria-label={`Tienes ${chedexText(shop.balance)}. Abrir la tienda`}>
+                <Coin size={24} />
+                <span className="balance-num" aria-hidden="true">{shop.balance}</span>
+                <span className="balance-unit" aria-hidden="true">Chedex</span>
+              </Link>
+            )}
             <div className="side-user">
               {billingMode === 'beta_open' && <span className="chip chip-beta">Beta abierta</span>}
               <span className="whoami" title="Cuenta de Lichess">

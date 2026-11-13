@@ -29,6 +29,7 @@ import {
   type ContentSource,
   type ProgressRow,
 } from './progress.js';
+import { advanceStreak, buildShop, buyItem, effectiveStreak, equipItem, equippedFor, protectorCount, streakRewardStmts } from './shop.js';
 
 export interface AppDeps {
   db: Db;
@@ -219,7 +220,8 @@ export function createApp(deps: AppDeps) {
   async function profileFor(userId: string): Promise<Profile> {
     const p = await loadProfile(userId);
     const t = now();
-    const streakAlive = p.last_active_date === dayOf(t) || p.last_active_date === yesterdayOf(t);
+    // Racha efectiva (días UTC): hoy/ayer, o un hueco de exactamente un día cubierto por un protector (sin consumirlo).
+    const streakDays = effectiveStreak(p, t, await protectorCount(db, userId));
     const weak = await db.all<{ concept_id: string; count: number }>(
       'SELECT concept_id, count FROM cp_weak_concepts WHERE user_id = ?',
       [userId],
@@ -231,7 +233,7 @@ export function createApp(deps: AppDeps) {
     return {
       xp: p.xp,
       level: levelForXp(p.xp),
-      streakDays: streakAlive ? p.streak_days : 0,
+      streakDays,
       longestStreak: p.longest_streak,
       dailyGoalXp: p.daily_goal_xp,
       xpToday: p.xp_today_date === dayOf(t) ? p.xp_today : 0,
@@ -272,7 +274,7 @@ export function createApp(deps: AppDeps) {
 
   app.get('/api/me', requireAuth, async (c) => {
     const user = c.get('user');
-    return c.json({ user, subscription: await subscriptionFor(user.id), billingMode });
+    return c.json({ user, subscription: await subscriptionFor(user.id), billingMode, equipped: await equippedFor(db, user.id) });
   });
 
   // ---------- mapa y lecciones ----------
@@ -388,7 +390,13 @@ export function createApp(deps: AppDeps) {
     });
     // Doble envío (mismo resultado en <10 s): no se vuelve a contar nada.
     if (prev && prev.last_key === key && prev.last_at !== null && t.getTime() - prev.last_at < 10_000) {
-      return c.json({ progress: toProgress(prev), xpGained: prev.last_xp, profile: await profileFor(userId) });
+      return c.json({
+        progress: toProgress(prev),
+        xpGained: prev.last_xp,
+        chedexEarned: 0,
+        protectorUsed: false,
+        profile: await profileFor(userId),
+      });
     }
 
     const passed = body.correct >= passMarkFor(lesson, body.total);
@@ -404,9 +412,17 @@ export function createApp(deps: AppDeps) {
     const today = dayOf(t);
     let streak = p.streak_days;
     let lastActive = p.last_active_date;
+    let protectorUsed = false;
+    let chedexEarned = 0;
+    let rewards: Stmt[] = [];
     if (passed && lastActive !== today) {
-      streak = lastActive === yesterdayOf(t) ? streak + 1 : 1;
+      // Reglas de días UTC en worker/shop.ts: un hueco de exactamente un día consume un protector.
+      const adv = advanceStreak(p, t, await protectorCount(db, userId));
+      streak = adv.streak;
+      protectorUsed = adv.protectorUsed;
       lastActive = today;
+      rewards = streakRewardStmts(userId, today, streak, protectorUsed, t.toISOString());
+      chedexEarned = rewards.some((r) => r.sql.includes("'streak_milestone'")) ? 1 : 0;
     }
     const xpToday = (p.xp_today_date === today ? p.xp_today : 0) + xpGained;
 
@@ -432,10 +448,27 @@ export function createApp(deps: AppDeps) {
         params: [xpGained, streak, Math.max(p.longest_streak, streak), lastActive, xpToday, today, userId],
       },
     ];
-    await db.batch(stmts);
+    try {
+      // Progreso, racha, protector e ingreso de Chedex: una sola transacción atómica.
+      await db.batch([...stmts, ...rewards]);
+    } catch (e) {
+      // Doble envío concurrente: el otro ya registró el ingreso/consumo (índice único) y esta transacción se revierte.
+      if (rewards.length && /UNIQUE|constraint/i.test(e instanceof Error ? e.message : '')) {
+        return c.json({
+          progress: toProgress(prev ?? { completed: 0, best_score: 0, attempts: 0 }),
+          xpGained: 0,
+          chedexEarned: 0,
+          protectorUsed: false,
+          profile: await profileFor(userId),
+        });
+      }
+      throw e;
+    }
     return c.json({
       progress: toProgress({ completed: completed ? 1 : 0, best_score: best, attempts }),
       xpGained,
+      chedexEarned,
+      protectorUsed,
       profile: await profileFor(userId),
     });
   });
@@ -450,6 +483,41 @@ export function createApp(deps: AppDeps) {
     await loadProfile(userId); // asegura fila
     await db.run('UPDATE cp_profiles SET daily_goal_xp = ? WHERE user_id = ?', [b.xp, userId]);
     return c.json({ profile: await profileFor(userId) });
+  });
+
+  // ---------- tienda ----------
+  const shopFor = async (userId: string) => buildShop(db, userId, (await profileFor(userId)).streakDays);
+
+  app.get('/api/shop', requireAuth, async (c) => c.json(await shopFor(c.get('user').id)));
+
+  const readItemId = (v: unknown): string => {
+    if (typeof v !== 'string' || !/^[a-z0-9_-]{1,40}$/.test(v)) throw new HttpError(400, 'itemId no válido');
+    return v;
+  };
+
+  // Solo se lee itemId: cualquier precio u otro campo del cuerpo se ignora (el precio lo fija el catálogo del servidor).
+  app.post('/api/shop/buy', requireAuth, async (c) => {
+    const userId = c.get('user').id;
+    const itemId = readItemId((await readJson(c)).itemId);
+    await loadProfile(userId); // asegura fila de perfil
+    const r = await buyItem(db, userId, itemId, now().toISOString());
+    if (r === 'unknown') throw new HttpError(404, 'Objeto no encontrado');
+    if (r === 'owned') throw new HttpError(400, 'Ya tienes este objeto');
+    if (r === 'max') throw new HttpError(400, 'Ya tienes el máximo de protectores');
+    if (r === 'funds') throw new HttpError(400, 'No tienes Chedex suficientes');
+    return c.json(await shopFor(userId));
+  });
+
+  app.post('/api/shop/equip', requireAuth, async (c) => {
+    const userId = c.get('user').id;
+    const b = await readJson(c);
+    if (b.kind !== 'pieces' && b.kind !== 'board') throw new HttpError(400, "kind debe ser 'pieces' o 'board'");
+    const itemId = readItemId(b.itemId);
+    const r = await equipItem(db, userId, b.kind, itemId);
+    if (r === 'unknown') throw new HttpError(404, 'Objeto no encontrado');
+    if (r === 'bad_kind') throw new HttpError(400, 'El objeto no es de ese tipo');
+    if (r === 'not_owned') throw new HttpError(400, 'No tienes este objeto');
+    return c.json(await shopFor(userId));
   });
 
   // ---------- facturación ----------

@@ -1,12 +1,14 @@
 import type {
   BillingMode,
   CompleteLessonBody,
+  Equipped,
   LessonProgress,
   MapUnit,
   OutlineUnit,
   Placement,
   PlacementMode,
   Profile,
+  Shop,
   Subscription,
   User,
 } from '../../src/shared/api';
@@ -68,19 +70,28 @@ async function request<T>(method: string, path: string, body?: unknown, opts: { 
   return data as T;
 }
 
+/** Respuesta de completar una lección. Los campos de la tienda pueden faltar en un servidor antiguo. */
+export interface CompleteResponse {
+  progress: LessonProgress;
+  xpGained: number;
+  profile: Profile;
+  chedexEarned?: number;
+  protectorUsed?: boolean;
+}
+
 export const api = {
   config: () => request<{ billingMode: BillingMode }>('GET', '/api/config', undefined, { silent401: true }),
   /** El acceso real es un enlace a /auth/login (redirección a Lichess); solo el modo simulado usa la API. */
   mockLogin: () => request<{ user: User }>('GET', '/auth/login', undefined, { silent401: true }),
   logout: () => request<{ ok: true }>('POST', '/auth/logout'),
   me: () =>
-    request<{ user: User; subscription: Subscription; billingMode: BillingMode }>('GET', '/api/me', undefined, { silent401: true }),
+    request<{ user: User; subscription: Subscription; billingMode: BillingMode; equipped?: Equipped }>('GET', '/api/me', undefined, { silent401: true }),
   map: () => request<{ units: MapUnit[] }>('GET', '/api/map'),
   lesson: (id: string) => request<{ lesson: Lesson }>('GET', `/api/lessons/${encodeURIComponent(id)}`),
   outline: () => request<{ units: OutlineUnit[] }>('GET', '/api/outline', undefined, { silent401: true }),
   demo: () => request<{ lesson: Lesson }>('GET', '/api/demo', undefined, { silent401: true }),
   complete: (id: string, b: CompleteLessonBody) =>
-    request<{ progress: LessonProgress; xpGained: number; profile: Profile }>(
+    request<CompleteResponse>(
       'POST',
       `/api/lessons/${encodeURIComponent(id)}/complete`,
       b,
@@ -90,5 +101,8 @@ export const api = {
   profile: () => request<{ profile: Profile }>('GET', '/api/profile'),
   billing: () => request<{ subscription: Subscription }>('GET', '/api/billing'),
   subscribe: () => request<{ subscription: Subscription }>('POST', '/api/billing/subscribe'),
+  shop: () => request<Shop>('GET', '/api/shop'),
+  buy: (itemId: string) => request<Shop>('POST', '/api/shop/buy', { itemId }),
+  equip: (kind: 'pieces' | 'board', itemId: string) => request<Shop>('POST', '/api/shop/equip', { kind, itemId }),
   cancel: () => request<{ subscription: Subscription }>('POST', '/api/billing/cancel'),
 };

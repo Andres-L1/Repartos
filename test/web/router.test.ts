@@ -12,10 +12,10 @@ describe('router: normalizePath', () => {
 });
 
 describe('router: rutas privadas', () => {
-  it('aprender, leccion, perfil, suscripcion y bienvenida son privadas', () => {
-    for (const p of ['/aprender', '/leccion/u01.l01', '/perfil', '/suscripcion', '/bienvenida'])
+  it('aprender, leccion, perfil, suscripcion, bienvenida y tienda son privadas', () => {
+    for (const p of ['/aprender', '/leccion/u01.l01', '/perfil', '/suscripcion', '/bienvenida', '/tienda'])
       expect(isPrivatePath(p)).toBe(true);
-    for (const p of ['/', '/demo', '/entrar', '/privacidad', '/nada', '/aprenderx', '/perfiles'])
+    for (const p of ['/', '/demo', '/entrar', '/privacidad', '/creditos', '/nada', '/aprenderx', '/perfiles', '/tiendas', '/tienda-vieja'])
       expect(isPrivatePath(p)).toBe(false);
   });
 });
@@ -44,6 +44,11 @@ describe('router: redirección de URLs antiguas', () => {
     expect(legacyRedirect('/', '?mock=1', '')).toBeNull();
     expect(legacyRedirect('/privacidad', '', '#seccion')).toBeNull();
     expect(legacyRedirect('/leccion/u01.l01', '', '')).toBeNull();
+  });
+  it('/tienda y /creditos ya son limpias y no se redirigen', () => {
+    expect(legacyRedirect('/tienda', '?mock=1', '')).toBeNull();
+    expect(legacyRedirect('/creditos', '', '')).toBeNull();
+    expect(legacyRedirect('/', '', '#/tienda')).toBe('/tienda');
   });
   it('una ruta desconocida no se redirige (la app muestra el 404)', () => {
     expect(legacyRedirect('/nada', '', '')).toBeNull();

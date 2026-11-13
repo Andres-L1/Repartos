@@ -1,5 +1,6 @@
 /** API simulada para desarrollar sin servidor (activar con ?mock=1; ?mock=1&billing=dev simula pagos). */
-import type { BillingMode, MapUnit, OutlineUnit, Placement, PlacementMode, Profile, Subscription, User } from '../../../src/shared/api';
+import { CATALOG, DEFAULT_BOARD, DEFAULT_PIECES, PROTECTOR_ID, PROTECTOR_MAX, STREAK_DAYS_PER_CHEDEX } from '../../../src/shop/catalog';
+import type { BillingMode, Equipped, MapUnit, OutlineUnit, Placement, PlacementMode, Profile, Shop, Subscription, User } from '../../../src/shared/api';
 import type { Lesson } from '../../../src/content/schema';
 
 const L1: Lesson = {
@@ -123,6 +124,19 @@ interface MockState {
   profile: Profile;
   /** Elección del usuario en la bienvenida (null = sin elegir todavía). */
   placementMode?: PlacementMode | null;
+  /** Tienda simulada: saldo, objetos poseídos, protectores y lo equipado. */
+  wallet?: { balance: number; earnedTotal: number; owned: string[]; protectors: number; equipped: Equipped };
+}
+
+/** Parámetros del modo simulado para probar la tienda: ?chedex=N (saldo inicial), ?streak=N (racha), ?protectorUsed=1. */
+function mockParam(name: string, key: string): string | null {
+  try {
+    const q = new URLSearchParams(window.location.search).get(name);
+    if (q) sessionStorage.setItem(key, q);
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
 /** Caso de colocación simulado: Elo 1250 en rápidas (?mock=1&elo=none simula sin Elo fiable; &elo=900 un Elo bajo; &perf=blitz el Elo viene de blitz). */
@@ -209,6 +223,48 @@ function load(): MockState {
   };
 }
 const state = load();
+const SEED_CHEDEX = Number(mockParam('chedex', 'chedex-mock-chedex') ?? 3);
+const SEED_STREAK = mockParam('streak', 'chedex-mock-streak');
+function wallet() {
+  if (!state.wallet) {
+    state.wallet = {
+      balance: Number.isInteger(SEED_CHEDEX) && SEED_CHEDEX >= 0 ? SEED_CHEDEX : 3,
+      earnedTotal: Number.isInteger(SEED_CHEDEX) && SEED_CHEDEX >= 0 ? SEED_CHEDEX : 3,
+      owned: [DEFAULT_PIECES, DEFAULT_BOARD],
+      protectors: 0,
+      equipped: { pieces: DEFAULT_PIECES, board: DEFAULT_BOARD },
+    };
+    if (SEED_STREAK !== null && Number.isInteger(Number(SEED_STREAK))) state.profile.streakDays = Math.max(0, Number(SEED_STREAK));
+    save();
+  }
+  return state.wallet;
+}
+
+function buildShop(): Shop {
+  const w = wallet();
+  const days = state.profile.streakDays;
+  return {
+    balance: w.balance,
+    earnedTotal: w.earnedTotal,
+    protectors: { count: w.protectors, max: PROTECTOR_MAX },
+    streak: { days, daysToNextChedex: STREAK_DAYS_PER_CHEDEX - (days % STREAK_DAYS_PER_CHEDEX), daysPerChedex: STREAK_DAYS_PER_CHEDEX },
+    equipped: w.equipped,
+    items: CATALOG.map((i) => {
+      const owned = i.kind === 'protector' ? false : i.price === 0 || w.owned.includes(i.id);
+      return {
+        id: i.id,
+        kind: i.kind,
+        name: i.name,
+        description: i.description,
+        price: i.price,
+        free: i.price === 0,
+        owned,
+        equipped: i.kind === 'protector' ? false : w.equipped[i.kind] === i.id,
+        credit: i.credit,
+      };
+    }),
+  };
+}
 function save(): void {
   try {
     sessionStorage.setItem('chedex-mock-state', JSON.stringify(state));
@@ -319,7 +375,31 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   }
   if (!state.user) return err(401, 'Necesitas iniciar sesión.');
 
-  if (path === '/me') return json({ user: state.user, subscription: state.sub, billingMode: MODE });
+  if (path === '/me') return json({ user: state.user, subscription: state.sub, billingMode: MODE, equipped: wallet().equipped });
+  if (path === '/shop') return json(buildShop());
+  if (path === '/shop/buy' && method === 'POST') {
+    const w = wallet();
+    const item = CATALOG.find((i) => i.id === body.itemId);
+    if (!item) return err(404, 'Ese objeto no existe.');
+    if (item.id === PROTECTOR_ID) {
+      if (w.protectors >= PROTECTOR_MAX) return err(400, 'Ya tienes el máximo de protectores.');
+    } else if (item.price === 0 || w.owned.includes(item.id)) return err(400, 'Ya lo tienes.');
+    if (w.balance < item.price) return err(400, 'No tienes Chedex suficientes.');
+    w.balance -= item.price;
+    if (item.id === PROTECTOR_ID) w.protectors += 1;
+    else w.owned.push(item.id);
+    save();
+    return json(buildShop());
+  }
+  if (path === '/shop/equip' && method === 'POST') {
+    const w = wallet();
+    const item = CATALOG.find((i) => i.id === body.itemId);
+    if (!item || (body.kind !== 'pieces' && body.kind !== 'board') || item.kind !== body.kind) return err(404, 'Ese objeto no existe.');
+    if (item.price !== 0 && !w.owned.includes(item.id)) return err(400, 'Todavía no lo tienes.');
+    w.equipped = { ...w.equipped, [body.kind]: item.id };
+    save();
+    return json(buildShop());
+  }
   if (path === '/map') return json({ units: buildMap() });
   if (path === '/placement' && method === 'GET') return json(placementFor());
   if (path === '/placement' && method === 'POST') {
@@ -342,11 +422,27 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     const score = total ? correct / total : 0;
     const passed = correct >= (lesson.passMark ?? Math.max(1, total - 1));
     const xpGained = passed ? 10 + correct * 5 : 3;
+    const w = wallet();
+    const firstTime = passed && state.completed[lesson.id] === undefined;
     if (passed) state.completed[lesson.id] = Math.max(state.completed[lesson.id] ?? 0, score);
     const p = state.profile;
     p.xp += xpGained;
     p.xpToday += xpGained;
-    p.streakDays = Math.max(1, p.streakDays);
+    // El modo simulado cuenta cada lección nueva como un día más de racha.
+    if (firstTime) p.streakDays += 1;
+    else p.streakDays = Math.max(1, p.streakDays);
+    let chedexEarned = 0;
+    if (firstTime && p.streakDays % STREAK_DAYS_PER_CHEDEX === 0) {
+      chedexEarned = 1;
+      w.balance += 1;
+      w.earnedTotal += 1;
+    }
+    let protectorUsed = false;
+    if (passed && mockParam('protectorUsed', 'chedex-mock-protector-used') === '1') {
+      protectorUsed = true;
+      w.protectors = Math.max(0, w.protectors - 1);
+      sessionStorage.removeItem('chedex-mock-protector-used');
+    }
     p.longestStreak = Math.max(p.longestStreak, p.streakDays);
     if (passed) p.lessonsCompleted = Object.keys(state.completed).length;
     for (const c of (body.mistakes as string[] | undefined) ?? []) p.weakConcepts[c] = (p.weakConcepts[c] ?? 0) + 1;
@@ -355,6 +451,8 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
       progress: { lessonId: lesson.id, completed: passed, bestScore: score, attempts: 1 },
       xpGained,
       profile: p,
+      chedexEarned,
+      protectorUsed,
     });
   }
   if (path === '/profile') return json({ profile: state.profile });

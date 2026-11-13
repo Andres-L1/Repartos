@@ -4,6 +4,7 @@ import { App } from './App';
 import { applyLegacyRedirect } from './router';
 import { SessionProvider } from './session';
 import './styles.css';
+import './shop.css';
 
 applyLegacyRedirect();
 

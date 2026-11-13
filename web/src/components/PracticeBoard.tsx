@@ -17,9 +17,11 @@ interface Props {
   mode: 'practice' | 'evaluation';
   onDone(r: StepResult): void;
   isLast: boolean;
+  /** Tablero y piezas por defecto (demostración pública). */
+  plain?: boolean;
 }
 
-export function PracticeBoard({ step, mode, onDone, isLast }: Props) {
+export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Props) {
   const [fen, setFen] = useState(step.fen);
   const [idx, setIdx] = useState(0); // índice en solutionUci del próximo movimiento del alumno
   const [status, setStatus] = useState<Status>('playing');
@@ -143,6 +145,7 @@ export function PracticeBoard({ step, mode, onDone, isLast }: Props) {
           lastMove={lastMove}
           shapes={shapes}
           nonce={nonce}
+          plain={plain}
           label={`Tablero. Mueven ${orientation === 'white' ? 'blancas' : 'negras'}.`}
           onMove={onBoardMove}
         />

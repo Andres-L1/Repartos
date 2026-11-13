@@ -2,11 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Lesson } from '../../../src/content/schema';
 import type { LessonProgress, Profile } from '../../../src/shared/api';
 import { api, ApiError } from '../api';
+import { useSession } from '../session';
+import { rewardLines } from '../shop';
 import { navigate } from '../router';
 import { Board, marksToShapes } from './Board';
 import { PracticeBoard, type StepResult } from './PracticeBoard';
 import { turnOf } from '../chess';
 import { Icon } from './Icon';
+import { Coin } from './ShopVisuals';
 
 type Phase =
   | { kind: 'intro' }
@@ -20,6 +23,8 @@ interface Outcome {
   total: number;
   passed: boolean;
   profile?: Profile;
+  chedexEarned?: number;
+  protectorUsed?: boolean;
   progress?: LessonProgress;
   error?: string;
 }
@@ -27,6 +32,7 @@ interface Outcome {
 const STAGES = ['Introducción', 'Explicación', 'Práctica', 'Evaluación'] as const;
 
 export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: boolean }) {
+  const { refreshShop } = useSession();
   const [phase, setPhase] = useState<Phase>({ kind: 'intro' });
   const [evalResults, setEvalResults] = useState<boolean[]>([]);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
@@ -89,7 +95,16 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
     const mistakes = correct < total ? [...new Set(lesson.conceptIds ?? [])] : [];
     try {
       const r = await api.complete(lesson.id, { correct, total, mistakes });
-      setOutcome({ correct, total, passed: r.progress.completed, profile: r.profile, progress: r.progress });
+      setOutcome({
+        correct,
+        total,
+        passed: r.progress.completed,
+        profile: r.profile,
+        progress: r.progress,
+        ...(r.chedexEarned !== undefined ? { chedexEarned: r.chedexEarned } : {}),
+        ...(r.protectorUsed !== undefined ? { protectorUsed: r.protectorUsed } : {}),
+      });
+      if (r.chedexEarned || r.protectorUsed) void refreshShop();
     } catch (e) {
       if (e instanceof ApiError && (e.status === 401 || e.status === 402)) return;
       setOutcome({
@@ -172,12 +187,13 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
           </section>
         )}
 
-        {phase.kind === 'explain' && <ExplainStepView lesson={lesson} i={phase.i} onNext={() => (phase.i + 1 < lesson.explanation.length ? setPhase({ kind: 'explain', i: phase.i + 1 }) : toPractice())} onPrev={phase.i > 0 ? () => setPhase({ kind: 'explain', i: phase.i - 1 }) : undefined} />}
+        {phase.kind === 'explain' && <ExplainStepView lesson={lesson} i={phase.i} plain={demo} onNext={() => (phase.i + 1 < lesson.explanation.length ? setPhase({ kind: 'explain', i: phase.i + 1 }) : toPractice())} onPrev={phase.i > 0 ? () => setPhase({ kind: 'explain', i: phase.i - 1 }) : undefined} />}
 
         {phase.kind === 'practice' && (
           <PracticeBoard
             step={lesson.practice[phase.i]!}
             mode="practice"
+            plain={demo}
             isLast={phase.i + 1 >= lesson.practice.length}
             onDone={() => (phase.i + 1 < lesson.practice.length ? setPhase({ kind: 'practice', i: phase.i + 1 }) : toEval())}
           />
@@ -187,6 +203,7 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
           <PracticeBoard
             step={lesson.evaluation[phase.i]!}
             mode="evaluation"
+            plain={demo}
             isLast={phase.i + 1 >= lesson.evaluation.length}
             onDone={(r: StepResult) => {
               const next = [...evalResults, r.ok];
@@ -205,14 +222,14 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
   );
 }
 
-function ExplainStepView({ lesson, i, onNext, onPrev }: { lesson: Lesson; i: number; onNext(): void; onPrev: (() => void) | undefined }) {
+function ExplainStepView({ lesson, i, plain, onNext, onPrev }: { lesson: Lesson; i: number; plain: boolean; onNext(): void; onPrev: (() => void) | undefined }) {
   const step = lesson.explanation[i]!;
   const shapes = useMemo(() => marksToShapes(step), [step]);
   const last = i + 1 >= lesson.explanation.length;
   return (
     <div className="step-layout">
       <div className="step-board">
-        <Board fen={step.fen} orientation={turnOf(step.fen)} shapes={shapes} label="Tablero de la explicación" />
+        <Board fen={step.fen} orientation={turnOf(step.fen)} shapes={shapes} plain={plain} label="Tablero de la explicación" />
       </div>
       <div className="step-side">
         <p className="step-kicker">
@@ -299,6 +316,13 @@ function ResultView({
           </strong>
         </p>
       )}
+      {passed &&
+        rewardLines(outcome.chedexEarned, outcome.protectorUsed, outcome.profile?.streakDays).map((line) => (
+          <p key={line} className="result-reward">
+            <Coin size={22} />
+            <span>{line}</span>
+          </p>
+        ))}
       {outcome.error && (
         <p className="field-error" role="alert">
           {outcome.error}
