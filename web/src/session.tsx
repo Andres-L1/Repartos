@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { BillingMode, Equipped, Shop, Subscription, User } from '../../src/shared/api';
+import type { Level } from '../../src/types';
 import { api, setApiHandlers } from './api';
 import { navigate } from './router';
 import { DEFAULT_EQUIPPED, sanitizeEquipped } from './shop';
@@ -7,6 +8,8 @@ import { DEFAULT_EQUIPPED, sanitizeEquipped } from './shop';
 interface SessionValue {
   loading: boolean;
   user: User | null;
+  /** Nivel interno para adaptar los textos (nunca se muestra); 'initiation' hasta que /api/me lo devuelva. */
+  level: Level;
   subscription: Subscription | null;
   /** Modo de facturación del servidor. Hasta saberlo se asume beta abierta (no se muestra precio). */
   billingMode: BillingMode;
@@ -35,6 +38,7 @@ export function useSession(): SessionValue {
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [level, setLevel] = useState<Level>('initiation');
   const [subscription, setSub] = useState<Subscription | null>(null);
   const [billingMode, setBillingMode] = useState<BillingMode>('beta_open');
   const [paywallLesson, setPaywall] = useState<string | null>(null);
@@ -73,6 +77,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       .me()
       .then((r) => {
         setUser(r.user);
+        if ((r as { level?: Level }).level) setLevel((r as { level?: Level }).level!);
         setSub(r.subscription);
         setBillingMode(r.billingMode);
         if (r.equipped) setEquipped(sanitizeEquipped(r.equipped));
@@ -107,6 +112,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     () => ({
       loading,
       user,
+      level,
       subscription,
       billingMode,
       paywallLesson,
@@ -128,7 +134,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         navigate('/');
       },
     }),
-    [loading, user, subscription, billingMode, paywallLesson, equipped, shop, setShop, refreshShop, setSession],
+    [loading, user, level, subscription, billingMode, paywallLesson, equipped, shop, setShop, refreshShop, setSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

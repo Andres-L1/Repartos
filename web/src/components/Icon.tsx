@@ -28,6 +28,8 @@ const PATHS: Record<string, ReactNode> = {
   ),
   play: <path d="M8.5 5.5v13l10-6.5z" fill="currentColor" />,
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
+  chart: <path d="M5 20V11M12 20V4M19 20v-6" />,
+  minus: <path d="M6 12h12" />,
   x: <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />,
   star: <path d="M12 2.8l2.8 5.9 6.4.9-4.7 4.5 1.2 6.4L12 17.4l-5.7 3.1 1.2-6.4-4.7-4.5 6.4-.9z" />,
   flame: <path d="M12 2.5c.6 3.4 5.5 5.6 5.5 10.6a5.5 5.5 0 0 1-11 0c0-2.2 1-3.6 2.2-4.8.1 1.9.9 2.9 1.9 3.2C10.3 8.3 10.5 5 12 2.5z" />,

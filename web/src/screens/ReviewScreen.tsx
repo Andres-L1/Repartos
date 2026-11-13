@@ -4,7 +4,9 @@ import { navigate } from '../router';
 import { Icon, Loading, type IconName } from '../components/Icon';
 import { useReview, type UseReview } from '../review/useReview';
 import { NotEnoughGamesError } from '../review/runner';
+import { MIN_GAMES } from '../../../src/review/report';
 import { ReviewGameScreen } from './ReviewGameScreen';
+import { ReportScreen } from './ReportScreen';
 import '../review.css';
 
 const WAIT_SECONDS = 60;
@@ -68,11 +70,11 @@ function rowState(i: number, r: UseReview): { label: string; cls: string } {
   return { label: 'En espera', cls: 'wait' };
 }
 
-function GameRow({ game, i, r }: { game: ReviewGame; i: number; r: UseReview }) {
+function GameRow({ game, i, r, highlight }: { game: ReviewGame; i: number; r: UseReview; highlight: boolean }) {
   const st = rowState(i, r);
   const p = st.cls === 'busy' && r.progress?.gameIndex === i ? r.progress : undefined;
   return (
-    <li className={`rv-row rv-${st.cls}`}>
+    <li className={`rv-row rv-${st.cls}${highlight ? ' rv-next' : ''}`} aria-current={highlight ? 'true' : undefined}>
       <div className="rv-row-main">
         <span className="rv-num" aria-hidden="true">{i + 1}</span>
         <div className="rv-row-text">
@@ -98,11 +100,20 @@ function GameRow({ game, i, r }: { game: ReviewGame; i: number; r: UseReview }) 
 
 export function ReviewScreen({ path = '/partidas' }: { path?: string }) {
   const r = useReview();
+  const [next, setNext] = useState<number | null>(null);
   const m = /^\/partidas\/repaso\/(\d+)$/.exec(path);
   if (m) {
     const index = Number(m[1]);
-    return <ReviewGameScreen index={index} game={r.games[index - 1]} analysis={r.ready[index - 1]} />;
+    return (
+      <ReviewGameScreen
+        index={index}
+        game={r.games[index - 1]}
+        analysis={r.ready[index - 1]}
+        onReviewed={(n) => setNext(n < r.ready.length ? n : null)}
+      />
+    );
   }
+  if (path === '/partidas/informe') return <ReportScreen games={r.games} analyses={r.ready} />;
 
   if (r.status === 'idle')
     return (
@@ -146,9 +157,17 @@ export function ReviewScreen({ path = '/partidas' }: { path?: string }) {
         </p>
         <ol className="rv-list">
           {r.games.map((g, i) => (
-            <GameRow key={g.id} game={g} i={i} r={r} />
+            <GameRow key={g.id} game={g} i={i} r={r} highlight={next === i} />
           ))}
         </ol>
+        {r.ready.length >= MIN_GAMES && (
+          <div className="rv-actions">
+            <button className="t-btn t-btn-primary" onClick={() => navigate('/partidas/informe')}>
+              <Icon name="chart" size={20} />
+              {r.status === 'done' ? 'Ver mi informe' : `Ver informe con las ${r.ready.length} listas`}
+            </button>
+          </div>
+        )}
         {r.status === 'analyzing' && (
           <div className="rv-actions">
             <button className="t-btn t-btn-secondary" onClick={r.cancel}>

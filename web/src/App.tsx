@@ -45,7 +45,7 @@ export function App() {
   else if (path === '/entrar') screen = <AuthScreen />;
   else if (path === '/aprender') screen = <MapScreen />;
   else if (path.startsWith('/leccion/')) screen = <LessonScreen id={decodeURIComponent(path.slice('/leccion/'.length))} />;
-  else if (path === '/partidas' || path.startsWith('/partidas/repaso/')) screen = <ReviewScreen path={path} />;
+  else if (path === '/partidas' || path === '/partidas/informe' || path.startsWith('/partidas/repaso/')) screen = <ReviewScreen path={path} />;
   else if (path === '/perfil') screen = <ProfileScreen />;
   else if (path === '/bienvenida') screen = <WelcomeScreen />;
   else if (path === '/suscripcion') screen = <BillingScreen />;
