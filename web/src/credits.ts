@@ -25,6 +25,13 @@ export const LIBRARIES: Library[] = [
     use: 'Las reglas del ajedrez: jugadas legales y notación.',
   },
   {
+    name: 'Stockfish',
+    author: 'Los desarrolladores de Stockfish; port a WebAssembly de Nathan Rugg',
+    license: 'GPL-3.0-or-later',
+    url: 'https://github.com/nmrugg/stockfish.js',
+    use: 'El motor que analiza tus partidas.',
+  },
+  {
     name: 'Piezas «cburnett» de Lichess',
     author: 'Colin M.L. Burnett',
     license: 'GPLv2+',

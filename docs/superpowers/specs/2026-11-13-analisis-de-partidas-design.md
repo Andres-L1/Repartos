@@ -85,6 +85,7 @@ Lo que de verdad importa no es detectar el error sino **comunicarlo para que el 
 ## Riesgos
 
 - **Tiempo de análisis.** Se desconoce el coste real en el navegador. El primer paso del plan es medirlo en una posición real. Regla de decisión: objetivo de primera partida lista en menos de 40 s y las 10 en menos de 5 minutos en un portátil normal; si no se cumple, bajar profundidad a 10 o analizar a partir de la jugada 6, sin tocar la reproducibilidad (la profundidad queda fija y documentada).
+- **Medición (Tarea 3).** Stockfish 16 de un solo hilo en un Web Worker del navegador integrado, profundidad 12, media de 10 posiciones de medio juego: 284 ms por posición (rango 225 a 394 ms); arranque del motor 2,5 s. Con unas 80 jugadas por partida la primera partida queda lista en unos 23 s (límite 40 s) y 10 partidas (unos 800 posiciones) en unos 3,8 minutos (límite 5 min). Decisión: se mantiene `REVIEW_DEPTH = 12`. El margen sobre los 5 minutos es de solo un 25 %: en un equipo más lento puede no cumplirse; si ocurre, bajar a 10 y volver a medir.
 - **Mapeo concepto a lección.** `concepts.ts` no enlaza con lecciones concretas. Hay que crear ese enlace para el paso «aprende» del informe.
 - **Contenido nuevo.** Preguntas de pausa, líneas de «por qué importa» y reglas para los 6 tipos de error: trabajo de redacción en español claro, sin jerga.
 - **Mock de desarrollo.** `web/src/dev/mock.ts` no cubre Lichess; el plan debe incluir cómo probar sin red.
