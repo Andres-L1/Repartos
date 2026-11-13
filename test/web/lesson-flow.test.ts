@@ -24,25 +24,45 @@ describe('lessonReducer', () => {
     expect(s.step).toBe('happened');
     expect(s.pauseResult).toBeNull();
   });
-  it('next no avanza desde la pausa (se resuelve tocando o con skip)', () => {
+  it('next no avanza desde la pausa (se resuelve con confirm o skip)', () => {
     const s = run(initLessonState(lesson(true)), { type: 'next' });
     expect(lessonReducer(s, { type: 'next' }).step).toBe('pause');
   });
-  it('un toque correcto marca correct y avanza', () => {
-    const s = run(initLessonState(lesson(true)), { type: 'next' }, { type: 'tap', square: 'f7' });
+  const inPause = () => run(initLessonState(lesson(true)), { type: 'next' });
+  it('select solo marca: no responde ni avanza', () => {
+    const s = run(inPause(), { type: 'select', square: 'a1' });
+    expect(s).toMatchObject({ step: 'pause', selected: 'a1', pauseResult: null });
+  });
+  it('select cambia la selección y la misma casilla la quita', () => {
+    const s = run(inPause(), { type: 'select', square: 'a1' }, { type: 'select', square: 'f7' });
+    expect(s.selected).toBe('f7');
+    expect(lessonReducer(s, { type: 'select', square: 'f7' }).selected).toBeNull();
+  });
+  it('selects repetidos (como arrastrar) nunca resuelven la pausa', () => {
+    const s = run(inPause(), ...['e2', 'e4', 'e2', 'e4', 'e2'].map((square) => ({ type: 'select' as const, square })));
+    expect(s.step).toBe('pause');
+    expect(s.pauseResult).toBeNull();
+  });
+  it('confirm sin selección se ignora', () => {
+    const s = inPause();
+    expect(lessonReducer(s, { type: 'confirm' })).toBe(s);
+  });
+  it('confirm con casilla correcta marca correct y avanza', () => {
+    const s = run(inPause(), { type: 'select', square: 'f7' }, { type: 'confirm' });
     expect(s).toMatchObject({ step: 'happened', pauseResult: 'correct' });
   });
-  it('un toque equivocado es el único intento: wrong y revela', () => {
-    const s = run(initLessonState(lesson(true)), { type: 'next' }, { type: 'tap', square: 'a1' }, { type: 'tap', square: 'f7' });
+  it('confirm equivocado es el único intento: wrong y revela', () => {
+    const s = run(inPause(), { type: 'select', square: 'a1' }, { type: 'confirm' }, { type: 'select', square: 'f7' }, { type: 'confirm' });
     expect(s).toMatchObject({ step: 'happened', pauseResult: 'wrong' });
   });
   it('skip marca skipped', () => {
     const s = run(initLessonState(lesson(true)), { type: 'next' }, { type: 'skip' });
     expect(s).toMatchObject({ step: 'happened', pauseResult: 'skipped' });
   });
-  it('tap y skip fuera de la pausa se ignoran', () => {
+  it('select, confirm y skip fuera de la pausa se ignoran', () => {
     const s0 = initLessonState(lesson(true));
-    expect(lessonReducer(s0, { type: 'tap', square: 'f7' })).toBe(s0);
+    expect(lessonReducer(s0, { type: 'select', square: 'f7' })).toBe(s0);
+    expect(lessonReducer(s0, { type: 'confirm' })).toBe(s0);
     expect(lessonReducer(s0, { type: 'skip' })).toBe(s0);
   });
   it('next en done no cambia nada', () => {

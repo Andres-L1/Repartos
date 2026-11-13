@@ -34,9 +34,11 @@ interface Props {
   onMove?: (from: string, to: string) => void;
   /** Se llama al tocar una casilla (también con el tablero no interactivo); no mueve piezas por sí sola. */
   onSelectSquare?: (sq: string) => void;
+  /** Casilla marcada (solo con onSelectSquare): se resalta con un círculo. */
+  selectedSquare?: string | null;
 }
 
-export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, plain = false, appearance, onMove, onSelectSquare }: Props) {
+export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, plain = false, appearance, onMove, onSelectSquare, selectedSquare }: Props) {
   const { equipped } = useSession();
   const el = useRef<HTMLDivElement>(null);
   const cg = useRef<Api | null>(null);
@@ -75,14 +77,15 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
       },
       events: { select: (k) => onSelectRef.current?.(k) },
       premovable: { enabled: false },
-      draggable: { showGhost: true },
+      draggable: wantsSelect && !interactive ? { enabled: false } : { showGhost: true },
       animation: { enabled: true, duration: 200 },
     });
   }, [fen, interactive, wantsSelect, orientation, lastMove?.[0], lastMove?.[1], nonce]);
 
-  const shapesKey = JSON.stringify(shapes);
+  const allShapes: DrawShape[] = selectedSquare && wantsSelect ? [...shapes, { orig: selectedSquare as Key, brush: 'yellow' }] : shapes;
+  const shapesKey = JSON.stringify(allShapes);
   useEffect(() => {
-    cg.current?.setAutoShapes(shapes);
+    cg.current?.setAutoShapes(allShapes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shapesKey, nonce]);
 

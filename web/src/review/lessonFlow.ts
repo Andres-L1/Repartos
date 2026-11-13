@@ -9,17 +9,19 @@ export interface LessonState {
   /** La lección tiene pausa comprobable; si no, el paso `pause` se salta. */
   hasPause: boolean;
   correctSquares: readonly string[];
+  /** Casilla marcada en la pausa; elegirla no responde, solo `confirm` lo hace. */
+  selected: string | null;
 }
 
-export type LessonAction = { type: 'next' } | { type: 'tap'; square: string } | { type: 'skip' };
+export type LessonAction = { type: 'next' } | { type: 'select'; square: string } | { type: 'confirm' } | { type: 'skip' };
 
 export function initLessonState(lesson: Pick<ErrorLesson, 'pause'>): LessonState {
-  return { step: 'look', pauseResult: null, hasPause: !!lesson.pause, correctSquares: lesson.pause?.correctSquares ?? [] };
+  return { step: 'look', pauseResult: null, hasPause: !!lesson.pause, correctSquares: lesson.pause?.correctSquares ?? [], selected: null };
 }
 
 const AFTER: Record<Exclude<LessonStep, 'done' | 'pause'>, LessonStep> = { look: 'pause', happened: 'why', why: 'best', best: 'done' };
 
-/** Reductor puro. En `pause` solo `tap` y `skip` avanzan (un solo intento); fuera de ella se ignoran. */
+/** Reductor puro. En `pause`, `select` solo marca (tocar la misma casilla la desmarca) y `confirm` responde (un solo intento); `skip` salta. Fuera de la pausa se ignoran. */
 export function lessonReducer(state: LessonState, action: LessonAction): LessonState {
   if (action.type === 'next') {
     if (state.step === 'done' || state.step === 'pause') return state;
@@ -28,5 +30,7 @@ export function lessonReducer(state: LessonState, action: LessonAction): LessonS
   }
   if (state.step !== 'pause') return state;
   if (action.type === 'skip') return { ...state, step: 'happened', pauseResult: 'skipped' };
-  return { ...state, step: 'happened', pauseResult: state.correctSquares.includes(action.square) ? 'correct' : 'wrong' };
+  if (action.type === 'select') return { ...state, selected: state.selected === action.square ? null : action.square };
+  if (!state.selected) return state;
+  return { ...state, step: 'happened', pauseResult: state.correctSquares.includes(state.selected) ? 'correct' : 'wrong' };
 }

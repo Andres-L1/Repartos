@@ -14,6 +14,9 @@
 .rl-text p { margin: 0; }
 .rl-question { font-size: 1.0625rem; font-weight: 600; }
 .rl-hint { color: var(--t-muted); font-size: 0.9375rem; }
+.rl-selected { font-weight: 700; }
+.rl-text:focus-visible { outline: 3px solid var(--t-focus); outline-offset: 4px; border-radius: var(--t-r-chip); }
+.rl-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .rl-feedback { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: var(--t-r-chip); font-weight: 600; }
 .rl-feedback .icon { flex: none; margin-top: 2px; }
 .rl-feedback.is-good { background: var(--t-ok-bg); color: var(--t-ok); }
