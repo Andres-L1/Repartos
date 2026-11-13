@@ -1,0 +1,71 @@
+{
+ "puzzles": [
+  {
+   "game": {
+    "pgn": "d4 d5 c4 e6 Nf3 Nf6 Nc3 Be7 Bg5 O-O e3 h6 Bh4 b6 cxd5 Nxd5 Bxe7 Qxe7 Bd3 Bb7 O-O Nd7 e4 Nxc3 bxc3 c5 Re1 cxd4 cxd4 Rfd8 Qe2 Rac8 Rad1 Nf6 Ba6 Bxa6 Qxa6 Rc7 h3 Qb4 d5 exd5 exd5 Rxd5"
+   },
+   "puzzle": {
+    "id": "AjiNP",
+    "initialPly": 43,
+    "solution": [
+     "d1d5",
+     "f6d5",
+     "e1e8",
+     "g8h7",
+     "a6d3",
+     "g7g6",
+     "d3d5"
+    ],
+    "rating": 1263,
+    "themes": [
+     "veryLong",
+     "fork",
+     "advantage",
+     "middlegame"
+    ]
+   }
+  },
+  {
+   "game": {
+    "pgn": "Nf3 Nf6 d4 g6 c4 Bg7 Nc3 d6 e4 O-O Be2 Bg4 O-O Nbd7 Be3 Bxf3 Bxf3 e5 Qd2 b6 Rfd1 Re8 d5 a5 b3 Nc5 Qc2 Qd7 a3 Ng4 b4 Nxe3 fxe3 Nb7 Ne2 Bh6 Qc3 f5 exf5 gxf5 e4 f4 Rdb1 axb4 axb4 Qg7 Nc1 Bg5 Nd3 h5 c5 bxc5 bxc5 Rxa1 Rxa1 h4 cxd6 Nxd6 Ra7 Bd8 Nc5 h3 Ne6 Rxe6 dxe6 hxg2 e7 Qxe7 Qb3+ Kf8 Qd5 Nc8 Ra5 c6 Qxe5 Bxa5 Qxf4+ Qf7 Qh6+ Ke8"
+   },
+   "puzzle": {
+    "id": "EH5pV",
+    "initialPly": 79,
+    "solution": [
+     "f3h5",
+     "a5b6",
+     "g1g2",
+     "f7h5",
+     "h6h5"
+    ],
+    "rating": 1392,
+    "themes": [
+     "long",
+     "pin",
+     "crushing",
+     "endgame"
+    ]
+   }
+  },
+  {
+   "game": {
+    "pgn": "e4 d6 d4 Nf6 Nc3 e5 Nf3 Nbd7 Bc4 Be7 O-O O-O h3 c6 a4 h6 Qe2 Qc7 Rd1 Re8 Be3 Bf8 a5 exd4 Nxd4 Nxe4 Nxe4 Rxe4 Qf3 d5 Bd3 Re8 Bxh6 gxh6 Qf5 Nf6 Qxf6 Qe5 Qh4 Bg7 Re1 Qxe1+ Rxe1 Rxe1+ Kh2 Be6 f4 Re3 Nxe6 Rxe6 f5 Be5+ g3 Rf6 Kg2 Re8 Qb4 b6 axb6 axb6 Qxb6 Rb8 Qe3 Bxb2 Qf4 Re8 g4 Be5 Qd2 Kf8 h4 Rd6 g5 hxg5 hxg5 Ke7 Kf3 Kd7 Qa5 Ke7 Qc7+ Kf8 Qa5 Bd4 Qb4 c5 Qb5 Re3+ Kg2 Rd8 f6 Kg8 Qc6 Re5 Kf3 Rxg5 Qc7 Re8 Qd7 Re3+ Kf4 Rge5 Qc8+ Re8 Qg4+ Kf8"
+   },
+   "puzzle": {
+    "id": "tw7oG",
+    "initialPly": 105,
+    "solution": [
+     "g4g7"
+    ],
+    "rating": 853,
+    "themes": [
+     "endgame",
+     "master",
+     "oneMove",
+     "mateIn1"
+    ]
+   }
+  }
+ ]
+}
