@@ -1,0 +1,116 @@
+/* Movimiento de Chedex Pulse: rápido, seguro y táctil (pocas cosas se mueven, y lo hacen a la vez y con intención).
+   Tokens únicos para toda la app. Solo se animan transform y opacity (y colores en hover), nunca medidas de caja.
+   Con «reducir movimiento» no hay desplazamientos ni rebotes: solo fundidos cortos (ver el final del archivo). */
+:root {
+  --m-dur-instant: 90ms;  /* pulsar, soltar */
+  --m-dur-fast: 140ms;    /* hover, foco, colores */
+  --m-dur-base: 200ms;    /* piezas del tablero, cambios de paso */
+  --m-dur-slow: 240ms;    /* entradas de pantalla */
+  --m-ease-out: cubic-bezier(0.16, 1, 0.3, 1);        /* sale rápido y frena suave */
+  --m-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --m-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* pequeño rebote: solo al seleccionar */
+  --m-stagger: 40ms;      /* separación entre elementos de una lista que entra */
+  --m-shift: 10px;        /* recorrido de una entrada */
+  --m-hover-lift: -1px;
+  --m-press-y: 2.5px;
+}
+
+@keyframes m-rise { from { opacity: 0; transform: translateY(var(--m-shift)); } to { opacity: 1; transform: none; } }
+@keyframes m-swap { from { opacity: 0; transform: translateX(calc(var(--m-shift) * 1.2)); } to { opacity: 1; transform: none; } }
+@keyframes m-pop { 0% { transform: scale(0.92); } 100% { transform: none; } }
+@keyframes m-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- Toque instantáneo: sin el retardo del doble toque ni el destello gris ---------- */
+:where(a, button, summary, label, [role='button'], [role='radio'], [role='tab'], .t-btn, .t-chip, .t-tab) {
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- Entradas: una sola coreografía por pantalla ----------
+   .main solo funde (sin desplazar) para no sumarse al escalonado de cada pantalla. */
+.main { animation: m-fade var(--m-dur-slow) var(--m-ease-out) both; }
+.m-enter { animation: m-rise var(--m-dur-slow) var(--m-ease-out) both; }
+/* Escalonado: hijos directos de las listas y rejillas de cada pantalla (mapa, partidas, informe, nivel). */
+:is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > * {
+  animation: m-rise var(--m-dur-slow) var(--m-ease-out) both;
+  animation-delay: calc(var(--m-i, 8) * var(--m-stagger));
+}
+:is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :nth-child(1) { --m-i: 0; }
+:is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :nth-child(2) { --m-i: 1; }
+:is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :nth-child(3) { --m-i: 2; }
+:is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :nth-child(4) { --m-i: 3; }
+:is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :nth-child(5) { --m-i: 4; }
+:is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :nth-child(6) { --m-i: 5; }
+:is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :nth-child(7) { --m-i: 6; }
+:is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :nth-child(8) { --m-i: 7; }
+
+/* Un tablero nunca se desplaza al entrar: chessground mide su posición y un transform pasajero desviaría los toques. */
+:is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :is(.step-board, .board-frame) { animation-name: m-fade; }
+
+/* Cambio de paso (fases de la lección, momentos de la mini lección): el contenido nuevo entra deslizando y fundiendo. */
+.m-swap, .lesson-body > .t-card { animation: m-swap var(--m-dur-base) var(--m-ease-out) both; }
+.m-pop { animation: m-pop var(--m-dur-base) var(--m-ease-spring) both; }
+
+/* ---------- Respuesta al hover, al pulsar y al foco (piezas táctiles) ---------- */
+/* Las transiciones de .t-btn, .t-chip y .t-tab usan estos tokens en tactile.css. */
+@media (hover: hover) {
+  .t-btn:not(.t-btn-ghost):hover:not(:disabled), .t-chip:hover, .t-tab:hover { transform: translateY(var(--m-hover-lift)); filter: brightness(1.06); }
+}
+.t-btn:active:not(:disabled):not(.t-btn-ghost), .t-chip:active, .t-tab:active { transform: translateY(var(--m-press-y)); filter: brightness(0.96); transition-duration: 40ms; }
+.t-chip:active { box-shadow: inset 0 1px 0 var(--t-edge), 0 1px 0 var(--t-socket), 0 2px 0 1px var(--t-ink); }
+
+/* Filas y tarjetas que se pulsan: suben un poco al pasar y se hunden al pulsar. */
+:is(.lesson-link:not(.is-locked), .lvl-card, .balance, .gv-move, .nav-link, .rv-row) {
+  transition: transform var(--m-dur-fast) var(--m-ease-out), background-color var(--m-dur-fast) var(--m-ease-out),
+    color var(--m-dur-fast) var(--m-ease-out), box-shadow var(--m-dur-fast) var(--m-ease-out), filter var(--m-dur-fast);
+}
+@media (hover: hover) {
+  :is(a.lesson-link, .lvl-card, .balance):hover { transform: translateY(var(--m-hover-lift)); filter: brightness(1.05); }
+}
+:is(a.lesson-link, .lvl-card, .balance, .gv-move, .nav-link):active { transform: translateY(2px) scale(0.995); transition-duration: 40ms; }
+/* Selección (opción elegida, momento actual): un único rebote corto. */
+.rl-dot.is-current, .gv-move[aria-current='step'] { animation: m-pop var(--m-dur-base) var(--m-ease-spring); }
+/* En una lista que entra, el rebote se suma a la entrada (sin reiniciarla al quitar la selección). */
+.lvl-grid > .lvl-card.is-selected {
+  animation: m-rise var(--m-dur-slow) var(--m-ease-out) both, m-pop var(--m-dur-base) var(--m-ease-spring);
+  animation-delay: calc(var(--m-i, 8) * var(--m-stagger)), 0s;
+}
+.rl-dot { transition: background-color var(--m-dur-base) var(--m-ease-out), color var(--m-dur-base) var(--m-ease-out), border-color var(--m-dur-base) var(--m-ease-out); }
+
+/* Progreso: el relleno avanza con la misma curva; el carril contiene el repintado. */
+.t-progress { contain: paint; }
+.rv-bar { transition: opacity var(--m-dur-fast); }
+
+/* Avisos de acierto o error y promoción: aparecen con un pop corto en vez de saltar. */
+.feedback-correct, .rl-feedback.is-good { animation: m-pop var(--m-dur-base) var(--m-ease-spring) both; }
+.rl-feedback.is-kind { animation: m-fade var(--m-dur-base) var(--m-ease-out) both; }
+
+/* ---------- Tablero ---------- */
+/* La pieza que se arrastra se «levanta»: algo más grande y con más sombra (scale no pisa el translate de chessground). */
+.board-cg cg-board piece.dragging { scale: 1.12; filter: drop-shadow(0 6px 6px rgb(0 0 0 / 0.45)); }
+.board-cg .cg-wrap piece.ghost, .board-cg cg-board piece.ghost { opacity: 0.35; }
+/* Jaque: un halo rojo suave en lugar del degradado intenso por defecto. */
+.board-cg cg-board square.check { background: radial-gradient(circle at center, rgb(255 70 60 / 0.75) 0%, rgb(230 40 30 / 0.45) 35%, rgb(200 0 0 / 0) 72%); }
+.board-cg cg-board square.last-move { transition: background-color var(--m-dur-base) var(--m-ease-out); }
+/* Tablero que se toca: el navegador puede desplazar la página si el dedo empieza lejos de las piezas;
+   al tocar una pieza (o con una elegida) chessground cancela el desplazamiento mientras dura el gesto. */
+.board-touch .board-cg { touch-action: manipulation; }
+
+/* ---------- Botón de sonido ---------- */
+.sound-toggle { gap: 0.4rem; }
+.sound-toggle[aria-pressed='false'] { color: var(--t-muted); }
+/* En móviles de 320-359 px la barra no cabe con el botón: el nombre de la marca queda para lectores (la ficha sigue visible). */
+@media (max-width: 359px) { .sidebar .brand-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+@media (max-width: 899px) { .sound-toggle-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } .sound-toggle { padding-inline: 0.5rem; min-width: 44px; } }
+
+/* ---------- Reducir movimiento: nada se desplaza ni rebota; quedan fundidos cortos ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root { --m-shift: 0px; --m-hover-lift: 0px; --m-press-y: 0px; --m-stagger: 0ms; }
+  .main, .m-enter, .m-swap, .m-pop, .lesson-body > .t-card,
+  :is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > *,
+  .feedback-correct, .rl-feedback.is-good, .rl-feedback.is-kind {
+    animation: m-fade 120ms linear both !important;
+  }
+  .rl-dot.is-current, .gv-move[aria-current='step'] { animation: none !important; }
+  .t-btn, .t-chip, .t-tab, :is(a.lesson-link, .lvl-card, .balance, .gv-move, .nav-link) { transform: none !important; }
+  .board-cg cg-board piece.dragging { scale: none; }
+}

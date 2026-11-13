@@ -6,6 +6,7 @@ import { SessionProvider } from './session';
 import './tactile.css';
 import './styles.css';
 import './shop.css';
+import './motion.css';
 
 applyLegacyRedirect();
 
