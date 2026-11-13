@@ -20,6 +20,13 @@ describe('router: rutas privadas', () => {
   });
 });
 
+describe('router: partidas', () => {
+  it('/partidas y sus subrutas son privadas', () => {
+    for (const p of ['/partidas', '/partidas/informe', '/partidas/repaso/3']) expect(isPrivatePath(p)).toBe(true);
+    expect(isPrivatePath('/partidasx')).toBe(false);
+  });
+});
+
 describe('router: redirección de URLs antiguas', () => {
   it('hash antiguo pasa a ruta limpia', () => {
     expect(legacyRedirect('/', '', '#/mapa')).toBe('/aprender');

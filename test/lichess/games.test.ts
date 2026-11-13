@@ -62,6 +62,11 @@ describe('toReviewGame', () => {
     expect(toReviewGame(game({ moves: 'e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O' }), 'alice')).toBeNull();
     expect(toReviewGame(game(), 'carol')).toBeNull();
   });
+  it('descarta partidas sin terminar (started, created, unknownFinish)', () => {
+    for (const status of ['started', 'created', 'unknownFinish'])
+      expect(toReviewGame(game({ status, winner: undefined }), 'alice')).toBeNull();
+    expect(toReviewGame(game({ status: 'draw', winner: undefined }), 'alice')?.result).toBe('draw');
+  });
   it('detecta el color sin distinguir mayúsculas y el resultado', () => {
     const w = toReviewGame(game(), 'ALICE')!;
     expect(w.color).toBe('white');

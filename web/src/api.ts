@@ -1,6 +1,8 @@
 import type {
   BillingMode,
   CompleteLessonBody,
+  CompleteReviewBody,
+  CompleteReviewResponse,
   Equipped,
   LessonProgress,
   MapUnit,
@@ -96,6 +98,8 @@ export const api = {
       `/api/lessons/${encodeURIComponent(id)}/complete`,
       b,
     ),
+  completeReview: (b: CompleteReviewBody): Promise<CompleteReviewResponse> =>
+    USE_MOCK ? Promise.resolve({ counted: true }) : request<CompleteReviewResponse>('POST', '/api/review/complete', b),
   placement: () => request<Placement>('GET', '/api/placement'),
   setPlacement: (mode: PlacementMode) => request<Placement>('POST', '/api/placement', { mode }),
   profile: () => request<{ profile: Profile }>('GET', '/api/profile'),

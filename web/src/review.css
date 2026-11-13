@@ -1,0 +1,22 @@
+/* Pantalla /partidas: tarjetas de estado y lista de partidas. */
+.rv-card { display: grid; gap: var(--s-3); max-width: 40rem; margin-inline: auto; min-width: 0; }
+.rv-card h1 { margin: 0; overflow-wrap: anywhere; }
+.rv-card p { margin: 0; overflow-wrap: anywhere; }
+.rv-icon { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: var(--t-graphite-2); color: var(--brand-dark); box-shadow: var(--t-sh-raise); }
+.rv-actions { display: flex; flex-wrap: wrap; gap: var(--s-3); padding-top: var(--s-2); }
+.rv-actions .t-btn { max-width: 100%; }
+.rv-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
+.rv-row { display: grid; gap: var(--s-2); padding: var(--s-3); border-radius: var(--r-md); background: var(--t-graphite-2); box-shadow: inset 0 0 0 1px var(--line); min-width: 0; }
+.rv-row-main { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+.rv-num { flex: none; display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--t-graphite-3); font-weight: 800; }
+.rv-row-text { display: grid; min-width: 0; flex: 1; }
+.rv-row-text > * { overflow-wrap: anywhere; }
+.rv-status { flex: none; display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--fs-sm); font-weight: 700; color: var(--muted); text-align: right; }
+.rv-ready .rv-status { color: var(--brand-dark); }
+.rv-busy .rv-status { color: var(--ink); }
+.rv-row .t-btn { justify-self: start; margin-bottom: 0; max-width: 100%; }
+.rv-bar { width: 100%; height: 8px; accent-color: var(--brand); }
+@media (max-width: 420px) {
+  .rv-row-main { flex-wrap: wrap; }
+  .rv-status { margin-left: calc(32px + var(--s-3)); text-align: left; }
+}

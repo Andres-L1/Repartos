@@ -1,7 +1,7 @@
 import type { LichessGame, ReviewGame } from '../review/types.js';
 
 const MIN_PLIES = 10;
-const BAD_STATUS = new Set(['aborted', 'noStart']);
+const BAD_STATUS = new Set(['aborted', 'noStart', 'started', 'created', 'unknownFinish']);
 
 export function isValidUsername(u: string): boolean {
   return /^[A-Za-z0-9_-]{2,30}$/.test(u);

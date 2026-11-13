@@ -10,6 +10,7 @@ import { MapScreen } from './screens/MapScreen';
 import { LessonScreen } from './screens/LessonScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { BillingScreen } from './screens/BillingScreen';
+import { ReviewScreen } from './screens/ReviewScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
 import { ShopScreen } from './screens/ShopScreen';
 import { CreditsScreen } from './screens/CreditsScreen';
@@ -44,6 +45,7 @@ export function App() {
   else if (path === '/entrar') screen = <AuthScreen />;
   else if (path === '/aprender') screen = <MapScreen />;
   else if (path.startsWith('/leccion/')) screen = <LessonScreen id={decodeURIComponent(path.slice('/leccion/'.length))} />;
+  else if (path === '/partidas' || path.startsWith('/partidas/repaso/')) screen = <ReviewScreen path={path} />;
   else if (path === '/perfil') screen = <ProfileScreen />;
   else if (path === '/bienvenida') screen = <WelcomeScreen />;
   else if (path === '/suscripcion') screen = <BillingScreen />;
@@ -93,6 +95,7 @@ export function App() {
             {brand}
             <nav className="nav side-nav" aria-label="Principal">
               {link('/aprender', 'Aprender', 'learn')}
+              {link('/partidas', 'Partidas', 'eye')}
               {link('/tienda', 'Tienda', 'shop')}
               {link('/perfil', 'Perfil', 'user')}
               {billingMode === 'dev' && link('/suscripcion', 'Suscripción', 'card')}
