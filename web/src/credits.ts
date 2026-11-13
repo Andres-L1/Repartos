@@ -39,6 +39,13 @@ export const LIBRARIES: Library[] = [
     use: 'El juego de piezas clásicas, incluido en chessground.',
   },
   {
+    name: 'Sonidos «sfx» de Lichess',
+    author: 'Enigmahack',
+    license: 'AGPL-3.0-or-later',
+    url: 'https://github.com/lichess-org/lila/tree/master/public/sound/sfx',
+    use: 'Los sonidos al mover, capturar, dar jaque, acertar y terminar una lección.',
+  },
+  {
     name: 'DM Sans',
     author: 'The DM Sans Project Authors',
     license: 'SIL Open Font License 1.1',

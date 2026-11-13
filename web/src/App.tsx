@@ -17,6 +17,7 @@ import { CreditsScreen } from './screens/CreditsScreen';
 import { Coin } from './components/ShopVisuals';
 import { chedexText } from './shop';
 import { Icon, Loading, type IconName } from './components/Icon';
+import { SoundToggle } from './components/SoundToggle';
 
 export function App() {
   const path = usePath();
@@ -123,6 +124,7 @@ export function App() {
                   <span className="whoami-sub">Cuenta de Lichess</span>
                 </span>
               </span>
+              <SoundToggle />
               <button className="t-btn t-btn-ghost t-btn-sm" onClick={() => void logout()}>
                 Salir
               </button>

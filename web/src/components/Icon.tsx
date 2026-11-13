@@ -109,6 +109,18 @@ const PATHS: Record<string, ReactNode> = {
   prev: <path d="M17.5 5.5v13L7.5 12z" />,
   next: <path d="M6.5 5.5v13l10-6.5z" />,
   flag: <path d="M6 21V4M6 5h11l-2.5 3.5L17 12H6" />,
+  soundOn: (
+    <>
+      <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" />
+      <path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" />
+    </>
+  ),
+  soundOff: (
+    <>
+      <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" />
+      <path d="M16 9.5l5 5M21 9.5l-5 5" />
+    </>
+  ),
 };
 
 export type IconName = keyof typeof PATHS;
