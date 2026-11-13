@@ -90,7 +90,7 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
   }, [shapesKey, nonce]);
 
   return (
-    <div className={`board-frame ${appearance ?? appearanceClass(plain ? null : equipped)}`} role="group" aria-label={label}>
+    <div className={`board-frame ${appearance ?? appearanceClass(plain ? null : equipped)}${interactive || wantsSelect ? ' board-touch' : ''}`} role="group" aria-label={label}>
       <div className="board-square">
         <div ref={el} className="board-cg" />
       </div>

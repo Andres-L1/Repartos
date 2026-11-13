@@ -159,7 +159,9 @@ a { text-underline-offset: 3px; }
   }
   .side-nav .nav-link { flex-direction: column; gap: 2px; font-size: 0.8rem; padding: 0.35rem 0.5rem; min-height: 54px; min-width: 64px; justify-content: center; flex: 1; max-width: 140px; }
   .side-nav .nav-link.active::before { content: ''; position: absolute; left: 30%; right: 30%; top: 0; height: 3px; border-radius: 3px; background: var(--brand); }
-  .main-shell { padding-bottom: 6.5rem; }
+  /* .main.main-shell: .main (más abajo) redefine el padding y anulaba este hueco para la barra inferior. */
+  :root { --bottom-nav: calc(64px + env(safe-area-inset-bottom)); }
+  .main.main-shell { padding-bottom: calc(var(--bottom-nav) + var(--s-6)); }
 }
 @media (max-width: 479px) {
   .topbar .chip-beta { display: none; }
@@ -245,6 +247,8 @@ fieldset { border: 0; padding: 0; margin: var(--s-4) 0; min-width: 0; }
   background-size: 25% 25%;
   box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15), 0 0 0 2px #000, 0 6px 0 2px var(--t-socket), 0 16px 26px -8px rgb(0 0 0 / 0.75);
 }
+/* Tablero que se toca (mover o elegir casilla): el gesto no desplaza la página ni dispara «tirar para recargar». */
+.board-touch .board-cg { touch-action: none; overscroll-behavior: contain; -webkit-tap-highlight-color: transparent; }
 .board-cg cg-board square.last-move { background-color: var(--sq-last); }
 .board-cg cg-board square.selected { background-color: var(--sq-sel); }
 .board-cg cg-board piece { filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.3)); }
