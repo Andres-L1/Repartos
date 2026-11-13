@@ -4,8 +4,8 @@ import { makeFen } from 'chessops/fen';
 import { makeSquare, parseSquare } from 'chessops/util';
 import { loadPosition, playLine } from '../../src/diagnosis/chess-utils.js';
 import { diagnose } from '../../src/diagnosis/index.js';
-import { buildErrorLesson, type ErrorLesson } from '../../src/pedagogy/error-lesson.js';
-import { HAPPENED, lossInPieces, ruleFor } from '../../src/pedagogy/review-copy.js';
+import { buildErrorLesson, describeMove, type ErrorLesson } from '../../src/pedagogy/error-lesson.js';
+import { HAPPENED, lossInPieces, ruleFor, youMove, youMoved } from '../../src/pedagogy/review-copy.js';
 import type { KeyError } from '../../src/review/types.js';
 import type { AnalyzedMove, Level, Score } from '../../src/types.js';
 
@@ -428,12 +428,12 @@ describe('qué pasó: texto exacto en los casos reales', () => {
     [C.exchangeIgnored, 'En g5 entregas tu alfil y solo recibes un peón.'],
     [C.exchangeMovedInto, 'En g5 entregas tu alfil y solo recibes un peón.'],
     [C.fork, 'El caballo rival va a f3 y ataca a la vez a tu rey en g1 y a tu dama en d2.'],
-    [C.pinKing, 'Tu caballo en c3 no puede moverse porque dejaría a tu rey en jaque del alfil rival en a5, así que el rival aprovecha para ganarlo.'],
-    [C.pinQueen, 'Si tu caballo en d4 se mueve, la torre rival en d8 ataca a tu dama en d1, así que no puede escapar y el rival lo gana.'],
-    [C.mateAllowed1, 'Después de g4, la dama rival da jaque mate en h4.'],
-    [C.mateAllowed2, 'Después de Re4, el rival tiene una serie de jaques que acaba en jaque mate, con la torre rival en e1.'],
-    [C.mateMissed1, 'Con tu torre de e1 podías dar jaque mate en e8, y en su lugar jugaste h3.'],
-    [C.mateMissed2, 'Moviendo tu torre de a2 empezabas una serie de jaques que acababa en jaque mate, y en su lugar jugaste h3.'],
+    [C.pinKing, 'Tu caballo en c3 no puede moverse, porque tu rey quedaría en jaque por el alfil rival en a5, y el rival acaba ganando tu caballo.'],
+    [C.pinQueen, 'Tu caballo en d4 no debe moverse, porque dejaría a tu dama en d1 atacada por la torre rival en d8, y el rival acaba ganando tu caballo.'],
+    [C.mateAllowed1, 'Moviste el peón a g4 y la dama rival da jaque mate en h4.'],
+    [C.mateAllowed2, 'Moviste la torre a e4 (Re4) y el rival tiene una serie de jaques que acaba en jaque mate, con la torre rival en e1.'],
+    [C.mateMissed1, 'Con tu torre de e1 podías dar jaque mate en e8, y en su lugar moviste el peón a h3.'],
+    [C.mateMissed2, 'Moviendo tu torre de a2 empezabas una serie de jaques que acababa en jaque mate, y en su lugar moviste el peón a h3.'],
     [C.discoveredCheck, 'El caballo rival se mueve de e5 a c6 y deja a la dama rival en e2 dando jaque a tu rey; al final pierdes más que una torre.'],
     [C.discoveredQueen, 'El caballo rival se mueve de d4 a b5 y deja a la torre rival en d1 atacando a tu dama en d8; al final pierdes algo más que un alfil o un caballo.'],
   ];
@@ -494,11 +494,11 @@ describe('qué pasó: concordancia de género y número por pieza', () => {
   });
 
   it('clavada y horquilla con piezas femeninas', () => {
-    expect(HAPPENED.pinKing('rook', 'e4', 'queen', 'e7')).toBe(
-      'Tu torre en e4 no puede moverse porque dejaría a tu rey en jaque de la dama rival en e7, así que el rival aprovecha para ganarla.',
+    expect(HAPPENED.pinKing('rook', 'e4', 'queen', 'e7', false)).toBe(
+      'Tu torre en e4 no puede moverse, porque tu rey quedaría en jaque por la dama rival en e7.',
     );
-    expect(HAPPENED.pinPiece('bishop', 'd4', 'rook', 'd8', 'queen', 'd1')).toBe(
-      'Si tu alfil en d4 se mueve, la torre rival en d8 ataca a tu dama en d1, así que no puede escapar y el rival lo gana.',
+    expect(HAPPENED.pinPiece('bishop', 'd4', 'rook', 'd8', 'queen', 'd1', true)).toBe(
+      'Tu alfil en d4 no debe moverse, porque dejaría a tu dama en d1 atacada por la torre rival en d8, y el rival acaba ganando tu alfil.',
     );
     expect(HAPPENED.fork('queen', 'e4', [{ role: 'rook', square: 'a8' }, { role: 'king', square: 'h7' }])).toBe(
       'La dama rival va a e4 y ataca a la vez a tu torre en a8 y a tu rey en h7.',
@@ -649,5 +649,73 @@ describe('pausa: la respuesta es la única correcta', () => {
     const err = keyError(C.mateMissed2);
     expect(err.diagnosis.type).toBe('mate_threat');
     expect(buildErrorLesson(err, 'beginner').pause).toBeUndefined();
+  });
+});
+
+describe('jugadas dichas con palabras (la notación solo entre paréntesis)', () => {
+  it('describeMove: mover, capturar, enrocar, coronar y avance de peón', () => {
+    expect(describeMove('4k3/4n3/8/8/8/8/8/3QK3 w - - 0 1', 'd1d5', 'Qd5')).toEqual({
+      inf: 'mover la dama a d5',
+      you: 'mueves la dama a d5',
+      past: 'moviste la dama a d5',
+      san: 'Qd5',
+    });
+    expect(youMove(describeMove('4k3/8/3p4/4p3/8/8/8/4RK2 w - - 0 1', 'e1e5', 'Rxe5+'))).toBe(
+      'capturas el peón de e5 con la torre (Rxe5+)',
+    );
+    expect(describeMove('4k3/8/8/8/8/8/8/4K2R w K - 0 1', 'e1g1', 'O-O').inf).toBe('enrocar corto');
+    expect(describeMove('4k3/8/8/8/8/8/8/R3K3 w Q - 0 1', 'e1c1', 'O-O-O').inf).toBe('enrocar largo');
+    expect(describeMove('8/4P3/8/8/8/8/8/k3K3 w - - 0 1', 'e7e8q', 'e8=Q').inf).toBe('coronar el peón en e8');
+    // Un avance de peón sin jaque no repite la casilla entre paréntesis.
+    expect(youMoved(describeMove(C.mateAllowed1.fen, 'g2g4', 'g4'))).toBe('moviste el peón a g4');
+  });
+
+  it('ninguna pausa, «qué pasó» ni «qué debías hacer» muestra una jugada solo en notación', () => {
+    for (const c of ALL) {
+      const l = lesson(c);
+      expect(l.pause?.question ?? 'Si mueves', c.name).not.toMatch(/Si juegas|jugaste|Después de [A-Z]/);
+      expect(l.happened.text, c.name).not.toMatch(/jugaste|Después de [A-Z]/);
+      // La notación de la jugada mejor, si aparece, va entre paréntesis tras las palabras.
+      expect(l.best.text, c.name).toMatch(/^Una jugada mejor era (mover|capturar|enrocar|coronar) /);
+    }
+  });
+
+  it('textos exactos de pausa y jugada mejor', () => {
+    expect(lesson(C.hangingMoved).pause?.question).toBe(
+      'Si mueves la dama a d5 (Qd5), ¿qué pieza rival puede comerse gratis tu dama en d5?',
+    );
+    expect(lesson(C.hangingStill).pause?.question).toBe(
+      'Si mueves la torre a b1 (Rb1), ¿qué pieza tuya puede comerse gratis el rival?',
+    );
+    expect(lesson(C.hangingMoved).best.text).toBe('Una jugada mejor era mover la dama a d7 (Qd7+).');
+    expect(lesson(C.mateMissed1).best.text).toBe('Una jugada mejor era mover la torre a e8, que daba jaque mate y ganaba la partida (Re8#).');
+    expect(lesson(C.mateMissed2).best.text).toBe(
+      'Una jugada mejor era mover la torre a a8 (Ra8), que empezaba una serie de jaques que terminaba en jaque mate.',
+    );
+  });
+});
+
+describe('qué pasó: texto de reserva', () => {
+  it('sin piezas en la evidencia nombra la jugada y la casilla clave', () => {
+    const err = keyError(C.hangingMoved);
+    const broken: KeyError = { ...err, diagnosis: { ...err.diagnosis, evidence: { ...err.diagnosis.evidence, pieces: [] } } };
+    expect(buildErrorLesson(broken, 'beginner').happened.text).toBe('Moviste la dama a d5 (Qd5) y tu rival sale ganando en d5.');
+  });
+
+  it('sin casillas solo nombra la jugada', () => {
+    const err = keyError(C.fork);
+    const broken: KeyError = { ...err, diagnosis: { ...err.diagnosis, evidence: { ...err.diagnosis.evidence, squares: [] } } };
+    expect(buildErrorLesson(broken, 'beginner').happened.text).toBe('Moviste el peón a g3 y tu rival sale ganando.');
+  });
+
+  it('clavada sin pérdida verificada: no afirma que el rival gane la pieza', () => {
+    const err = keyError(C.pinKing);
+    const unverified: KeyError = {
+      ...err,
+      diagnosis: { ...err.diagnosis, evidence: { ...err.diagnosis.evidence, materialLostCp: undefined } },
+    };
+    expect(buildErrorLesson(unverified, 'beginner').happened.text).toBe(
+      'Tu caballo en c3 no puede moverse, porque tu rey quedaría en jaque por el alfil rival en a5.',
+    );
   });
 });

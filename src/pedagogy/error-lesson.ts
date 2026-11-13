@@ -5,8 +5,8 @@ import { makeSquare, parseSquare } from 'chessops/util';
 import { VALUE, canCaptureOn, findPins, loadPosition, playLine, replayAsThreat, type Step } from '../diagnosis/chess-utils.js';
 import type { KeyError } from '../review/types.js';
 import type { Level } from '../types.js';
-import { sanIn } from './explain.js';
-import { BEST, HAPPENED, PAUSE, lossInPieces, ruleFor, whyFor } from './review-copy.js';
+import { sanIn, withArticle } from './explain.js';
+import { BEST, HAPPENED, PAUSE, lossInPieces, ruleFor, whyFor, type MoveWords } from './review-copy.js';
 
 export interface LessonArrow {
   from: string;
@@ -34,6 +34,40 @@ export interface ErrorLesson {
 }
 
 type Pause = ErrorLesson['pause'];
+
+/**
+ * La jugada `uci` (desde `fen`) dicha con palabras: «mover la dama a d5», «capturar el peón de e5 con la
+ * torre», «enrocar corto», «coronar el peón en e8». La notación de Lichess va aparte, entre paréntesis.
+ */
+export function describeMove(fen: string, uci: string, san: string): MoveWords {
+  const plain: MoveWords = { inf: `jugar ${san}`, you: `juegas ${san}`, past: `jugaste ${san}` };
+  const pos = loadPosition(fen);
+  const from = parseSquare(uci.slice(0, 2));
+  const to = parseSquare(uci.slice(2, 4));
+  if (!pos || from === undefined || to === undefined) return plain;
+  const piece = pos.board.get(from);
+  if (!piece) return plain;
+  const target = pos.board.get(to);
+  const dest = makeSquare(to);
+  const words = (inf: string, you: string, past: string, obj: string): MoveWords => ({
+    inf: `${inf} ${obj}`,
+    you: `${you} ${obj}`,
+    past: `${past} ${obj}`,
+    san,
+  });
+  if (piece.role === 'king' && (Math.abs((to & 7) - (from & 7)) >= 2 || target?.color === piece.color)) {
+    const side = (to & 7) > (from & 7) ? 'corto' : 'largo';
+    return words('enrocar', 'enrocas', 'enrocaste', side);
+  }
+  if (uci.length > 4) return words('coronar', 'coronas', 'coronaste', `el peón en ${dest}`);
+  if (target && target.color !== piece.color) {
+    return words('capturar', 'capturas', 'capturaste', `${withArticle(target.role)} de ${dest} con ${withArticle(piece.role)}`);
+  }
+  if (piece.role === 'pawn' && (from & 7) !== (to & 7)) return words('capturar', 'capturas', 'capturaste', `al paso con el peón en ${dest}`);
+  const w = words('mover', 'mueves', 'moviste', `${withArticle(piece.role)} a ${dest}`);
+  // Un avance de peón sin jaque («g4») repetiría la casilla: «mover el peón a g4 (g4)».
+  return san === dest ? { ...w, san: undefined } : w;
+}
 
 const arrow = (uci: string, tone: LessonArrow['tone']): LessonArrow => ({ from: uci.slice(0, 2), to: uci.slice(2, 4), tone });
 
@@ -183,7 +217,7 @@ function buildPause(err: KeyError, pos0: Chess | null, pos1: Chess | null): Paus
   const { move, diagnosis: d } = err;
   const sq = d.evidence.squares;
   const pc = d.evidence.pieces;
-  const san = move.san;
+  const w = describeMove(move.fenBefore, move.uci, move.san);
   const from = move.uci.slice(0, 2);
   const dest = move.uci.slice(2, 4);
   const mine = (square: string, role?: string) => {
@@ -200,10 +234,10 @@ function buildPause(err: KeyError, pos0: Chess | null, pos1: Chess | null): Paus
       if (dest === victim) {
         // La pieza colgada es la que acaba de moverse: ¿quién se la come? (una sola pieza rival puede)
         if (!onlyIn(capturersOn(pos1, victim), attacker)) return undefined;
-        return { question: PAUSE.hangingMoved(san, role, victim), correctSquares: [attacker] };
+        return { question: PAUSE.hangingMoved(w, role, victim), correctSquares: [attacker] };
       }
       if (!mine(victim, role) || !onlyIn(freeCaptures(pos1), victim)) return undefined;
-      return { question: PAUSE.hangingStill(san), correctSquares: [victim] };
+      return { question: PAUSE.hangingStill(w), correctSquares: [victim] };
     }
     case 'bad_exchange': {
       const [square, first] = sq;
@@ -213,17 +247,17 @@ function buildPause(err: KeyError, pos0: Chess | null, pos1: Chess | null): Paus
       if (dest === square) {
         const role = pieceAt(pos1, square)?.role;
         if (!role || !onlyIn(capturersOn(pos1, square), first)) return undefined;
-        return { question: PAUSE.exchangeMoved(san, role, square), correctSquares: [first] };
+        return { question: PAUSE.exchangeMoved(w, role, square), correctSquares: [first] };
       }
       // La pieza ya estaba ahí: debe ser la única pieza tuya que el rival captura saliendo ganando.
       if (!mine(square) || !onlyIn(winningCaptures(pos1), square)) return undefined;
-      return { question: PAUSE.exchangeStill(san), correctSquares: [square] };
+      return { question: PAUSE.exchangeStill(w), correctSquares: [square] };
     }
     case 'fork': {
       const [forkSquare] = sq;
       const forker = pc[0] as Role | undefined;
       if (!forkSquare || !forker || !onlyIn(forkSquares(pos1, forker), forkSquare)) return undefined;
-      return { question: PAUSE.fork(san, forker), correctSquares: [forkSquare] };
+      return { question: PAUSE.fork(w, forker), correctSquares: [forkSquare] };
     }
     case 'pin': {
       const [pinner, pinned, behind] = sq;
@@ -235,7 +269,7 @@ function buildPause(err: KeyError, pos0: Chess | null, pos1: Chess | null): Paus
       const same = pins.some((p) => makeSquare(p.pinner) === pinner && makeSquare(p.pinned) === pinned && makeSquare(p.behind) === behind);
       const pinnedSquares = new Set(pins.map((p) => p.pinned));
       if (!same || pinnedSquares.size !== 1 || !mine(pinned, pinnedRole)) return undefined;
-      return { question: PAUSE.pin(san, behindRole), correctSquares: [pinned] };
+      return { question: PAUSE.pin(w, behindRole), correctSquares: [pinned] };
     }
     case 'mate_threat': {
       const [mFrom, mTo] = sq;
@@ -250,7 +284,7 @@ function buildPause(err: KeyError, pos0: Chess | null, pos1: Chess | null): Paus
       // Mate del rival en una jugada (la jugada de mate es la refutación) y única casilla de mate de esa pieza.
       const mater = pc[0] as Role | undefined;
       if (!mater || !ref.startsWith(mFrom + mTo) || !onlyIn(matingMoves(pos1, 'to', mater), mTo)) return undefined;
-      return { question: PAUSE.mateAllowed(san, mater), correctSquares: [mTo] };
+      return { question: PAUSE.mateAllowed(w, mater), correctSquares: [mTo] };
     }
     case 'discovered_attack': {
       const [, blocker, , target] = sq;
@@ -258,7 +292,7 @@ function buildPause(err: KeyError, pos0: Chess | null, pos1: Chess | null): Paus
       const t = target ? parseSquare(target) : undefined;
       if (!blocker || !target || t === undefined || !targetRole) return undefined;
       if (!onlyIn(discoveryBlockers(pos1, t), blocker)) return undefined;
-      return { question: PAUSE.discovered(san, targetRole, target), correctSquares: [blocker] };
+      return { question: PAUSE.discovered(w, targetRole, target), correctSquares: [blocker] };
     }
     default:
       return undefined;
@@ -282,7 +316,9 @@ function happenedText(err: KeyError, pos0: Chess | null, pos1: Chess | null): st
   const { move, diagnosis: d } = err;
   const sq = d.evidence.squares;
   const pc = d.evidence.pieces;
-  const fallback = whyFor('');
+  const w = describeMove(move.fenBefore, move.uci, move.san);
+  const fallback = HAPPENED.fallback(w, sq[0]);
+  const wins = !!d.evidence.refutationUci && (d.evidence.materialLostCp ?? 0) > 0;
   switch (d.type) {
     case 'hanging_piece': {
       const [victim, attacker] = sq;
@@ -317,8 +353,8 @@ function happenedText(err: KeyError, pos0: Chess | null, pos1: Chess | null): st
       const [pinnerRole, pinnedRole, behindRole] = pc;
       if (!pinner || !pinned || !behind || !pinnerRole || !pinnedRole || !behindRole) return fallback;
       return behindRole === 'king'
-        ? HAPPENED.pinKing(pinnedRole, pinned, pinnerRole, pinner)
-        : HAPPENED.pinPiece(pinnedRole, pinned, pinnerRole, pinner, behindRole, behind);
+        ? HAPPENED.pinKing(pinnedRole, pinned, pinnerRole, pinner, wins)
+        : HAPPENED.pinPiece(pinnedRole, pinned, pinnerRole, pinner, behindRole, behind, wins);
     }
     case 'mate_threat': {
       const [mFrom, mTo] = sq;
@@ -327,9 +363,9 @@ function happenedText(err: KeyError, pos0: Chess | null, pos1: Chess | null): st
       if (!mFrom || !mTo || !role || !ref) return fallback;
       if (isOwnMove(err)) {
         const mate1 = !!pos0 && !!playLine(pos0, [ref], 1)[0]?.pos.isCheckmate();
-        return mate1 ? HAPPENED.mateMissed1(role, mFrom, mTo, move.san) : HAPPENED.mateMissedN(role, mFrom, move.san);
+        return mate1 ? HAPPENED.mateMissed1(role, mFrom, mTo, w) : HAPPENED.mateMissedN(role, mFrom, w);
       }
-      return ref.startsWith(mFrom + mTo) ? HAPPENED.mateAllowed1(move.san, role, mTo) : HAPPENED.mateAllowedN(move.san, role, mTo);
+      return ref.startsWith(mFrom + mTo) ? HAPPENED.mateAllowed1(w, role, mTo) : HAPPENED.mateAllowedN(w, role, mTo);
     }
     case 'discovered_attack': {
       const [slider, from, to, target] = sq;
@@ -376,7 +412,8 @@ export function buildErrorLesson(err: KeyError, _level: Level): ErrorLesson {
   const bestSan = sanIn(move.fenBefore, move.bestUci) ?? move.bestSan;
   const ref = d.evidence.refutationUci;
   const missedMate = d.type === 'mate_threat' && ref === move.bestUci;
-  const bestText = bestSan.endsWith('#') ? BEST.mate1(bestSan) : missedMate ? BEST.mateN(bestSan) : BEST.plain(bestSan);
+  const bw = describeMove(move.fenBefore, move.bestUci, bestSan);
+  const bestText = bestSan.endsWith('#') ? BEST.mate1(bw) : missedMate ? BEST.mateN(bw) : BEST.plain(bw);
 
   const arrows: LessonArrow[] = [arrow(move.uci, 'bad')];
   // La jugada del rival que castiga el error (si es suya: en un mate desaprovechado es la jugada mejor).

@@ -26,12 +26,12 @@ export function withArticle(p: string): string {
   return e ? `${e.article} ${e.name}` : p;
 }
 
-function joinList(items: string[]): string {
+export function joinList(items: string[]): string {
   if (items.length <= 1) return items.join('');
   return `${items.slice(0, -1).join(', ')} y ${items[items.length - 1]}`;
 }
 
-function capitalize(s: string): string {
+export function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
