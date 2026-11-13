@@ -9,7 +9,7 @@ import { useSession } from '../session';
  */
 export function LichessLogin({ large = false, small = false }: { large?: boolean; small?: boolean }) {
   const { setSession } = useSession();
-  const cls = `btn btn-primary${large ? ' btn-large' : ''}${small ? ' btn-small' : ''}`;
+  const cls = `t-btn t-btn-primary${large ? ' t-btn-lg' : ''}${small ? ' t-btn-sm' : ''}`;
   async function mock(e: React.MouseEvent) {
     e.preventDefault();
     try {
@@ -40,10 +40,10 @@ export function AuthScreen() {
   }, []);
   if (user) {
     return (
-      <div className="auth card">
+      <div className="auth t-card">
         <h1>Ya has entrado</h1>
         <p>Sesión iniciada como {user.username}.</p>
-        <button className="btn btn-primary" onClick={() => navigate('/aprender')}>
+        <button className="t-btn t-btn-primary" onClick={() => navigate('/aprender')}>
           Ir a la ruta
         </button>
       </div>
@@ -51,10 +51,10 @@ export function AuthScreen() {
   }
   return (
     <div className="auth">
-      <section className="card form" aria-labelledby="auth-title">
+      <section className="t-card form" aria-labelledby="auth-title">
         <h1 id="auth-title">Entra en Chedex Pulse</h1>
         {failed && (
-          <p className="form-error" role="alert">
+          <p className="t-alert t-alert-bad" role="alert">
             No se pudo completar el acceso con Lichess. Inténtalo de nuevo.
           </p>
         )}

@@ -20,10 +20,18 @@ export const STREAK_DAYS_PER_CHEDEX = 5;
 /** Máximo de protectores de racha guardados a la vez. */
 export const PROTECTOR_MAX = 2;
 export const PROTECTOR_ID = 'protector';
-export const DEFAULT_PIECES = 'cburnett';
-export const DEFAULT_BOARD = 'clasico';
+export const DEFAULT_PIECES = 'contorno';
+export const DEFAULT_BOARD = 'noche';
 
 export const CATALOG: CatalogItem[] = [
+  {
+    id: 'contorno',
+    kind: 'pieces',
+    name: 'Contorno',
+    description: 'Piezas clásicas con contorno naranja, hechas para Chedex.',
+    price: 0,
+    credit: 'Chedex, material propio',
+  },
   {
     id: 'cburnett',
     kind: 'pieces',
@@ -40,6 +48,7 @@ export const CATALOG: CatalogItem[] = [
     price: 3,
     credit: 'Chedex, material propio',
   },
+  { id: 'noche', kind: 'board', name: 'Noche', description: 'Pizarra oscura con marco: el aspecto de Chedex.', price: 0, credit: 'Chedex, material propio' },
   { id: 'clasico', kind: 'board', name: 'Clásico', description: 'Madera clara y oscura.', price: 0, credit: 'Chedex, material propio' },
   { id: 'pizarra', kind: 'board', name: 'Pizarra', description: 'Grises azulados, para concentrarse.', price: 2, credit: 'Chedex, material propio' },
   { id: 'bosque', kind: 'board', name: 'Bosque', description: 'Verde profundo y marfil.', price: 2, credit: 'Chedex, material propio' },

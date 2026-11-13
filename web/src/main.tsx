@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { applyLegacyRedirect } from './router';
 import { SessionProvider } from './session';
+import './tactile.css';
 import './styles.css';
 import './shop.css';
 

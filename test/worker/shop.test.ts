@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createApp } from '../../worker/app.js';
 import { devBilling } from '../../worker/billing.js';
 import { base64url } from '../../worker/auth.js';
-import { CATALOG, PROTECTOR_MAX, STREAK_DAYS_PER_CHEDEX, getItem } from '../../src/shop/catalog.js';
+import { CATALOG, DEFAULT_BOARD, DEFAULT_PIECES, PROTECTOR_MAX, STREAK_DAYS_PER_CHEDEX, getItem } from '../../src/shop/catalog.js';
 import type { Lesson, Unit } from '../../src/content/schema.js';
 import { openTestDb } from './sqlite-db.js';
 
@@ -273,7 +273,7 @@ describe('compras', () => {
     s.grant('ana', 20);
     expect((await u.buy('pizarra')).status).toBe(200);
     expect((await u.buy('pizarra')).status).toBe(400);
-    expect((await u.buy('cburnett')).status).toBe(400); // gratis
+    for (const id of ['cburnett', 'clasico', 'contorno', 'noche']) expect((await u.buy(id)).status).toBe(400); // gratis
     expect((await u.shop()).balance).toBe(20 - getItem('pizarra')!.price);
   });
 
@@ -314,7 +314,7 @@ describe('compras', () => {
     const u = await s.client('ana');
     const sh = await u.shop();
     expect(sh.items.map((i: any) => [i.id, i.price, i.free])).toEqual(CATALOG.map((i) => [i.id, i.price, i.price === 0]));
-    expect(sh.items.filter((i: any) => i.owned).map((i: any) => i.id).sort()).toEqual(['cburnett', 'clasico']);
+    expect(sh.items.filter((i: any) => i.owned).map((i: any) => i.id).sort()).toEqual(['cburnett', 'clasico', 'contorno', 'noche']);
   });
 });
 
@@ -322,8 +322,8 @@ describe('equipar y /api/me', () => {
   it('usuario nuevo: equipado por defecto, saldo 0, 0 protectores (sin filas)', async () => {
     const s = setup();
     const u = await s.client('ana');
-    expect(await u.shop()).toMatchObject({ balance: 0, earnedTotal: 0, protectors: { count: 0, max: PROTECTOR_MAX }, equipped: { pieces: 'cburnett', board: 'clasico' } });
-    expect((await u.req('GET', '/api/me')).json.equipped).toEqual({ pieces: 'cburnett', board: 'clasico' });
+    expect(await u.shop()).toMatchObject({ balance: 0, earnedTotal: 0, protectors: { count: 0, max: PROTECTOR_MAX }, equipped: { pieces: 'contorno', board: 'noche' } });
+    expect((await u.req('GET', '/api/me')).json.equipped).toEqual({ pieces: 'contorno', board: 'noche' });
   });
 
   it('equipar lo poseído funciona y /api/me lo refleja; lo no poseído da 400', async () => {
@@ -334,10 +334,10 @@ describe('equipar y /api/me', () => {
     await u.buy('pizarra');
     const r = await u.equip('board', 'pizarra');
     expect(r.status).toBe(200);
-    expect(r.json.equipped).toEqual({ pieces: 'cburnett', board: 'pizarra' });
+    expect(r.json.equipped).toEqual({ pieces: 'contorno', board: 'pizarra' });
     expect(r.json.items.find((i: any) => i.id === 'pizarra').equipped).toBe(true);
     expect(r.json.items.find((i: any) => i.id === 'clasico').equipped).toBe(false);
-    expect((await u.req('GET', '/api/me')).json.equipped).toEqual({ pieces: 'cburnett', board: 'pizarra' });
+    expect((await u.req('GET', '/api/me')).json.equipped).toEqual({ pieces: 'contorno', board: 'pizarra' });
     await u.buy('geo');
     expect((await u.equip('pieces', 'geo')).json.equipped).toEqual({ pieces: 'geo', board: 'pizarra' });
     // vuelve a un objeto gratis
@@ -356,6 +356,34 @@ describe('equipar y /api/me', () => {
   });
 });
 
+describe('objetos gratuitos propios (contorno, noche)', () => {
+  it('el catálogo los marca gratuitos y son los predeterminados', () => {
+    for (const id of ['contorno', 'noche', 'cburnett', 'clasico']) expect(getItem(id)!.price).toBe(0);
+    expect(DEFAULT_PIECES).toBe('contorno');
+    expect(DEFAULT_BOARD).toBe('noche');
+  });
+  it('usuario sin filas: los posee y los tiene equipados', async () => {
+    const s = setup();
+    const u = await s.client('ana');
+    const sh = await u.shop();
+    for (const id of ['contorno', 'noche']) {
+      const it = sh.items.find((i: any) => i.id === id);
+      expect(it).toMatchObject({ owned: true, free: true, price: 0, equipped: true });
+    }
+    expect(s.db.raw.prepare('SELECT COUNT(*) AS n FROM cp_inventory').get()).toEqual({ n: 0 });
+  });
+  it('se pueden equipar y volver a equipar sin comprar; quien guardó cburnett/clasico lo conserva', async () => {
+    const s = setup();
+    const u = await s.client('ana');
+    expect((await u.equip('pieces', 'cburnett')).json.equipped).toEqual({ pieces: 'cburnett', board: 'noche' });
+    expect((await u.equip('board', 'clasico')).json.equipped).toEqual({ pieces: 'cburnett', board: 'clasico' });
+    expect((await u.req('GET', '/api/me')).json.equipped).toEqual({ pieces: 'cburnett', board: 'clasico' });
+    expect((await u.equip('pieces', 'contorno')).json.equipped).toEqual({ pieces: 'contorno', board: 'clasico' });
+    expect((await u.equip('board', 'noche')).json.equipped).toEqual({ pieces: 'contorno', board: 'noche' });
+    expect((await u.buy('noche')).status).toBe(400);
+  });
+});
+
 describe('aislamiento entre usuarios', () => {
   it('saldo, inventario, equipado y protectores son por usuario', async () => {
     const s = setup();
@@ -366,11 +394,11 @@ describe('aislamiento entre usuarios', () => {
     await ana.buy('protector');
     await ana.equip('board', 'pizarra');
     const l = await luis.shop();
-    expect(l).toMatchObject({ balance: 0, protectors: { count: 0 }, equipped: { board: 'clasico' } });
+    expect(l).toMatchObject({ balance: 0, protectors: { count: 0 }, equipped: { board: 'noche' } });
     expect(l.items.find((i: any) => i.id === 'pizarra').owned).toBe(false);
     expect((await luis.equip('board', 'pizarra')).status).toBe(400);
     expect((await luis.buy('geo')).status).toBe(400);
-    expect((await luis.req('GET', '/api/me')).json.equipped.board).toBe('clasico');
+    expect((await luis.req('GET', '/api/me')).json.equipped.board).toBe('noche');
     expect((await ana.shop()).balance).toBe(10 - getItem('pizarra')!.price - PROT);
   });
 

@@ -97,7 +97,7 @@ export function WelcomeScreen() {
   const reviewCount = placement.openUnitIds.filter((id) => id !== placement.recommendedUnitId).length;
 
   return (
-    <div className="card welcome">
+    <div className="t-card welcome">
       <span className="welcome-icon" aria-hidden="true">
         <Icon name="sparkle" size={26} />
       </span>
@@ -128,10 +128,10 @@ export function WelcomeScreen() {
             </p>
           )}
           <div className="actions">
-            <button className="btn btn-primary" disabled={saving} onClick={() => void choose('lichess')}>
+            <button className="t-btn t-btn-primary" disabled={saving} onClick={() => void choose('lichess')}>
               Empezar aquí
             </button>
-            <button className="btn" disabled={saving} onClick={() => void choose('scratch')}>
+            <button className="t-btn" disabled={saving} onClick={() => void choose('scratch')}>
               Empezar desde el principio
             </button>
           </div>
@@ -143,7 +143,7 @@ export function WelcomeScreen() {
           </p>
           <SeenSummary seen={placement.seen} />
           <div className="actions">
-            <button className="btn btn-primary" disabled={saving} onClick={() => void choose('scratch')}>
+            <button className="t-btn t-btn-primary" disabled={saving} onClick={() => void choose('scratch')}>
               Empezar desde el principio
             </button>
           </div>

@@ -59,7 +59,7 @@ export function ProfileScreen() {
       </header>
 
       <section className="streaks" aria-label="Rachas">
-        <div className="card streak">
+        <div className="t-card streak">
           <p className="streak-label">
             <Icon name="flame" size={18} /> Racha actual
           </p>
@@ -69,7 +69,7 @@ export function ProfileScreen() {
             {profile.streakDays === 0 && ' Cuando completes una, empieza de nuevo.'}
           </p>
         </div>
-        <div className="card streak">
+        <div className="t-card streak">
           <p className="streak-label">
             <Icon name="medal" size={18} /> Mejor racha
           </p>
@@ -81,7 +81,7 @@ export function ProfileScreen() {
         Si un día no puedes estudiar no pasa nada: la racha vuelve a empezar con tu próxima lección y tu mejor racha sigue ahí.
       </p>
 
-      <section className="card" aria-labelledby="learned-title">
+      <section className="t-card" aria-labelledby="learned-title">
         <div className="learned-head">
           <h2 id="learned-title">Lecciones aprendidas</h2>
           <p className="learned-count" aria-label={`${learnedCount} lecciones aprendidas`}>
@@ -113,12 +113,12 @@ export function ProfileScreen() {
             ))}
           </div>
         )}
-        <Link className="btn" href="/aprender">
+        <Link className="t-btn" href="/aprender">
           Ir a la ruta
         </Link>
       </section>
 
-      <section className="card" aria-labelledby="start-title">
+      <section className="t-card" aria-labelledby="start-title">
         <h2 id="start-title">Punto de partida</h2>
         <p>
           {placement?.source === 'lichess' && placement.perf && placement.rating !== null
@@ -127,7 +127,7 @@ export function ProfileScreen() {
               }`
             : 'No tenemos partidas suficientes en rápidas, clásicas o blitz para recomendar un punto de partida; empezamos por el principio.'}
         </p>
-        <Link className="btn" href="/bienvenida">
+        <Link className="t-btn" href="/bienvenida">
           Ver o cambiar mi punto de partida
         </Link>
       </section>

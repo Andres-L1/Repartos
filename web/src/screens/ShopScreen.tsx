@@ -43,13 +43,13 @@ export function ShopScreen() {
 
   if (!shop) {
     return loadError ? (
-      <div className="card empty-state" role="alert">
+      <div className="t-card empty-state" role="alert">
         <span className="empty-icon" aria-hidden="true">
           <Icon name="alert" size={28} />
         </span>
         <h1>No se pudo abrir la tienda</h1>
         <p className="muted">{loadError} Tu saldo no ha cambiado. Inténtalo de nuevo en un momento.</p>
-        <button className="btn" onClick={() => window.location.reload()}>
+        <button className="t-btn" onClick={() => window.location.reload()}>
           Volver a intentarlo
         </button>
       </div>
@@ -127,7 +127,7 @@ export function ShopScreen() {
         </div>
       </header>
 
-      <div className="tabs" role="tablist" aria-label="Tienda y colección">
+      <div className="t-tabs" role="tablist" aria-label="Tienda y colección">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -139,7 +139,7 @@ export function ShopScreen() {
             aria-selected={tab === t.id}
             aria-controls={`panel-${t.id}`}
             tabIndex={tab === t.id ? 0 : -1}
-            className={tab === t.id ? 'tab active' : 'tab'}
+            className={tab === t.id ? 't-tab t-tab-active' : 't-tab'}
             onClick={() => setTab(t.id)}
             onKeyDown={onTabKey}
           >
@@ -150,12 +150,12 @@ export function ShopScreen() {
 
       <div className="notice-slot" role="status" aria-live="polite">
         {notice && (
-          <p className="notice">
+          <p className="t-alert t-alert-ok">
             <Icon name="check" size={18} />
             <span>{notice.text}</span>
             {notice.equip && !notice.equip.equipped && (
               <button
-                className="btn btn-small"
+                className="t-btn t-btn-sm"
                 onClick={() => {
                   const it = notice.equip!;
                   void equip(it);
@@ -297,11 +297,11 @@ function BuyAction({ item, shop, busy, confirming, errors, setConfirming, buy }:
         >
           <p>{confirmText(item.name, item.price, shop.balance)}</p>
           <div className="buy-row">
-            <button className="btn btn-primary btn-small" disabled={isBusy} autoFocus onClick={() => void buy(item)}>
+            <button className="t-btn t-btn-primary t-btn-sm" disabled={isBusy} autoFocus onClick={() => void buy(item)}>
               {isBusy ? 'Comprando…' : `Comprar por ${chedexText(item.price)}`}
             </button>
             <button
-              className="btn btn-ghost btn-small"
+              className="t-btn t-btn-ghost t-btn-sm"
               disabled={isBusy}
               onClick={() => {
                 setConfirming(null);
@@ -321,7 +321,7 @@ function BuyAction({ item, shop, busy, confirming, errors, setConfirming, buy }:
           </span>
           <button
             ref={buyBtn}
-            className="btn btn-small"
+            className="t-btn t-btn-sm"
             disabled={state !== 'buyable'}
             aria-describedby={note ? noteId : undefined}
             onClick={() => setConfirming(item.id)}
@@ -426,7 +426,7 @@ function CollectionPanel({ shop, busy, errors, equip, goStore }: PanelProps & { 
                         <Icon name="check" size={18} /> Equipado
                       </p>
                     ) : (
-                      <button className="btn btn-small" disabled={busy === it.id} onClick={() => void equip(it)}>
+                      <button className="t-btn t-btn-sm" disabled={busy === it.id} onClick={() => void equip(it)}>
                         {busy === it.id ? 'Equipando…' : 'Equipar'}
                       </button>
                     )}

@@ -128,21 +128,21 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
   return (
     <article className="lesson" aria-labelledby="lesson-title">
       <header className="lesson-head">
-        <button className="btn btn-ghost btn-small" onClick={() => navigate(demo ? '/' : '/aprender')}>
+        <button className="t-btn t-btn-ghost t-btn-sm" onClick={() => navigate(demo ? '/' : '/aprender')}>
           <Icon name="back" size={18} />
           Salir
         </button>
         <div className="lesson-head-main">
           <h1 id="lesson-title">{lesson.title}</h1>
           <div
-            className="progress"
+            className="t-progress"
             role="progressbar"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={pct}
             aria-label="Progreso de la lección"
           >
-            <div className="progress-fill" style={{ width: `${pct}%` }} />
+            <div className="t-progress-fill" style={{ width: `${pct}%` }} />
           </div>
         </div>
         <span className="lesson-pct" aria-hidden="true">
@@ -175,13 +175,13 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
 
       <div className="lesson-body" key={`${run}-${phase.kind}-${'i' in phase ? phase.i : 0}`}>
         {phase.kind === 'intro' && (
-          <section className="card intro">
+          <section className="t-card intro">
             <p className="kicker">
               <Icon name="target" size={16} /> Objetivo
             </p>
             <h2>{lesson.objective}</h2>
             <p className="lead">{lesson.intro}</p>
-            <button className="btn btn-primary" onClick={toExplain} autoFocus>
+            <button className="t-btn t-btn-primary" onClick={toExplain} autoFocus>
               Empezar
             </button>
           </section>
@@ -241,11 +241,11 @@ function ExplainStepView({ lesson, i, plain, onNext, onPrev }: { lesson: Lesson;
         )}
         <div className="actions">
           {onPrev && (
-            <button className="btn btn-ghost" onClick={onPrev}>
+            <button className="t-btn t-btn-ghost" onClick={onPrev}>
               Anterior
             </button>
           )}
-          <button className="btn btn-primary" onClick={onNext} autoFocus>
+          <button className="t-btn t-btn-primary" onClick={onNext} autoFocus>
             {last ? 'Pasar a la práctica' : 'Siguiente'}
           </button>
         </div>
@@ -291,7 +291,7 @@ function ResultView({
 
   if (saving || !outcome) {
     return (
-      <section className="card result" aria-busy="true">
+      <section className="t-card result" aria-busy="true">
         <span className="spinner" aria-hidden="true" />
         <p role="status">Guardando tu resultado…</p>
       </section>
@@ -299,7 +299,7 @@ function ResultView({
   }
   const { correct, total } = outcome;
   return (
-    <section className="card result" aria-live="polite">
+    <section className="t-card result" aria-live="polite">
       <p className={`result-icon${passed ? ' result-pass' : ' result-retry'}`} aria-hidden="true">
         <Icon name={passed ? 'check' : 'repeat'} size={44} />
       </p>
@@ -331,31 +331,31 @@ function ResultView({
       <div className="actions">
         {demo ? (
           <>
-            <a className="btn btn-primary" href="/auth/login">
+            <a className="t-btn t-btn-primary" href="/auth/login">
               Entrar con Lichess para seguir
             </a>
-            <button className="btn" onClick={onRestart}>
+            <button className="t-btn" onClick={onRestart}>
               Repetir la demostración
             </button>
           </>
         ) : (
           <>
             {passed && nextId ? (
-              <button className="btn btn-primary" onClick={() => navigate(`/leccion/${encodeURIComponent(nextId)}`)} autoFocus>
+              <button className="t-btn t-btn-primary" onClick={() => navigate(`/leccion/${encodeURIComponent(nextId)}`)} autoFocus>
                 Siguiente lección
                 <Icon name="chevron" size={18} />
               </button>
             ) : (
-              <button className="btn btn-primary" onClick={() => navigate('/aprender')} autoFocus>
+              <button className="t-btn t-btn-primary" onClick={() => navigate('/aprender')} autoFocus>
                 Volver a la ruta
               </button>
             )}
             {passed && nextId && (
-              <button className="btn" onClick={() => navigate('/aprender')}>
+              <button className="t-btn" onClick={() => navigate('/aprender')}>
                 Volver a la ruta
               </button>
             )}
-            <button className={passed && nextId ? 'btn btn-ghost' : 'btn'} onClick={onRestart}>
+            <button className={passed && nextId ? 't-btn t-btn-ghost' : 't-btn'} onClick={onRestart}>
               {passed ? 'Repasar' : 'Intentarlo de nuevo'}
             </button>
           </>

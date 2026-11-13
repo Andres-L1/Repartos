@@ -26,6 +26,8 @@ export function App() {
     if (!loading && !user && isPrivate) navigate('/entrar', { replace: true });
   }, [loading, user, isPrivate]);
 
+  const onLanding = path === '/';
+
   useEffect(() => {
     window.scrollTo(0, 0);
     document.getElementById('main')?.focus({ preventScroll: true });
@@ -47,12 +49,12 @@ export function App() {
   else if (path === '/suscripcion') screen = <BillingScreen />;
   else
     screen = (
-      <div className="card empty-state">
+      <div className="t-card empty-state">
         <span className="empty-icon" aria-hidden="true">
           <Icon name="target" size={28} />
         </span>
         <h1>Página no encontrada</h1>
-        <Link className="btn btn-primary" href="/">
+        <Link className="t-btn t-btn-primary" href="/">
           Volver al inicio
         </Link>
       </div>
@@ -111,7 +113,7 @@ export function App() {
                   <span className="whoami-sub">Cuenta de Lichess</span>
                 </span>
               </span>
-              <button className="btn btn-ghost btn-small" onClick={() => void logout()}>
+              <button className="t-btn t-btn-ghost t-btn-sm" onClick={() => void logout()}>
                 Salir
               </button>
             </div>
@@ -134,10 +136,10 @@ export function App() {
         {brand}
         {user ? (
           <nav className="nav nav-guest" aria-label="Principal">
-            <Link className="btn btn-primary btn-small" href="/aprender">
+            <Link className="t-btn t-btn-primary t-btn-sm" href="/aprender">
               Ir a Aprender
             </Link>
-            <button className="btn btn-ghost btn-small" onClick={() => void logout()}>
+            <button className="t-btn t-btn-ghost t-btn-sm" onClick={() => void logout()}>
               Salir
             </button>
           </nav>
@@ -149,7 +151,7 @@ export function App() {
         )}
       </header>
       {mock}
-      <main id="main" tabIndex={-1} className="main">
+      <main id="main" tabIndex={-1} className={onLanding ? 'main main-landing' : 'main'}>
         {screen}
       </main>
       <SiteFooter />

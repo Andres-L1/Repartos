@@ -29,10 +29,12 @@ interface Props {
   label: string;
   /** Usa el tablero y las piezas por defecto (landing y demostración pública), no lo equipado. */
   plain?: boolean;
+  /** Clases de tablero y piezas a aplicar en lugar de lo equipado (p. ej. `theme-noche pieces-contorno` en la landing). */
+  appearance?: string;
   onMove?: (from: string, to: string) => void;
 }
 
-export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, plain = false, onMove }: Props) {
+export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, plain = false, appearance, onMove }: Props) {
   const { equipped } = useSession();
   const el = useRef<HTMLDivElement>(null);
   const cg = useRef<Api | null>(null);
@@ -79,7 +81,7 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
   }, [shapesKey, nonce]);
 
   return (
-    <div className={`board-frame ${appearanceClass(plain ? null : equipped)}`} role="group" aria-label={label}>
+    <div className={`board-frame ${appearance ?? appearanceClass(plain ? null : equipped)}`} role="group" aria-label={label}>
       <div className="board-square">
         <div ref={el} className="board-cg" />
       </div>

@@ -67,7 +67,7 @@ export function MapScreen() {
         <h1>Tu ruta de aprendizaje</h1>
       </header>
 
-      <section className="continue card" aria-labelledby="continue-title">
+      <section className="continue t-card" aria-labelledby="continue-title">
         <div className="continue-main">
           {next ? (
             <>
@@ -77,7 +77,7 @@ export function MapScreen() {
                 Unidad {next.unit.order} · {next.unit.title}
               </p>
               <p className="continue-obj">{next.lesson.objective}</p>
-              <Link className="btn btn-primary" href={`/leccion/${encodeURIComponent(next.lesson.id)}`}>
+              <Link className="t-btn t-btn-primary" href={`/leccion/${encodeURIComponent(next.lesson.id)}`}>
                 {done === 0 ? 'Empezar lección' : 'Continuar'}
                 <Icon name="chevron" size={18} />
               </Link>

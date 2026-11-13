@@ -143,7 +143,7 @@ export function Loading({ label }: { label: string }) {
 
 export function ErrorBox({ children }: { children: ReactNode }) {
   return (
-    <div className="form-error error-box" role="alert">
+    <div className="t-alert t-alert-bad error-box" role="alert">
       <Icon name="alert" size={20} />
       <span>{children}</span>
     </div>

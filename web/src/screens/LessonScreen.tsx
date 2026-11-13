@@ -23,12 +23,12 @@ export function LessonScreen({ id }: { id: string }) {
 
   if (error)
     return (
-      <div className="card empty-state" role="alert">
+      <div className="t-card empty-state" role="alert">
         <span className="empty-icon" aria-hidden="true">
           <Icon name="alert" size={28} />
         </span>
         <p>{error}</p>
-        <button className="btn" onClick={() => navigate('/aprender')}>
+        <button className="t-btn" onClick={() => navigate('/aprender')}>
           Volver a la ruta
         </button>
       </div>

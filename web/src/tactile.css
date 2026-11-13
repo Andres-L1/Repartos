@@ -1,0 +1,157 @@
+/* Primitivas «táctiles» de Chedex Pulse. La app entera es oscura: no existe modo claro.
+   Cada elemento se ve como una pieza física: color sólido, brillo interior arriba, sombra interior abajo,
+   un zócalo duro debajo, un anillo de tinta y una sombra larga y suave.
+   Los nombres llevan el prefijo --t- / .t- y se usan en toda la app (landing incluida).
+   Texto de lectura: #f5f5f2 y #b9bbc0 (nunca #8a8d95). Texto naranja: #ffa563. Texto sobre naranja: tinta #0b0c0e. */
+:root {
+  color-scheme: dark;
+  --t-ink: #0b0c0e;
+  --t-graphite: #191a1e;
+  --t-graphite-2: #202126;
+  --t-graphite-3: #26272d;
+  --t-edge: #303136;
+  --t-socket: #0d0e10;
+  --t-paper: #f5f5f2;
+  --t-btn-text: #efefeb;
+  --t-muted: #b9bbc0;
+  --t-orange: #f18b42;
+  --t-orange-hover: #f79a58;
+  --t-orange-deep: #a9531b;
+  --t-orange-text: #ffa563;
+  --t-focus: #ffb27a;
+  --t-ok: #7fdca4;
+  --t-ok-bg: #173325;
+  --t-bad: #ff9c94;
+  --t-bad-bg: #3b1d1b;
+  --t-bad-deep: #8f2f29;
+  --t-warn: #ffd34d;
+  --t-warn-bg: #3a2f10;
+  --t-warn-ink: #ffe9a8;
+  --t-field-edge: #70737b;
+  --t-placeholder: #a2a5ac;
+
+  --t-r-btn: 12px;
+  --t-r-chip: 10px;
+  --t-r-card: 22px;
+  --t-r-card-sm: 20px;
+  --t-r-pill: 999px;
+
+  --t-soft: 0 12px 20px -8px rgb(0 0 0 / 0.7);
+  --t-sh-primary: inset 0 1.5px 0 rgb(255 255 255 / 0.45), inset 0 -2px 0 rgb(0 0 0 / 0.18), 0 4px 0 var(--t-orange-deep), 0 5px 0 1.5px var(--t-ink), var(--t-soft);
+  --t-sh-primary-down: inset 0 1.5px 0 rgb(255 255 255 / 0.35), inset 0 -1px 0 rgb(0 0 0 / 0.18), 0 1.5px 0 var(--t-orange-deep), 0 2.5px 0 1.5px var(--t-ink), 0 6px 12px -6px rgb(0 0 0 / 0.7);
+  --t-sh-secondary: inset 0 1.5px 0 var(--t-edge), inset 0 -2px 0 rgb(0 0 0 / 0.22), 0 4px 0 var(--t-socket), 0 5px 0 1.5px var(--t-ink), var(--t-soft);
+  --t-sh-secondary-down: inset 0 1.5px 0 var(--t-edge), inset 0 -1px 0 rgb(0 0 0 / 0.22), 0 1.5px 0 var(--t-socket), 0 2.5px 0 1.5px var(--t-ink), 0 6px 12px -6px rgb(0 0 0 / 0.7);
+  --t-sh-danger: inset 0 1.5px 0 rgb(255 255 255 / 0.4), inset 0 -2px 0 rgb(0 0 0 / 0.15), 0 4px 0 var(--t-bad-deep), 0 5px 0 1.5px var(--t-ink), var(--t-soft);
+  --t-sh-danger-down: inset 0 1.5px 0 rgb(255 255 255 / 0.3), 0 1.5px 0 var(--t-bad-deep), 0 2.5px 0 1.5px var(--t-ink), 0 6px 12px -6px rgb(0 0 0 / 0.7);
+  --t-sh-card: inset 0 2px 0 var(--t-edge), 0 6px 0 var(--t-socket), 0 8px 0 2px var(--t-ink), 0 18px 30px -10px rgb(0 0 0 / 0.65);
+  --t-sh-raise: inset 0 1.5px 0 var(--t-edge), 0 3px 0 var(--t-socket), 0 4px 0 1.5px var(--t-ink);
+  --t-sh-raise-orange: inset 0 1.5px 0 rgb(255 255 255 / 0.45), 0 3px 0 var(--t-orange-deep), 0 4px 0 1.5px var(--t-ink);
+  --t-sh-inset: inset 0 2px 4px rgb(0 0 0 / 0.65), 0 1px 0 var(--t-edge);
+}
+
+/* ---------- Botón: la base es el secundario (grafito); .t-btn-primary lo vuelve naranja ---------- */
+.t-btn {
+  font: inherit; font-weight: 700; font-size: 1.05rem; line-height: 1.2; letter-spacing: -0.01em;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem;
+  min-height: 48px; padding: 0.7rem 1.4rem; margin-bottom: 6px; border: 0; border-radius: var(--t-r-btn);
+  background: var(--t-graphite-2); color: var(--t-btn-text); box-shadow: var(--t-sh-secondary);
+  text-decoration: none; cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+}
+.t-btn:hover:not(:disabled) { background: #2a2b31; }
+.t-btn:active:not(:disabled) { transform: translateY(2.5px); box-shadow: var(--t-sh-secondary-down); }
+.t-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.t-btn .icon { stroke-width: 1.6; }
+
+.t-btn-primary { background: var(--t-orange); color: var(--t-ink); box-shadow: var(--t-sh-primary); }
+.t-btn-primary:hover:not(:disabled) { background: var(--t-orange-hover); }
+.t-btn-primary:active:not(:disabled) { box-shadow: var(--t-sh-primary-down); }
+.t-btn-secondary { background: var(--t-graphite-2); color: var(--t-btn-text); }
+.t-btn-danger { background: var(--t-bad); color: #1a0505; box-shadow: var(--t-sh-danger); }
+.t-btn-danger:hover:not(:disabled) { background: #ffaea8; }
+.t-btn-danger:active:not(:disabled) { box-shadow: var(--t-sh-danger-down); }
+/* Fantasma: sin pieza física, para acciones secundarias (Salir, Pista, Atrás) */
+.t-btn-ghost { padding-inline: 0.85rem; background: transparent; color: var(--t-orange-text); box-shadow: none; }
+.t-btn-ghost:hover:not(:disabled) { background: rgb(255 255 255 / 0.08); }
+.t-btn-ghost:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+.t-btn-lg { min-height: 56px; padding: 0.8rem 1.75rem; font-size: 1.125rem; }
+.t-btn-sm { min-height: 44px; padding: 0.45rem 1rem; font-size: 0.95rem; }
+.t-btn-icon { padding: 0; min-width: 48px; }
+.t-btn-icon.t-btn-sm { min-width: 44px; }
+
+/* Foco visible en TODOS los controles: anillo naranja claro grueso, separado de la pieza (no depende del color: es una forma) */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--t-focus); outline-offset: 3px; }
+.t-btn:focus-visible { outline-offset: 5px; border-radius: var(--t-r-btn); }
+.t-chip:focus-visible, .t-tab:focus-visible { outline-offset: 3px; }
+
+/* ---------- Chip de filtro ---------- */
+.t-chip {
+  font: inherit; font-size: 0.9rem; font-weight: 600; line-height: 1.2;
+  display: inline-flex; align-items: center; gap: 0.4rem; min-height: 44px; padding: 8px 14px; margin-bottom: 4px;
+  border: 0; border-radius: var(--t-r-chip); background: var(--t-graphite-2); color: var(--t-btn-text);
+  box-shadow: var(--t-sh-raise); cursor: pointer;
+}
+.t-chip-active, .t-chip[aria-pressed='true'] { background: var(--t-orange); color: var(--t-ink); box-shadow: var(--t-sh-raise-orange); }
+
+/* ---------- Pestañas con estado: piezas en fila; la activa es naranja y lleva subrayado grueso (no solo color) ---------- */
+.t-tabs { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 var(--s-4, 1rem); padding-bottom: 4px; }
+.t-tab {
+  font: inherit; font-weight: 700; font-size: 1rem; line-height: 1.2; min-height: 48px; padding: 8px 20px; margin-bottom: 4px;
+  border: 0; border-radius: var(--t-r-chip); background: var(--t-graphite-2); color: var(--t-btn-text);
+  box-shadow: var(--t-sh-raise); cursor: pointer; transition: transform 0.1s ease, background-color 0.15s ease;
+}
+.t-tab:hover { background: #2a2b31; }
+.t-tab:active { transform: translateY(2px); }
+.t-tab-active, .t-tab[aria-selected='true'] { background: var(--t-orange); color: var(--t-ink); box-shadow: var(--t-sh-raise-orange); }
+.t-tab-active:hover, .t-tab[aria-selected='true']:hover { background: var(--t-orange-hover); }
+
+/* ---------- Tarjeta ---------- */
+.t-card {
+  background: var(--t-graphite); color: var(--t-paper); border: 1.6px solid var(--t-ink); border-radius: var(--t-r-card);
+  padding: 22px 24px; margin-bottom: 1.75rem; box-shadow: var(--t-sh-card);
+}
+.t-card-sm { border-radius: var(--t-r-card-sm); padding: 16px; }
+/* Hendidura: panel hundido dentro de una tarjeta */
+.t-well { background: var(--t-ink); border-radius: 14px; box-shadow: var(--t-sh-inset); padding: 14px 16px; }
+
+/* ---------- Insignia (pastilla) ---------- */
+.t-pill {
+  display: inline-flex; align-items: center; gap: 0.4rem; padding: 4px 12px; border-radius: var(--t-r-pill);
+  background: var(--t-graphite-2); color: var(--t-btn-text); font-size: 0.9rem; font-weight: 600;
+  box-shadow: inset 0 1px 0 var(--t-edge), 0 0 0 1px var(--t-ink);
+}
+
+/* ---------- Campo de texto: hundido, con borde claro (3:1 como componente gráfico) ---------- */
+.t-input {
+  width: 100%; font: inherit; font-size: 1rem; min-height: 48px; padding: 0.65rem 0.9rem;
+  border: 2px solid var(--t-field-edge); border-radius: var(--t-r-btn); background: var(--t-ink); color: var(--t-paper);
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.6);
+}
+.t-input::placeholder { color: var(--t-placeholder); opacity: 1; }
+.t-input:hover { border-color: #8b8e96; }
+.t-input:focus-visible { border-color: var(--t-focus); outline-offset: 2px; }
+.t-input:disabled { opacity: 0.6; cursor: not-allowed; }
+.t-input[aria-invalid='true'] { border-color: var(--t-bad); }
+
+/* ---------- Barra de progreso: carril hundido y relleno naranja ---------- */
+.t-progress { display: block; height: 12px; border-radius: var(--t-r-pill); background: var(--t-ink); box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.8), 0 1px 0 var(--t-edge); overflow: hidden; }
+.t-progress-fill { display: block; height: 100%; border-radius: var(--t-r-pill); background: var(--t-orange); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.4); transition: width 0.5s ease; }
+
+/* ---------- Avisos: borde de color + texto con su propio icono o rótulo (no solo color) ---------- */
+.t-alert {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0 0 var(--s-3, 0.75rem); padding: 0.7rem 1rem;
+  border-radius: 14px; border: 1.6px solid var(--t-edge); background: var(--t-graphite-2); color: var(--t-paper);
+  box-shadow: inset 0 1.5px 0 rgb(255 255 255 / 0.06), 0 3px 0 var(--t-socket);
+}
+.t-alert .icon { flex: none; }
+.t-alert-ok { background: var(--t-ok-bg); border-color: var(--t-ok); }
+.t-alert-ok .icon { color: var(--t-ok); }
+.t-alert-bad { background: var(--t-bad-bg); border-color: var(--t-bad); }
+.t-alert-bad .icon { color: var(--t-bad); }
+.t-alert-warn { background: var(--t-warn-bg); border-color: var(--t-warn); color: var(--t-warn-ink); display: block; }
+.t-alert-info { background: #2b1e14; border-color: var(--t-orange); }
+.t-alert-info .icon { color: var(--t-orange-text); }
+
+@media (prefers-reduced-motion: reduce) {
+  .t-btn, .t-btn:active:not(:disabled), .t-tab, .t-tab:active, .t-progress-fill { transition: none; transform: none; }
+}

@@ -7,7 +7,7 @@ const REPO = 'https://github.com/Andres-L1/Repartos';
 export function CreditsScreen() {
   const { user } = useSession();
   return (
-    <article className="prose credits">
+    <article className="prose credits t-card">
       <h1>Créditos y licencias</h1>
       <p className="lead">Quién ha hecho cada cosa y bajo qué licencia se puede usar.</p>
 

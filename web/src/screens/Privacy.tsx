@@ -2,7 +2,7 @@ import { Link } from '../components/Link';
 
 export function PrivacyScreen() {
   return (
-    <article className="prose card">
+    <article className="prose t-card">
       <p className="kicker">Privacidad</p>
       <h1>Qué datos usamos y para qué</h1>
       <p className="lead">
@@ -35,7 +35,7 @@ export function PrivacyScreen() {
         momento con el botón «Salir».
       </p>
       <p className="actions">
-        <Link className="btn" href="/">
+        <Link className="t-btn" href="/">
           Volver al inicio
         </Link>
       </p>

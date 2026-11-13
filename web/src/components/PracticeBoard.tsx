@@ -19,9 +19,13 @@ interface Props {
   isLast: boolean;
   /** Tablero y piezas por defecto (demostración pública). */
   plain?: boolean;
+  /** Clases de tablero y piezas propias (landing). */
+  appearance?: string;
+  /** Vitrina de la landing: sin pista, sin jugada escrita y con la marca de la pieza solo hasta mover. */
+  showcase?: boolean;
 }
 
-export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Props) {
+export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appearance, showcase = false }: Props) {
   const [fen, setFen] = useState(step.fen);
   const [idx, setIdx] = useState(0); // índice en solutionUci del próximo movimiento del alumno
   const [status, setStatus] = useState<Status>('playing');
@@ -40,17 +44,17 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Pro
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const shapes = useMemo(() => {
-    const s = marksToShapes(step);
+    const s = showcase && lastMove ? [] : marksToShapes(step);
     if (hint && status === 'playing') {
       const next = step.solutionUci[idx];
       if (next) s.push({ orig: next.slice(0, 2) as never, brush: 'yellow' });
     }
     return s;
-  }, [step, hint, idx, status]);
+  }, [step, hint, idx, status, showcase, lastMove]);
 
   const orientation = turnOf(step.fen);
   const interactive = status === 'playing' && !promo;
-  const canHint = mode === 'practice' && !!step.hint;
+  const canHint = mode === 'practice' && !!step.hint && !showcase;
 
   function finishCorrect(msg: string) {
     setStatus('correct');
@@ -146,6 +150,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Pro
           shapes={shapes}
           nonce={nonce}
           plain={plain}
+          {...(appearance ? { appearance } : {})}
           label={`Tablero. Mueven ${orientation === 'white' ? 'blancas' : 'negras'}.`}
           onMove={onBoardMove}
         />
@@ -156,7 +161,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Pro
               {PROMO_ROLES.map((p) => (
                 <button
                   key={p.role}
-                  className="btn"
+                  className="t-btn"
                   onClick={() => {
                     const m = promo;
                     setPromo(null);
@@ -167,7 +172,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Pro
                 </button>
               ))}
               <button
-                className="btn btn-ghost"
+                className="t-btn t-btn-ghost"
                 onClick={() => {
                   setPromo(null);
                   setNonce((n) => n + 1);
@@ -180,7 +185,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Pro
         )}
       </div>
       <div className="step-side">
-        <p className="step-kicker">
+        <p className="step-kicker" hidden={showcase}>
           {mode === 'practice' ? 'Práctica' : 'Evaluación'}{plain ? ':' : ' ·'} mueven {orientation === 'white' ? 'las blancas' : 'las negras'}
         </p>
         <p className="step-prompt">{step.prompt}</p>
@@ -213,25 +218,25 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Pro
         </div>
 
         {hint && status === 'playing' && step.hint && (
-          <p className="hint">
+          <p className="t-alert t-alert-warn">
             <Icon name="bulb" size={18} /> <strong>Pista:</strong> {step.hint}
           </p>
         )}
 
         <div className="actions">
           {status === 'playing' && canHint && !hint && (
-            <button className="btn btn-ghost" onClick={() => setHint(true)}>
+            <button className="t-btn t-btn-ghost" onClick={() => setHint(true)}>
               Pista
             </button>
           )}
           {status === 'wrong' && mode === 'practice' && (
-            <button className="btn btn-primary" onClick={retry} autoFocus>
+            <button className="t-btn t-btn-primary" onClick={retry} autoFocus>
               Reintentar
             </button>
           )}
           {status === 'wrong' && mode === 'evaluation' && (
             <button
-              className="btn btn-primary"
+              className="t-btn t-btn-primary"
               onClick={() => onDone({ ok: false, mistakes })}
               autoFocus
             >
@@ -240,7 +245,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Pro
           )}
           {status === 'correct' && (
             <button
-              className="btn btn-primary"
+              className="t-btn t-btn-primary"
               onClick={() => onDone({ ok: mistakes === 0, mistakes })}
               autoFocus
             >
@@ -249,13 +254,14 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Pro
           )}
         </div>
 
-        {status === 'playing' && (
+        {status === 'playing' && !showcase && (
           <details className="typed">
             <summary>Escribir la jugada (alternativa al tablero)</summary>
             <form onSubmit={submitTyped}>
               <label htmlFor="typed-move">Jugada</label>
               <input
                 id="typed-move"
+                className="t-input"
                 value={typed}
                 onChange={(e) => setTyped(e.target.value)}
                 autoComplete="off"
@@ -264,7 +270,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false }: Pro
                 aria-describedby="typed-help"
                 placeholder="p. ej. e4 o Cf3"
               />
-              <button className="btn" type="submit">
+              <button className="t-btn" type="submit">
                 Jugar
               </button>
               <p id="typed-help" className="muted">

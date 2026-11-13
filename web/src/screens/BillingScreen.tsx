@@ -51,7 +51,7 @@ export function BillingScreen() {
         <header className="page-head">
           <h1>Beta abierta</h1>
         </header>
-        <section className="card plan" aria-labelledby="beta-title">
+        <section className="t-card plan" aria-labelledby="beta-title">
           <h2 id="beta-title">
             Chedex Pulse <span className="chip chip-sub-active">Beta abierta</span>
           </h2>
@@ -59,7 +59,7 @@ export function BillingScreen() {
             Estamos en beta abierta: todas las lecciones están disponibles sin coste y no hace falta suscribirse. Los
             planes de pago llegarán más adelante y te avisaremos antes de cambiar nada.
           </p>
-          <button className="btn btn-primary" onClick={() => navigate('/aprender')}>
+          <button className="t-btn t-btn-primary" onClick={() => navigate('/aprender')}>
             Ir a la ruta
           </button>
         </section>
@@ -74,12 +74,12 @@ export function BillingScreen() {
       </header>
 
       {paywallLesson && status !== 'active' && (
-        <p className="banner" role="status">
+        <p className="t-alert t-alert-info" role="status">
           Esa lección es parte del plan de suscripción. Suscríbete para desbloquear todas las lecciones.
         </p>
       )}
 
-      <section className="card plan" aria-labelledby="plan-title">
+      <section className="t-card plan" aria-labelledby="plan-title">
         <h2 id="plan-title">Plan Chedex Pulse</h2>
         <p className="price">
           10 € <span>/ mes</span>
@@ -103,7 +103,7 @@ export function BillingScreen() {
         )}
 
         {status !== 'active' && (
-          <button className="btn btn-primary btn-large" disabled={busy} onClick={() => act('subscribe')}>
+          <button className="t-btn t-btn-primary t-btn-lg" disabled={busy} onClick={() => act('subscribe')}>
             {busy ? 'Procesando…' : status === 'canceled' ? 'Reactivar por 10 €/mes' : 'Suscríbete por 10 €/mes'}
           </button>
         )}
@@ -112,16 +112,16 @@ export function BillingScreen() {
             <div className="confirm" role="alertdialog" aria-label="Confirmar cancelación">
               <p>¿Seguro que quieres cancelar tu suscripción?</p>
               <div className="actions">
-                <button className="btn btn-danger" disabled={busy} onClick={() => act('cancel')}>
+                <button className="t-btn t-btn-danger" disabled={busy} onClick={() => act('cancel')}>
                   Sí, cancelar
                 </button>
-                <button className="btn" onClick={() => setConfirmCancel(false)}>
+                <button className="t-btn" onClick={() => setConfirmCancel(false)}>
                   Mantener suscripción
                 </button>
               </div>
             </div>
           ) : (
-            <button className="btn" onClick={() => setConfirmCancel(true)}>
+            <button className="t-btn" onClick={() => setConfirmCancel(true)}>
               Cancelar suscripción
             </button>
           ))}
@@ -131,7 +131,7 @@ export function BillingScreen() {
           </p>
         )}
         {error && (
-          <p className="form-error" role="alert">
+          <p className="t-alert t-alert-bad" role="alert">
             {error}
           </p>
         )}

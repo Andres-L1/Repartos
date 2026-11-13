@@ -78,18 +78,19 @@ describe('tienda: clases de tema y piezas', () => {
     for (const i of CATALOG.filter((x) => x.kind === 'board')) expect(boardClass(i.id)).toBe(`theme-${i.id}`);
   });
   it('un id desconocido o ausente cae en los predeterminados', () => {
-    expect(boardClass('inventado')).toBe('theme-clasico');
-    expect(boardClass(undefined)).toBe('theme-clasico');
-    expect(piecesClass('x')).toBe('pieces-cburnett');
+    expect(boardClass('inventado')).toBe('theme-noche');
+    expect(boardClass(undefined)).toBe('theme-noche');
+    expect(piecesClass('x')).toBe('pieces-contorno');
     expect(piecesClass('geo')).toBe('pieces-geo');
   });
   it('apariencia combinada', () => {
     expect(appearanceClass({ pieces: 'geo', board: 'brasa' })).toBe('theme-brasa pieces-geo');
-    expect(appearanceClass(null)).toBe('theme-clasico pieces-cburnett');
+    expect(appearanceClass(null)).toBe('theme-noche pieces-contorno');
   });
   it('sanitizeEquipped descarta ids desconocidos', () => {
-    expect(sanitizeEquipped({ pieces: 'geo', board: 'nada' })).toEqual({ pieces: 'geo', board: 'clasico' });
-    expect(sanitizeEquipped(undefined)).toEqual({ pieces: 'cburnett', board: 'clasico' });
+    expect(sanitizeEquipped({ pieces: 'geo', board: 'nada' })).toEqual({ pieces: 'geo', board: 'noche' });
+    expect(sanitizeEquipped(undefined)).toEqual({ pieces: 'contorno', board: 'noche' });
+    expect(sanitizeEquipped({ pieces: 'cburnett', board: 'clasico' })).toEqual({ pieces: 'cburnett', board: 'clasico' });
   });
 });
 
@@ -106,7 +107,7 @@ describe('créditos', () => {
     const boards = catalogCredits().find((g) => g.kind === 'board')!;
     const rows = creditRows(boards.items);
     expect(rows).toHaveLength(1);
-    expect(rows[0]!.names).toEqual(['Clásico', 'Pizarra', 'Bosque', 'Papel', 'Brasa']);
+    expect(rows[0]!.names).toEqual(['Noche', 'Clásico', 'Pizarra', 'Bosque', 'Papel', 'Brasa']);
   });
   it('cubre todo el catálogo y las librerías obligatorias', () => {
     const ids = catalogCredits().flatMap((g) => g.items.map((i) => i.id));
