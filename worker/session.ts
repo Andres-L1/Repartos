@@ -4,6 +4,9 @@ import type { Level } from '../src/types.js';
 import { EXERCISES } from '../src/pedagogy/exercises.js';
 import { LEVELS } from '../src/shared/levels.js';
 import { difficultyForLevel, dueAfter, nextBox, themeForConcept } from '../src/review/srs.js';
+import { Chess } from 'chessops/chess';
+import { parseFen } from 'chessops/fen';
+import { makeSquare, parseUci } from 'chessops/util';
 import type { Db, Stmt } from './db.js';
 import { CONCEPT_IDS } from './srs.js';
 import { takePuzzle } from './puzzles.js';
@@ -24,6 +27,31 @@ interface ItemRow {
   attempts: number;
   first_try_ok: number | null;
   status: 'open' | 'done' | 'counted' | 'closed'; // done: respondido; counted: contado en finish; closed: cerrado sin responder
+}
+
+/** Enroque como rey sobre su torre (e1h1) pasa a rey a destino (e1g1); lo demás igual. */
+function canonical(pos: Chess, uci: string): string {
+  const m = parseUci(uci);
+  if (!m || !('from' in m)) return uci;
+  const king = pos.board.get(m.from);
+  const target = pos.board.get(m.to);
+  if (king?.role !== 'king' || target?.role !== 'rook' || target.color !== king.color) return uci;
+  const from = makeSquare(m.from);
+  return from + (m.to > m.from ? 'g' : 'c') + from[1];
+}
+
+/** ¿`uci` es la jugada esperada en el paso `step` de la línea? Compara el enroque en forma canónica. */
+function isExpected(fen: string, line: string[], step: number, uci: string): boolean {
+  const want = line[step];
+  if (want === undefined) return false;
+  if (uci === want) return true;
+  try {
+    const pos = Chess.fromSetup(parseFen(fen).unwrap()).unwrap();
+    for (const u of line.slice(0, step)) pos.play(parseUci(u)!);
+    return canonical(pos, uci) === canonical(pos, want);
+  } catch {
+    return false;
+  }
 }
 
 const sideToMove = (fen: string) => (fen.split(' ')[1] === 'b' ? 'negras' : 'blancas');
@@ -152,7 +180,7 @@ export async function answerItem(db: Db, userId: string, itemId: string, uci: st
   let step = r.step;
   let attempts = r.attempts;
   let firstTryOk = r.first_try_ok;
-  if (uci === line[r.step]) {
+  if (isExpected(r.fen, line, r.step, uci)) {
     const reply = line[r.step + 1];
     step = r.step + 2;
     const done = step >= line.length;

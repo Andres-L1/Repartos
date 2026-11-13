@@ -135,6 +135,17 @@ describe('sesión diaria', () => {
     expect(s.db.raw.prepare("SELECT solved_at FROM cp_review_positions WHERE id = 'p1'").get()).toEqual({ solved_at: s.now() });
   });
 
+  it('enroque: rey sobre su torre (e1h1) cuenta como e1g1', async () => {
+    const s = setup();
+    const ana = await s.user('ana');
+    s.due('ana', 'tactics.fork');
+    const fen = 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1';
+    s.db.raw.prepare("INSERT INTO cp_review_positions (id, user_id, game_id, ply, concept_id, fen, best_uci, created_at) VALUES ('p1','ana','g1',10,'tactics.fork',?,?,1)").run(fen, 'e1g1');
+    const item = (await ana('GET', '/api/session')).json.items[0];
+    expect(item.fen).toBe(fen);
+    expect((await ana('POST', '/api/session/answer', { itemId: item.itemId, uci: 'e1h1' })).json).toEqual({ correct: true, done: true });
+  });
+
   it('línea de 3 jugadas: acierto devuelve la respuesta del rival y luego done', async () => {
     const s = setup();
     const ana = await s.user('ana');
