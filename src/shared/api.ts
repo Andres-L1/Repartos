@@ -210,3 +210,14 @@ export interface MeShopExtras {
 }
 // Errores: itemId con formato no válido -> 400; id que no existe en el catálogo -> 404; equip con kind que no
 // corresponde al objeto -> 400. Los precios los fija siempre el servidor (se ignora cualquier precio del cuerpo).
+
+// Ampliación (partidas repasadas). POST /api/review/complete con sesión.
+// 400: gameId fuera de /^[A-Za-z0-9]{8}$/, concepto inexistente en CONCEPTS o más de 6 conceptos (los duplicados cuentan una vez).
+export interface CompleteReviewBody {
+  gameId: string;
+  concepts: string[];
+}
+/** `counted` es true solo en la primera llamada por usuario y partida (la única que suma a cp_weak_concepts). */
+export interface CompleteReviewResponse {
+  counted: boolean;
+}

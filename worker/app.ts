@@ -4,6 +4,7 @@ import { bodyLimit } from 'hono/body-limit';
 import type {
   BillingMode,
   CompleteLessonBody,
+  CompleteReviewResponse,
   LessonProgress,
   Placement,
   PlacementPerf,
@@ -29,6 +30,7 @@ import {
   type ContentSource,
   type ProgressRow,
 } from './progress.js';
+import { completeReview, parseCompleteReview } from './review.js';
 import { advanceStreak, buildShop, buyItem, effectiveStreak, equipItem, equippedFor, protectorCount, streakRewardStmts } from './shop.js';
 
 export interface AppDeps {
@@ -471,6 +473,14 @@ export function createApp(deps: AppDeps) {
       protectorUsed,
       profile: await profileFor(userId),
     });
+  });
+
+  // ---------- partidas repasadas ----------
+  app.post('/api/review/complete', requireAuth, async (c) => {
+    const parsed = parseCompleteReview(await readJson(c));
+    if (typeof parsed === 'string') throw new HttpError(400, parsed);
+    const counted = await completeReview(db, c.get('user').id, parsed.gameId, parsed.concepts, now().toISOString());
+    return c.json({ counted } satisfies CompleteReviewResponse);
   });
 
   // ---------- perfil ----------

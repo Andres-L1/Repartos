@@ -5,6 +5,7 @@ import { devBilling } from '../../worker/billing.js';
 import { base64url, seal } from '../../worker/auth.js';
 import type { BillingMode } from '../../src/shared/api.js';
 import type { Lesson, Unit } from '../../src/content/schema.js';
+import { CONCEPTS } from '../../src/pedagogy/concepts.js';
 import { openTestDb } from './sqlite-db.js';
 
 const ORIGIN = 'https://chedexpulse.app';
@@ -652,6 +653,39 @@ describe('colocación por Elo de Lichess', () => {
   });
 });
 
+describe('partidas repasadas', () => {
+  const weak = (s: ReturnType<typeof setup>) =>
+    Object.fromEntries((s.db.raw.prepare('SELECT concept_id, count FROM cp_weak_concepts').all() as any[]).map((r) => [r.concept_id, r.count]));
+
+  it('401 sin sesión', async () => {
+    const s = setup();
+    expect((await s.req('POST', '/api/review/complete', { gameId: 'abcd1234', concepts: [] })).status).toBe(401);
+  });
+
+  it('400 por gameId, concepto desconocido o más de 6', async () => {
+    const s = setup(); await s.login();
+    const ids = Array.from({ length: 7 }, () => CONCEPTS[0]!.id);
+    for (const body of [
+      { gameId: 'abc', concepts: [] }, { gameId: 'abcd123!', concepts: [] }, { concepts: [] },
+      { gameId: 'abcd1234', concepts: ['nope'] }, { gameId: 'abcd1234', concepts: ids },
+    ]) expect((await s.req('POST', '/api/review/complete', body)).status).toBe(400);
+    expect(weak(s)).toEqual({});
+  });
+
+  it('primera vez cuenta (sin duplicados); repetir no cambia nada; concurrentes cuentan una vez', async () => {
+    const s = setup(); await s.login();
+    const [a, b] = CONCEPTS.map((c) => c.id);
+    const first = await s.req('POST', '/api/review/complete', { gameId: 'abcd1234', concepts: [a, a, b] });
+    expect(first).toMatchObject({ status: 200, json: { counted: true } });
+    expect(weak(s)).toEqual({ [a!]: 1, [b!]: 1 });
+    expect((await s.req('POST', '/api/review/complete', { gameId: 'abcd1234', concepts: [a, b] })).json).toEqual({ counted: false });
+    expect(weak(s)).toEqual({ [a!]: 1, [b!]: 1 });
+    const rs = await Promise.all([1, 2, 3].map(() => s.req('POST', '/api/review/complete', { gameId: 'zzzz9999', concepts: [a] })));
+    expect(rs.filter((r) => r.json.counted).length).toBe(1);
+    expect(weak(s)).toEqual({ [a!]: 2, [b!]: 1 });
+  });
+});
+
 describe('migraciones D1', () => {
   const dir = new URL('../../migrations/', import.meta.url);
   const sqlFiles = readdirSync(dir).filter((f) => f.endsWith('.sql'));
@@ -674,6 +708,6 @@ describe('migraciones D1', () => {
     const { raw } = openTestDb();
     for (const f of sqlFiles) raw.exec(readFileSync(new URL(f, dir), 'utf8')); // segunda aplicación
     const names = (raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((r) => r.name);
-    expect(names.sort()).toEqual(['cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_subscriptions', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
+    expect(names.sort()).toEqual(['cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_reviewed_games', 'cp_subscriptions', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
   });
 });
