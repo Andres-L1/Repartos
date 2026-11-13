@@ -36,7 +36,7 @@ export function AuthScreen() {
         <h1>Ya has entrado</h1>
         <p>Sesión iniciada como {user.username}.</p>
         <button className="btn btn-primary" onClick={() => navigate('/mapa')}>
-          Ir al mapa
+          Ir a la ruta
         </button>
       </div>
     );

@@ -4,6 +4,7 @@ import { CONCEPTS } from '../../../src/pedagogy/concepts';
 import { api, ApiError } from '../api';
 import { LEVEL_LABEL } from './MapScreen';
 import { useSession } from '../session';
+import { Icon, Loading, ErrorBox, type IconName } from '../components/Icon';
 
 const GOALS = [10, 20, 30, 50];
 
@@ -61,13 +62,7 @@ export function ProfileScreen() {
   }
 
   if (!profile) {
-    return error ? (
-      <p className="form-error" role="alert">
-        {error}
-      </p>
-    ) : (
-      <p role="status">Cargando perfil…</p>
-    );
+    return error ? <ErrorBox>{error}</ErrorBox> : <Loading label="Cargando perfil…" />;
   }
 
   const pct = Math.min(100, Math.round((profile.xpToday / Math.max(1, profile.dailyGoalXp)) * 100));
@@ -76,7 +71,11 @@ export function ProfileScreen() {
 
   return (
     <div className="profile">
-      <header className="page-head">
+      <header className="page-head profile-head">
+        <span className="avatar" aria-hidden="true">
+          {(user?.username ?? '?').slice(0, 1).toUpperCase()}
+        </span>
+        <div>
         <h1>{user ? `Hola, ${user.username}` : 'Tu perfil'}</h1>
         <p className="muted">
           {user && (
@@ -90,23 +89,44 @@ export function ProfileScreen() {
           )}
           Nivel interno: {LEVEL_LABEL[profile.level]}
         </p>
+        </div>
       </header>
 
       <section className="stats" aria-label="Estadísticas">
-        <Stat label="XP total" value={profile.xp} icon="⭐" />
-        <Stat label="Racha" value={`${profile.streakDays} ${profile.streakDays === 1 ? 'día' : 'días'}`} icon="🔥" />
-        <Stat label="Mejor racha" value={`${profile.longestStreak} ${profile.longestStreak === 1 ? 'día' : 'días'}`} icon="🏅" />
-        <Stat label="Lecciones" value={profile.lessonsCompleted} icon="📘" />
+        <Stat label="XP total" value={profile.xp} icon="star" tone="xp" />
+        <Stat label="Racha" value={`${profile.streakDays} ${profile.streakDays === 1 ? 'día' : 'días'}`} icon="flame" tone="streak" />
+        <Stat label="Mejor racha" value={`${profile.longestStreak} ${profile.longestStreak === 1 ? 'día' : 'días'}`} icon="medal" tone="best" />
+        <Stat label="Lecciones" value={profile.lessonsCompleted} icon="book" tone="lessons" />
       </section>
 
       <section className="card" aria-labelledby="goal-title">
         <h2 id="goal-title">Objetivo diario</h2>
-        <p>
-          Hoy llevas <strong>{profile.xpToday}</strong> de <strong>{profile.dailyGoalXp}</strong> XP
-          {profile.xpToday >= profile.dailyGoalXp && ' · ¡objetivo cumplido! ✓'}
-        </p>
-        <div className="progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Progreso del objetivo diario">
-          <div className="progress-fill" style={{ width: `${pct}%` }} />
+        <div className="goal-summary">
+          <div className="ring" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Progreso del objetivo diario">
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+              <circle className="ring-track" cx="50" cy="50" r="42" />
+              <circle
+                className="ring-fill"
+                cx="50"
+                cy="50"
+                r="42"
+                pathLength={100}
+                strokeDasharray={`${pct} 100`}
+                transform="rotate(-90 50 50)"
+              />
+            </svg>
+            <span className="ring-label" aria-hidden="true">
+              {pct}%
+            </span>
+          </div>
+          <p className="goal-text">
+            Hoy llevas <strong>{profile.xpToday}</strong> de <strong>{profile.dailyGoalXp}</strong> XP
+            {profile.xpToday >= profile.dailyGoalXp && (
+              <span className="goal-done">
+                <Icon name="check" size={16} /> ¡Objetivo cumplido!
+              </span>
+            )}
+          </p>
         </div>
         <form onSubmit={save} className="goal-form">
           <fieldset>
@@ -129,7 +149,7 @@ export function ProfileScreen() {
           </button>
           {msg && (
             <p className="ok" role="status">
-              ✓ {msg}
+              <Icon name="check" size={16} /> {msg}
             </p>
           )}
           {error && (
@@ -145,7 +165,7 @@ export function ProfileScreen() {
         <p>
           {placement?.source === 'lichess' && placement.perf && placement.rating !== null
             ? `Según tu Elo de Lichess en partidas ${placement.perf === 'rapid' ? 'rápidas' : 'clásicas'} (${placement.rating}), ${
-                placement.mode === 'lichess' ? 'el mapa usa la recomendación de inicio.' : 'has elegido empezar desde el principio.'
+                placement.mode === 'lichess' ? 'la ruta usa la recomendación de inicio.' : 'has elegido empezar desde el principio.'
               }`
             : 'No tenemos partidas rápidas o clásicas suficientes para recomendar un punto de partida; empezamos por el principio.'}
         </p>
@@ -157,7 +177,9 @@ export function ProfileScreen() {
       <section className="card" aria-labelledby="weak-title">
         <h2 id="weak-title">Conceptos a reforzar</h2>
         {weak.length === 0 ? (
-          <p className="muted">Todavía no hay errores registrados. ¡Sigue así!</p>
+          <p className="muted empty-inline">
+            <Icon name="sparkle" size={18} /> Todavía no hay errores registrados. ¡Sigue así!
+          </p>
         ) : (
           <ul className="weak-list">
             {weak.map(([id, n]) => (
@@ -178,11 +200,11 @@ export function ProfileScreen() {
   );
 }
 
-function Stat({ label, value, icon }: { label: string; value: string | number; icon: string }) {
+function Stat({ label, value, icon, tone }: { label: string; value: string | number; icon: IconName; tone: string }) {
   return (
-    <div className="stat">
+    <div className={`stat stat-${tone}`}>
       <span className="stat-icon" aria-hidden="true">
-        {icon}
+        <Icon name={icon} size={22} filled={icon === 'star'} />
       </span>
       <span className="stat-value">{value}</span>
       <span className="stat-label">{label}</span>

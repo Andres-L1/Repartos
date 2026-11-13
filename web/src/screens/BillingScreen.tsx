@@ -60,7 +60,7 @@ export function BillingScreen() {
             planes de pago llegarán más adelante y te avisaremos antes de cambiar nada.
           </p>
           <button className="btn btn-primary" onClick={() => navigate('/mapa')}>
-            Ir al mapa
+            Ir a la ruta
           </button>
         </section>
       </div>

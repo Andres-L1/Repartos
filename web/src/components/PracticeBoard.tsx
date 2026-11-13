@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PracticeStep } from '../../../src/content/schema';
 import { Board, marksToShapes } from './Board';
+import { Icon } from './Icon';
 import { applyUci, canonicalUci, lastMoveOf, needsPromotion, parseTypedMove, PROMO_ROLES, sanOfUci, turnOf } from '../chess';
 
 export interface StepResult {
@@ -185,7 +186,7 @@ export function PracticeBoard({ step, mode, onDone, isLast }: Props) {
           {status === 'correct' && (
             <p>
               <strong>
-                <span aria-hidden="true">✓ </span>Correcto.
+                <Icon name="check" size={18} /> Correcto.
               </strong>{' '}
               {feedback}
             </p>
@@ -194,7 +195,7 @@ export function PracticeBoard({ step, mode, onDone, isLast }: Props) {
             <>
               <p>
                 <strong>
-                  <span aria-hidden="true">✗ </span>Incorrecto.
+                  <Icon name="x" size={18} /> Incorrecto.
                 </strong>{' '}
                 {feedback}
               </p>
@@ -210,7 +211,7 @@ export function PracticeBoard({ step, mode, onDone, isLast }: Props) {
 
         {hint && status === 'playing' && step.hint && (
           <p className="hint">
-            <strong>Pista:</strong> {step.hint}
+            <Icon name="bulb" size={18} /> <strong>Pista:</strong> {step.hint}
           </p>
         )}
 

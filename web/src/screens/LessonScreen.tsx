@@ -3,6 +3,7 @@ import type { Lesson } from '../../../src/content/schema';
 import { api, ApiError } from '../api';
 import { LessonPlayer } from '../components/LessonPlayer';
 import { navigate } from '../router';
+import { Icon, Loading } from '../components/Icon';
 
 export function LessonScreen({ id }: { id: string }) {
   const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -22,13 +23,16 @@ export function LessonScreen({ id }: { id: string }) {
 
   if (error)
     return (
-      <div className="card" role="alert">
+      <div className="card empty-state" role="alert">
+        <span className="empty-icon" aria-hidden="true">
+          <Icon name="alert" size={28} />
+        </span>
         <p>{error}</p>
         <button className="btn" onClick={() => navigate('/mapa')}>
-          Volver al mapa
+          Volver a la ruta
         </button>
       </div>
     );
-  if (!lesson) return <p role="status">Cargando lección…</p>;
+  if (!lesson) return <Loading label="Cargando lección…" />;
   return <LessonPlayer key={lesson.id} lesson={lesson} />;
 }

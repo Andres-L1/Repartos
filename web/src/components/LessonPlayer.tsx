@@ -6,6 +6,7 @@ import { navigate } from '../router';
 import { Board, marksToShapes } from './Board';
 import { PracticeBoard, type StepResult } from './PracticeBoard';
 import { turnOf } from '../chess';
+import { Icon } from './Icon';
 
 type Phase =
   | { kind: 'intro' }
@@ -114,7 +115,8 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
     <article className="lesson" aria-labelledby="lesson-title">
       <header className="lesson-head">
         <button className="btn btn-ghost btn-small" onClick={() => navigate(demo ? '/' : '/mapa')}>
-          <span aria-hidden="true">← </span>Salir
+          <Icon name="back" size={18} />
+          Salir
         </button>
         <div className="lesson-head-main">
           <h1 id="lesson-title">{lesson.title}</h1>
@@ -129,6 +131,9 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
             <div className="progress-fill" style={{ width: `${pct}%` }} />
           </div>
         </div>
+        <span className="lesson-pct" aria-hidden="true">
+          {pct}%
+        </span>
       </header>
 
       {phase.kind !== 'result' && (
@@ -140,9 +145,9 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
               aria-current={i === stageIndex ? 'step' : undefined}
             >
               <span className="stage-n" aria-hidden="true">
-                {i < stageIndex ? '✓' : i + 1}
+                {i < stageIndex ? <Icon name="check" size={14} /> : i + 1}
               </span>
-              {s}
+              <span className="stage-label">{s}</span>
               {i === stageIndex && stepCount > 1 && (
                 <span className="stage-count">
                   {' '}
@@ -157,7 +162,9 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
       <div className="lesson-body" key={`${run}-${phase.kind}-${'i' in phase ? phase.i : 0}`}>
         {phase.kind === 'intro' && (
           <section className="card intro">
-            <p className="kicker">Objetivo</p>
+            <p className="kicker">
+              <Icon name="target" size={16} /> Objetivo
+            </p>
             <h2>{lesson.objective}</h2>
             <p className="lead">{lesson.intro}</p>
             <button className="btn btn-primary" onClick={toExplain} autoFocus>
@@ -209,10 +216,12 @@ function ExplainStepView({ lesson, i, onNext, onPrev }: { lesson: Lesson; i: num
         <Board fen={step.fen} orientation={turnOf(step.fen)} shapes={shapes} label="Tablero de la explicación" />
       </div>
       <div className="step-side">
-        <p className="step-kicker">Explicación</p>
+        <p className="step-kicker">
+          <Icon name="eye" size={16} /> Explicación
+        </p>
         <p className="step-text">{step.text}</p>
         {(step.squares?.length || step.arrows?.length) && (
-          <p className="muted">Las casillas y flechas verdes del tablero señalan lo importante.</p>
+          <p className="muted note-marks">Las casillas y flechas verdes del tablero señalan lo importante.</p>
         )}
         <div className="actions">
           {onPrev && (
@@ -247,6 +256,7 @@ function ResultView({
   if (saving || !outcome) {
     return (
       <section className="card result" aria-busy="true">
+        <span className="spinner" aria-hidden="true" />
         <p role="status">Guardando tu resultado…</p>
       </section>
     );
@@ -254,8 +264,8 @@ function ResultView({
   const { correct, total, passed } = outcome;
   return (
     <section className="card result" aria-live="polite">
-      <p className="result-icon" aria-hidden="true">
-        {passed ? '🏆' : '💪'}
+      <p className={`result-icon${passed ? ' result-pass' : ' result-retry'}`} aria-hidden="true">
+        <Icon name={passed ? 'trophy' : 'repeat'} size={44} />
       </p>
       <h2>{passed ? '¡Lección completada!' : 'Casi lo tienes'}</h2>
       <p className="lead">
@@ -263,14 +273,30 @@ function ResultView({
         {!passed && ` Necesitas al menos ${passMark} para completarla.`}
       </p>
       {outcome.xpGained !== undefined && (
-        <p className="xp-badge">
-          +{outcome.xpGained} XP
-        </p>
+        <p className="xp-badge">+{outcome.xpGained} XP</p>
       )}
       {outcome.profile && (
-        <p className="muted">
-          Total: {outcome.profile.xp} XP · racha {outcome.profile.streakDays} {outcome.profile.streakDays === 1 ? 'día' : 'días'} · hoy {outcome.profile.xpToday}/{outcome.profile.dailyGoalXp} XP
-        </p>
+        <ul className="result-stats">
+          <li>
+            <Icon name="star" size={18} filled />
+            <strong>{outcome.profile.xp}</strong>
+            <span>XP en total</span>
+          </li>
+          <li>
+            <Icon name="flame" size={18} />
+            <strong>
+              {outcome.profile.streakDays} {outcome.profile.streakDays === 1 ? 'día' : 'días'}
+            </strong>
+            <span>de racha</span>
+          </li>
+          <li>
+            <Icon name="target" size={18} />
+            <strong>
+              {outcome.profile.xpToday}/{outcome.profile.dailyGoalXp}
+            </strong>
+            <span>XP hoy</span>
+          </li>
+        </ul>
       )}
       {outcome.error && (
         <p className="field-error" role="alert">
@@ -290,7 +316,7 @@ function ResultView({
         ) : (
           <>
             <button className="btn btn-primary" onClick={() => navigate('/mapa')} autoFocus>
-              Volver al mapa
+              Volver a la ruta
             </button>
             <button className="btn" onClick={onRestart}>
               {passed ? 'Repasar' : 'Intentarlo de nuevo'}

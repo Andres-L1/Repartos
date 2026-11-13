@@ -7,6 +7,7 @@ import { turnOf } from '../chess';
 import { navigate } from '../router';
 import { useSession } from '../session';
 import { LichessLogin } from './Auth';
+import { Icon, Loading } from '../components/Icon';
 
 function useDemo() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -30,7 +31,9 @@ export function Landing() {
       <section className="hero">
         <div className="hero-copy">
           <p className="kicker">Ajedrez de 0 a 800 Elo</p>
-          <h1>Aprende ajedrez paso a paso, sin prisas y sin ruido.</h1>
+          <h1>
+            Aprende ajedrez <span className="hl">paso a paso</span>, sin prisas y sin ruido.
+          </h1>
           <p className="lead">
             Lecciones cortas e interactivas: te explicamos una idea, practicas sobre el tablero y compruebas que la
             has entendido. Todas las posiciones están verificadas por código.
@@ -38,7 +41,7 @@ export function Landing() {
           <div className="actions">
             {user ? (
               <button className="btn btn-primary btn-large" onClick={() => navigate('/mapa')}>
-                Ir a mi mapa de aprendizaje
+                Ir a mi ruta de aprendizaje
               </button>
             ) : (
               <>
@@ -49,7 +52,8 @@ export function Landing() {
               </>
             )}
           </div>
-          <p className="muted">
+          <p className="muted hero-note">
+            <Icon name="gift" size={18} />{' '}
             {billingMode === 'beta_open'
               ? 'Beta abierta: todas las lecciones son gratis mientras la probamos.'
               : 'Sin permanencia: cancela cuando quieras.'}
@@ -64,7 +68,7 @@ export function Landing() {
             </div>
           )}
           {lesson && (
-            <p className="muted center">
+            <p className="muted center board-caption">
               Demostración: <strong>{lesson.title}</strong>
             </p>
           )}
@@ -72,17 +76,32 @@ export function Landing() {
       </section>
 
       <section className="features" aria-label="Cómo funciona">
-        <div className="card">
-          <h2>1. Entiende</h2>
+        <div className="card feature">
+          <span className="feature-icon" aria-hidden="true">
+            <Icon name="eye" size={24} />
+          </span>
+          <h2>
+            <span className="feature-n" aria-hidden="true">1</span>Entiende
+          </h2>
           <p>Una idea por lección, explicada sobre el tablero con casillas y flechas.</p>
         </div>
-        <div className="card">
-          <h2>2. Practica</h2>
+        <div className="card feature">
+          <span className="feature-icon" aria-hidden="true">
+            <Icon name="target" size={24} />
+          </span>
+          <h2>
+            <span className="feature-n" aria-hidden="true">2</span>Practica
+          </h2>
           <p>Mueve tú las piezas. Si fallas, te explicamos por qué y puedes reintentar.</p>
         </div>
-        <div className="card">
-          <h2>3. Demuestra</h2>
-          <p>Una evaluación con posiciones nuevas, sin pistas, para avanzar por el mapa.</p>
+        <div className="card feature">
+          <span className="feature-icon" aria-hidden="true">
+            <Icon name="trophy" size={24} />
+          </span>
+          <h2>
+            <span className="feature-n" aria-hidden="true">3</span>Demuestra
+          </h2>
+          <p>Una evaluación con posiciones nuevas, sin pistas, para avanzar por la ruta.</p>
         </div>
       </section>
     </div>
@@ -93,7 +112,10 @@ export function DemoScreen() {
   const { lesson, error } = useDemo();
   if (error) {
     return (
-      <div className="card" role="alert">
+      <div className="card empty-state" role="alert">
+        <span className="empty-icon" aria-hidden="true">
+          <Icon name="alert" size={28} />
+        </span>
         <p>{error}</p>
         <button className="btn" onClick={() => navigate('/')}>
           Volver
@@ -101,10 +123,13 @@ export function DemoScreen() {
       </div>
     );
   }
-  if (!lesson) return <p role="status">Cargando demostración…</p>;
+  if (!lesson) return <Loading label="Cargando demostración…" />;
   return (
     <>
-      <p className="banner">Demostración gratuita: no necesitas cuenta. Tu progreso no se guarda.</p>
+      <p className="banner">
+        <Icon name="gift" size={18} />{' '}
+        Demostración gratuita: no necesitas cuenta. Tu progreso no se guarda.
+      </p>
       <LessonPlayer lesson={lesson} demo />
     </>
   );

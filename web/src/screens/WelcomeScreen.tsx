@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { MapUnit, Placement, PlacementMode, PlacementSeen, SeenPerf } from '../../../src/shared/api';
 import { api, ApiError } from '../api';
 import { navigate } from '../router';
+import { Icon, Loading, ErrorBox } from '../components/Icon';
 
 const PERF_LABEL = { rapid: 'partidas rápidas', classical: 'partidas clásicas' } as const;
 /** Mismo mínimo que usa el servidor (worker/placement.ts: PLACEMENT_MIN_GAMES). */
@@ -27,7 +28,7 @@ export function SeenSummary({ seen }: { seen: PlacementSeen | null }) {
   if (!seen)
     return <p className="muted">Vuelve a entrar con Lichess para ver qué datos de tu cuenta hemos recibido.</p>;
   return (
-    <div className="muted">
+    <div className="muted seen">
       <p>
         <strong>Esto es lo que nos ha enviado Lichess:</strong>
       </p>
@@ -85,13 +86,7 @@ export function WelcomeScreen() {
   }
 
   if (!placement) {
-    return error ? (
-      <p className="form-error" role="alert">
-        {error}
-      </p>
-    ) : (
-      <p role="status">Cargando…</p>
-    );
+    return error ? <ErrorBox>{error}</ErrorBox> : <Loading label="Cargando…" />;
   }
 
   const rec = units.find((u) => u.id === placement.recommendedUnitId);
@@ -100,6 +95,9 @@ export function WelcomeScreen() {
 
   return (
     <div className="card welcome">
+      <span className="welcome-icon" aria-hidden="true">
+        <Icon name="sparkle" size={26} />
+      </span>
       <h1>Bienvenido a Chedex Pulse</h1>
       {placement.source === 'lichess' && placement.perf && placement.rating !== null ? (
         <>
@@ -141,11 +139,7 @@ export function WelcomeScreen() {
           </div>
         </>
       )}
-      {error && (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <ErrorBox>{error}</ErrorBox>}
       <PrivacyNote />
     </div>
   );
