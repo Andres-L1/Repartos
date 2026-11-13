@@ -1,6 +1,5 @@
 import type { Lesson, Unit } from '../src/content/schema.js';
 import type { LessonStatus, MapUnit } from '../src/shared/api.js';
-import type { Level } from '../src/types.js';
 
 export interface ContentSource {
   units: Unit[];
@@ -85,19 +84,6 @@ export function buildMap(
       };
     }),
   }));
-}
-
-/** Umbrales de XP para el nivel educativo interno. */
-const LEVELS: [number, Level][] = [
-  [4500, 'competitive'],
-  [2800, 'advanced'],
-  [1600, 'intermediate'],
-  [800, 'basic'],
-  [300, 'initiation'],
-  [0, 'beginner'],
-];
-export function levelForXp(xp: number): Level {
-  return LEVELS.find(([min]) => xp >= min)![1];
 }
 
 export interface XpInput {

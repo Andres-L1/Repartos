@@ -6,9 +6,8 @@ import type {
   CompleteLessonBody,
   CompleteReviewResponse,
   LessonProgress,
-  Placement,
-  PlacementPerf,
-  PlacementMode,
+  LevelCard,
+  LevelInfo,
   Profile,
   Subscription,
   SubscriptionStatus,
@@ -17,14 +16,16 @@ import type {
 import type { Db, Stmt } from './db.js';
 import type { BillingProvider, SubscriptionRecord } from './billing.js';
 import { handleCallback, handleLogin, handleLogout, readSession, type AuthConfig } from './auth.js';
-import { describePerfs, parseSeen, planForRating, selectPerf } from './placement.js';
+import { describePerfs, parseSeen, selectPerf } from './placement.js';
+import { levelPlan } from './level.js';
+import { LEVELS, suggestLevel } from '../src/shared/levels.js';
+import type { Level } from '../src/types.js';
 import {
   buildMap,
   computeStatuses,
   computeXp,
   dayOf,
   findLesson,
-  levelForXp,
   passMarkFor,
   yesterdayOf,
   type ContentSource,
@@ -219,6 +220,14 @@ export function createApp(deps: AppDeps) {
     return (await db.first<ProfileRow>('SELECT * FROM cp_profiles WHERE user_id = ?', [userId]))!;
   }
 
+  const isLevel = (v: unknown): v is Level => typeof v === 'string' && LEVELS.some((l) => l.id === v);
+
+  /** Nivel que eligió el alumno (null si aún no eligió). */
+  async function chosenLevel(userId: string): Promise<Level | null> {
+    const row = await db.first<{ level: string }>('SELECT level FROM cp_user_level WHERE user_id = ?', [userId]);
+    return row && isLevel(row.level) ? row.level : null;
+  }
+
   async function profileFor(userId: string): Promise<Profile> {
     const p = await loadProfile(userId);
     const t = now();
@@ -234,7 +243,7 @@ export function createApp(deps: AppDeps) {
     );
     return {
       xp: p.xp,
-      level: levelForXp(p.xp),
+      level: (await chosenLevel(userId)) ?? 'initiation',
       streakDays,
       longestStreak: p.longest_streak,
       dailyGoalXp: p.daily_goal_xp,
@@ -276,65 +285,51 @@ export function createApp(deps: AppDeps) {
 
   app.get('/api/me', requireAuth, async (c) => {
     const user = c.get('user');
-    return c.json({ user, subscription: await subscriptionFor(user.id), billingMode, equipped: await equippedFor(db, user.id) });
+    const chosen = await chosenLevel(user.id);
+    return c.json({
+      user,
+      subscription: await subscriptionFor(user.id),
+      billingMode,
+      equipped: await equippedFor(db, user.id),
+      level: chosen ?? 'initiation',
+      levelChosen: chosen !== null,
+    });
   });
 
   // ---------- mapa y lecciones ----------
-  interface PlacementRow {
-    source: string;
-    perf: string | null;
-    rating: number | null;
-    games: number | null;
-    mode: string | null;
-  }
-
-  /** Colocación del usuario: sugerencia (con el contenido actual) y modo efectivo. */
-  async function placementFor(userId: string): Promise<Placement> {
-    const row = await db.first<PlacementRow>('SELECT source, perf, rating, games, mode FROM cp_placement WHERE user_id = ?', [
-      userId,
-    ]);
-    const reliable = row?.source === 'lichess' && row.rating !== null && (row.perf === 'rapid' || row.perf === 'classical' || row.perf === 'blitz');
-    const plan = planForRating(reliable ? row.rating : null, content);
-    const mode: PlacementMode = reliable && row.mode !== 'scratch' ? 'lichess' : 'scratch';
-    const seenRow = await db.first<{ seen_json: string }>('SELECT seen_json FROM cp_placement_seen WHERE user_id = ?', [userId]);
-    return {
-      seen: parseSeen(seenRow?.seen_json),
-      source: reliable ? 'lichess' : 'none',
-      perf: reliable ? (row.perf as PlacementPerf) : null,
-      rating: reliable ? row.rating : null,
-      games: reliable ? row.games : null,
-      mode,
-      chosen: row?.mode === 'lichess' || row?.mode === 'scratch',
-      ...plan,
-    };
-  }
-  /** Efecto en el mapa: solo con modo 'lichess'. */
-  async function placementEffect(userId: string) {
-    const p = await placementFor(userId);
-    return p.mode === 'lichess'
-      ? { openUnitIds: new Set(p.openUnitIds), recommendedUnitId: p.recommendedUnitId }
-      : { openUnitIds: new Set<string>(), recommendedUnitId: null };
+  /** Efecto en el mapa: solo con nivel elegido; sin elección, ninguno. */
+  async function levelEffect(userId: string) {
+    const level = await chosenLevel(userId);
+    if (!level) return { openUnitIds: new Set<string>(), recommendedUnitId: null };
+    const plan = levelPlan(level, content);
+    return { openUnitIds: new Set(plan.openUnitIds), recommendedUnitId: plan.recommendedUnitId };
   }
 
   app.get('/api/map', requireAuth, async (c) => {
     const userId = c.get('user').id;
-    return c.json({ units: buildMap(content.units, await progressMap(userId), await placementEffect(userId)) });
+    return c.json({ units: buildMap(content.units, await progressMap(userId), await levelEffect(userId)) });
   });
 
-  app.get('/api/placement', requireAuth, async (c) => c.json(await placementFor(c.get('user').id)));
+  async function levelInfoFor(userId: string): Promise<LevelInfo> {
+    const chosen = await chosenLevel(userId);
+    const seenRow = await db.first<{ seen_json: string }>('SELECT seen_json FROM cp_placement_seen WHERE user_id = ?', [userId]);
+    const { level, hint } = suggestLevel(parseSeen(seenRow?.seen_json));
+    const levels: LevelCard[] = LEVELS.map((l) => ({ ...l, available: content.units.some((u) => u.level === l.id) }));
+    return { chosen, suggested: level, hint, levels, comingSoon: chosen !== null && levelPlan(chosen, content).comingSoon };
+  }
 
-  app.post('/api/placement', requireAuth, async (c) => {
+  app.get('/api/level', requireAuth, async (c) => c.json(await levelInfoFor(c.get('user').id)));
+
+  app.put('/api/level', requireAuth, async (c) => {
     const userId = c.get('user').id;
     const b = await readJson(c);
-    if (b.mode !== 'lichess' && b.mode !== 'scratch') throw new HttpError(400, "mode debe ser 'lichess' o 'scratch'");
-    if (b.mode === 'lichess' && (await placementFor(userId)).source !== 'lichess')
-      throw new HttpError(400, 'No hay un Elo de Lichess fiable para recomendar un punto de partida');
+    if (!isLevel(b.level)) throw new HttpError(400, 'level debe ser uno de los 6 niveles');
     await db.run(
-      `INSERT INTO cp_placement (user_id, source, perf, rating, games, mode, fetched_at) VALUES (?, 'none', NULL, NULL, NULL, ?, ?)
-       ON CONFLICT(user_id) DO UPDATE SET mode = excluded.mode`,
-      [userId, b.mode, now().toISOString()],
+      `INSERT INTO cp_user_level (user_id, level, chosen_at) VALUES (?,?,?)
+       ON CONFLICT(user_id) DO UPDATE SET level = excluded.level, chosen_at = excluded.chosen_at`,
+      [userId, b.level, now().toISOString()],
     );
-    return c.json(await placementFor(userId));
+    return c.json(await levelInfoFor(userId));
   });
 
   /** Valida existencia, suscripción (solo 'dev') y bloqueo por progreso. */
@@ -342,7 +337,7 @@ export function createApp(deps: AppDeps) {
     const lesson = findLesson(content, id);
     if (!lesson) throw new HttpError(404, 'Lección no encontrada');
     if (!lesson.demo && !(await hasAccess(userId))) throw new HttpError(402, 'Requiere suscripción activa');
-    const st = computeStatuses(content.units, await progressMap(userId), await placementEffect(userId)).lessonStatus.get(id);
+    const st = computeStatuses(content.units, await progressMap(userId), await levelEffect(userId)).lessonStatus.get(id);
     if (st === 'locked') throw new HttpError(403, 'Lección bloqueada: completa antes las anteriores');
     return lesson;
   }

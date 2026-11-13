@@ -10,10 +10,10 @@
  *
  * API (JSON, bajo /api):
  * GET  /api/config                                             -> {billingMode}                    (público)
- * GET  /api/me                                                 -> {user, subscription, billingMode}   (401 sin sesión)
- * GET  /api/map                                                -> {units: MapUnit[]}   (con colocación: placedOpen/recommended)
- * GET  /api/placement                                          -> Placement   (colocación inicial por Elo de Lichess: rápidas/clásicas, o blitz si no hay)
- * POST /api/placement {mode:'lichess'|'scratch'}                -> Placement   (guarda la elección; 'lichess' sin Elo fiable: 400)
+ * GET  /api/me                                                 -> {user, subscription, billingMode, equipped, level, levelChosen}   (401 sin sesión)
+ * GET  /api/map                                                -> {units: MapUnit[]}   (con nivel elegido: placedOpen/recommended)
+ * GET  /api/level                                              -> LevelInfo   (nivel elegido, sugerido por Lichess y tarjetas de los 6 niveles)
+ * PUT  /api/level {level}                                      -> LevelInfo   (guarda la elección; nivel inválido: 400)
  * GET  /api/lessons/:id                                        -> {lesson}   (402 solo en 'dev' si no demo y sin suscripción)
  * POST /api/lessons/:id/complete {correct, total, mistakes}    -> {progress, xpGained, profile}
  * GET  /api/profile                                            -> {profile}
@@ -26,6 +26,7 @@
  */
 import type { Lesson } from '../content/schema.js';
 import type { Level } from '../types.js';
+import type { LevelHint } from './levels.js';
 
 /** Usuario de Lichess. */
 export interface User {
@@ -71,14 +72,8 @@ export interface MapLesson {
   status: LessonStatus;
   bestScore?: number; // 0..1
 }
-/** Ritmos de Lichess que cuentan para la colocación: rápidas y clásicas primero; blitz solo si no hay Elo fiable en ellas (bullet no). */
+/** Ritmos de Lichess que cuentan para la sugerencia: rápidas y clásicas primero; blitz solo si no hay Elo fiable en ellas (bullet no). */
 export type PlacementPerf = 'rapid' | 'classical' | 'blitz';
-export type PlacementMode = 'lichess' | 'scratch';
-/**
- * Colocación inicial. `recommendedUnitId` y `openUnitIds` son la SUGERENCIA calculada con el Elo y el contenido actual;
- * solo afectan al mapa cuando `mode` es 'lichess'. `chosen`: el usuario ya eligió (si no, mostrar la bienvenida).
- * `mode` por defecto: 'lichess' si hay Elo fiable, 'scratch' si no.
- */
 /** Qué devolvió Lichess de un ritmo en el último login y por qué cuenta o no. */
 export type SeenState = 'absent' | 'invalid' | 'provisional' | 'few_games' | 'reliable';
 export interface SeenPerf {
@@ -93,18 +88,27 @@ export interface PlacementSeen {
   classical: SeenPerf;
   blitz: SeenPerf;
 }
-export interface Placement {
-  /** null si todavía no hay registro (cuentas anteriores a esta función: vuelve a entrar para verlo). */
-  seen: PlacementSeen | null;
-  source: 'lichess' | 'none';
-  perf: PlacementPerf | null;
-  rating: number | null;
-  /** Partidas jugadas en ese ritmo. */
-  games: number | null;
-  mode: PlacementMode;
-  chosen: boolean;
-  recommendedUnitId: string | null;
-  openUnitIds: string[];
+/** Tarjeta de un nivel para la pantalla de elección. `available`: el temario ya tiene unidades de ese nivel. */
+export interface LevelCard {
+  id: Level;
+  label: string;
+  minElo: number;
+  maxElo: number;
+  blurb: string;
+  available: boolean;
+}
+export interface LevelInfo {
+  /** Nivel elegido por el alumno (null si aún no eligió). */
+  chosen: Level | null;
+  /** Sugerencia a partir del Elo fiable de Lichess (null sin datos fiables). */
+  suggested: Level | null;
+  hint: LevelHint | null;
+  levels: LevelCard[];
+  /** El nivel elegido aún no tiene contenido: se abre todo lo actual. */
+  comingSoon: boolean;
+}
+export interface SetLevelBody {
+  level: Level;
 }
 
 export interface MapUnit {

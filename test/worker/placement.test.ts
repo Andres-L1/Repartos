@@ -1,70 +1,38 @@
 import { describe, it, expect } from 'vitest';
-import { computePlacement, describePerfs, parseSeen, selectPerf, PLACEMENT_BANDS, PLACEMENT_MIN_GAMES, parsePerf } from '../../worker/placement.js';
-import type { Unit } from '../../src/content/schema.js';
+import { describePerfs, parseSeen, selectPerf, PLACEMENT_MIN_GAMES, parsePerf } from '../../worker/placement.js';
 
-const u = (id: string, order: number, level: Unit['level']): Unit => ({
-  id, order, title: id, description: 'd', level, requires: [], lessons: [],
-});
-const full: Unit[] = [u('u01', 1, 'beginner'), u('u02', 2, 'beginner'), u('u03', 3, 'beginner'), u('u04', 4, 'initiation'), u('u05', 5, 'initiation'), u('u06', 6, 'initiation')];
 const p = (rating: number, games = 100, prov?: boolean) => ({ rating, games, ...(prov === undefined ? {} : { prov }) });
-const content = { units: full };
 
-describe('computePlacement', () => {
+describe('selectPerf', () => {
   it('constantes de diseño', () => {
     expect(PLACEMENT_MIN_GAMES).toBe(10);
-    expect(PLACEMENT_BANDS.map((b) => b.minRating)).toEqual([0, 1000, 1400]);
   });
 
-  it('sin perfs o sin datos fiables: none, sin efectos', () => {
-    for (const perfs of [undefined, null, {}, { rapid: 'x' }]) {
-      expect(computePlacement(perfs, content)).toEqual({ source: 'none', perf: null, rating: null, games: null, recommendedUnitId: null, openUnitIds: [] });
-    }
+  it('sin perfs o sin datos fiables: none', () => {
+    for (const perfs of [undefined, null, {}, { rapid: p(1500, 5) }, { classical: p(1500, 100, true) }])
+      expect(selectPerf(perfs)).toEqual({ source: 'none', perf: null, rating: null, games: null });
   });
 
   it('provisional (prov true) no cuenta aunque tenga muchas partidas', () => {
-    expect(computePlacement({ rapid: p(1800, 500, true) }, content).source).toBe('none');
+    expect(selectPerf({ rapid: p(1800, 500, true) }).source).toBe('none');
   });
 
   it('pocas partidas no cuenta; el umbral (10) sí', () => {
-    expect(computePlacement({ classical: p(1800, 9) }, content).source).toBe('none');
-    expect(computePlacement({ classical: p(1800, 10) }, content)).toMatchObject({ source: 'lichess', perf: 'classical', rating: 1800 });
+    expect(selectPerf({ classical: p(1800, 9) }).source).toBe('none');
+    expect(selectPerf({ classical: p(1800, 10) })).toMatchObject({ source: 'lichess', perf: 'classical', rating: 1800 });
   });
 
   it('toma el mayor entre rapid y classical fiables; ignora el no fiable aunque sea mayor', () => {
-    expect(computePlacement({ rapid: p(1100), classical: p(1500) }, content)).toMatchObject({ perf: 'classical', rating: 1500 });
-    expect(computePlacement({ rapid: p(1600), classical: p(1500) }, content)).toMatchObject({ perf: 'rapid', rating: 1600 });
-    expect(computePlacement({ rapid: p(900), classical: p(2000, 3) }, content)).toMatchObject({ perf: 'rapid', rating: 900 });
-    expect(computePlacement({ rapid: p(1500), classical: p(1500) }, content).perf).toBe('rapid'); // empate
-  });
-
-  it('bandas: <1000, 1000-1399 y >=1400 (límites inclusivos)', () => {
-    const at = (r: number) => computePlacement({ rapid: p(r) }, content);
-    for (const r of [0, 500, 999]) expect(at(r)).toMatchObject({ recommendedUnitId: 'u01', openUnitIds: [] });
-    for (const r of [1000, 1200, 1399]) expect(at(r)).toMatchObject({ recommendedUnitId: 'u04', openUnitIds: ['u01', 'u02', 'u03'] });
-    for (const r of [1400, 2500, 4000]) expect(at(r)).toMatchObject({ recommendedUnitId: 'u05', openUnitIds: ['u01', 'u02', 'u03', 'u04', 'u05', 'u06'] });
-  });
-
-  it('es genérico por nivel y orden, no por ids (independiente del orden del array)', () => {
-    const shuffled = { units: [full[4]!, full[0]!, full[5]!, full[2]!, full[1]!, full[3]!] };
-    expect(computePlacement({ rapid: p(1200) }, shuffled).recommendedUnitId).toBe('u04');
-    const renamed = { units: [u('x', 10, 'beginner'), u('y', 20, 'initiation'), u('z', 30, 'initiation')] };
-    expect(computePlacement({ rapid: p(1500) }, renamed)).toMatchObject({ recommendedUnitId: 'z', openUnitIds: ['x', 'y', 'z'] });
-  });
-
-  it('contenido con pocas unidades: recomendada con respaldo y sin romper', () => {
-    const two = { units: [u('a', 1, 'beginner'), u('b', 2, 'beginner')] };
-    expect(computePlacement({ rapid: p(500) }, two).recommendedUnitId).toBe('a');
-    expect(computePlacement({ rapid: p(1200) }, two)).toMatchObject({ recommendedUnitId: 'b', openUnitIds: ['a', 'b'] });
-    expect(computePlacement({ rapid: p(1800) }, two)).toMatchObject({ recommendedUnitId: 'b', openUnitIds: ['a', 'b'] });
-    const oneInit = { units: [u('a', 1, 'beginner'), u('b', 2, 'initiation')] };
-    expect(computePlacement({ rapid: p(1800) }, oneInit).recommendedUnitId).toBe('b'); // índice 1 no existe: última del nivel
-    expect(computePlacement({ rapid: p(1800) }, { units: [] })).toMatchObject({ source: 'lichess', recommendedUnitId: null, openUnitIds: [] });
+    expect(selectPerf({ rapid: p(1100), classical: p(1500) })).toMatchObject({ perf: 'classical', rating: 1500 });
+    expect(selectPerf({ rapid: p(1600), classical: p(1500) })).toMatchObject({ perf: 'rapid', rating: 1600 });
+    expect(selectPerf({ rapid: p(900), classical: p(2000, 3) })).toMatchObject({ perf: 'rapid', rating: 900 });
+    expect(selectPerf({ rapid: p(1500), classical: p(1500) }).perf).toBe('rapid'); // empate
   });
 });
 
 describe('blitz como respaldo', () => {
   it('solo blitz fiable: se usa', () => {
-    expect(computePlacement({ blitz: p(1200) }, content)).toMatchObject({ source: 'lichess', perf: 'blitz', rating: 1200, games: 100, recommendedUnitId: 'u04' });
+    expect(selectPerf({ blitz: p(1200) })).toMatchObject({ source: 'lichess', perf: 'blitz', rating: 1200, games: 100 });
     expect(selectPerf({ blitz: p(1200, 10) }).perf).toBe('blitz');
   });
   it('blitz provisional o con pocas partidas: no cuenta', () => {

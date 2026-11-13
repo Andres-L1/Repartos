@@ -470,15 +470,14 @@ const placementUnits: Unit[] = [
 ];
 const perf = (rating: number, games = 50, extra: Record<string, unknown> = {}) => ({ rating, games, rd: 80, prog: 0, ...extra });
 
-describe('colocación por Elo de Lichess', () => {
+describe('lo que Lichess envió (cp_placement y cp_placement_seen)', () => {
   const loginWith = async (perfs: unknown) => {
     const s = setup('beta_open', { units: placementUnits });
     lichess.account = { id: 'Ana', username: 'Ana', perfs };
     await s.login();
     return s;
   };
-  const unitMap = async (s: Awaited<ReturnType<typeof loginWith>>) =>
-    Object.fromEntries(((await s.req('GET', '/api/map')).json.units as any[]).map((u) => [u.id, u]));
+  const seenOf = async (s: Awaited<ReturnType<typeof loginWith>>) => (await s.req('GET', '/api/level')).json;
 
   it('el callback guarda solo rápidas/clásicas/blitz validadas y el token sigue sin guardarse y revocándose', async () => {
     const s = await loginWith({ rapid: perf(1180, 40), classical: perf(1350, 25), blitz: perf(2900, 900), bullet: perf(3000, 900) });
@@ -488,48 +487,30 @@ describe('colocación por Elo de Lichess', () => {
     expect(lichess.calls.map((c) => c.method)).toEqual(['POST', 'GET', 'DELETE']);
     const dump = JSON.stringify([s.db.raw.prepare('SELECT * FROM cp_users').all(), s.db.raw.prepare('SELECT * FROM cp_placement').all()]);
     expect(dump).not.toContain(TOKEN);
-    const p = (await s.req('GET', '/api/placement')).json;
-    expect(p).toMatchObject({ source: 'lichess', perf: 'classical', rating: 1350, games: 25, mode: 'lichess', chosen: false, recommendedUnitId: 'p3', openUnitIds: ['p1', 'p2'] });
   });
 
-  it('se refresca en cada login sin perder la elección del usuario', async () => {
+  it('se refresca en cada login sin tocar el nivel elegido', async () => {
     const s = await loginWith({ rapid: perf(1100) });
-    await s.req('POST', '/api/placement', { mode: 'scratch' });
+    await s.req('PUT', '/api/level', { level: 'basic' });
     lichess.account = { id: 'Ana', username: 'Ana', perfs: { rapid: perf(1500) } };
     await s.login();
-    expect(s.db.raw.prepare('SELECT rating, mode FROM cp_placement').all().map((r) => ({ ...r }))).toEqual([{ rating: 1500, mode: 'scratch' }]);
+    expect(s.db.raw.prepare('SELECT rating FROM cp_placement').all().map((r) => ({ ...r }))).toEqual([{ rating: 1500 }]);
+    expect((await s.req('GET', '/api/me')).json).toMatchObject({ level: 'basic', levelChosen: true });
   });
 
-  it('guarda y devuelve qué envió Lichess de cada ritmo (estado, Elo y partidas), sin bullet', async () => {
-    const s = await loginWith({ rapid: perf(1500, 4, { prov: true }), classical: perf(1230, 6), blitz: perf(1300, 5, { prov: true }), bullet: perf(2900, 900) });
-    const p = (await s.req('GET', '/api/placement')).json;
-    expect(p.source).toBe('none');
-    expect(p.seen).toEqual({
-      perfsPresent: true,
-      rapid: { state: 'provisional', rating: 1500, games: 4 },
-      classical: { state: 'few_games', rating: 1230, games: 6 },
-      blitz: { state: 'provisional', rating: 1300, games: 5 },
-    });
-    expect(JSON.stringify(p.seen)).not.toContain('2900');
-  });
-
-  it('solo blitz fiable: login guarda perf blitz, /api/placement lo devuelve con seen y el mapa se coloca', async () => {
+  it('solo blitz fiable: login guarda perf blitz y la sugerencia sale de él', async () => {
     const s = await loginWith({ rapid: perf(1600, 4, { prov: true }), blitz: perf(1250, 70), bullet: perf(3000, 900) });
     expect(s.db.raw.prepare('SELECT source, perf, rating, games FROM cp_placement').all().map((r) => ({ ...r }))).toEqual([
       { source: 'lichess', perf: 'blitz', rating: 1250, games: 70 },
     ]);
-    const p = (await s.req('GET', '/api/placement')).json;
-    expect(p).toMatchObject({ source: 'lichess', perf: 'blitz', rating: 1250, games: 70, mode: 'lichess', recommendedUnitId: 'p3', openUnitIds: ['p1', 'p2'] });
-    expect(p.seen.blitz).toEqual({ state: 'reliable', rating: 1250, games: 70 });
-    expect(JSON.stringify(p.seen)).not.toContain('3000');
-    const m = await unitMap(s);
-    expect(m.p1).toMatchObject({ placedOpen: true, status: 'available' });
-    expect(m.p3).toMatchObject({ recommended: true, status: 'available' });
+    expect((await seenOf(s)).suggested).toBe('intermediate');
+    const stored = (s.db.raw.prepare('SELECT seen_json FROM cp_placement_seen').get() as { seen_json: string }).seen_json;
+    expect(stored).not.toContain('3000');
   });
 
-  it('rápidas fiables tienen prioridad sobre un blitz más alto', async () => {
-    const s = await loginWith({ rapid: perf(1100), blitz: perf(1900) });
-    expect((await s.req('GET', '/api/placement')).json).toMatchObject({ perf: 'rapid', rating: 1100 });
+  it('GET /api/level: sugerencia con el mayor Elo fiable y pista con un provisional alto', async () => {
+    const s = await loginWith({ rapid: perf(1749, 43, { prov: true }), classical: perf(1500, 6), blitz: perf(1125, 1177) });
+    expect(await seenOf(s)).toMatchObject({ chosen: null, suggested: 'intermediate', hint: { perf: 'rapid', rating: 1749, games: 43, level: 'competitive' } });
   });
 
   it('un registro antiguo de seen sin blitz se sigue leyendo (blitz ausente)', async () => {
@@ -537,48 +518,22 @@ describe('colocación por Elo de Lichess', () => {
     s.db.raw.prepare('UPDATE cp_placement_seen SET seen_json = ?').run(
       JSON.stringify({ perfsPresent: true, rapid: { state: 'reliable', rating: 1500, games: 50 }, classical: { state: 'absent' } }),
     );
-    expect((await s.req('GET', '/api/placement')).json.seen).toEqual({
-      perfsPresent: true,
-      rapid: { state: 'reliable', rating: 1500, games: 50 },
-      classical: { state: 'absent' },
-      blitz: { state: 'absent' },
-    });
+    expect((await seenOf(s)).suggested).toBe('advanced');
   });
 
-  it('seen distingue ritmo ausente, dato ilegible y fiable; y perfs ausentes', async () => {
-    let s = await loginWith({ rapid: { rating: 'x' }, classical: perf(1400, 30) });
-    expect((await s.req('GET', '/api/placement')).json.seen).toEqual({
-      perfsPresent: true,
-      rapid: { state: 'invalid' },
-      classical: { state: 'reliable', rating: 1400, games: 30 },
-      blitz: { state: 'absent' },
-    });
-    s = await loginWith(undefined);
-    expect((await s.req('GET', '/api/placement')).json.seen).toEqual({
-      perfsPresent: false,
-      rapid: { state: 'absent' },
-      classical: { state: 'absent' },
-      blitz: { state: 'absent' },
-    });
-  });
-
-  it('sin Elo fiable (provisional, pocas partidas, sin perfs): source none y mapa normal', async () => {
+  it('sin Elo fiable (provisional, pocas partidas, sin perfs, basura): sin sugerencia y se puede elegir', async () => {
     for (const perfs of [
       { rapid: perf(1600, 80, { prov: true }), classical: perf(1700, 5) },
       { rapid: perf(1600, 9) },
       { blitz: perf(2000, 500, { prov: true }), classical: perf(1000, 3) },
-      { blitz: perf(2000, 9) },
       { bullet: perf(2000, 500) },
+      { rapid: { rating: 'x' } },
       undefined,
       'basura',
     ]) {
       const s = await loginWith(perfs);
-      const p = (await s.req('GET', '/api/placement')).json;
-      expect(p).toMatchObject({ source: 'none', perf: null, rating: null, mode: 'scratch', recommendedUnitId: null, openUnitIds: [] });
-      const m = await unitMap(s);
-      expect(m.p1.placedOpen).toBeUndefined();
-      expect(m.p2.status).toBe('locked');
-      expect((await s.req('POST', '/api/placement', { mode: 'lichess' })).status).toBe(400);
+      expect(await seenOf(s)).toMatchObject({ chosen: null, suggested: null, hint: null });
+      expect((await s.req('PUT', '/api/level', { level: 'advanced' })).status).toBe(200);
     }
   });
 
@@ -590,66 +545,103 @@ describe('colocación por Elo de Lichess', () => {
     for (const b of bad) {
       const s = await loginWith({ rapid: b, classical: b });
       expect((await s.req('GET', '/api/me')).status).toBe(200);
-      expect((await s.req('GET', '/api/placement')).json).toMatchObject({ source: 'none', rating: null });
+      expect((await seenOf(s)).suggested).toBeNull();
     }
-    // un perf válido sobrevive a otro manipulado
     const s = await loginWith({ rapid: perf(9999), classical: perf(1450) });
-    expect((await s.req('GET', '/api/placement')).json).toMatchObject({ perf: 'classical', rating: 1450 });
+    expect((await seenOf(s)).suggested).toBe('advanced');
+  });
+});
+
+describe('nivel elegido por el alumno', () => {
+  const loginAna = async (perfs: unknown = { rapid: perf(1500) }) => {
+    const s = setup('beta_open', { units: placementUnits });
+    lichess.account = { id: 'Ana', username: 'Ana', perfs };
+    await s.login();
+    return s;
+  };
+  const unitMap = async (s: Awaited<ReturnType<typeof loginAna>>) =>
+    Object.fromEntries(((await s.req('GET', '/api/map')).json.units as any[]).map((u) => [u.id, u]));
+
+  it('401 sin sesión en GET y PUT /api/level', async () => {
+    const anon = setup('beta_open', { units: placementUnits });
+    expect((await anon.req('GET', '/api/level')).status).toBe(401);
+    expect((await anon.req('PUT', '/api/level', { level: 'basic' })).status).toBe(401);
   });
 
-  it('mapa: 1000-1399 abre beginner como repaso (available, sin XP) y recomienda la primera initiation', async () => {
-    const s = await loginWith({ rapid: perf(1200) });
+  it('PUT valida la entrada, el origen y el tipo de contenido', async () => {
+    const s = await loginAna();
+    for (const body of [{}, { level: 'otro' }, { level: 1 }, { level: null }, { level: ['basic'] }, { mode: 'lichess' }])
+      expect((await s.req('PUT', '/api/level', body)).status).toBe(400);
+    expect((await s.raw('PUT', '/api/level', undefined)).status).toBe(415);
+    expect((await s.req('PUT', '/api/level', { level: 'basic' }, { origin: 'https://evil.example' })).status).toBe(403);
+    expect(s.db.raw.prepare('SELECT COUNT(*) AS n FROM cp_user_level').get()).toMatchObject({ n: 0 });
+  });
+
+  it('GET /api/level: seis tarjetas con available según el temario; sin elección chosen es null', async () => {
+    const s = await loginAna();
+    const info = (await s.req('GET', '/api/level')).json;
+    expect(info.chosen).toBeNull();
+    expect(info.comingSoon).toBe(false);
+    expect(info.levels.map((l: any) => [l.id, l.available])).toEqual([
+      ['beginner', true], ['initiation', true], ['basic', false], ['intermediate', false], ['advanced', false], ['competitive', false],
+    ]);
+    expect(info.levels[0]).toMatchObject({ label: 'Principiante', minElo: 0, maxElo: 400, blurb: 'Reglas y fundamentos' });
+  });
+
+  it('PUT dos veces con niveles distintos deja el último y una sola fila', async () => {
+    const s = await loginAna();
+    expect((await s.req('PUT', '/api/level', { level: 'initiation' })).json).toMatchObject({ chosen: 'initiation' });
+    expect((await s.req('PUT', '/api/level', { level: 'beginner' })).json).toMatchObject({ chosen: 'beginner' });
+    expect(s.db.raw.prepare('SELECT user_id, level FROM cp_user_level').all().map((r) => ({ ...r }))).toEqual([{ user_id: 'ana', level: 'beginner' }]);
+    expect((await s.req('GET', '/api/level')).json.chosen).toBe('beginner');
+  });
+
+  it('/api/me: sin elección level initiation y levelChosen false; tras PUT, el elegido', async () => {
+    const s = await loginAna();
+    expect((await s.req('GET', '/api/me')).json).toMatchObject({ level: 'initiation', levelChosen: false });
+    await s.req('PUT', '/api/level', { level: 'competitive' });
+    expect((await s.req('GET', '/api/me')).json).toMatchObject({ level: 'competitive', levelChosen: true });
+    expect((await s.req('GET', '/api/profile')).json.profile.level).toBe('competitive');
+  });
+
+  it('usuario con cp_placement.mode = lichess y progreso: sin elección el mapa no abre nada y conserva su progreso', async () => {
+    const s = await loginAna();
+    s.db.raw.prepare("UPDATE cp_placement SET mode = 'lichess'").run();
+    await s.req('POST', '/api/lessons/p1.1/complete', { correct: 5, total: 5, mistakes: [] });
+    const m = await unitMap(s);
+    expect(Object.values(m).some((u: any) => u.placedOpen || u.recommended)).toBe(false);
+    expect(m.p1.lessons[0]).toMatchObject({ status: 'completed' });
+    expect(m.p3.status).toBe('locked');
+  });
+
+  it('el mapa tras PUT refleja placedOpen y recommended (repaso sin XP)', async () => {
+    const s = await loginAna();
+    await s.req('PUT', '/api/level', { level: 'initiation' });
     const m = await unitMap(s);
     for (const id of ['p1', 'p2']) {
       expect(m[id]).toMatchObject({ placedOpen: true, status: 'available' });
-      expect(m[id].lessons.map((l: any) => l.status)).toEqual(['available', 'available']);
-      expect(m[id].recommended).toBeUndefined();
+      expect(m[id].lessons.every((l: any) => l.status === 'available')).toBe(true);
     }
     expect(m.p3).toMatchObject({ recommended: true, status: 'available' });
     expect(m.p3.placedOpen).toBeUndefined();
-    expect(m.p3.lessons.map((l: any) => l.status)).toEqual(['available', 'locked']); // orden normal
     expect(m.p4.status).toBe('locked');
     expect((await s.req('GET', '/api/profile')).json.profile).toMatchObject({ xp: 0, lessonsCompleted: 0 });
-    expect((await s.req('GET', '/api/lessons/p2.2')).status).toBe(200); // lección de repaso accesible
+    expect((await s.req('GET', '/api/lessons/p2.2')).status).toBe(200);
     expect((await s.req('GET', '/api/lessons/p4.1')).status).toBe(403);
-  });
-
-  it('mapa: >=1400 abre todo como repaso y recomienda la segunda initiation; <1000 empieza en la primera', async () => {
-    const hi = await unitMap(await loginWith({ classical: perf(1800) }));
-    for (const id of ['p1', 'p2', 'p3', 'p4', 'p5']) {
-      expect(hi[id].placedOpen).toBe(true);
-      expect(hi[id].lessons.every((l: any) => l.status === 'available')).toBe(true);
-    }
-    expect(Object.values(hi).filter((u: any) => u.recommended).map((u: any) => u.id)).toEqual(['p4']);
-    const lo = await unitMap(await loginWith({ rapid: perf(600) }));
+    await s.req('PUT', '/api/level', { level: 'beginner' });
+    const lo = await unitMap(s);
     expect(Object.values(lo).some((u: any) => u.placedOpen)).toBe(false);
     expect(lo.p1.recommended).toBe(true);
     expect(lo.p2.status).toBe('locked');
   });
 
-  it("POST /api/placement 'scratch' desactiva los efectos y 'lichess' los reactiva", async () => {
-    const s = await loginWith({ rapid: perf(1500) });
-    expect((await unitMap(s)).p5.placedOpen).toBe(true);
-    const r = await s.req('POST', '/api/placement', { mode: 'scratch' });
-    expect(r.status).toBe(200);
-    expect(r.json).toMatchObject({ mode: 'scratch', chosen: true, rating: 1500 });
+  it('nivel sin contenido: se abre todo, sin recomendada y con aviso', async () => {
+    const s = await loginAna();
+    const info = (await s.req('PUT', '/api/level', { level: 'advanced' })).json;
+    expect(info).toMatchObject({ chosen: 'advanced', comingSoon: true });
     const m = await unitMap(s);
-    expect(Object.values(m).some((u: any) => u.placedOpen || u.recommended)).toBe(false);
-    expect(m.p2.status).toBe('locked');
-    expect((await s.req('GET', '/api/lessons/p5.1')).status).toBe(403);
-    expect((await s.req('POST', '/api/placement', { mode: 'lichess' })).json).toMatchObject({ mode: 'lichess', chosen: true });
-    expect((await unitMap(s)).p5.placedOpen).toBe(true);
-  });
-
-  it('POST /api/placement valida la entrada y exige sesión y origen propio', async () => {
-    const s = await loginWith({ rapid: perf(1500) });
-    for (const body of [{}, { mode: 'otro' }, { mode: 1 }, { mode: null }, { mode: ['lichess'] }])
-      expect((await s.req('POST', '/api/placement', body)).status).toBe(400);
-    expect((await s.raw('POST', '/api/placement', undefined)).status).toBe(415);
-    expect((await s.req('POST', '/api/placement', { mode: 'scratch' }, { origin: 'https://evil.example' })).status).toBe(403);
-    const anon = setup('beta_open', { units: placementUnits });
-    expect((await anon.req('GET', '/api/placement')).status).toBe(401);
-    expect((await anon.req('POST', '/api/placement', { mode: 'scratch' })).status).toBe(401);
+    for (const id of ['p1', 'p2', 'p3', 'p4', 'p5']) expect(m[id].placedOpen).toBe(true);
+    expect(Object.values(m).some((u: any) => u.recommended)).toBe(false);
   });
 });
 
@@ -708,6 +700,6 @@ describe('migraciones D1', () => {
     const { raw } = openTestDb();
     for (const f of sqlFiles) raw.exec(readFileSync(new URL(f, dir), 'utf8')); // segunda aplicación
     const names = (raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((r) => r.name);
-    expect(names.sort()).toEqual(['cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_reviewed_games', 'cp_subscriptions', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
+    expect(names.sort()).toEqual(['cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_reviewed_games', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
   });
 });
