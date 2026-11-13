@@ -33,7 +33,7 @@ import {
 } from './progress.js';
 import { completeReview, parseCompleteReview } from './review.js';
 import { CONCEPT_IDS, touchSchedule } from './srs.js';
-import { advanceStreak, buildShop, buyItem, effectiveStreak, equipItem, equippedFor, protectorCount, streakRewardStmts } from './shop.js';
+import { buildShop, buyItem, effectiveStreak, equipItem, equippedFor, protectorCount, streakAdvance } from './shop.js';
 
 export interface AppDeps {
   db: Db;
@@ -408,20 +408,10 @@ export function createApp(deps: AppDeps) {
     // Perfil: XP, XP de hoy y racha (día natural UTC; solo cuenta una lección superada).
     const p = await loadProfile(userId);
     const today = dayOf(t);
-    let streak = p.streak_days;
-    let lastActive = p.last_active_date;
-    let protectorUsed = false;
-    let chedexEarned = 0;
-    let rewards: Stmt[] = [];
-    if (passed && lastActive !== today) {
-      // Reglas de días UTC en worker/shop.ts: un hueco de exactamente un día consume un protector.
-      const adv = advanceStreak(p, t, await protectorCount(db, userId));
-      streak = adv.streak;
-      protectorUsed = adv.protectorUsed;
-      lastActive = today;
-      rewards = streakRewardStmts(userId, today, streak, protectorUsed, t.toISOString());
-      chedexEarned = rewards.some((r) => r.sql.includes("'streak_milestone'")) ? 1 : 0;
-    }
+    // Reglas de días UTC en worker/shop.ts: un hueco de exactamente un día consume un protector.
+    const { streak, lastActive, protectorUsed, chedexEarned, rewards } = passed
+      ? await streakAdvance(db, userId, p, t)
+      : { streak: p.streak_days, lastActive: p.last_active_date, protectorUsed: false, chedexEarned: 0, rewards: [] as Stmt[] };
     const xpToday = (p.xp_today_date === today ? p.xp_today : 0) + xpGained;
 
     const stmts: Stmt[] = [

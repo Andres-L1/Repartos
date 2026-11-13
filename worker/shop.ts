@@ -76,6 +76,24 @@ export function streakRewardStmts(userId: string, today: string, streak: number,
   return out;
 }
 
+/**
+ * Racha tras una actividad que cuenta (lección superada o sesión de repaso terminada), con las sentencias
+ * de ingreso de Chedex y consumo de protector. Si ya contó hoy, no cambia nada.
+ */
+export async function streakAdvance(
+  db: Db,
+  userId: string,
+  p: { streak_days: number; last_active_date: string | null },
+  t: Date,
+): Promise<{ streak: number; lastActive: string | null; protectorUsed: boolean; chedexEarned: number; rewards: Stmt[] }> {
+  const today = dayOf(t);
+  if (p.last_active_date === today)
+    return { streak: p.streak_days, lastActive: today, protectorUsed: false, chedexEarned: 0, rewards: [] };
+  const { streak, protectorUsed } = advanceStreak(p, t, await protectorCount(db, userId));
+  const rewards = streakRewardStmts(userId, today, streak, protectorUsed, t.toISOString());
+  return { streak, lastActive: today, protectorUsed, chedexEarned: earnsChedex(streak) ? 1 : 0, rewards };
+}
+
 export async function equippedFor(db: Db, userId: string): Promise<Equipped> {
   const r = await db.first<{ pieces: string; board: string }>('SELECT pieces, board FROM cp_equipped WHERE user_id = ?', [userId]);
   const ok = (id: string | undefined, kind: 'pieces' | 'board', fallback: string) =>
