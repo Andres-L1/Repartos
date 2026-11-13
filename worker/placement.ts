@@ -59,6 +59,56 @@ export const isReliable = (p: ValidPerf | null): p is ValidPerf => p !== null &&
 export interface PerfsInput {
   rapid?: unknown;
   classical?: unknown;
+  /** true si Lichess envió el objeto `perfs` (aunque venga vacío). Solo informativo. */
+  present?: boolean;
+}
+
+export type SeenState = 'absent' | 'invalid' | 'provisional' | 'few_games' | 'reliable';
+export interface SeenPerf {
+  state: SeenState;
+  rating?: number;
+  games?: number;
+}
+/** Qué envió Lichess de cada ritmo y por qué cuenta o no para la colocación. */
+export interface PerfsSeen {
+  perfsPresent: boolean;
+  rapid: SeenPerf;
+  classical: SeenPerf;
+}
+
+function describePerf(raw: unknown): SeenPerf {
+  if (raw === undefined || raw === null) return { state: 'absent' };
+  const p = parsePerf(raw);
+  if (!p) return { state: 'invalid' };
+  const state: SeenState = p.prov ? 'provisional' : p.games < PLACEMENT_MIN_GAMES ? 'few_games' : 'reliable';
+  return { state, rating: p.rating, games: p.games };
+}
+
+export function describePerfs(perfs: PerfsInput | null | undefined): PerfsSeen {
+  return { perfsPresent: perfs?.present === true, rapid: describePerf(perfs?.rapid), classical: describePerf(perfs?.classical) };
+}
+
+/** Lee el JSON guardado validando su forma; null si no es válido. */
+export function parseSeen(json: string | null | undefined): PerfsSeen | null {
+  try {
+    const v = JSON.parse(json ?? '') as Record<string, unknown>;
+    const STATES: SeenState[] = ['absent', 'invalid', 'provisional', 'few_games', 'reliable'];
+    const one = (x: unknown): SeenPerf | null => {
+      if (typeof x !== 'object' || x === null) return null;
+      const o = x as Record<string, unknown>;
+      if (!STATES.includes(o.state as SeenState)) return null;
+      const out: SeenPerf = { state: o.state as SeenState };
+      if (typeof o.rating === 'number' && Number.isInteger(o.rating)) out.rating = o.rating;
+      if (typeof o.games === 'number' && Number.isInteger(o.games)) out.games = o.games;
+      return out;
+    };
+    const rapid = one(v.rapid);
+    const classical = one(v.classical);
+    if (!rapid || !classical || typeof v.perfsPresent !== 'boolean') return null;
+    return { perfsPresent: v.perfsPresent, rapid, classical };
+  } catch {
+    return null;
+  }
 }
 
 export interface PlacementSelection {

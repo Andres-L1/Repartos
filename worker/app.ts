@@ -15,7 +15,7 @@ import type {
 import type { Db, Stmt } from './db.js';
 import type { BillingProvider, SubscriptionRecord } from './billing.js';
 import { handleCallback, handleLogin, handleLogout, readSession, type AuthConfig } from './auth.js';
-import { planForRating, selectPerf } from './placement.js';
+import { describePerfs, parseSeen, planForRating, selectPerf } from './placement.js';
 import {
   buildMap,
   computeStatuses,
@@ -109,6 +109,12 @@ export function createApp(deps: AppDeps) {
                 ON CONFLICT(user_id) DO UPDATE SET source = excluded.source, perf = excluded.perf,
                   rating = excluded.rating, games = excluded.games, fetched_at = excluded.fetched_at`,
           params: [u.id, sel.source, sel.perf, sel.rating, sel.games, t],
+        },
+        // Qué envió Lichess de cada ritmo, para poder explicárselo al usuario.
+        {
+          sql: `INSERT INTO cp_placement_seen (user_id, seen_json, fetched_at) VALUES (?,?,?)
+                ON CONFLICT(user_id) DO UPDATE SET seen_json = excluded.seen_json, fetched_at = excluded.fetched_at`,
+          params: [u.id, JSON.stringify(describePerfs(perfs)), t],
         },
       ]);
     },
@@ -268,7 +274,9 @@ export function createApp(deps: AppDeps) {
     const reliable = row?.source === 'lichess' && row.rating !== null && (row.perf === 'rapid' || row.perf === 'classical');
     const plan = planForRating(reliable ? row.rating : null, content);
     const mode: PlacementMode = reliable && row.mode !== 'scratch' ? 'lichess' : 'scratch';
+    const seenRow = await db.first<{ seen_json: string }>('SELECT seen_json FROM cp_placement_seen WHERE user_id = ?', [userId]);
     return {
+      seen: parseSeen(seenRow?.seen_json),
       source: reliable ? 'lichess' : 'none',
       perf: reliable ? (row.perf as 'rapid' | 'classical') : null,
       rating: reliable ? row.rating : null,

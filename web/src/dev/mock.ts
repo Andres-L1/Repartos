@@ -144,6 +144,11 @@ function placementFor(): Placement {
   const open = reliable && MOCK_ELO >= 1000 ? ['u01'] : [];
   const mode: PlacementMode = reliable && state.placementMode !== 'scratch' ? 'lichess' : 'scratch';
   return {
+    seen: {
+      perfsPresent: true,
+      rapid: reliable ? { state: 'reliable', rating: MOCK_ELO ?? undefined, games: 60 } : { state: 'provisional', rating: 1500, games: 4 },
+      classical: { state: 'absent' },
+    },
     source: reliable ? 'lichess' : 'none',
     perf: reliable ? 'rapid' : null,
     rating: MOCK_ELO,

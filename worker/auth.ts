@@ -70,7 +70,10 @@ export interface AuthConfig {
    * Se llama al terminar el login correcto (upsert del usuario). `perfs` lleva SOLO los perfs de rápidas y clásicas
    * tal como los envía Lichess, SIN validar (la validación estricta es de quien los usa).
    */
-  onLogin: (user: { id: string; username: string }, perfs: { rapid?: unknown; classical?: unknown }) => Promise<void>;
+  onLogin: (
+    user: { id: string; username: string },
+    perfs: { rapid?: unknown; classical?: unknown; present?: boolean },
+  ) => Promise<void>;
   clientId?: string;
 }
 
@@ -188,7 +191,11 @@ export async function handleCallback(c: Context, cfg: AuthConfig): Promise<Respo
     const me = { id: user.id.toLowerCase(), username: user.username };
     // Del resto de la cuenta solo se extraen los ritmos rápido y clásico (colocación inicial).
     const rawPerfs = typeof user.perfs === 'object' && user.perfs !== null ? (user.perfs as Record<string, unknown>) : {};
-    await cfg.onLogin(me, { rapid: rawPerfs.rapid, classical: rawPerfs.classical });
+    await cfg.onLogin(me, {
+      rapid: rawPerfs.rapid,
+      classical: rawPerfs.classical,
+      present: typeof user.perfs === 'object' && user.perfs !== null,
+    });
     const session = await seal(
       { kind: 'session', id: me.id, username: me.username, exp: cfg.now().getTime() + SESSION_MS },
       secret,

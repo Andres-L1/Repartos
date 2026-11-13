@@ -477,6 +477,33 @@ describe('colocación por Elo de Lichess', () => {
     expect(s.db.raw.prepare('SELECT rating, mode FROM cp_placement').all().map((r) => ({ ...r }))).toEqual([{ rating: 1500, mode: 'scratch' }]);
   });
 
+  it('guarda y devuelve qué envió Lichess de cada ritmo (estado, Elo y partidas), sin blitz ni bullet', async () => {
+    const s = await loginWith({ rapid: perf(1500, 4, { prov: true }), classical: perf(1230, 6), blitz: perf(2900, 900) });
+    const p = (await s.req('GET', '/api/placement')).json;
+    expect(p.source).toBe('none');
+    expect(p.seen).toEqual({
+      perfsPresent: true,
+      rapid: { state: 'provisional', rating: 1500, games: 4 },
+      classical: { state: 'few_games', rating: 1230, games: 6 },
+    });
+    expect(JSON.stringify(p.seen)).not.toContain('2900');
+  });
+
+  it('seen distingue ritmo ausente, dato ilegible y fiable; y perfs ausentes', async () => {
+    let s = await loginWith({ rapid: { rating: 'x' }, classical: perf(1400, 30) });
+    expect((await s.req('GET', '/api/placement')).json.seen).toEqual({
+      perfsPresent: true,
+      rapid: { state: 'invalid' },
+      classical: { state: 'reliable', rating: 1400, games: 30 },
+    });
+    s = await loginWith(undefined);
+    expect((await s.req('GET', '/api/placement')).json.seen).toEqual({
+      perfsPresent: false,
+      rapid: { state: 'absent' },
+      classical: { state: 'absent' },
+    });
+  });
+
   it('sin Elo fiable (provisional, pocas partidas, sin perfs): source none y mapa normal', async () => {
     for (const perfs of [
       { rapid: perf(1600, 80, { prov: true }), classical: perf(1700, 5) },
@@ -588,6 +615,6 @@ describe('migraciones D1', () => {
     const { raw } = openTestDb();
     for (const f of sqlFiles) raw.exec(readFileSync(new URL(f, dir), 'utf8')); // segunda aplicación
     const names = (raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((r) => r.name);
-    expect(names.sort()).toEqual(['cp_lesson_progress', 'cp_placement', 'cp_profiles', 'cp_subscriptions', 'cp_users', 'cp_weak_concepts']);
+    expect(names.sort()).toEqual(['cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_subscriptions', 'cp_users', 'cp_weak_concepts']);
   });
 });

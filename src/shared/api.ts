@@ -78,7 +78,22 @@ export type PlacementMode = 'lichess' | 'scratch';
  * solo afectan al mapa cuando `mode` es 'lichess'. `chosen`: el usuario ya eligió (si no, mostrar la bienvenida).
  * `mode` por defecto: 'lichess' si hay Elo fiable, 'scratch' si no.
  */
+/** Qué devolvió Lichess de un ritmo en el último login y por qué cuenta o no. */
+export type SeenState = 'absent' | 'invalid' | 'provisional' | 'few_games' | 'reliable';
+export interface SeenPerf {
+  state: SeenState;
+  rating?: number;
+  games?: number;
+}
+export interface PlacementSeen {
+  /** Lichess envió el objeto `perfs`. */
+  perfsPresent: boolean;
+  rapid: SeenPerf;
+  classical: SeenPerf;
+}
 export interface Placement {
+  /** null si todavía no hay registro (cuentas anteriores a esta función: vuelve a entrar para verlo). */
+  seen: PlacementSeen | null;
   source: 'lichess' | 'none';
   perf: PlacementPerf | null;
   rating: number | null;
