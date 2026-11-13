@@ -32,14 +32,19 @@ interface Props {
   /** Clases de tablero y piezas a aplicar en lugar de lo equipado (p. ej. `theme-noche pieces-contorno` en la landing). */
   appearance?: string;
   onMove?: (from: string, to: string) => void;
+  /** Se llama al tocar una casilla (también con el tablero no interactivo); no mueve piezas por sí sola. */
+  onSelectSquare?: (sq: string) => void;
 }
 
-export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, plain = false, appearance, onMove }: Props) {
+export function Board({ fen, interactive = false, orientation, lastMove, shapes = [], nonce = 0, label, plain = false, appearance, onMove, onSelectSquare }: Props) {
   const { equipped } = useSession();
   const el = useRef<HTMLDivElement>(null);
   const cg = useRef<Api | null>(null);
   const onMoveRef = useRef(onMove);
   onMoveRef.current = onMove;
+  const onSelectRef = useRef(onSelectSquare);
+  onSelectRef.current = onSelectSquare;
+  const wantsSelect = !!onSelectSquare;
 
   useEffect(() => {
     if (!el.current) return;
@@ -60,7 +65,7 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
       turnColor: turn,
       check: isInCheck(fen),
       lastMove: lastMove as Key[] | undefined,
-      viewOnly: !interactive,
+      viewOnly: !interactive && !wantsSelect,
       movable: {
         free: false,
         color: interactive ? turn : undefined,
@@ -68,11 +73,12 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
         showDests: true,
         events: { after: (o, d) => onMoveRef.current?.(o, d) },
       },
+      events: { select: (k) => onSelectRef.current?.(k) },
       premovable: { enabled: false },
       draggable: { showGhost: true },
       animation: { enabled: true, duration: 200 },
     });
-  }, [fen, interactive, orientation, lastMove?.[0], lastMove?.[1], nonce]);
+  }, [fen, interactive, wantsSelect, orientation, lastMove?.[0], lastMove?.[1], nonce]);
 
   const shapesKey = JSON.stringify(shapes);
   useEffect(() => {
