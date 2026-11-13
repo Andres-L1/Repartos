@@ -10,6 +10,10 @@ interface SessionValue {
   user: User | null;
   /** Nivel interno para adaptar los textos (nunca se muestra); 'initiation' hasta que /api/me lo devuelva. */
   level: Level;
+  /** El alumno ya eligió su nivel (si no, se le lleva a /bienvenida). */
+  levelChosen: boolean;
+  /** Actualiza el nivel tras elegirlo en la pantalla de nivel. */
+  setLevel(l: Level): void;
   subscription: Subscription | null;
   /** Modo de facturación del servidor. Hasta saberlo se asume beta abierta (no se muestra precio). */
   billingMode: BillingMode;
@@ -38,7 +42,8 @@ export function useSession(): SessionValue {
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
-  const [level, setLevel] = useState<Level>('initiation');
+  const [level, setLevelState] = useState<Level>('initiation');
+  const [levelChosen, setLevelChosen] = useState(false);
   const [subscription, setSub] = useState<Subscription | null>(null);
   const [billingMode, setBillingMode] = useState<BillingMode>('beta_open');
   const [paywallLesson, setPaywall] = useState<string | null>(null);
@@ -77,7 +82,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       .me()
       .then((r) => {
         setUser(r.user);
-        if ((r as { level?: Level }).level) setLevel((r as { level?: Level }).level!);
+        if (r.level) setLevelState(r.level);
+        setLevelChosen(r.levelChosen === true);
         setSub(r.subscription);
         setBillingMode(r.billingMode);
         if (r.equipped) setEquipped(sanitizeEquipped(r.equipped));
@@ -97,6 +103,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     void refreshShop();
   }, [userId, refreshShop]);
 
+  const setLevel = useCallback((l: Level) => {
+    setLevelState(l);
+    setLevelChosen(true);
+  }, []);
+
   const setSession = useCallback((u: User | null, s?: Subscription | null) => {
     setUser(u);
     if (s !== undefined) setSub(s);
@@ -104,6 +115,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       api
         .billing()
         .then((r) => setSub(r.subscription))
+        .catch(() => {});
+      api
+        .me()
+        .then((r) => {
+          if (r.level) setLevelState(r.level);
+          setLevelChosen(r.levelChosen === true);
+        })
         .catch(() => {});
     }
   }, []);
@@ -113,6 +131,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       loading,
       user,
       level,
+      levelChosen,
+      setLevel,
       subscription,
       billingMode,
       paywallLesson,
@@ -134,7 +154,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         navigate('/');
       },
     }),
-    [loading, user, level, subscription, billingMode, paywallLesson, equipped, shop, setShop, refreshShop, setSession],
+    [loading, user, level, levelChosen, setLevel, subscription, billingMode, paywallLesson, equipped, shop, setShop, refreshShop, setSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

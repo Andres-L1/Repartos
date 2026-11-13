@@ -6,14 +6,14 @@ import type {
   Equipped,
   LessonProgress,
   MapUnit,
+  LevelInfo,
   OutlineUnit,
-  Placement,
-  PlacementMode,
   Profile,
   Shop,
   Subscription,
   User,
 } from '../../src/shared/api';
+import type { Level } from '../../src/types';
 import type { Lesson } from '../../src/content/schema';
 import { mockFetch } from './dev/mock';
 
@@ -87,7 +87,7 @@ export const api = {
   mockLogin: () => request<{ user: User }>('GET', '/auth/login', undefined, { silent401: true }),
   logout: () => request<{ ok: true }>('POST', '/auth/logout'),
   me: () =>
-    request<{ user: User; subscription: Subscription; billingMode: BillingMode; equipped?: Equipped }>('GET', '/api/me', undefined, { silent401: true }),
+    request<{ user: User; subscription: Subscription; billingMode: BillingMode; equipped?: Equipped; level?: Level; levelChosen?: boolean }>('GET', '/api/me', undefined, { silent401: true }),
   map: () => request<{ units: MapUnit[] }>('GET', '/api/map'),
   lesson: (id: string) => request<{ lesson: Lesson }>('GET', `/api/lessons/${encodeURIComponent(id)}`),
   outline: () => request<{ units: OutlineUnit[] }>('GET', '/api/outline', undefined, { silent401: true }),
@@ -100,8 +100,8 @@ export const api = {
     ),
   completeReview: (b: CompleteReviewBody): Promise<CompleteReviewResponse> =>
     USE_MOCK ? Promise.resolve({ counted: true }) : request<CompleteReviewResponse>('POST', '/api/review/complete', b),
-  placement: () => request<Placement>('GET', '/api/placement'),
-  setPlacement: (mode: PlacementMode) => request<Placement>('POST', '/api/placement', { mode }),
+  level: () => request<LevelInfo>('GET', '/api/level'),
+  setLevel: (level: Level) => request<LevelInfo>('PUT', '/api/level', { level }),
   profile: () => request<{ profile: Profile }>('GET', '/api/profile'),
   billing: () => request<{ subscription: Subscription }>('GET', '/api/billing'),
   subscribe: () => request<{ subscription: Subscription }>('POST', '/api/billing/subscribe'),

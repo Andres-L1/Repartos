@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
-import type { MapUnit, Placement, Profile } from '../../../src/shared/api';
+import type { MapUnit, Profile } from '../../../src/shared/api';
 import { api, ApiError } from '../api';
 import { useSession } from '../session';
+import { LEVELS } from '../../../src/shared/levels';
 import { Link } from '../components/Link';
 import { Icon, Loading, ErrorBox } from '../components/Icon';
 
 const dayWord = (n: number) => `${n} ${n === 1 ? 'día' : 'días'}`;
 
 export function ProfileScreen() {
-  const { user } = useSession();
+  const { user, level, levelChosen } = useSession();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [units, setUnits] = useState<MapUnit[] | null>(null);
-  const [placement, setPlacement] = useState<Placement | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -24,10 +24,6 @@ export function ProfileScreen() {
     api
       .map()
       .then((r) => setUnits([...r.units].sort((a, b) => a.order - b.order)))
-      .catch(() => {});
-    api
-      .placement()
-      .then(setPlacement)
       .catch(() => {});
   }, []);
 
@@ -119,16 +115,19 @@ export function ProfileScreen() {
       </section>
 
       <section className="t-card" aria-labelledby="start-title">
-        <h2 id="start-title">Punto de partida</h2>
-        <p>
-          {placement?.source === 'lichess' && placement.perf && placement.rating !== null
-            ? `Según tu Elo de Lichess en ${{ rapid: 'partidas rápidas', classical: 'partidas clásicas', blitz: 'blitz' }[placement.perf]} (${placement.rating}), ${
-                placement.mode === 'lichess' ? 'la ruta usa la recomendación de inicio.' : 'has elegido empezar desde el principio.'
-              }`
-            : 'No tenemos partidas suficientes en rápidas, clásicas o blitz para recomendar un punto de partida; empezamos por el principio.'}
-        </p>
+        <h2 id="start-title">Tu nivel</h2>
+        {(() => {
+          const info = LEVELS.find((l) => l.id === level);
+          return levelChosen && info ? (
+            <p>
+              Estás en <strong>{info.label}</strong> ({info.minElo} a {info.maxElo} Elo). Lichess solo sugiere: el nivel lo eliges tú.
+            </p>
+          ) : (
+            <p>Todavía no has elegido tu nivel.</p>
+          );
+        })()}
         <Link className="t-btn" href="/bienvenida">
-          Ver o cambiar mi punto de partida
+          Cambiar nivel
         </Link>
       </section>
     </div>

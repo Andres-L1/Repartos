@@ -1,6 +1,8 @@
 /** API simulada para desarrollar sin servidor (activar con ?mock=1; ?mock=1&billing=dev simula pagos). */
 import { CATALOG, DEFAULT_BOARD, DEFAULT_PIECES, PROTECTOR_ID, PROTECTOR_MAX, STREAK_DAYS_PER_CHEDEX } from '../../../src/shop/catalog';
-import type { BillingMode, Equipped, MapUnit, OutlineUnit, Placement, PlacementMode, Profile, Shop, Subscription, User } from '../../../src/shared/api';
+import type { Level } from '../../../src/types';
+import { LEVELS, suggestLevel } from '../../../src/shared/levels';
+import type { BillingMode, Equipped, MapUnit, LevelInfo, OutlineUnit, Profile, Shop, Subscription, User } from '../../../src/shared/api';
 import type { Lesson } from '../../../src/content/schema';
 
 const L1: Lesson = {
@@ -122,8 +124,8 @@ interface MockState {
   sub: Subscription;
   completed: Record<string, number>;
   profile: Profile;
-  /** Elección del usuario en la bienvenida (null = sin elegir todavía). */
-  placementMode?: PlacementMode | null;
+  /** Nivel elegido por el alumno (null = sin elegir todavía). */
+  chosenLevel?: Level | null;
   /** Tienda simulada: saldo, objetos poseídos, protectores y lo equipado. */
   wallet?: { balance: number; earnedTotal: number; owned: string[]; protectors: number; equipped: Equipped };
 }
@@ -163,28 +165,27 @@ const MOCK_ELO: number | null = (() => {
   }
 })();
 
-function placementFor(): Placement {
+/** Niveles del mock con contenido: el resto avisa de que llega pronto. */
+const MOCK_AVAILABLE: Level[] = ['beginner', 'initiation'];
+
+function levelInfo(): LevelInfo {
   const reliable = MOCK_ELO !== null;
-  const open = reliable && MOCK_ELO >= 1000 ? ['u01'] : [];
-  const mode: PlacementMode = reliable && state.placementMode !== 'scratch' ? 'lichess' : 'scratch';
+  const sug = suggestLevel({
+    perfsPresent: true,
+    rapid:
+      reliable && MOCK_PERF === 'rapid'
+        ? { state: 'reliable', rating: MOCK_ELO ?? undefined, games: 60 }
+        : { state: 'provisional', rating: 1500, games: 40 },
+    classical: { state: 'absent' },
+    blitz: reliable && MOCK_PERF === 'blitz' ? { state: 'reliable', rating: MOCK_ELO ?? undefined, games: 60 } : { state: 'absent' },
+  });
+  const chosen = state.chosenLevel ?? null;
   return {
-    seen: {
-      perfsPresent: true,
-      rapid:
-        reliable && MOCK_PERF === 'rapid'
-          ? { state: 'reliable', rating: MOCK_ELO ?? undefined, games: 60 }
-          : { state: 'provisional', rating: 1500, games: 4 },
-      classical: { state: 'absent' },
-      blitz: reliable && MOCK_PERF === 'blitz' ? { state: 'reliable', rating: MOCK_ELO ?? undefined, games: 60 } : { state: 'absent' },
-    },
-    source: reliable ? 'lichess' : 'none',
-    perf: reliable ? MOCK_PERF : null,
-    rating: MOCK_ELO,
-    games: reliable ? 60 : null,
-    mode,
-    chosen: state.placementMode === 'lichess' || state.placementMode === 'scratch',
-    recommendedUnitId: !reliable ? null : MOCK_ELO >= 1000 ? 'u02' : 'u01',
-    openUnitIds: open,
+    chosen,
+    suggested: sug.level,
+    hint: sug.hint,
+    levels: LEVELS.map((l) => ({ ...l, available: MOCK_AVAILABLE.includes(l.id) })),
+    comingSoon: chosen !== null && !MOCK_AVAILABLE.includes(chosen),
   };
 }
 
@@ -209,7 +210,7 @@ function load(): MockState {
     user: null,
     sub: { status: 'none', priceEurPerMonth: 10, provider: MODE === 'dev' ? 'dev' : 'none', beta: MODE !== 'dev' },
     completed: {},
-    placementMode: null,
+    chosenLevel: null,
     profile: {
       xp: 0,
       level: 'beginner',
@@ -345,9 +346,9 @@ const OUTLINE: OutlineUnit[] = [
 function buildMap(): MapUnit[] {
   const done1 = state.completed[L1.id] !== undefined;
   const done2 = state.completed[L2.id] !== undefined;
-  const pl = placementFor();
-  const effective = pl.mode === 'lichess';
-  const u1Open = effective && pl.openUnitIds.includes('u01');
+  const info = levelInfo();
+  // Nivel sin contenido: se abre todo lo actual como repaso, sin recomendada.
+  const u1Open = info.comingSoon;
   const u1Done = done1 && done2;
   const done3 = state.completed[L3.id] !== undefined;
   const units: MapUnit[] = [
@@ -359,7 +360,7 @@ function buildMap(): MapUnit[] {
       level: 'beginner',
       status: u1Done ? 'completed' : 'available',
       ...(u1Open ? { placedOpen: true } : {}),
-      ...(effective && pl.recommendedUnitId === 'u01' ? { recommended: true } : {}),
+      ...(info.chosen === 'beginner' ? { recommended: true } : {}),
       lessons: [
         {
           id: L1.id,
@@ -386,7 +387,7 @@ function buildMap(): MapUnit[] {
       description: 'Los primeros mates con pocas piezas.',
       level: 'initiation',
       status: done3 ? 'completed' : u1Done || u1Open ? 'available' : 'locked',
-      ...(effective && pl.recommendedUnitId === 'u02' ? { recommended: true } : {}),
+      ...(info.chosen === 'initiation' ? { recommended: true } : {}),
       lessons: [
         {
           id: L3.id,
@@ -423,7 +424,7 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   }
   if (!state.user) return err(401, 'Necesitas iniciar sesión.');
 
-  if (path === '/me') return json({ user: state.user, subscription: state.sub, billingMode: MODE, equipped: wallet().equipped });
+  if (path === '/me') return json({ user: state.user, subscription: state.sub, billingMode: MODE, equipped: wallet().equipped, level: state.chosenLevel ?? 'initiation', levelChosen: !!state.chosenLevel });
   if (path === '/shop') return json(buildShop());
   if (path === '/shop/buy' && method === 'POST') {
     const w = wallet();
@@ -449,13 +450,13 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     return json(buildShop());
   }
   if (path === '/map') return json({ units: buildMap() });
-  if (path === '/placement' && method === 'GET') return json(placementFor());
-  if (path === '/placement' && method === 'POST') {
-    if (body.mode !== 'lichess' && body.mode !== 'scratch') return err(400, "mode debe ser 'lichess' o 'scratch'.");
-    if (body.mode === 'lichess' && MOCK_ELO === null) return err(400, 'No hay un Elo de Lichess fiable.');
-    state.placementMode = body.mode;
+  if (path === '/level' && method === 'GET') return json(levelInfo());
+  if (path === '/level' && method === 'PUT') {
+    const lv = LEVELS.find((l) => l.id === body.level);
+    if (!lv) return err(400, 'Nivel no válido.');
+    state.chosenLevel = lv.id;
     save();
-    return json(placementFor());
+    return json(levelInfo());
   }
   const lm = path.match(/^\/lessons\/([^/]+)(\/complete)?$/);
   if (lm) {

@@ -11,7 +11,7 @@ import { LessonScreen } from './screens/LessonScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { BillingScreen } from './screens/BillingScreen';
 import { ReviewScreen } from './screens/ReviewScreen';
-import { WelcomeScreen } from './screens/WelcomeScreen';
+import { LevelScreen } from './screens/LevelScreen';
 import { ShopScreen } from './screens/ShopScreen';
 import { CreditsScreen } from './screens/CreditsScreen';
 import { Coin } from './components/ShopVisuals';
@@ -20,12 +20,18 @@ import { Icon, Loading, type IconName } from './components/Icon';
 
 export function App() {
   const path = usePath();
-  const { loading, user, logout, billingMode, shop } = useSession();
+  const { loading, user, logout, billingMode, shop, levelChosen } = useSession();
   const isPrivate = isPrivatePath(path);
 
   useEffect(() => {
     if (!loading && !user && isPrivate) navigate('/entrar', { replace: true });
   }, [loading, user, isPrivate]);
+
+  // Primer acceso: sin nivel elegido, toda ruta privada lleva a la pantalla de nivel.
+  const needsLevel = !loading && !!user && isPrivate && !levelChosen && path !== '/bienvenida';
+  useEffect(() => {
+    if (needsLevel) navigate('/bienvenida', { replace: true });
+  }, [needsLevel]);
 
   const onLanding = path === '/';
 
@@ -37,6 +43,7 @@ export function App() {
   let screen: ReactNode;
   if (loading) screen = <Loading label="Cargando…" />;
   else if (isPrivate && !user) screen = <Loading label="Redirigiendo al acceso…" />;
+  else if (needsLevel) screen = <Loading label="Cargando…" />;
   else if (path === '/') screen = <Landing />;
   else if (path === '/demo') screen = <DemoScreen />;
   else if (path === '/privacidad') screen = <PrivacyScreen />;
@@ -47,7 +54,7 @@ export function App() {
   else if (path.startsWith('/leccion/')) screen = <LessonScreen id={decodeURIComponent(path.slice('/leccion/'.length))} />;
   else if (path === '/partidas' || path === '/partidas/informe' || path.startsWith('/partidas/repaso/')) screen = <ReviewScreen path={path} />;
   else if (path === '/perfil') screen = <ProfileScreen />;
-  else if (path === '/bienvenida') screen = <WelcomeScreen />;
+  else if (path === '/bienvenida') screen = <LevelScreen />;
   else if (path === '/suscripcion') screen = <BillingScreen />;
   else
     screen = (

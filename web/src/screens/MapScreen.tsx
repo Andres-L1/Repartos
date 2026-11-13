@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import type { LessonStatus, MapLesson, MapUnit, Profile } from '../../../src/shared/api';
 import type { Level } from '../../../src/types';
 import { api, ApiError } from '../api';
-import { navigate } from '../router';
+import { useSession } from '../session';
+import { LEVELS } from '../../../src/shared/levels';
 import { Link } from '../components/Link';
 import { Icon, Loading, ErrorBox, type IconName } from '../components/Icon';
+import '../level.css';
 
 export const LEVEL_LABEL: Record<Level, string> = {
   beginner: 'Principiante · 0-400',
@@ -33,17 +35,18 @@ function pickNext(units: MapUnit[]): { unit: MapUnit; lesson: MapLesson } | null
 export function MapScreen() {
   const [units, setUnits] = useState<MapUnit[] | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [comingSoon, setComingSoon] = useState(false);
   const [error, setError] = useState('');
+  const { level } = useSession();
   useEffect(() => {
-    Promise.all([api.map(), api.placement().catch(() => null)])
-      .then(([r, p]) => {
-        // Primer acceso: antes de mostrar la ruta, la bienvenida pregunta por dónde empezar.
-        if (p && !p.chosen) {
-          navigate('/bienvenida', { replace: true });
-          return;
-        }
-        setUnits([...r.units].sort((a, b) => a.order - b.order));
-      })
+    // La redirección de primer acceso a /bienvenida vive en App.
+    api
+      .level()
+      .then((r) => setComingSoon(r.comingSoon))
+      .catch(() => {});
+    api
+      .map()
+      .then((r) => setUnits([...r.units].sort((a, b) => a.order - b.order)))
       .catch((e) => {
         if (!(e instanceof ApiError && e.status === 401)) setError(e instanceof ApiError ? e.message : 'Error al cargar la ruta.');
       });
@@ -66,6 +69,16 @@ export function MapScreen() {
         <p className="kicker">Aprender</p>
         <h1>Tu ruta de aprendizaje</h1>
       </header>
+
+      {comingSoon && (
+        <p className="t-card t-card-sm map-soon" role="status">
+          <Icon name="book" size={20} />
+          <span>
+            Tus lecciones de {LEVELS.find((l) => l.id === level)?.label ?? 'tu nivel'} llegan pronto. Mientras tanto puedes repasar lo anterior y{' '}
+            <Link href="/partidas">analizar tus partidas</Link>.
+          </span>
+        </p>
+      )}
 
       <section className="continue t-card" aria-labelledby="continue-title">
         <div className="continue-main">
