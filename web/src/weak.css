@@ -1,0 +1,6 @@
+.weak-list { list-style: none; margin: 0 0 var(--space-3, 12px); padding: 0; display: grid; gap: 12px; }
+.weak-item { display: grid; gap: 4px; min-width: 0; }
+.weak-item h3 { margin: 0; overflow-wrap: anywhere; }
+.weak-count { margin: 0; }
+.weak-rule { margin: 0; overflow-wrap: anywhere; }
+.weak-item .t-btn { min-height: 44px; justify-self: start; }

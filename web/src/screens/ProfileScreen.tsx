@@ -5,6 +5,11 @@ import { useSession } from '../session';
 import { LEVELS } from '../../../src/shared/levels';
 import { Link } from '../components/Link';
 import { Icon, Loading, ErrorBox } from '../components/Icon';
+import { CONCEPTS } from '../../../src/pedagogy/concepts';
+import { ruleFor } from '../../../src/pedagogy/review-copy';
+import { lessonsForConcept } from '../../../src/content';
+import { topWeakConcepts } from '../../../src/review/weak';
+import '../weak.css';
 
 const dayWord = (n: number) => `${n} ${n === 1 ? 'día' : 'días'}`;
 
@@ -35,6 +40,18 @@ export function ProfileScreen() {
     .map((u) => ({ unit: u, lessons: u.lessons.filter((l) => l.status === 'completed') }))
     .filter((x) => x.lessons.length > 0);
   const learnedCount = units ? learned.reduce((n, x) => n + x.lessons.length, 0) : profile.lessonsCompleted;
+
+  const weak = topWeakConcepts(profile.weakConcepts ?? {}).map(({ conceptId, count }) => {
+    const lessons = lessonsForConcept(conceptId);
+    const known = CONCEPTS.find((c) => c.id === conceptId);
+    return {
+      conceptId,
+      count,
+      name: known?.name ?? lessons[0]?.title ?? 'Ajedrez táctico',
+      rule: known ? ruleFor(conceptId) : null,
+      lessonId: lessons[0]?.id ?? null,
+    };
+  });
 
   return (
     <div className="profile">
@@ -112,6 +129,30 @@ export function ProfileScreen() {
         <Link className="t-btn" href="/aprender">
           Ir a la ruta
         </Link>
+      </section>
+
+      <section className="t-card" aria-labelledby="weak-title">
+        <h2 id="weak-title">Tus puntos débiles</h2>
+        {weak.length === 0 ? (
+          <p className="muted empty-inline">
+            <Icon name="sparkle" size={18} /> Aún no hay puntos débiles: analiza una partida o completa una lección
+          </p>
+        ) : (
+          <ul className="weak-list">
+            {weak.map((w) => (
+              <li key={w.conceptId} className="weak-item">
+                <h3>{w.name}</h3>
+                <p className="muted weak-count">{w.count} {w.count === 1 ? 'vez' : 'veces'}</p>
+                {w.rule && <p className="weak-rule">{w.rule}</p>}
+                {w.lessonId && (
+                  <Link className="t-btn" href={`/leccion/${w.lessonId}`}>
+                    Practicar
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section className="t-card" aria-labelledby="start-title">
