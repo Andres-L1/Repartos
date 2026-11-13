@@ -29,7 +29,7 @@ export function CreditsScreen() {
 
       <h2>Material propio de la tienda</h2>
       <p>
-        Los temas de tablero, las piezas «Geométricas», los iconos y la ficha de Chedex son material propio y se publican junto
+        Los temas de tablero, las piezas «Contorno» y «Geométricas», los iconos y la ficha de Chedex son material propio y se publican junto
         con el código bajo GPL-3.0-or-later.
       </p>
       {catalogCredits().map((g) => (
