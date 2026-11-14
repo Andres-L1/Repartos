@@ -36,6 +36,7 @@ export function mirrorExercise(ex: Exercise): Exercise {
     fen: mirrorFen(ex.fen),
     prompt: mirrorText(ex.prompt),
     solutionUci: ex.solutionUci.map(mirrorUci),
+    ...(ex.alt ? { alt: ex.alt.map(mirrorUci) } : {}),
     ...(ex.hint ? { hint: mirrorText(ex.hint) } : {}),
   };
 }

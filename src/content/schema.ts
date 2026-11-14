@@ -23,6 +23,11 @@ export interface PracticeStep extends BoardMark {
   prompt: string;
   /** Línea correcta en UCI alternando alumno/rival (jugadas pares del rival se juegan solas). */
   solutionUci: string[];
+  /**
+   * Otras jugadas aceptadas en la última jugada del alumno (UCI), verificadas con motor como igual de buenas.
+   * Si la solución da mate, además vale cualquier mate (src/shared/moves.ts).
+   */
+  alt?: string[];
   hint?: string;
   /** Corrección: explicación mostrada tras acertar o fallar. */
   explanationCorrect: string;

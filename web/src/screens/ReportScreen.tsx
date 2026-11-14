@@ -184,7 +184,7 @@ export function ReportScreen({ games, analyses }: { games: ReviewGame[]; analyse
           <section className="rp-rule" aria-labelledby="rp-rule">
             <h2 id="rp-rule" className="rp-rule-tag">Tu regla</h2>
             <p className="rp-rule-text">{ruleFor(rule)}</p>
-            <p className="rp-rule-sub">Es la única regla que necesitas para tus próximas partidas.</p>
+            <p className="rp-rule-sub">Es la regla que más te va a ayudar en tus próximas partidas.</p>
           </section>
 
           <section className="t-card rp-card" aria-labelledby="rp-practice">

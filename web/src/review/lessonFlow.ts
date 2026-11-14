@@ -1,5 +1,6 @@
 import type { ErrorLesson } from '../../../src/pedagogy/error-lesson';
 import { applyUci, canonicalUci, needsPromotion } from '../chess';
+import { isExpectedMove } from '../../../src/shared/moves';
 
 export type LessonStep = 'look' | 'pause' | 'happened' | 'why' | 'best' | 'done';
 export type PauseResult = 'correct' | 'wrong' | 'skipped';
@@ -41,6 +42,7 @@ export type BestAttempt = { kind: 'correct' | 'wrong'; uci: string; fen: string 
 /**
  * Juzga la jugada que hace el alumno en el último momento («Qué debías hacer»). Tolera el enroque como rey a torre
  * y, si coincide con la mejor salvo la pieza de coronación, toma la de la mejor; una coronación distinta se juega a dama.
+ * Si la mejor da mate, vale cualquier mate (misma regla que la sesión diaria).
  */
 export function judgeBestMove(fen: string, bestUci: string, from: string, to: string): BestAttempt {
   const best = canonicalUci(fen, bestUci);
@@ -48,5 +50,5 @@ export function judgeBestMove(fen: string, bestUci: string, from: string, to: st
   if (needsPromotion(fen, from, to)) uci = uci === best.slice(0, 4) ? best : uci + 'q';
   const res = applyUci(fen, uci);
   if (!res) return { kind: 'illegal' };
-  return { kind: uci === best ? 'correct' : 'wrong', uci, fen: res.fen };
+  return { kind: isExpectedMove(fen, [best], 0, uci) ? 'correct' : 'wrong', uci, fen: res.fen };
 }

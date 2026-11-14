@@ -122,16 +122,17 @@ export const EXERCISES: Exercise[] = [
     fen: '6k1/8/8/8/8/8/2KQ4/7r w - - 0 1',
     prompt: 'Juegan blancas. Da jaque con la dama de modo que también ataque la torre.',
     solutionUci: ['d2d5'],
+    alt: ['d2g2'], // Qg2+ también da jaque y ataca la torre de h1 (Stockfish: las dos ganan la torre)
     hint: 'Desde el centro la dama alcanza el rey por una diagonal y la torre por otra.',
   },
   {
     id: 'ex.fork.04',
     conceptId: 'tactics.fork',
-    level: 'intermediate',
+    level: 'initiation',
     fen: '6k1/3q4/8/8/4N3/8/8/4K3 w - - 0 1',
     prompt: 'Juegan blancas. Una horquilla de caballo puede ganar la dama. Encuéntrala.',
     solutionUci: ['e4f6'],
-    hint: 'El jaque obliga a responder y deja la dama sin protección.',
+    hint: 'El jaque obliga a responder y después capturas la dama.',
   },
 
   // ───────────── Clavadas ─────────────
@@ -165,7 +166,7 @@ export const EXERCISES: Exercise[] = [
   {
     id: 'ex.pin.04',
     conceptId: 'tactics.pin',
-    level: 'advanced',
+    level: 'basic',
     fen: '4k3/4n3/8/3P4/8/8/4R3/4K3 w - - 0 1',
     prompt:
       'Juegan blancas. El caballo de e7 está clavado por tu torre. Ataca la pieza clavada para ganarla.',
@@ -208,16 +209,16 @@ export const EXERCISES: Exercise[] = [
     fen: '6k1/5ppp/8/8/8/8/8/R3K3 w - - 0 1',
     prompt: 'Juegan blancas. El rey negro está encerrado por sus propios peones. Da mate en una jugada.',
     solutionUci: ['a1a8'],
-    hint: 'Mate de pasillo: ataca la primera fila.',
+    hint: 'Mate del pasillo: ataca la última fila.',
   },
   {
     id: 'ex.mate.05',
     conceptId: 'tactics.mate_threat',
-    level: 'intermediate',
+    level: 'basic',
     fen: '6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1',
     prompt: 'Juegan blancas. El rey negro no tiene casillas libres. Da mate con el caballo.',
     solutionUci: ['g5f7'],
-    hint: 'Mate ahogado: el caballo da jaque y las piezas negras bloquean la huida.',
+    hint: 'Mate de la coz: el caballo da jaque y las piezas negras bloquean la huida.',
   },
 
   // ───────────── Jaque a la descubierta ─────────────
@@ -228,7 +229,7 @@ export const EXERCISES: Exercise[] = [
     fen: 'rnbqkb1r/pppp1ppp/5n2/4N3/8/8/PPPPQPPP/RNB1KB1R w KQkq - 2 5',
     prompt: 'Juegan blancas. Tu dama mira al rey negro con tu caballo en medio. Mueve el caballo con jaque a la descubierta y gana la dama.',
     solutionUci: ['e5c6'],
-    hint: 'El caballo debe dar jaque (al descubrir la dama) y atacar a la dama negra a la vez.',
+    hint: 'Mueve el caballo: tu dama dará jaque y el caballo atacará la dama negra.',
   },
   {
     id: 'ex.disc.02',
@@ -246,12 +247,12 @@ export const EXERCISES: Exercise[] = [
     fen: '2k5/1q6/8/2N5/8/8/8/2R3K1 w - - 0 1',
     prompt: 'Juegan blancas. El caballo tapa tu torre contra el rey negro. Muévelo capturando la pieza más valiosa.',
     solutionUci: ['c5b7'],
-    hint: 'La dama negra está al alcance del caballo; el jaque de la torre impide que el rival la salve.',
+    hint: 'La dama negra está al alcance del caballo. Captúrala: el jaque de la torre no deja recapturar.',
   },
   {
     id: 'ex.disc.04',
     conceptId: 'tactics.discovered_attack',
-    level: 'advanced',
+    level: 'basic',
     fen: '3q2k1/8/4N3/8/8/1B6/8/6K1 w - - 0 1',
     prompt: 'Juegan blancas. El alfil de b3 apunta al rey negro y tu caballo lo tapa. Mueve el caballo para ganar la dama con jaque.',
     solutionUci: ['e6d8'],

@@ -58,11 +58,12 @@ export const unit: Unit = {
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
           prompt: 'Juegan blancas. Es la primera jugada de la partida. Ocupa el centro con un peón.',
           solutionUci: ['e2e4'],
+          alt: ['d2d4'],
           hint: 'Mueve el peón del rey dos casillas.',
           explanationCorrect:
-            'Correcto: 1.e4. Ocupas el centro, controlas d5 y f5 y abres el camino a tu alfil y a tu dama. 1.d4 es igual de buena.',
+            'Correcto. 1.e4 y 1.d4 son igual de buenas: el peón ocupa el centro, controla dos casillas centrales y abre camino a un alfil y a la dama.',
           explanationWrong:
-            'Esa jugada no hace nada por el centro. Prueba con un peón central: e4 o d4.',
+            'Aquí se trata de ocupar el centro con un peón central: e4 o d4.',
           wrongByMove: {
             a2a3: 'a3 no hace nada por el centro ni desarrolla piezas; es una jugada perdida en la apertura.',
             h2h4: 'h4 no ayuda al centro y debilita la posición de tu rey.',
@@ -85,11 +86,12 @@ export const unit: Unit = {
           fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1',
           prompt: 'Juegan negras. Las blancas abrieron con 1.e4. Responde ocupando también el centro.',
           solutionUci: ['e7e5'],
+          alt: ['d7d5', 'c7c5'],
           hint: 'Imita al rival: mueve el peón del rey dos casillas.',
           explanationCorrect:
-            'Correcto: 1...e5. Ocupas el centro y controlas d4 y f4. 1...d5 y 1...c5 también son buenas respuestas.',
+            'Correcto. 1...e5, 1...d5 y 1...c5 son buenas respuestas: las tres pelean ya por el centro (1...c5 lo hace desde un lado, controlando d4).',
           explanationWrong:
-            'Esa jugada deja el centro a las blancas. Responde con un peón central.',
+            'Aquí se trata de ocupar el centro ya con un peón: e5 o d5.',
           wrongByMove: {
             a7a6: 'a6 no hace nada por el centro y es una jugada perdida.',
             h7h6: 'h6 no ayuda al centro ni desarrolla piezas.',
@@ -125,13 +127,13 @@ export const unit: Unit = {
         },
         {
           fen: 'rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
-          prompt: 'Juegan blancas. Las negras atacaron tu peón central con ...d5. Gana un peón sin perder el centro.',
+          prompt: 'Juegan blancas. Las negras atacaron tu peón central con ...d5. Captura el peón que ataca al tuyo.',
           solutionUci: ['e4d5'],
-          hint: 'Captura el peón que ataca al tuyo.',
+          hint: 'Los peones capturan en diagonal.',
           explanationCorrect:
             'Correcto: 2.exd5. Capturas el peón central; si la dama lo recupera con ...Qxd5, tu desarrollo seguirá con tempo (por ejemplo Nc3).',
           explanationWrong:
-            'Si no capturas, las negras capturan tu peón de e4 y pierdes un peón. Captura primero.',
+            'Si no capturas ni defiendes, las negras capturan en e4. Lo más sencillo es exd5.',
           wrongByMove: {
             e4e5: 'e5 evita el cambio, pero cede el peón de d5 sin compensación y deja de luchar por el centro.',
           },
@@ -140,11 +142,11 @@ export const unit: Unit = {
           fen: 'rnbqkbnr/pppp1ppp/8/4p3/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 2',
           prompt: 'Juegan negras. Las blancas atacan tu peón central con d4. No lo dejes sin respuesta.',
           solutionUci: ['e5d4'],
-          hint: 'Si no capturas, las blancas capturan en e5.',
+          hint: 'Captura el peón que ataca al tuyo.',
           explanationCorrect:
             'Correcto: 2...exd4. Capturas el peón en el centro; tras 3.Qxd4 Nc6 desarrollas con tempo contra la dama.',
           explanationWrong:
-            'Si no capturas en d4, las blancas capturan en e5 y ganan un peón central.',
+            'Si no capturas ni defiendes e5, las blancas capturan dxe5. Lo más directo es exd4.',
           wrongByMove: {
             a7a6: 'a6 no resuelve nada: las blancas capturan dxe5 y ganan un peón.',
           },
@@ -188,11 +190,12 @@ export const unit: Unit = {
           fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3',
           prompt: 'Juegan blancas. Desarrolla una pieza menor hacia una casilla activa.',
           solutionUci: ['f1c4'],
+          alt: ['f1b5', 'b1c3'],
           hint: 'El alfil de rey tiene una diagonal abierta hacia f7.',
           explanationCorrect:
-            'Correcto: 3.Bc4. El alfil sale a una casilla activa y apunta a f7. 3.Bb5 y 3.Nc3 también son buenas jugadas de desarrollo.',
+            'Correcto. 3.Bc4, 3.Bb5 y 3.Nc3 desarrollan una pieza menor hacia una casilla activa: Bc4 apunta a f7, Bb5 presiona al caballo que defiende e5 y Nc3 vigila d5 y e4.',
           explanationWrong:
-            'Esa jugada no desarrolla una pieza menor. Saca un alfil o un caballo a una casilla donde ataque algo.',
+            'Saca un alfil o un caballo a una casilla donde ataque algo o vigile el centro.',
           wrongByMove: {
             a2a3: 'a3 no desarrolla ninguna pieza; es una jugada perdida mientras el rival sigue desarrollando.',
             d1e2: 'Qe2 saca la dama antes que alfiles y caballos y, además, bloquea el desarrollo de tu alfil de f1.',
@@ -212,7 +215,7 @@ export const unit: Unit = {
           },
         },
         {
-          fen: 'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 4 4',
+          fen: 'rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R b KQkq - 0 4',
           prompt: 'Juegan negras. Tu alfil y tu caballo ya están fuera y f8 y g8 están libres. Pon el rey a salvo.',
           solutionUci: ['e8g8'],
           hint: 'Enroca corto con las negras.',
@@ -293,10 +296,10 @@ export const unit: Unit = {
         'Dos errores muy frecuentes en la apertura son mover la misma pieza una y otra vez (mientras el rival desarrolla las suyas) y sacar la dama demasiado pronto. La dama es la pieza más valiosa y, si sale pronto, el rival la ataca con piezas menores y gana tiempo (cada ataque te obliga a mover otra vez). Cada jugada de la apertura debería poner una pieza nueva en juego.',
       explanation: [
         {
-          fen: 'rnbqkb1r/pppp1ppp/5n2/4p2Q/4P3/8/PPPP1PPP/RNB1KBNR w KQkq - 2 3',
-          text: 'Las blancas sacaron la dama con 2.Qh5 y las negras la atacaron con ...Nf6 desarrollando una pieza. Ahora la dama tiene que huir: las negras han desarrollado con tempo y las blancas, además de no haber desarrollado nada, han perdido una jugada. La dama es tan valiosa que cualquier pieza menor la puede perseguir; mejor que salga cuando sea seguro.',
-          squares: ['h5', 'f6'],
-          arrows: [['f6', 'h5']],
+          fen: 'r1bqkbnr/pppp1p1p/2n3p1/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 4',
+          text: 'Las blancas sacaron la dama con 2.Qh5. Las negras defendieron e5 con ...Nc6 y, tras 3.Bc4, taparon f7 con ...g6, que además ataca a la dama. Ahora la dama tiene que huir y las blancas gastan otra jugada mientras las negras siguen sacando piezas. La dama es tan valiosa que hasta un peón la puede perseguir; mejor que salga cuando sea seguro.',
+          squares: ['h5', 'g6'],
+          arrows: [['g6', 'h5']],
         },
         {
           fen: 'r1bqkbnr/pppp1ppp/2n5/4p1N1/4P3/8/PPPP1PPP/RNBQKB1R b KQkq - 3 3',
@@ -329,9 +332,10 @@ export const unit: Unit = {
           fen: 'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
           prompt: 'Juegan blancas. Ya sacaste un caballo y un alfil. Continúa con un movimiento útil sin repetir piezas.',
           solutionUci: ['c2c3'],
+          alt: ['d2d3', 'e1g1', 'b1c3'],
           hint: 'Prepara el avance d4 con un peón.',
           explanationCorrect:
-            'Correcto: 4.c3. Preparas d4 para ocupar el centro sin mover otra vez una pieza ya desarrollada. 4.d3 y 4.O-O también serían buenas.',
+            'Correcto. 4.c3 prepara d4, 4.d3 sujeta e4, 4.O-O pone el rey a salvo y 4.Nc3 saca una pieza nueva. Ninguna mueve otra vez una pieza ya desarrollada.',
           explanationWrong:
             'Tienes varias formas buenas, pero evita repetir piezas ya desarrolladas. Una jugada de peón central o enrocar es más útil.',
           wrongByMove: {
@@ -342,9 +346,10 @@ export const unit: Unit = {
           fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 4 3',
           prompt: 'Juegan negras. Desarrolla una pieza nueva en vez de sacar la dama.',
           solutionUci: ['f8c5'],
+          alt: ['g8f6'],
           hint: 'El alfil de rey tiene la diagonal abierta hacia f2.',
           explanationCorrect:
-            'Correcto: 3...Bc5. Desarrollas una pieza nueva a una casilla activa que apunta a f2. 3...Nf6 también era buena.',
+            'Correcto. 3...Bc5 y 3...Nf6 desarrollan una pieza nueva a una casilla activa: el alfil apunta a f2 y el caballo ataca e4.',
           explanationWrong:
             'Prefiere sacar una pieza menor nueva antes que mover la dama o repetir caballos.',
           wrongByMove: {
@@ -413,7 +418,7 @@ export const unit: Unit = {
         },
         {
           fen: 'rn1qkbnr/ppp2p1p/3p2p1/4p3/2B1P1b1/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 0 5',
-          text: 'La trampa de Légal: las negras clavaron el caballo de f3 con ...Bg4 y quieren ganar una pieza. Pero 5.Nxe5! deja la dama en el aire a propósito: si 5...Bxd1, 6.Bxf7+ Ke7 7.Nd5#. Es un mate con tres piezas menores. Los principios la evitan: si las negras hubieran enrocado o desarrollado en lugar de clavar, no habría trampa.',
+          text: 'La trampa de Légal: las negras clavaron el caballo de f3 con ...Bg4 y quieren ganar una pieza. Pero 5.Nxe5! deja la dama en el aire a propósito: si 5...Bxd1, 6.Bxf7+ Ke7 7.Nd5#. Es un mate con tres piezas menores. La lección: la clavada no era absoluta, así que el caballo de f3 podía moverse. No te fíes de una clavada contra la dama.',
           squares: ['e5', 'f7', 'd5'],
           arrows: [
             ['f3', 'e5'],
@@ -515,7 +520,7 @@ export const unit: Unit = {
           solutionUci: ['h5f7'],
           hint: 'Dos de tus piezas atacan f7 y solo lo defiende el rey.',
           explanationCorrect:
-            'Correcto: 4.Qxf7#. Es el mate del pastor: el alfil de c4 protege la dama y el rey no puede huir. Se evita con ...Qe7 o ...Qf6 antes de que llegue la dama.',
+            'Correcto: 4.Qxf7#. Es el mate del pastor: el alfil de c4 protege la dama y el rey no puede huir. Se evita con ...Qe7 o ...Qf6 antes de que la dama capture en f7.',
           explanationWrong:
             'Hay un mate en una jugada: f7 solo está defendido por el rey y tienes dos piezas que lo atacan.',
           wrongByMove: {

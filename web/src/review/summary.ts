@@ -6,7 +6,7 @@ const CONCEPT_PHRASE: Record<string, { title: string; short: string }> = {
   'tactics.bad_exchange': { title: 'Cambios que pierden material', short: 'cambios que pierden material' },
   'tactics.fork': { title: 'Horquillas del rival', short: 'horquillas del rival' },
   'tactics.pin': { title: 'Clavadas', short: 'clavadas' },
-  'tactics.mate_threat': { title: 'Amenazas de jaque mate', short: 'amenazas de mate' },
+  'tactics.mate_threat': { title: 'Mates y amenazas de mate', short: 'mates y amenazas de mate' },
   'tactics.discovered_attack': { title: 'Ataques que se destapan', short: 'ataques que se destapan' },
 };
 

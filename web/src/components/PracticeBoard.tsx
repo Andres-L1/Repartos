@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PracticeStep } from '../../../src/content/schema';
+import { isExpectedMove } from '../../../src/shared/moves';
 import { Board, marksToShapes } from './Board';
 import { Icon } from './Icon';
 import { playSound } from '../sound';
@@ -75,7 +76,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
       return;
     }
     fenBefore.current = fen;
-    if (uci === expected) {
+    if (isExpectedMove(step.fen, step.solutionUci, idx, uci, step.alt)) {
       setFen(res.fen);
       setLastMove(lastMoveOf(uci));
       setHint(false);
@@ -134,7 +135,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
     e.preventDefault();
     const uci = parseTypedMove(fen, typed);
     if (!uci) {
-      setTypedErr('No entiendo esa jugada o no es legal. Ejemplos: e4, Cf3, Txa8, e8=D.');
+      setTypedErr('No entiendo esa jugada o no es legal. Ejemplos: e4, Nf3, Rxa8, e8=Q.');
       return;
     }
     setTypedErr('');
@@ -272,13 +273,13 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
                 autoCapitalize="off"
                 spellCheck={false}
                 aria-describedby="typed-help"
-                placeholder="p. ej. e4 o Cf3"
+                placeholder="p. ej. e4 o Nf3"
               />
               <button className="t-btn" type="submit">
                 Jugar
               </button>
               <p id="typed-help" className="muted">
-                Notación algebraica en español (C, A, T, D, R) o coordenadas (e2e4).
+                Notación de Lichess (N caballo, B alfil, R torre, Q dama, K rey) o coordenadas (e2e4).
               </p>
               {typedErr && (
                 <p className="field-error" role="alert">

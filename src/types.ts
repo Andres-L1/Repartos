@@ -99,6 +99,8 @@ export interface Exercise {
   fen: string;
   prompt: string; // enunciado en español
   solutionUci: string[]; // línea de solución (el jugador mueve primero)
+  /** Otras jugadas igual de buenas para la última jugada del alumno (UCI), verificadas con motor. */
+  alt?: string[];
   hint?: string;
 }
 

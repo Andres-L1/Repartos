@@ -87,4 +87,9 @@ describe('judgeBestMove', () => {
     const promo = '8/4P3/8/8/8/8/k7/4K3 w - - 0 1';
     expect(judgeBestMove(promo, 'e7e8n', 'e7', 'e8')).toMatchObject({ kind: 'correct', uci: 'e7e8n' });
   });
+  it('si la mejor da mate, vale otro mate; una jugada que no mata, no', () => {
+    const fen = '7k/5K2/8/8/8/8/6Q1/8 w - - 0 1';
+    expect(judgeBestMove(fen, 'g2h2', 'g2', 'g7').kind).toBe('correct');
+    expect(judgeBestMove(fen, 'g2h2', 'g2', 'g6').kind).toBe('wrong');
+  });
 });

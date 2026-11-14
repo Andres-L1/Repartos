@@ -144,7 +144,7 @@ export const unit: Unit = {
             ['f6', 'e4'],
             ['d2', 'd3'],
           ],
-          text: 'El caballo negro ataca tu peón de e4 y nada lo protege. Tienes varias formas de defenderte: mover la pieza atacada, proteger la pieza (aquí con d3, porque un peón protege en diagonal), capturar a la pieza atacante o interponer algo. Elige la que mejor encaje con tu plan.',
+          text: 'El caballo negro ataca tu peón de e4 y nada lo protege. Tienes varias formas de defenderte: mover la pieza atacada, proteger la pieza (aquí con d3, porque un peón protege en diagonal), o capturar a la pieza atacante. Contra un caballo no se puede interponer nada: interponer solo sirve contra una torre, un alfil o una dama. Elige la que mejor encaje con tu plan.',
         },
       ],
       practice: [
@@ -361,7 +361,7 @@ export const unit: Unit = {
             ['d1', 'd5'],
             ['e6', 'd5'],
           ],
-          text: 'Cuenta atacantes y defensores. El caballo de d5 tiene un defensor (el peón de e6) y dos atacantes (el caballo y la torre). Empieza siempre capturando con la pieza de menos valor: Cxd5, el peón recaptura, y entonces la torre captura el peón. Resultado: ganas un caballo y un peón, y pierdes un caballo.',
+          text: 'Cuenta atacantes y defensores. El caballo de d5 tiene un defensor (el peón de e6) y dos atacantes (el caballo y la torre). Empieza siempre capturando con la pieza de menos valor: Nxd5 (el caballo captura en d5; la x indica captura), el peón recaptura, y entonces la torre captura el peón. Resultado: ganas un caballo y un peón, y pierdes un caballo.',
         },
         {
           fen: '4k3/8/8/1p6/2n5/8/8/4KB2 w - - 0 1',

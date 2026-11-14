@@ -111,7 +111,7 @@ export const CONCEPTS: Concept[] = [
       initiation:
         '{hecho}\nUna horquilla ataca a dos piezas con una sola jugada, y solo puedes salvar una.\nCasillas implicadas: {casillas}.\nSi una de las piezas atacadas es el rey, estás obligado a responder al jaque y pierdes la otra.\nAntes de mover, busca casillas desde donde una pieza rival atacaría dos de tus piezas.',
       basic:
-        '{hecho}\nEl ataque doble funciona porque no puedes defender a las dos piezas con una sola jugada.\nCasillas implicadas: {casillas}; piezas: {piezas}.\nSe pierde material equivalente a {perdida}.\nPrevención: no dejes piezas a un salto de caballo de distancia entre sí, y vigila los jaques que atacan además otra pieza.',
+        '{hecho}\nEl ataque doble funciona porque no puedes defender a las dos piezas con una sola jugada.\nCasillas implicadas: {casillas}; piezas: {piezas}.\nSe pierde material equivalente a {perdida}.\nPrevención: no dejes dos piezas sin defensa en casillas a las que un mismo caballo rival pueda saltar a la vez, y vigila los jaques que atacan además otra pieza.',
       intermediate:
         '{hecho}\nLa horquilla con la jugada {refutacion} afecta a {piezas} (casillas {casillas}).\nPérdida: {perdida}.\nPara prevenirla, antes de cada jugada revisa los jaques y capturas del rival y las casillas de salto de caballo que alcanzan dos de tus piezas.',
       advanced:
@@ -142,7 +142,7 @@ export const CONCEPTS: Concept[] = [
       'Una pieza del alumno queda alineada, con una pieza rival de largo alcance y una pieza de mayor valor o el rey detrás, y el rival obtiene ventaja material con esa alineación; el motor confirma la pérdida.',
     explanations: {
       beginner:
-        '{hecho}\nUna clavada es cuando una pieza no puede moverse porque dejaría a otra más importante (a veces el rey) sin protección.\nAntes de mover, mira las líneas rectas y diagonales: ¿hay una pieza tuya delante de otra más valiosa?',
+        '{hecho}\nUna clavada es cuando una pieza no puede moverse porque dejaría a otra más importante (a veces el rey) expuesta a un ataque.\nAntes de mover, mira las líneas rectas y diagonales: ¿hay una pieza tuya delante de otra más valiosa?',
       initiation:
         '{hecho}\nUna pieza clavada no se puede mover si detrás de ella hay un rey; y si detrás hay otra pieza valiosa, moverla suele perder material.\nCasillas implicadas: {casillas}.\nAprende a mirar quién ataca por columnas y diagonales antes de mover.',
       basic:
@@ -164,13 +164,13 @@ export const CONCEPTS: Concept[] = [
   {
     id: 'tactics.mate_threat',
     category: 'Táctica',
-    name: 'Amenaza de mate',
+    name: 'Mate y amenazas de mate',
     definition:
-      'Una amenaza de mate es una jugada que, de no ser respondida, daría jaque mate en el siguiente movimiento; también se incluye el mate propio que se desaprovecha.',
+      'Incluye dos ideas: dar jaque mate cuando lo tienes (el mate propio que no se debe desaprovechar) y ver la amenaza de mate del rival, una jugada que, si no se responde, daría jaque mate en el siguiente movimiento.',
     recommendedLevel: 'beginner',
     learningObjectives: [
       'Revisar los jaques y las amenazas de mate del rival antes de cada jugada.',
-      'Reconocer los mates básicos (pasillo, mate del pastor, mate ahogado).',
+      'Reconocer los mates básicos (pasillo, mate del pastor, mate de la coz).',
       'Encontrar los mates en una jugada propios.',
     ],
     detection:

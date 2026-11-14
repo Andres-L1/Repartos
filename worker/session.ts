@@ -5,9 +5,7 @@ import { EXERCISES } from '../src/pedagogy/exercises.js';
 import { mirrorExercise } from '../src/pedagogy/mirror.js';
 import { LEVELS } from '../src/shared/levels.js';
 import { difficultyForLevel, dueAfter, maxRatingForLevel, nextBox, themeForConcept } from '../src/review/srs.js';
-import { Chess } from 'chessops/chess';
-import { parseFen } from 'chessops/fen';
-import { makeSquare, parseUci } from 'chessops/util';
+import { isExpectedMove } from '../src/shared/moves.js';
 import type { Db, Stmt } from './db.js';
 import { CONCEPT_IDS } from './srs.js';
 import { takePuzzle } from './puzzles.js';
@@ -32,41 +30,9 @@ interface ItemRow {
   status: 'open' | 'done' | 'counted' | 'closed'; // done: respondido; counted: contado en finish; closed: cerrado sin responder
 }
 
-/** Enroque como rey sobre su torre (e1h1) pasa a rey a destino (e1g1); lo demás igual. */
-function canonical(pos: Chess, uci: string): string {
-  const m = parseUci(uci);
-  if (!m || !('from' in m)) return uci;
-  const king = pos.board.get(m.from);
-  const target = pos.board.get(m.to);
-  if (king?.role !== 'king' || target?.role !== 'rook' || target.color !== king.color) return uci;
-  const from = makeSquare(m.from);
-  return from + (m.to > m.from ? 'g' : 'c') + from[1];
-}
-
-/**
- * ¿`uci` es la jugada esperada en el paso `step` de la línea? Compara el enroque en forma canónica y, como Lichess
- * en los puzles de mate, si la esperada da jaque mate vale cualquier jugada legal que también lo dé.
- */
-function isExpected(fen: string, line: string[], step: number, uci: string): boolean {
-  const want = line[step];
-  if (want === undefined) return false;
-  if (uci === want) return true;
-  try {
-    const pos = Chess.fromSetup(parseFen(fen).unwrap()).unwrap();
-    for (const u of line.slice(0, step)) pos.play(parseUci(u)!);
-    return canonical(pos, uci) === canonical(pos, want) || (mates(pos, want) && mates(pos, uci));
-  } catch {
-    return false;
-  }
-}
-
-function mates(pos: Chess, uci: string): boolean {
-  const m = parseUci(uci);
-  if (!m || !pos.isLegal(m)) return false;
-  const after = pos.clone();
-  after.play(m);
-  return after.isCheckmate();
-}
+/** Soluciones alternativas del ejercicio del banco (nunca salen al cliente). */
+const altFor = (r: Pick<ItemRow, 'kind' | 'source_id'>) => (r.kind === 'bank' ? BANK.get(r.source_id ?? '')?.alt : undefined);
+const isExpected = (r: ItemRow, line: string[], step: number, uci: string) => isExpectedMove(r.fen, line, step, uci, altFor(r));
 
 const sideToMove = (fen: string) => (fen.split(' ')[1] === 'b' ? 'negras' : 'blancas');
 /** Solo lo que el alumno puede ver: nunca la línea ni la solución. */
@@ -269,7 +235,7 @@ function evaluate(r: ItemRow, line: string[], uci: string) {
   let attempts = r.attempts;
   let firstTryOk = r.first_try_ok;
   let out: AnswerResult;
-  if (isExpected(r.fen, line, r.step, uci)) {
+  if (isExpected(r, line, r.step, uci)) {
     const reply = line[r.step + 1];
     step = r.step + 2;
     const done = step >= line.length;
@@ -289,7 +255,7 @@ function evaluate(r: ItemRow, line: string[], uci: string) {
  */
 function replay(r: ItemRow, line: string[], uci: string): AnswerResult {
   const wasCorrect =
-    r.step >= 2 && (r.attempts === 0 || (r.status === 'done' && r.attempts < 2) || (r.status === 'open' && isExpected(r.fen, line, r.step - 2, uci)));
+    r.step >= 2 && (r.attempts === 0 || (r.status === 'done' && r.attempts < 2) || (r.status === 'open' && isExpected(r, line, r.step - 2, uci)));
   if (wasCorrect) {
     const reply = line[r.step - 1];
     return { correct: true, ...(reply ? { reply } : {}), done: r.step >= line.length };

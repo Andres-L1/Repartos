@@ -27,7 +27,7 @@ export const unit: Unit = {
       explanation: [
         {
           fen: '7k/1R6/8/8/8/8/8/R5K1 w - - 0 1',
-          text: 'Mate de escalera. La torre de b7 corta la fila 7: el rey negro no puede pisar g7 ni h7. Ahora la otra torre da jaque en la fila 8 con Ra8 y el rey no tiene escapatoria: g7 y h7 las cubre la primera torre, g8 la cubre la segunda. Dos torres, una por fila, empujan al rey hasta el borde.',
+          text: 'Mate de escalera. La torre de b7 corta la fila 7: el rey negro no puede pisar g7 ni h7. Ahora la otra torre da jaque en la fila 8 con Ra8# (en notación, + indica jaque y # indica mate) y el rey no tiene escapatoria: g7 y h7 las cubre la primera torre, g8 la cubre la segunda. Dos torres, una por fila, empujan al rey hasta el borde.',
           squares: ['g7', 'h7'],
           arrows: [
             ['b7', 'h7'],
@@ -138,9 +138,9 @@ export const unit: Unit = {
           arrows: [['g1', 'g8']],
         },
         {
-          fen: '7k/8/6K1/8/8/8/8/R7 w - - 0 1',
-          text: 'Torre y rey. Es la misma idea con una torre: el rey en g6 cubre g7 y h7, y Ra8 da jaque en la última fila y cubre g8. Fíjate en que el rey rival está en el borde y que los dos reyes están en «oposición» (separados por una casilla): eso es lo que permite que el rey propio quite las casillas de escape.',
-          squares: ['g7', 'h7', 'g8'],
+          fen: '6k1/8/6K1/8/8/8/8/R7 w - - 0 1',
+          text: 'Torre y rey. Es la misma idea con una torre: el rey en g6 cubre f7, g7 y h7, y Ra8 da jaque por la última fila y cubre f8 y h8. Fíjate en que el rey rival está en el borde y los dos reyes están en oposición: en la misma columna, con una casilla entre ellos. Así tu rey le quita al rey rival las tres casillas de delante.',
+          squares: ['f7', 'g7', 'h7'],
           arrows: [['a1', 'a8']],
         },
         {
@@ -258,13 +258,13 @@ export const unit: Unit = {
       explanation: [
         {
           fen: '6rk/5Npp/8/8/8/8/8/6K1 b - - 0 1',
-          text: 'Mate de la coz (o ahogado del caballo). El rey negro en h8 está rodeado por su propia torre en g8 y los peones g7 y h7: no tiene ninguna casilla libre. El caballo en f7 da jaque (ataca h8) y nadie puede capturarlo. El caballo es la única pieza que salta sobre las demás, por eso este mate funciona cuando el rey está encajonado por sus propias piezas.',
+          text: 'Mate de la coz (también llamado mate ahogado; no confundir con el ahogado, que es tablas). El rey negro en h8 está rodeado por su propia torre en g8 y los peones g7 y h7: no tiene ninguna casilla libre. El caballo en f7 da jaque (ataca h8) y nadie puede capturarlo. El caballo es la única pieza que salta sobre las demás, por eso este mate funciona cuando el rey está encajonado por sus propias piezas.',
           squares: ['f7', 'g8', 'g7', 'h7'],
           arrows: [['f7', 'h8']],
         },
         {
           fen: 'r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4',
-          text: 'Mate del pastor. La dama en h5 y el alfil en c4 apuntan los dos a f7, que solo defiende el rey. Qxf7 sería mate: el alfil protege a la dama, el rey no puede capturarla y e7 y e8 las cubre la propia dama. Por ejemplo: 1.e4 e5 2.Bc4 Nc6 3.Qh5: dos piezas contra un punto débil.',
+          text: 'Mate del pastor. La dama en h5 y el alfil en c4 apuntan los dos a f7, que solo defiende el rey. Qxf7 sería mate: el alfil protege a la dama, el rey no puede capturarla, e7 la cubre la dama y d8 y f8 están ocupadas por sus propias piezas. Llega, por ejemplo, tras 1.e4 e5 2.Bc4 Nc6 3.Qh5 si las negras no defienden f7: dos piezas contra un punto débil.',
           squares: ['f7'],
           arrows: [
             ['h5', 'f7'],
@@ -301,7 +301,7 @@ export const unit: Unit = {
           solutionUci: ['h5f7'],
           hint: 'Dos de tus piezas atacan f7; la que captura está protegida por la otra.',
           explanationCorrect:
-            'Correcto: Qxf7#. El alfil de c4 protege la dama, el rey no puede capturarla ni escapar (e7 y e8 las cubre la dama) y el caballo de f6 no llega a f7. Es el mate del pastor.',
+            'Correcto: Qxf7#. El alfil de c4 protege la dama, el rey no puede capturarla ni escapar (e7 la cubre la dama; d8 y f8 están ocupadas por sus propias piezas) y el caballo de f6 no llega a f7. Es el mate del pastor.',
           explanationWrong:
             'No es mate. Fíjate en el punto débil f7: la dama capturando allí, protegida por el alfil, termina la partida.',
           wrongByMove: {
@@ -312,9 +312,10 @@ export const unit: Unit = {
           fen: 'rnbqk1nr/pppp1ppp/8/2b1p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3',
           prompt: 'Juegan negras. Las blancas amenazan Qxf7#. Defiéndete con una jugada sólida.',
           solutionUci: ['d8e7'],
+          alt: ['d8f6'],
           hint: 'Defender f7 con la dama no te cuesta material.',
           explanationCorrect:
-            'Correcto: Qe7. La dama defiende f7 y también el peón de e5. Qf6 también servía. Lo importante es ver la amenaza de mate antes de seguir con tu plan.',
+            'Correcto. Con la dama en e7 o en f6 defiendes f7; Qe7 protege además el peón de e5. Lo importante es ver la amenaza de mate antes de seguir con tu plan.',
           explanationWrong:
             'Esa jugada no resuelve la amenaza de Qxf7# o cuesta material. Las defensas buenas son Qe7 y Qf6; Nh6 pierde el peón de e5 y g6 pierde material por Qxe5+.',
           wrongByMove: {
@@ -446,11 +447,11 @@ export const unit: Unit = {
           solutionUci: ['d1g1', 'h3h4', 'g1h2'],
           hint: 'Una jugada tranquila de la dama deja al rey una única casilla.',
           explanationCorrect:
-            'Correcto: Qg1 deja al rey solo con h4, y Qh2# es mate (tu rey de f5 cubre g4 y g5). La jugada tranquila quita las casillas y no ahoga porque aún queda h4.',
+            'Correcto: Qg1 deja al rey solo con h4, y después Qh2# o Qg4# es mate (tu rey de f5 ayuda a cubrir las casillas de escape). La jugada tranquila quita las casillas y no ahoga porque aún queda h4.',
           explanationWrong:
             'Esa jugada no fuerza el mate. Busca una casilla para la dama que deje al rey una única salida y no lo ahogue.',
           wrongByMove: {
-            d1h5: 'Qh5+ da jaque, pero el rey escapa a g3 y ya no hay mate forzado.',
+            d1h5: 'Qh5+ da jaque, pero el rey escapa a g3 y ya no hay mate en la siguiente jugada.',
           },
         },
       ],

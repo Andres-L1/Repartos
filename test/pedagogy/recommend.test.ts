@@ -37,14 +37,14 @@ describe('recommend', () => {
   });
 
   it('prioriza el nivel del alumno y luego el inmediato inferior', () => {
-    const r = recommend(diag('tactics.fork'), 'intermediate', 2);
+    const r = recommend(diag('tactics.hanging_piece'), 'intermediate', 2);
     expect(r[0]!.level).toBe('intermediate');
     expect(r[1]!.level).toBe('basic');
   });
 
   it('con un nivel sin ejercicios cae al más cercano inferior', () => {
-    // fork no tiene ejercicios 'competitive'; el más cercano es 'intermediate'
-    const r = recommend(diag('tactics.fork'), 'competitive', 1);
+    // hanging_piece no tiene ejercicios 'competitive' ni 'advanced'; el más cercano es 'intermediate'
+    const r = recommend(diag('tactics.hanging_piece'), 'competitive', 1);
     expect(r[0]!.level).toBe('intermediate');
   });
 

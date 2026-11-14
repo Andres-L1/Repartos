@@ -36,11 +36,13 @@ describe('banco de ejercicios', () => {
       });
 
       if (e.conceptId !== 'tactics.mate_threat' && !isPinCreation(e.fen)) {
-        it('la solución es la mejor jugada y es única (búsqueda de material)', () => {
+        it('la solución es la mejor jugada y es única salvo sus alternativas (búsqueda de material)', () => {
           const ranked = rankMoves(e.fen, 3);
-          expect(ranked[0]!.uci).toBe(e.solutionUci[0]);
-          // margen claro sobre la segunda mejor jugada
-          expect(ranked[0]!.score - (ranked[1]?.score ?? -Infinity)).toBeGreaterThanOrEqual(100);
+          const accepted = [e.solutionUci[0], ...(e.alt ?? [])];
+          expect(accepted).toContain(ranked[0]!.uci);
+          // margen claro sobre la mejor jugada no aceptada
+          const other = ranked.find((r) => !accepted.includes(r.uci));
+          expect(ranked[0]!.score - (other?.score ?? -Infinity)).toBeGreaterThanOrEqual(100);
         });
       }
 

@@ -124,7 +124,7 @@ export function LevelScreen() {
               <div className="lvl-body">
                 <h2 className="lvl-name">{c.label}</h2>
                 <p className="lvl-range">
-                  {c.minElo} a {c.maxElo} Elo · {c.blurb}.
+                  {c.id === 'competitive' ? `${c.minElo} Elo o más` : `${c.minElo} a ${c.maxElo} Elo`} · {c.blurb}.
                 </p>
                 <p className="lvl-tags">
                   {c.available ? (

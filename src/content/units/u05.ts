@@ -42,7 +42,7 @@ export const unit: Unit = {
         },
         {
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-          text: 'Valores: peón 1, caballo 3, alfil 3, torre 5, dama 9. Un cambio es bueno si recibes más de lo que das y malo si recibes menos. Antes de capturar, cuenta: ¿cuántas de mis piezas atacan esa casilla y cuántas de las suyas la defienden? Si defienden más que atacan, o si tu primera pieza vale más que la suya, no captures.',
+          text: 'Valores: peón 1, caballo 3, alfil 3, torre 5, dama 9. Un cambio es bueno si recibes más de lo que das y malo si recibes menos. Antes de capturar, cuenta: ¿cuántas de mis piezas atacan esa casilla y cuántas de las suyas la defienden? Si la pieza está defendida, no la captures con una pieza que valga más que ella. Y si la defienden más piezas de las que la atacan, normalmente no compensa.',
           squares: ['a1', 'd1', 'b1', 'c1'],
         },
       ],
@@ -289,7 +289,7 @@ export const unit: Unit = {
         },
         {
           fen: '3qk3/8/5n2/6B1/8/8/8/4K3 b - - 0 1',
-          text: 'Clavada relativa. El caballo de f6 está entre el alfil de g5 y la dama de d8. Moverlo es legal, pero perderías la dama por un alfil. Por eso se considera clavado. La clavada relativa protege menos que la absoluta, pero también limita muchísimo a la pieza clavada.',
+          text: 'Clavada relativa. El caballo de f6 está entre el alfil de g5 y la dama de d8. Moverlo es legal, pero perderías la dama por un alfil. Por eso se considera clavado. La clavada relativa obliga menos que la absoluta, pero también limita muchísimo a la pieza clavada.',
           squares: ['f6'],
           arrows: [['g5', 'd8']],
         },
@@ -323,7 +323,7 @@ export const unit: Unit = {
           solutionUci: ['f3e5'],
           hint: 'Una pieza clavada no puede recapturar.',
           explanationCorrect:
-            'Correcto: Nxe5. El caballo clavado no puede recapturar (sería ilegal), así que ganas el peón y amenazas Nxc6+ y Bxc6+.',
+            'Correcto: Nxe5. El caballo clavado no puede recapturar (sería ilegal), así que ganas el peón, y ahora el caballo de c6 está atacado dos veces: amenazas Bxc6+ o Nxc6.',
           explanationWrong:
             'El peón de e5 parece defendido, pero su defensor está clavado. Capturar el peón sale gratis.',
           wrongByMove: {
@@ -349,11 +349,11 @@ export const unit: Unit = {
           solutionUci: ['f3e5'],
           hint: 'Ataca la torre clavada con el caballo; no puede huir.',
           explanationCorrect:
-            'Correcto: Ne5. El caballo ataca la torre, que está clavada y no puede moverse. Si el rey se aparta, Nxd7 gana una torre por un caballo.',
+            'Correcto: Ne5. La torre clavada no puede huir; cuando la captures, tu alfil protegerá al caballo y el rey no podrá recapturar: ganas la torre entera.',
           explanationWrong:
             'Ganas más atacando la torre clavada con una pieza de menos valor que capturándola directamente.',
           wrongByMove: {
-            b5d7: 'Bxd7+ Kxd7: ganas una torre por un alfil (2 puntos), pero Ne5 ganaba mucho más.',
+            b5d7: 'Bxd7+ Kxd7 te deja solo con un caballo contra el rey: no se puede dar mate y la partida es tablas. Con Ne5 ganas la torre y conservas las dos piezas.',
           },
         },
       ],
@@ -377,11 +377,11 @@ export const unit: Unit = {
           solutionUci: ['f6e4'],
           hint: 'Ataca la torre clavada con el caballo.',
           explanationCorrect:
-            'Correcto: Ne4. El caballo ataca la torre clavada, que no puede moverse. Ganas torre por caballo.',
+            'Correcto: Ne4. La torre clavada no puede huir; cuando la captures, tu alfil protegerá al caballo y el rey no podrá recapturar: ganas la torre entera.',
           explanationWrong:
             'Ataca la torre clavada con el caballo, una pieza de menos valor.',
           wrongByMove: {
-            b4d2: 'Bxd2+ Kxd2: ganas una torre por un alfil, pero Ne4 era mejor.',
+            b4d2: 'Bxd2+ Kxd2 te deja solo con un caballo contra el rey: no se puede dar mate y la partida es tablas. Con Ne4 ganas la torre y conservas las dos piezas.',
           },
         },
         {
@@ -419,7 +419,7 @@ export const unit: Unit = {
         },
         {
           fen: '4k3/8/3N4/8/8/8/8/4R1K1 b - - 0 1',
-          text: 'Esta es la posición tras mover el caballo a d6. El rey negro está en jaque por la torre. Además, el caballo de d6 ataca otras casillas (b7, c8, f7, e8…). Las negras deben responder al jaque y no pueden evitar lo que el caballo amenaza. La clave: mover la pieza que tapa con la mejor amenaza posible.',
+          text: 'Esta es la posición tras mover el caballo a d6. El rey negro está en jaque por la torre. Además, el caballo de d6 también ataca e8: es un jaque doble (torre y caballo atacan al rey) y solo vale mover el rey. El caballo ataca también b7, c8 y f7. Las negras deben responder al jaque y no pueden evitar lo que el caballo amenaza. La clave: mover la pieza que tapa con la mejor amenaza posible.',
           squares: ['d6'],
           arrows: [['e1', 'e8']],
         },

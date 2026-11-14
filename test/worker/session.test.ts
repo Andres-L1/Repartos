@@ -348,6 +348,25 @@ describe('sesión diaria', () => {
     expect(s.db.raw.prepare("SELECT puzzle_id FROM cp_puzzle_pool WHERE used_at IS NOT NULL").all()).toEqual([{ puzzle_id: 'bajo' }]);
   });
 
+  it('banco: la solución alternativa verificada vale, también en espejo, y no sale en GET', async () => {
+    const s = setup();
+    const ex = EXERCISES.find((e) => e.id === 'ex.fork.03')!;
+    expect(ex.alt).toEqual(['d2g2']);
+    for (const [name, rnd, v] of [['ana', 0.9, ex], ['bea', 0.1, mirrorExercise(ex)]] as const) {
+      s.rnd.value = rnd;
+      const u = await s.user(name);
+      s.db.raw.prepare("INSERT INTO cp_user_level (user_id, level, chosen_at) VALUES (?,'basic','x')").run(name);
+      s.due(name, 'tactics.fork');
+      const r = await u('GET', '/api/session');
+      expect(r.json.items[0]).toMatchObject({ kind: 'bank', fen: v.fen });
+      expect(r.text).not.toContain(v.alt![0]);
+      expect(r.text).not.toContain(v.solutionUci[0]);
+      const send = (uci: string, attempt: number) => u('POST', '/api/session/answer', { itemId: r.json.items[0].itemId, uci, attempt }).then((x) => x.json);
+      expect(await send(v.solutionUci[0]!.slice(0, 2) + v.solutionUci[0]!.slice(0, 1) + (name === 'ana' ? '8' : '1'), 1)).toEqual({ correct: false, done: false, tryAgain: true }); // Qd8+: jaque sin atacar la torre
+      expect(await send(v.alt![0]!, 2)).toEqual({ correct: true, done: true });
+    }
+  });
+
   it('mate: si la solución da mate vale otro mate (también coronando); una jugada que no mata, no', async () => {
     const s = setup();
     const ana = await s.user('ana');

@@ -21,7 +21,7 @@ export const unit: Unit = {
         {
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
           squares: ['a1', 'h8', 'e4'],
-          text: 'El tablero tiene 8 columnas y 8 filas, es decir, 64 casillas que alternan entre claras y oscuras. Las columnas se nombran con letras, de la a (izquierda) a la h (derecha), y las filas con números, del 1 (donde empiezan las blancas) al 8. Cada casilla es una letra más un número: la de abajo a la izquierda es a1, la de arriba a la derecha es h8 y las del centro, como e4, son las más importantes. Un truco: la casilla de la esquina inferior derecha de cada jugador siempre es clara.',
+          text: 'El tablero tiene 8 columnas y 8 filas, es decir, 64 casillas que alternan entre claras y oscuras. Las columnas se nombran con letras, de la a (izquierda) a la h (derecha), y las filas con números, del 1 (donde empiezan las blancas) al 8. Cada casilla es una letra más un número: la de abajo a la izquierda es a1, la de arriba a la derecha es h8 y las del centro, como e4, son las más importantes. Un truco: la casilla de la esquina inferior derecha de cada jugador siempre es clara. Las jugadas se escriben como en Lichess: la letra en inglés de la pieza (R torre, B alfil, Q dama, K rey, N caballo; el peón no lleva letra) y la casilla de llegada. Así, Ra5 es «torre a a5».',
         },
         {
           fen: '4k3/8/8/8/3R4/8/8/4K3 w - - 0 1',
@@ -235,7 +235,7 @@ export const unit: Unit = {
       title: 'El rey y el caballo',
       objective: 'Mover el rey (una casilla, nunca a una casilla atacada) y el caballo (salto en L).',
       intro:
-        'El rey es la pieza más importante, aunque no la más fuerte: si lo pierdes, pierdes la partida. El caballo, en cambio, es la pieza más original: es la única que salta por encima de las demás. Con estas dos piezas completas las seis que se mueven distinto en el ajedrez, salvo el peón.',
+        'El rey es la pieza más importante, aunque no la más fuerte: si lo pierdes, pierdes la partida. El caballo, en cambio, es la pieza más original: es la única que salta por encima de las demás. Con estas dos ya conoces cinco de las seis piezas; solo falta el peón.',
       explanation: [
         {
           fen: '7k/8/8/8/3K4/8/8/8 w - - 0 1',
@@ -451,7 +451,7 @@ export const unit: Unit = {
           solutionUci: ['g2g3'],
           hint: 'Un paso hacia delante.',
           explanationCorrect: 'Correcto: un paso, sin complicaciones.',
-          explanationWrong: 'Hoy te pido un solo paso: del g2 al g3.',
+          explanationWrong: 'Hoy te pido un solo paso: de g2 a g3.',
         },
         {
           fen: '4k3/8/8/8/8/5p2/4P3/4K3 w - - 0 1',
