@@ -5,8 +5,11 @@ import { unit as u03 } from './units/u03.js';
 import { unit as u04 } from './units/u04.js';
 import { unit as u05 } from './units/u05.js';
 import { unit as u06 } from './units/u06.js';
+import { unit as u07 } from './units/u07.js';
+import { unit as u08 } from './units/u08.js';
+import { unit as u09 } from './units/u09.js';
 
-export const UNITS: Unit[] = [u01, u02, u03, u04, u05, u06].sort((a, b) => a.order - b.order);
+export const UNITS: Unit[] = [u01, u02, u03, u04, u05, u06, u07, u08, u09].sort((a, b) => a.order - b.order);
 export const LESSONS: Lesson[] = UNITS.flatMap((u) => u.lessons);
 export const getLesson = (id: string): Lesson | undefined => LESSONS.find((l) => l.id === id);
 export const getUnit = (id: string): Unit | undefined => UNITS.find((u) => u.id === id);
