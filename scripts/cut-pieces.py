@@ -12,7 +12,9 @@ Cada lámina se elige por su sufijo «-N.png» (1..10). Cómo se limpia:
   de las láminas (motas, manchas, flecos) está casi toda por debajo de alfa 32, así que no se une a ninguna.
 - De cada pieza se conserva su componente y el borde suavizado a <= EDGE px de él (alfa original);
   todo lo demás queda transparente.
-- Todas las piezas de un juego usan la misma escala y la misma base: se alinean en el tablero.
+- Todas las piezas de un juego comparten base (se alinean en el tablero); la escala base la fija la más alta,
+  y las bajas (peón, torre...) se agrandan hasta FLOOR manteniendo rey >= dama > resto > peón.
+- WHITE_GAMMA aclara las blancas de los juegos que lo necesitan (sombras: gris sobre tablero gris).
 """
 import sys
 from pathlib import Path
@@ -27,6 +29,11 @@ SIZE = 192          # lado del sprite
 TOP, BOTTOM = 6, 8  # margen superior y base (px del sprite)
 ALPHA_CORE = 128
 EDGE = 2
+# Altura mínima de cada tipo respecto a la pieza más alta del juego: a 34 px por casilla un peón al 60 % no se lee
+FLOOR = {'Q': 0.92, 'R': 0.84, 'B': 0.84, 'N': 0.84, 'P': 0.76}
+GAP = 0.04          # separación mínima entre escalones de la jerarquía
+# Gamma sobre el RGB de las blancas por juego (<1 aclara medios tonos y conserva el contorno oscuro)
+WHITE_GAMMA = {'sombras': 0.6}
 OUT = Path(__file__).resolve().parent.parent / 'web' / 'public' / 'pieces'
 
 
@@ -57,14 +64,30 @@ def pieces_of(path: Path):
     return {f'{c}{ROLES[i]}': p[2] for c, row in zip('wb', rows) for i, p in enumerate(row)}
 
 
+def targets(rel):
+    """Altura relativa final por pieza de un color: sube las bajas hasta FLOOR sin romper rey >= dama > resto > peón.
+    Nunca encoge una pieza respecto a su tamaño natural."""
+    t = dict(rel)
+    t['Q'] = max(rel['Q'], min(FLOOR['Q'], t['K']))
+    for r in 'RBN':
+        t[r] = max(rel[r], min(FLOOR[r], t['Q'] - GAP))
+    t['P'] = max(rel['P'], min(FLOOR['P'], min(t[r] for r in 'RBN') - GAP))
+    return t
+
+
 def render(crops):
-    """Misma escala para las 12: la pieza más alta (o ancha) llena el lienzo; base común abajo."""
+    """La pieza más alta (o ancha) llena el lienzo y fija la escala base; las bajas se agrandan (targets); base común abajo."""
     box = SIZE - TOP - BOTTOM
-    scale = min(box / max(c.shape[0] for c in crops.values()), SIZE / max(c.shape[1] for c in crops.values()))
+    H = max(c.shape[0] for c in crops.values())
+    scale = min(box / H, SIZE / max(c.shape[1] for c in crops.values()))
+    rel = {n: c.shape[0] / H for n, c in crops.items()}
+    t = {f'{col}{r}': v for col in 'wb' for r, v in targets({r: rel[col + r] for r in ROLES}).items()}
     sprites = {}
     for name, c in crops.items():
-        w, h = max(1, round(c.shape[1] * scale)), max(1, round(c.shape[0] * scale))
-        im = Image.fromarray(c, 'RGBA').convert('RGBa').resize((w, h), Image.LANCZOS).convert('RGBA')
+        s = min(scale * t[name] / rel[name], SIZE / c.shape[1])
+        w, h = max(1, round(c.shape[1] * s)), max(1, round(c.shape[0] * s))
+        assert h <= box + 1 and w <= SIZE, f'{name}: {w}x{h} se sale del lienzo'
+        im =Image.fromarray(c, 'RGBA').convert('RGBa').resize((w, h), Image.LANCZOS).convert('RGBA')
         canvas = Image.new('RGBA', (SIZE, SIZE))
         canvas.paste(im, ((SIZE - w) // 2, SIZE - BOTTOM - h))
         sprites[name] = canvas
@@ -77,7 +100,12 @@ def main():
     sheets = {int(p.stem.rsplit('-', 1)[1]): p for p in src.glob('*.png') if p.stem.rsplit('-', 1)[-1].isdigit()}
     rows = []
     for num, sid in SETS.items():
-        sprites = render(pieces_of(sheets[num]))
+        crops = pieces_of(sheets[num])
+        if sid in WHITE_GAMMA:
+            for n in [n for n in crops if n[0] == 'w']:
+                c = crops[n]
+                c[..., :3] = np.round(255 * (c[..., :3] / 255) ** WHITE_GAMMA[sid]).astype(np.uint8)
+        sprites = render(crops)
         d = OUT / sid
         d.mkdir(parents=True, exist_ok=True)
         total = 0
