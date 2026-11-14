@@ -198,11 +198,14 @@ describe('sesión diaria', () => {
     expect(s.box('ana', 'tactics.fork')).toEqual({ box: 3, due_at: s.now() + 4 * DAY });
     expect(s.box('ana', 'tactics.pin')).toEqual({ box: 3, due_at: s.now() + DAY });
     expect(f1.json.nextDueAt).toBe(new Date(s.now() + DAY).toISOString());
-    s.advance(DAY); // otro día: un segundo finish no mueve la caja ni la racha
+    s.advance(DAY - 1); // mismo plazo, todo vencido otra vez: un segundo finish no mueve la caja ni la racha
     s.db.raw.prepare("UPDATE cp_review_schedule SET due_at = ? WHERE user_id = 'ana'").run(s.now() - 1);
     const f2 = await ana('POST', '/api/session/finish', { sessionId: start.sessionId });
     expect(f2.json.reviewed).toEqual(f1.json.reviewed);
     expect(f2.json.streak).toBe(1);
+    expect(s.box('ana', 'tactics.fork').box).toBe(3);
+    s.advance(1); // a las 24 h la sesión caduca también para finish
+    expect((await ana('POST', '/api/session/finish', { sessionId: start.sessionId })).status).toBe(404);
     expect(s.box('ana', 'tactics.fork').box).toBe(3);
     expect(s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_session_items WHERE status = 'open'").get()).toEqual({ n: 0 });
     // Los abiertos quedaron cerrados.
@@ -279,5 +282,45 @@ describe('sesión diaria', () => {
     expect(s.box('ana', 'tactics.fork')).toEqual({ box: 3, due_at: s.now() + 4 * DAY });
     expect(s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_wallet_ledger WHERE user_id = 'ana' AND reason = 'streak_milestone'").get()).toEqual({ n: 1 });
     expect(s.db.raw.prepare("SELECT streak_days FROM cp_profiles WHERE user_id = 'ana'").get()).toEqual({ streak_days: 5 });
+  });
+
+  it('attempt: el reenvío de una respuesta ya contada devuelve lo mismo sin contarla otra vez', async () => {
+    const s = setup();
+    const ana = await s.user('ana');
+    s.due('ana', 'tactics.fork');
+    const st = puzzleStart(puzzles[0].game.pgn, puzzles[0].puzzle.solution)!;
+    const line = st.line.slice(0, 3);
+    s.db.raw.prepare("INSERT INTO cp_puzzle_pool (puzzle_id, theme, difficulty, rating, fen, line_json, fetched_at) VALUES ('AjiNP','fork','easier',1263,?,?,?)").run(st.fen, JSON.stringify(line), s.now());
+    const id = (await ana('GET', '/api/session')).json.items[0].itemId;
+    const send = (uci: string, attempt?: number) => ana('POST', '/api/session/answer', { itemId: id, uci, attempt });
+    const row = () => s.db.raw.prepare('SELECT step, attempts, status FROM cp_session_items WHERE id = ?').get(id);
+    expect((await send('a2a3', 0)).status).toBe(400);
+    expect((await send('a2a3', 1.5)).status).toBe(400);
+    // Fallo 1 y su reenvío (la respuesta se perdió por la red): un solo fallo.
+    expect((await send('a2a3', 1)).json).toEqual({ correct: false, done: false, tryAgain: true });
+    expect((await send('a2a3', 1)).json).toEqual({ correct: false, done: false, tryAgain: true });
+    expect(row()).toEqual({ step: 0, attempts: 1, status: 'open' });
+    // Acierto y su reenvío: misma respuesta del rival, sin avanzar dos veces.
+    expect((await send(line[0]!, 2)).json).toEqual({ correct: true, reply: line[1], done: false });
+    expect((await send(line[0]!, 2)).json).toEqual({ correct: true, reply: line[1], done: false });
+    expect(row()).toEqual({ step: 2, attempts: 1, status: 'open' });
+    // Intento desfasado (ni el siguiente ni el último contado): 409.
+    expect((await send(line[2]!, 5)).status).toBe(409);
+    expect((await send(line[2]!, 3)).json).toEqual({ correct: true, done: true });
+    expect((await send(line[2]!, 3)).json).toEqual({ correct: true, done: true }); // terminado: se repite, no 404
+    expect(row()).toEqual({ step: 4, attempts: 1, status: 'done' });
+  });
+
+  it('attempt: el reenvío del segundo fallo repite la solución', async () => {
+    const s = setup();
+    const ana = await s.user('ana');
+    s.due('ana', 'tactics.fork');
+    const it0 = (await ana('GET', '/api/session')).json.items[0];
+    const send = (attempt: number) => ana('POST', '/api/session/answer', { itemId: it0.itemId, uci: 'a2a3', attempt });
+    await send(1);
+    const second = (await send(2)).json;
+    expect(second).toEqual({ correct: false, done: true, solution: s.solutionOf(it0.fen) });
+    expect((await send(2)).json).toEqual(second);
+    expect(s.db.raw.prepare('SELECT attempts FROM cp_session_items WHERE id = ?').get(it0.itemId)).toEqual({ attempts: 2 });
   });
 });

@@ -35,7 +35,7 @@ import {
 import { completeReview, parseCompleteReview } from './review.js';
 import { answerItem, finishPlan, nextDueAt, sessionStatus, startSession, UCI_RE } from './session.js';
 import { CONCEPT_IDS, touchSchedule } from './srs.js';
-import { buildShop, buyItem, effectiveStreak, equipItem, equippedFor, protectorCount, streakAdvance } from './shop.js';
+import { buildShop, buyItem, effectiveStreak, equipItem, equippedFor, isUnique, protectorCount, streakAdvance, streakUpdate } from './shop.js';
 
 export interface AppDeps {
   db: Db;
@@ -419,6 +419,11 @@ export function createApp(deps: AppDeps) {
     const xpToday = (p.xp_today_date === today ? p.xp_today : 0) + xpGained;
 
     const stmts: Stmt[] = [
+      // Reclamo del intento (índice único): de dos envíos concurrentes que leyeron el mismo `prev`, solo uno confirma.
+      {
+        sql: "INSERT INTO cp_wallet_ledger (user_id, delta, reason, ref, created_at) VALUES (?, 0, 'lesson_attempt', ?, ?)",
+        params: [userId, `${lesson.id}:${attempts}`, t.toISOString()],
+      },
       {
         sql: `INSERT INTO cp_lesson_progress (user_id, lesson_id, completed, best_score, attempts, completed_at, last_key, last_at, last_xp)
               VALUES (?,?,?,?,?,?,?,?,?)
@@ -436,26 +441,41 @@ export function createApp(deps: AppDeps) {
         }),
       ),
       {
-        sql: `UPDATE cp_profiles SET xp = xp + ?, streak_days = ?, longest_streak = ?, last_active_date = ?,
-                xp_today = ?, xp_today_date = ? WHERE user_id = ?`,
-        params: [xpGained, streak, Math.max(p.longest_streak, streak), lastActive, xpToday, today, userId],
+        sql: `UPDATE cp_profiles SET xp = xp + ?, xp_today = CASE WHEN xp_today_date = ? THEN xp_today + ? ELSE ? END, xp_today_date = ?
+              WHERE user_id = ?`,
+        params: [xpGained, today, xpGained, xpGained, today, userId],
       },
     ];
+    // Racha condicionada a lo leído: si otra actividad ya la avanzó hoy, no se pisa.
+    const streakStmts: Stmt[] = passed ? [streakUpdate(userId, p, streak, lastActive), ...rewards] : [];
     try {
       // Progreso, racha, protector e ingreso de Chedex: una sola transacción atómica.
-      await db.batch([...stmts, ...rewards]);
+      await db.batch([...stmts, ...streakStmts]);
     } catch (e) {
-      // Doble envío concurrente: el otro ya registró el ingreso/consumo (índice único) y esta transacción se revierte.
-      if (rewards.length && /UNIQUE|constraint/i.test(e instanceof Error ? e.message : '')) {
+      if (!isUnique(e)) throw e;
+      try {
+        // El hito/protector de hoy ya lo registró otra actividad (sesión o lección a la vez): se cuenta la lección sin él.
+        if (!streakStmts.length) throw e;
+        await db.batch(stmts);
         return c.json({
-          progress: toProgress(prev ?? { completed: 0, best_score: 0, attempts: 0 }),
+          progress: toProgress({ completed: completed ? 1 : 0, best_score: best, attempts }),
+          xpGained,
+          chedexEarned: 0,
+          protectorUsed: false,
+          profile: await profileFor(userId),
+        });
+      } catch (e2) {
+        if (!isUnique(e2)) throw e2;
+        // Doble envío concurrente: el otro ya reclamó este intento; no se cuenta nada.
+        return c.json({
+          progress: toProgress((await db.first<{ completed: number; best_score: number; attempts: number }>(
+            'SELECT completed, best_score, attempts FROM cp_lesson_progress WHERE user_id = ? AND lesson_id = ?', [userId, lesson.id])) ?? { completed: 0, best_score: 0, attempts: 0 }),
           xpGained: 0,
           chedexEarned: 0,
           protectorUsed: false,
           profile: await profileFor(userId),
         });
       }
-      throw e;
     }
     return c.json({
       progress: toProgress({ completed: completed ? 1 : 0, best_score: best, attempts }),
@@ -489,7 +509,8 @@ export function createApp(deps: AppDeps) {
     const b = await readJson(c);
     if (typeof b.itemId !== 'string' || b.itemId.length > 64 || typeof b.uci !== 'string' || !UCI_RE.test(b.uci))
       throw new HttpError(400, 'itemId/uci no válidos');
-    const r = await answerItem(db, c.get('user').id, b.itemId, b.uci, now().getTime());
+    if (b.attempt !== undefined && (!isInt(b.attempt) || b.attempt < 1 || b.attempt > 100)) throw new HttpError(400, 'attempt no válido');
+    const r = await answerItem(db, c.get('user').id, b.itemId, b.uci, now().getTime(), b.attempt as number | undefined);
     if (r === null) throw new HttpError(404, 'Ejercicio no encontrado');
     if (r === 'race') throw new HttpError(409, 'Respuesta ya registrada');
     return c.json(r);
@@ -508,18 +529,11 @@ export function createApp(deps: AppDeps) {
       const p = await loadProfile(userId);
       const s = await streakAdvance(db, userId, p, t);
       try {
-        await db.batch([
-          ...plan.stmts,
-          {
-            sql: 'UPDATE cp_profiles SET streak_days = ?, longest_streak = ?, last_active_date = ? WHERE user_id = ?',
-            params: [s.streak, Math.max(p.longest_streak, s.streak), s.lastActive, userId],
-          },
-          ...s.rewards,
-        ]);
+        await db.batch([...plan.stmts, streakUpdate(userId, p, s.streak, s.lastActive), ...s.rewards]);
       } catch (e) {
         // Doble envío o lección terminada a la vez: otra transacción ya registró el ingreso/consumo (índice único) y esta se
         // revierte entera. Se reaplican solo cajas y elementos: las cajas exigen due_at <= ahora, así que nada se mueve dos veces.
-        if (!(s.rewards.length && /UNIQUE|constraint/i.test(e instanceof Error ? e.message : ''))) throw e;
+        if (!(s.rewards.length && isUnique(e))) throw e;
         await db.batch(plan.stmts);
       }
     }

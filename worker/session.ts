@@ -168,43 +168,84 @@ export async function startSession(
   return { sessionId, items: items.map(toItem) };
 }
 
-/** null: el elemento no es del usuario, está cerrado o caducó (404). 'race': otra respuesta se registró a la vez. */
-export async function answerItem(db: Db, userId: string, itemId: string, uci: string, nowMs: number): Promise<AnswerResult | null | 'race'> {
-  const r = await db.first<ItemRow>(
-    "SELECT * FROM cp_session_items WHERE id = ? AND user_id = ? AND status = 'open' AND created_at > ?",
-    [itemId, userId, nowMs - SESSION_TTL_MS],
-  );
-  if (!r) return null;
-  const line = JSON.parse(r.line_json) as string[];
-  let res: AnswerResult;
+/**
+ * null: el elemento no es del usuario, está cerrado o caducó (404). 'race': otra respuesta se registró a la vez (409).
+ * `attempt` (1, 2, ...): qué respuesta del elemento cree el cliente que envía. Si ya se procesó la anterior a esa
+ * (reenvío tras un corte de red o doble envío), se devuelve el mismo resultado sin contar nada. Sin `attempt`
+ * (cliente antiguo) se evalúa contra el estado actual.
+ */
+export async function answerItem(
+  db: Db,
+  userId: string,
+  itemId: string,
+  uci: string,
+  nowMs: number,
+  attempt?: number,
+): Promise<AnswerResult | null | 'race'> {
+  for (let tries = 0; tries < 2; tries++) {
+    const r = await db.first<ItemRow>(
+      "SELECT * FROM cp_session_items WHERE id = ? AND user_id = ? AND status IN ('open', 'done') AND created_at > ?",
+      [itemId, userId, nowMs - SESSION_TTL_MS],
+    );
+    if (!r) return null;
+    const line = JSON.parse(r.line_json) as string[];
+    const processed = r.step / 2 + r.attempts; // respuestas ya contadas en este elemento
+    if (attempt !== undefined && attempt === processed) return replay(r, line, uci);
+    if (r.status !== 'open') return null;
+    if (attempt !== undefined && attempt !== processed + 1) return 'race';
+    const res = evaluate(r, line, uci);
+    // Condicionada al estado leído: un doble envío concurrente no avanza dos veces.
+    const ok = await db.first<{ id: string }>(
+      `UPDATE cp_session_items SET step = ?, attempts = ?, first_try_ok = ?, status = ?
+       WHERE id = ? AND user_id = ? AND status = 'open' AND step = ? AND attempts = ? RETURNING id`,
+      [res.step, res.attempts, res.firstTryOk, res.out.done ? 'done' : 'open', r.id, userId, r.step, r.attempts],
+    );
+    if (!ok) {
+      if (attempt === undefined) return 'race';
+      continue; // otra petición del mismo intento ganó: se relee y se devuelve su resultado
+    }
+    if (res.out.correct && res.out.done && r.kind === 'own' && r.source_id)
+      await db.run('UPDATE cp_review_positions SET solved_at = COALESCE(solved_at, ?) WHERE id = ? AND user_id = ?', [nowMs, r.source_id, userId]);
+    return res.out;
+  }
+  return 'race';
+}
+
+function evaluate(r: ItemRow, line: string[], uci: string) {
   let step = r.step;
   let attempts = r.attempts;
   let firstTryOk = r.first_try_ok;
+  let out: AnswerResult;
   if (isExpected(r.fen, line, r.step, uci)) {
     const reply = line[r.step + 1];
     step = r.step + 2;
     const done = step >= line.length;
     if (done && firstTryOk === null) firstTryOk = 1;
-    res = { correct: true, ...(reply ? { reply } : {}), done };
+    out = { correct: true, ...(reply ? { reply } : {}), done };
   } else {
     attempts++;
     firstTryOk = 0; // cualquier fallo en el elemento cuenta como no acertado a la primera
-    res = attempts >= 2 ? { correct: false, done: true, solution: line.slice(r.step) } : { correct: false, done: false, tryAgain: true };
+    out = attempts >= 2 ? { correct: false, done: true, solution: line.slice(r.step) } : { correct: false, done: false, tryAgain: true };
   }
-  // Condicionada al estado leído: un doble envío concurrente no avanza dos veces.
-  const ok = await db.first<{ id: string }>(
-    `UPDATE cp_session_items SET step = ?, attempts = ?, first_try_ok = ?, status = ?
-     WHERE id = ? AND user_id = ? AND status = 'open' AND step = ? AND attempts = ? RETURNING id`,
-    [step, attempts, firstTryOk, res.done ? 'done' : 'open', r.id, userId, r.step, r.attempts],
-  );
-  if (!ok) return 'race';
-  if (res.correct && res.done && r.kind === 'own' && r.source_id)
-    await db.run('UPDATE cp_review_positions SET solved_at = COALESCE(solved_at, ?) WHERE id = ? AND user_id = ?', [nowMs, r.source_id, userId]);
-  return res;
+  return { step, attempts, firstTryOk, out };
 }
 
 /**
- * Plan de finish. 'missing': sesión inexistente o ajena (404). 'empty': nada terminado (409).
+ * Resultado de la última respuesta ya contada, reconstruido del estado. Fue un acierto si no hubo fallos, si la
+ * línea terminó sin agotar los intentos, o si la jugada reenviada es la esperada en el paso anterior.
+ */
+function replay(r: ItemRow, line: string[], uci: string): AnswerResult {
+  const wasCorrect =
+    r.step >= 2 && (r.attempts === 0 || (r.status === 'done' && r.attempts < 2) || (r.status === 'open' && isExpected(r.fen, line, r.step - 2, uci)));
+  if (wasCorrect) {
+    const reply = line[r.step - 1];
+    return { correct: true, ...(reply ? { reply } : {}), done: r.step >= line.length };
+  }
+  return r.attempts >= 2 ? { correct: false, done: true, solution: line.slice(r.step) } : { correct: false, done: false, tryAgain: true };
+}
+
+/**
+ * Plan de finish. 'missing': sesión inexistente, ajena o caducada (24 h) (404). 'empty': nada terminado (409).
  * Ya terminada: devuelve el mismo resultado sin sentencias (idempotente).
  * Las cajas solo se mueven si due_at <= ahora: un segundo finish concurrente no las mueve otra vez.
  */
@@ -214,7 +255,12 @@ export async function finishPlan(
   sessionId: string,
   nowMs: number,
 ): Promise<'missing' | 'empty' | { reviewed: FinishResult['reviewed']; stmts: Stmt[] }> {
-  const rows = await db.all<ItemRow>('SELECT * FROM cp_session_items WHERE user_id = ? AND session_id = ? ORDER BY rowid', [userId, sessionId]);
+  // Caducada a las 24 h como answer: sus respuestas ya no cuentan.
+  const rows = await db.all<ItemRow>('SELECT * FROM cp_session_items WHERE user_id = ? AND session_id = ? AND created_at > ? ORDER BY rowid', [
+    userId,
+    sessionId,
+    nowMs - SESSION_TTL_MS,
+  ]);
   if (!rows.length) return 'missing';
   const finished = rows.filter((r) => r.status === 'done' || r.status === 'counted');
   if (!finished.length) return 'empty';

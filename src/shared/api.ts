@@ -232,7 +232,7 @@ export interface CompleteReviewResponse {
 // Sesión diaria de repaso (con sesión). El servidor guarda las soluciones y verifica cada jugada.
 // GET /api/session/status -> SessionStatus. GET /api/session -> SessionStart (409 { error } si no hay nada que repasar).
 // POST /api/session/answer (AnswerBody) -> AnswerResult (404 si el elemento no es del usuario, está cerrado o caducó).
-// POST /api/session/finish (FinishBody) -> FinishResult (404 sesión ajena o inexistente; 409 sin elementos terminados).
+// POST /api/session/finish (FinishBody) -> FinishResult (404 sesión ajena, inexistente o caducada a las 24 h; 409 sin elementos terminados).
 export interface SessionStatus {
   /** Conceptos vencidos hoy. */
   due: number;
@@ -254,6 +254,8 @@ export interface SessionStart {
 export interface AnswerBody {
   itemId: string;
   uci: string;
+  /** Qué respuesta de este elemento es (1, 2, ...). Un reenvío de la ya contada devuelve el mismo resultado sin contar otra vez. */
+  attempt?: number;
 }
 /** `reply`: jugada del rival tras un acierto. `solution`: resto de la línea, solo tras el segundo fallo. */
 export interface AnswerResult {

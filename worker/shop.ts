@@ -94,6 +94,18 @@ export async function streakAdvance(
   return { streak, lastActive: today, protectorUsed, chedexEarned: earnsChedex(streak) ? 1 : 0, rewards };
 }
 
+/** Escribe la racha solo si sigue como se leyó (`p`): dos actividades del mismo día a la vez no la avanzan dos veces. */
+export function streakUpdate(userId: string, p: { streak_days: number; last_active_date: string | null }, streak: number, lastActive: string | null): Stmt {
+  return {
+    sql: `UPDATE cp_profiles SET streak_days = ?, longest_streak = MAX(longest_streak, ?), last_active_date = ?
+          WHERE user_id = ? AND streak_days = ? AND last_active_date IS ?`,
+    params: [streak, streak, lastActive, userId, p.streak_days, p.last_active_date],
+  };
+}
+
+/** Error de índice único o restricción (D1 y node:sqlite): la transacción se revirtió entera. */
+export const isUnique = (e: unknown): boolean => /UNIQUE|constraint/i.test(e instanceof Error ? e.message : '');
+
 export async function equippedFor(db: Db, userId: string): Promise<Equipped> {
   const r = await db.first<{ pieces: string; board: string }>('SELECT pieces, board FROM cp_equipped WHERE user_id = ?', [userId]);
   const ok = (id: string | undefined, kind: 'pieces' | 'board', fallback: string) =>
