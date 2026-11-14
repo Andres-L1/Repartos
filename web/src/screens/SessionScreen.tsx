@@ -194,6 +194,7 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
   const [fail, setFail] = useState<Fail | null>(null);
   const [promo, setPromo] = useState<{ from: string; to: string } | null>(null);
   const timers = useRef<number[]>([]);
+  const answered = useRef(0); // respuestas ya contadas por el servidor en este elemento
   useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), []);
   const later = (ms: number, fn: () => void) => void timers.current.push(window.setTimeout(fn, ms));
 
@@ -211,21 +212,23 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
     setNonce((n) => n + 1);
   };
 
-  async function send(uci: string, before: string) {
+  async function send(uci: string, before: string, attempt = answered.current + 1) {
     setStatus('busy');
     setFail(null);
     let r: AnswerResult;
     try {
-      r = await api.answer({ itemId: item.itemId, uci });
+      r = await api.answer({ itemId: item.itemId, uci, attempt });
     } catch (e) {
-      // La jugada sigue en el tablero: «Reintentar» vuelve a enviar la misma.
+      // La jugada sigue en el tablero: «Reintentar» reenvía la misma con el mismo número de intento, así que si la
+      // primera sí llegó el servidor devuelve su resultado sin contarla dos veces.
       const gone = e instanceof ApiError && e.status === 404;
       setFail({
         message: gone ? GONE : errMsg(e),
-        retry: gone ? () => window.location.reload() : () => void send(uci, before),
+        retry: gone ? () => window.location.reload() : () => void send(uci, before, attempt),
       });
       return;
     }
+    answered.current = attempt;
     if (r.correct) {
       if (r.reply) later(550, () => play(r.reply!));
       later(r.reply ? 800 : 250, () => {
