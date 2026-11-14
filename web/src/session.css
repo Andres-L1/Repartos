@@ -1,4 +1,4 @@
-/* Pantalla «Entrenar hoy». Reutiliza la maquetación de la mini lección (review-lesson.css). */
+﻿/* Pantalla «Entrenar hoy». Reutiliza la maquetación de la mini lección (review-lesson.css). */
 .ss { display: grid; gap: 16px; max-width: 1000px; margin-inline: auto; width: 100%; min-width: 0; }
 .ss-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 0; }
 .ss-head h1 { margin: 0; font-size: 1.375rem; }
@@ -27,84 +27,93 @@
 .ss-slot p, .rl-panel p { margin: 0; }
 .ss-dock { display: grid; gap: 10px; min-width: 0; }
 .ss-dock .rl-actions { position: static; box-shadow: none; }
-.rl-panel .ss-concept + .rl-question { margin-top: -4px; }
-/* Cabecera: el progreso ocupa su propia fila salvo en el móvil vertical (ver abajo). */
+/* Enunciado y regla: en pantallas anchas la regla va debajo al terminar (la reserva invisible solo hace falta en móvil). */
+.ss-swap { display: grid; gap: 10px; min-width: 0; }
+.ss-swap .ss-ghost { display: none; }
+.ss-ask { display: grid; gap: 8px; min-width: 0; }
+/* Cabecera: el progreso ocupa su propia fila salvo en móvil (ver abajo). */
 .ss-head .ss-bar { flex: 1 0 100%; order: 3; }
 .ss-exit { min-height: 44px; margin-bottom: 0; }
 /* Elegir pieza al coronar: encima del tablero. */
 .ss .rl-board { position: relative; }
 .ss-promo .t-btn { min-height: 44px; min-width: 44px; margin-bottom: 0; }
-/* Con dos columnas: tablero a la izquierda; enunciado, aviso con botones y la regla a la derecha. */
+/* Con dos columnas: tablero a la izquierda; enunciado con la regla y el aviso con botones a la derecha. */
 @container (width >= 52rem) {
   .ss .rl-layout { grid-template-rows: auto auto 1fr; }
   .ss .rl-board { grid-row: 1 / span 3; }
   .ss .ss-dock { grid-column: 2; grid-row: 2; }
 }
-@media (orientation: landscape) and (max-height: 500px) {
-  .ss .rl-layout { grid-template-rows: auto auto 1fr; }
-  .ss .rl-board { grid-row: 1 / span 3; }
-  .ss .ss-dock { grid-column: 2; grid-row: 2; }
-}
 /*
- * Móvil y tableta en vertical (barra superior y barra inferior fijas): enunciado, tablero y aviso con botones caben en
- * la primera pantalla. El tablero toma el alto que queda (unidades de contenedor); la regla queda debajo.
- * 152 px = barra superior (68) + margen del main (24) + cabecera (44) + huecos (16).
+ * Móvil (vertical, o horizontal con poca altura): la sesión ocupa exactamente el alto libre, sin desplazar.
+ * 83 px = barra superior (67) + margen del main arriba (8) y abajo (8); la barra inferior va aparte.
+ * Enunciado y regla comparten celda: al terminar, la regla ocupa el sitio del enunciado sin mover el tablero.
  */
-@media (max-width: 899px) and (orientation: portrait) {
-  .ss-play { gap: 8px; }
+@media (max-width: 899px) and (orientation: portrait), (orientation: landscape) and (max-height: 500px) {
+  .main.main-shell:has(.ss-play) { padding-top: 8px; padding-bottom: calc(var(--bottom-nav, 0px) + 8px); }
+  .ss-play {
+    --ss-h: calc(100vh - 83px - var(--bottom-nav, 0px));
+    --ss-h: calc(100dvh - 83px - var(--bottom-nav, 0px));
+    gap: 8px;
+  }
   .ss-play .ss-head { flex-wrap: nowrap; gap: 12px; margin-bottom: 0; }
   .ss-play .ss-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .ss-play .ss-head .ss-bar { flex: 1 1 auto; order: 0; gap: 4px; }
   .ss-play .ss-bar-text { font-size: 0.8125rem; }
-  .ss-play .rl { gap: 12px; }
-  .ss-play .rl-layout {
-    display: flex; flex-direction: column; align-items: stretch; gap: 8px;
-    height: calc(100vh - 152px - var(--bottom-nav, 0px));
-    height: calc(100dvh - 152px - var(--bottom-nav, 0px));
-    min-height: 360px;
-  }
-  .ss-play .rl-panel { order: -1; flex: none; gap: 2px; padding: 10px 12px; }
+  .ss-play .rl-panel { padding: 8px 12px; }
+  .ss-play .ss-ask { gap: 2px; }
   .ss-play .ss-concept { font-size: 0.8125rem; }
-  .ss-play .rl-panel .ss-concept + .rl-question { margin-top: 0; }
   .ss-play .rl-question { font-size: 1rem; line-height: 1.35; }
-  .ss-play .rl-board { flex: 1 1 0; min-height: 0; container-type: size; display: grid; place-items: center; }
-  .ss-play .rl-board .board-frame { width: min(100cqw, 100cqh, 560px); max-width: none; }
+  .ss-play .ss-swap > * { grid-area: 1 / 1; }
+  .ss-play .ss-swap .ss-ghost { display: grid; }
+  .ss-play .is-done .ss-ask { visibility: hidden; }
+  /* La etiqueta va en línea con la regla: una línea menos de alto reservado. */
+  .ss-play .ss-swap .ss-rule { display: block; align-self: start; padding: 0 0 0 10px; border-left-width: 3px; background: none; font-size: 1rem; line-height: 1.35; }
+  .ss-play .ss-rule .rl-rule-tag { font-size: 0.8125rem; }
   /* Columna del botón reservada aunque no haya botón: el aviso mide siempre lo mismo y el tablero no cambia de tamaño. */
-  .ss-play .ss-dock { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) 112px; align-items: center; gap: 8px; min-height: 56px; }
+  .ss-play .ss-dock { display: grid; grid-template-columns: minmax(0, 1fr) 112px; align-items: center; gap: 8px; min-height: 56px; }
   .ss-play .ss-slot { grid-column: 1; }
   .ss-play .ss-dock .rl-feedback, .ss-play .ss-dock .rl-hint { font-size: 0.875rem; line-height: 1.3; padding: 6px 10px; }
   .ss-play .ss-dock .rl-hint { padding-inline: 0; }
   /* El color y el texto ya dicen si fue acierto o fallo: sin icono, el aviso cabe en menos líneas. */
   .ss-play .ss-dock .rl-feedback .icon { display: none; }
-  .ss-play .ss-dock .rl-actions { grid-column: 2; padding: 0; background: none; }
-  .ss-play .ss-dock .rl-actions .t-btn { flex: 1 1 auto; padding-inline: 0.5rem; }
-}
-/*
- * Móvil en horizontal (p. ej. 740x360): el tablero ocupa todo el alto libre a la izquierda y la cabecera, el enunciado
- * y el aviso con botones van a la derecha, sin desplazar. 83 px = barra superior (67) + margen arriba (8) + respiro (8).
- */
-@media (orientation: landscape) and (max-height: 500px) {
-  .main:has(.ss-play) { padding-top: 8px; }
-  .ss-play {
-    --ss-board: calc(100vh - 83px - var(--bottom-nav, 0px));
-    --ss-board: calc(100dvh - 83px - var(--bottom-nav, 0px));
-    display: grid; grid-template-columns: var(--ss-board) minmax(0, 1fr); gap: 8px 16px; align-items: start;
-  }
-  .ss-play .rl, .ss-play .rl-layout { display: contents; }
-  .ss-play .ss-head { grid-column: 2; grid-row: 1; flex-wrap: nowrap; margin-bottom: 0; }
-  .ss-play .ss-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .ss-play .ss-head .ss-bar { flex: 1 1 auto; order: 0; }
-  .ss-play .rl-board { grid-column: 1; grid-row: 1 / span 4; }
-  .ss-play .rl-board .board-frame { width: var(--ss-board); max-width: none; }
-  .ss-play .rl-panel { grid-column: 2; grid-row: 2; padding: 10px 12px; gap: 2px; }
-  .ss-play .rl-question { font-size: 1rem; line-height: 1.35; }
-  .ss-play .ss-dock { grid-column: 2; grid-row: 3; grid-template-columns: minmax(0, 1fr) 112px; align-items: center; gap: 8px; min-height: 56px; }
-  .ss-play .ss-slot { grid-column: 1; }
   .ss-play .ss-dock .rl-actions { grid-column: 2; grid-row: 1; padding: 0; background: none; }
   .ss-play .ss-dock .rl-actions .t-btn { flex: 1 1 auto; padding-inline: 0.5rem; }
-  .ss-play .ss-dock .rl-feedback, .ss-play .ss-dock .rl-hint { font-size: 0.875rem; line-height: 1.3; padding: 6px 10px; }
-  .ss-play .ss-dock .rl-hint { padding-inline: 0; }
-  .ss-play .ss-dock .rl-feedback .icon { display: none; }
-  .ss-play .ss-rule { grid-column: 2; grid-row: 4; }
+}
+/* Vertical: columna flexible; el tablero toma el alto que dejan cabecera, enunciado y aviso (unidades de contenedor). */
+@media (max-width: 899px) and (orientation: portrait) {
+  .ss-play { display: flex; flex-direction: column; height: var(--ss-h); min-height: 420px; }
+  .ss-play .ss-head { flex: none; }
+  .ss-play .rl, .ss-play .rl-layout { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+  .ss-play .rl-panel { order: -1; flex: none; }
+  .ss-play .rl-board { flex: 1 1 0; min-height: 0; container-type: size; display: grid; place-items: center; }
+  .ss-play .rl-board .board-frame { width: min(100cqw, 100cqh, 560px); max-width: none; }
+  .ss-play .ss-dock { flex: none; }
+}
+/* Móviles estrechos (320-360 px): el texto, algo más compacto, deja más alto al tablero. */
+@media (max-width: 360px) and (orientation: portrait) {
+  .ss-play .rl-panel { padding: 8px 10px; }
+  .ss-play .rl-question, .ss-play .ss-swap .ss-rule { font-size: 0.9375rem; line-height: 1.3; }
+  .ss-play .ss-dock .rl-feedback { padding: 4px 8px; }
+}
+/*
+ * Horizontal con poca altura (p. ej. 667x375): tablero a la izquierda con todo el alto libre; cabecera, enunciado y
+ * aviso con botones a la derecha. .rl y .rl-layout son subcuadrículas reales de .ss-play (sin display: contents, que
+ * puede quitar el rol de la sección). Sin contenedor en .rl: la contención de diseño anularía la subcuadrícula.
+ */
+@media (orientation: landscape) and (max-height: 500px) {
+  .ss-play {
+    --ss-board: var(--ss-h);
+    display: grid; grid-template-columns: var(--ss-board) minmax(0, 1fr); grid-template-rows: auto auto auto 1fr; gap: 8px 16px; align-items: start;
+  }
+  .ss-play .rl, .ss-play .rl-layout {
+    grid-column: 1 / -1; grid-row: 1 / -1; display: grid; grid-template-columns: subgrid; grid-template-rows: subgrid; gap: inherit; align-items: start;
+  }
+  .ss-play .rl { container-type: normal; }
+  /* La sección cubre también la celda de la cabecera: la cabecera va encima para recibir los toques. */
+  .ss-play .ss-head { grid-column: 2; grid-row: 1; position: relative; z-index: 1; }
+  .ss-play .rl-board { grid-column: 1; grid-row: 1 / -1; }
+  .ss-play .rl-board .board-frame { width: var(--ss-board); max-width: none; }
+  .ss-play .rl-panel { grid-column: 2; grid-row: 2; }
+  .ss-play .ss-dock { grid-column: 2; grid-row: 3; }
 }
 @media (prefers-reduced-motion: reduce) { .ss-bar-fill { transition: none; } }

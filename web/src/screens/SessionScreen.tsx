@@ -321,9 +321,21 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
             />
           )}
         </div>
-        <div className="rl-panel">
-          <p className="ss-concept">{conceptName(item.conceptId)}</p>
-          <p className="rl-question">{item.prompt}</p>
+        <div className={`rl-panel${done ? ' is-done' : ''}`}>
+          {/*
+            Enunciado y regla. En pantallas anchas la regla aparece bajo el enunciado al terminar. En móvil comparten
+            celda (la regla, invisible, reserva su alto): al terminar la regla ocupa el sitio del enunciado y el tablero
+            no cambia de tamaño. visibility: hidden también los quita del árbol de accesibilidad.
+          */}
+          <div className="ss-swap">
+            <div className="ss-ask">
+              <p className="ss-concept">{conceptName(item.conceptId)}</p>
+              <p className="rl-question">{item.prompt}</p>
+            </div>
+            <p className={`rl-rule ss-rule${done ? ' m-enter' : ' ss-ghost'}`}>
+              <span className="rl-rule-tag">La regla:</span> {ruleFor(item.conceptId)}
+            </p>
+          </div>
         </div>
         {/* Aviso y botones juntos, siempre en el mismo hueco: en móvil quedan bajo el tablero, al alcance del pulgar. */}
         <div className="ss-dock">
@@ -354,13 +366,6 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
           )}
         </div>
       </div>
-      {/* La regla va después: en móvil, bajo el tablero y los botones, sin empujarlos. */}
-      {done && (
-        <p className="rl-rule ss-rule m-enter">
-          <span className="rl-rule-tag">La regla</span>
-          {ruleFor(item.conceptId)}
-        </p>
-      )}
     </section>
   );
 }
