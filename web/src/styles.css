@@ -169,6 +169,8 @@ a { text-underline-offset: 3px; }
   .sidebar .t-btn-ghost { padding-inline: 0.5rem; }
 }
 @media (max-width: 380px) { .brand-name { font-size: 1rem; } .topbar, .sidebar { gap: 0.25rem; } .whoami-avatar { display: none; } }
+/* Con sesión, la barra pública lleva dos botones: a 320 px solo cabe el logo (el nombre queda para lectores de pantalla). */
+@media (max-width: 380px) { .topbar:has(.t-btn-ghost) .brand { min-width: 44px; justify-content: center; } .topbar:has(.t-btn-ghost) .brand-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
 
 @media (min-width: 900px) {
   .shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100vh; }
