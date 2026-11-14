@@ -42,6 +42,21 @@ describe('Noche y Contorno en CSS', () => {
   it('los 12 SVG existen', () => {
     for (const c of 'wb') for (const l of 'KQRBNP') expect(existsSync(`web/public/pieces/contorno/${c}${l}.svg`)).toBe(true);
   });
+  it('cada juego ilustrado tiene sus 12 reglas y sus 12 WebP; cada tablero nuevo, su tema', () => {
+    const illustrated = CATALOG.filter((i) => i.kind === 'pieces' && i.credit.includes('IA'));
+    expect(illustrated.map((i) => i.id)).toEqual(['plano', 'pixel', 'neon', 'catedral', 'egipto', 'vikingo', 'olimpo', 'samurai', 'sombras', 'cosmos']);
+    for (const { id } of illustrated)
+      for (const col of ['white', 'black'])
+        for (const [role, l] of Object.entries({ pawn: 'P', knight: 'N', bishop: 'B', rook: 'R', queen: 'Q', king: 'K' })) {
+          const f = `${col[0]}${l}.webp`;
+          expect(css).toContain(`.pieces-${id} .cg-wrap piece.${role}.${col} { background-image: url('/pieces/${id}/${f}'); }`);
+          expect(existsSync(`web/public/pieces/${id}/${f}`)).toBe(true);
+        }
+    for (const { id } of illustrated) {
+      expect(getItem(`${id}-tablero`)).toMatchObject({ kind: 'board', credit: 'Chedex, material propio' });
+      expect(css).toMatch(new RegExp(`\\.theme-${id}-tablero \\{[^}]*--sq-light`));
+    }
+  });
   it('la landing ya no usa el tema ascua', () => {
     expect(landing).not.toContain('theme-ascua');
   });

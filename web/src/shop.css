@@ -7,6 +7,32 @@
 .theme-brasa { --sq-light: #f3b27d; --sq-dark: #5b504a; --sq-last: rgb(255 240 120 / 0.6); --sq-sel: rgb(255 240 120 / 0.7); --coord-on-light: #4a2c14; --coord-on-dark: #ffd9b8; --dest-fill: rgb(255 255 255 / 0.9); --dest-edge: rgb(30 20 15 / 0.75); --dest-oc: rgb(255 255 255 / 0.85); --arrow-green: #9be58c; }
 .theme-noche { --sq-light: #454c58; --sq-dark: #1f242d; --sq-last: rgb(241 139 66 / 0.4); --sq-sel: rgb(255 178 100 / 0.6); --coord-on-light: #d6dbe4; --coord-on-dark: #c3c9d3; --dest-fill: rgb(255 190 120 / 0.92); --dest-edge: rgb(8 10 14 / 0.55); --dest-oc: rgb(255 178 100 / 0.9); --arrow-green: #ffc36b; --noche-ring: #2a303a; --noche-line: #4a525e; }
 
+/* Tableros a juego con los juegos ilustrados (id «<tema>-tablero»): colores, marco (--ring / --ring-line) y,
+   en algunos, una capa CSS encima de las casillas. Sin imágenes. */
+.theme-catedral-tablero { --sq-light: #d6cdbf; --sq-dark: #5f7192; --sq-last: rgb(255 210 90 / 0.55); --sq-sel: rgb(255 210 90 / 0.65); --coord-on-light: #3d4a62; --coord-on-dark: #f1ebe0; --dest-fill: rgb(255 255 255 / 0.9); --dest-edge: rgb(20 30 60 / 0.65); --dest-oc: rgb(255 210 90 / 0.9); --arrow-green: #f2c230; --ring: #3b3631; --ring-line: #6d83ad; }
+.theme-neon-tablero { --sq-light: #1e2232; --sq-dark: #0f111a; --sq-last: rgb(0 229 255 / 0.3); --sq-sel: rgb(255 64 220 / 0.45); --coord-on-light: #7ef3ff; --coord-on-dark: #ff8af0; --dest-fill: rgb(0 240 255 / 0.9); --dest-edge: rgb(0 0 0 / 0.6); --dest-oc: rgb(255 80 230 / 0.9); --arrow-green: #00e5ff; --ring: #08090f; --ring-line: #1fb8c9; }
+.theme-olimpo-tablero { --sq-light: #f1ece2; --sq-dark: #a8865a; --sq-last: rgb(64 150 230 / 0.42); --sq-sel: rgb(64 150 230 / 0.55); --coord-on-light: #6b4f2c; --coord-on-dark: #fbf5e8; --dest-fill: rgb(255 255 255 / 0.92); --dest-edge: rgb(60 40 15 / 0.7); --dest-oc: rgb(40 120 210 / 0.9); --arrow-green: #1f6fd1; --ring: #6b4f2c; --ring-line: #d9b778; }
+.theme-plano-tablero { --sq-light: #e3e5e8; --sq-dark: #9aa0a8; --sq-last: rgb(255 200 60 / 0.55); --sq-sel: rgb(255 200 60 / 0.65); --coord-on-light: #5a6069; --coord-on-dark: #f6f7f8; --dest-fill: rgb(40 45 55 / 0.45); --dest-edge: transparent; --dest-oc: rgb(40 45 55 / 0.4); --arrow-green: #15781b; --ring: #555a62; --ring-line: #7d838c; }
+.theme-pixel-tablero { --sq-light: #e8d8a8; --sq-dark: #4a5a9a; --sq-last: rgb(255 230 0 / 0.6); --sq-sel: rgb(255 90 90 / 0.6); --coord-on-light: #2a2f55; --coord-on-dark: #fff6d8; --dest-fill: #fff; --dest-edge: #000; --dest-oc: rgb(255 230 0 / 0.95); --arrow-green: #ffe600; --ring: #14141f; --ring-line: #000; }
+.theme-samurai-tablero { --sq-light: #dccb94; --sq-dark: #9a5a3c; --sq-last: rgb(255 200 60 / 0.55); --sq-sel: rgb(225 55 40 / 0.55); --coord-on-light: #5a3a2a; --coord-on-dark: #f1e4c0; --dest-fill: rgb(255 255 255 / 0.9); --dest-edge: rgb(40 15 10 / 0.7); --dest-oc: rgb(230 60 45 / 0.9); --arrow-green: #e8402f; --ring: #1c1210; --ring-line: #a32a1f; }
+.theme-egipto-tablero { --sq-light: #e8d3a0; --sq-dark: #4f74b0; --sq-last: rgb(64 210 195 / 0.5); --sq-sel: rgb(255 200 60 / 0.6); --coord-on-light: #2c4f8f; --coord-on-dark: #f3e2b5; --dest-fill: rgb(255 255 255 / 0.9); --dest-edge: rgb(20 32 64 / 0.7); --dest-oc: rgb(255 200 60 / 0.9); --arrow-green: #f2c230; --ring: #1b2c55; --ring-line: #d4a537; }
+.theme-vikingo-tablero { --sq-light: #d2b98e; --sq-dark: #5f6b78; --sq-last: rgb(80 170 255 / 0.45); --sq-sel: rgb(255 210 90 / 0.6); --coord-on-light: #3a2a1a; --coord-on-dark: #eef2f6; --dest-fill: rgb(255 255 255 / 0.9); --dest-edge: rgb(25 20 15 / 0.7); --dest-oc: rgb(80 170 255 / 0.9); --arrow-green: #4fa8ff; --ring: #3a2a1a; --ring-line: #2f5d8a; }
+.theme-sombras-tablero { --sq-light: #8a9188; --sq-dark: #3a423c; --sq-last: rgb(120 220 120 / 0.35); --sq-sel: rgb(150 255 150 / 0.45); --coord-on-light: #1e2420; --coord-on-dark: #b9d4bb; --dest-fill: rgb(170 255 170 / 0.9); --dest-edge: rgb(0 0 0 / 0.6); --dest-oc: rgb(170 255 170 / 0.9); --arrow-green: #7dff8a; --ring: #1a1d1b; --ring-line: #3f6b45; }
+.theme-cosmos-tablero { --sq-light: rgb(150 175 255 / 0.34); --sq-dark: rgb(20 30 90 / 0.4); --sq-last: rgb(255 220 120 / 0.4); --sq-sel: rgb(120 200 255 / 0.5); --coord-on-light: #e6eeff; --coord-on-dark: #9fb4ff; --dest-fill: rgb(200 230 255 / 0.92); --dest-edge: rgb(0 0 20 / 0.6); --dest-oc: rgb(120 200 255 / 0.9); --arrow-green: #7fd0ff; --ring: #070b1e; --ring-line: #2a3a7a; --space: radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent), radial-gradient(1px 1px at 63% 31%, #cfe0ff 50%, transparent), radial-gradient(1.5px 1.5px at 37% 72%, #fff 50%, transparent), radial-gradient(1px 1px at 86% 84%, #fff 50%, transparent), radial-gradient(1px 1px at 78% 9%, #fff 50%, transparent), radial-gradient(circle at 30% 30%, #26307a, #0b1433 70%); }
+.board-frame:is(.theme-catedral-tablero, .theme-neon-tablero, .theme-olimpo-tablero, .theme-plano-tablero, .theme-pixel-tablero, .theme-samurai-tablero, .theme-egipto-tablero, .theme-vikingo-tablero, .theme-sombras-tablero, .theme-cosmos-tablero) { padding: 2%; background: var(--ring); border-radius: 18px; box-shadow: inset 0 0 0 2px var(--ring-line), 0 26px 44px -18px rgb(0 0 0 / 0.75); }
+.board-frame:is(.theme-catedral-tablero, .theme-neon-tablero, .theme-olimpo-tablero, .theme-plano-tablero, .theme-pixel-tablero, .theme-samurai-tablero, .theme-egipto-tablero, .theme-vikingo-tablero, .theme-sombras-tablero, .theme-cosmos-tablero) .board-cg cg-board { border-radius: 8px; box-shadow: 0 0 0 1px var(--ring-line); }
+.mini-board:is(.theme-catedral-tablero, .theme-neon-tablero, .theme-olimpo-tablero, .theme-plano-tablero, .theme-pixel-tablero, .theme-samurai-tablero, .theme-egipto-tablero, .theme-vikingo-tablero, .theme-sombras-tablero, .theme-cosmos-tablero) { border: 4px solid var(--ring); }
+.board-frame.theme-pixel-tablero, .board-frame.theme-pixel-tablero .board-cg cg-board, .mini-board.theme-pixel-tablero { border-radius: 0; }
+/* Capas encima de las casillas (el primer tamaño es el de la capa; el último, el de las casillas) */
+.theme-neon-tablero .board-cg cg-board { background-image: linear-gradient(90deg, rgb(0 229 255 / 0.22) 1px, transparent 1px), linear-gradient(rgb(255 64 220 / 0.2) 1px, transparent 1px), repeating-conic-gradient(var(--sq-dark) 0 25%, var(--sq-light) 0 50%); background-size: 12.5% 12.5%, 12.5% 12.5%, 25% 25%; }
+.board-frame.theme-neon-tablero { box-shadow: inset 0 0 0 2px var(--ring-line), 0 0 22px -4px rgb(0 229 255 / 0.45), 0 0 40px -10px rgb(255 64 220 / 0.4); }
+.theme-pixel-tablero .board-cg cg-board { background-image: linear-gradient(90deg, rgb(0 0 0 / 0.45) 2px, transparent 2px), linear-gradient(rgb(0 0 0 / 0.45) 2px, transparent 2px), repeating-conic-gradient(var(--sq-dark) 0 25%, var(--sq-light) 0 50%); background-size: 12.5% 12.5%, 12.5% 12.5%, 25% 25%; }
+.theme-samurai-tablero .board-cg cg-board { background-image: repeating-linear-gradient(0deg, rgb(0 0 0 / 0.05) 0 2px, transparent 2px 5px), repeating-conic-gradient(var(--sq-dark) 0 25%, var(--sq-light) 0 50%); background-size: auto, 25% 25%; }
+.theme-cosmos-tablero .board-cg cg-board, .mini-board.theme-cosmos-tablero { background-color: #0b1433; background-image: repeating-conic-gradient(var(--sq-dark) 0 25%, var(--sq-light) 0 50%), var(--space); }
+/* --space son 6 capas: las casillas llevan su tamaño y el cielo ocupa todo */
+.theme-cosmos-tablero .board-cg cg-board { background-size: 25% 25%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%; }
+.mini-board.theme-cosmos-tablero { background-size: 50% 50%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%; }
+
 /* «Noche»: pizarra oscura PLANA con marco (anillo grafito, línea interior fina y sombra larga). El aspecto de Chedex. */
 .board-frame.theme-noche { padding: 2.4%; background: var(--noche-ring); border-radius: 24px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 0 0 1px #0b0c0e, 0 34px 54px -18px rgb(0 0 0 / 0.8), 0 12px 22px -10px rgb(0 0 0 / 0.55); }
 .board-frame.theme-noche .board-cg cg-board { border-radius: 12px; box-shadow: 0 0 0 1px var(--noche-line); }
@@ -57,6 +83,132 @@
 .pieces-contorno .cg-wrap piece.king.black { background-image: url('/pieces/contorno/bK.svg'); }
 .pieces-contorno .board-cg cg-board piece, .pieces-contorno .mini-grid piece { filter: none; background-size: 100% 100%; }
 
+/* Juegos ilustrados: sprites WebP de 192 px recortados de las láminas con scripts/cut-pieces.py.
+   «Plano» blancas no traen contorno: sin este borde fino se pierden sobre casillas claras. */
+.pieces-plano .cg-wrap piece.white { filter: drop-shadow(0 0 0.7px #2d3036) drop-shadow(0 0 0.5px #2d3036); }
+/* Sobre tableros oscuros las negras ilustradas se funden: un halo claro fino, como «Clásicas» sobre Noche */
+:is(.theme-noche, .theme-sombras-tablero, .theme-cosmos-tablero):is(.pieces-plano, .pieces-pixel, .pieces-catedral, .pieces-egipto, .pieces-vikingo, .pieces-olimpo, .pieces-samurai, .pieces-sombras, .pieces-cosmos) piece.black { filter: drop-shadow(0 0 1px rgb(225 230 240 / 0.8)); }
+.pieces-plano .cg-wrap piece.pawn.white { background-image: url('/pieces/plano/wP.webp'); }
+.pieces-plano .cg-wrap piece.knight.white { background-image: url('/pieces/plano/wN.webp'); }
+.pieces-plano .cg-wrap piece.bishop.white { background-image: url('/pieces/plano/wB.webp'); }
+.pieces-plano .cg-wrap piece.rook.white { background-image: url('/pieces/plano/wR.webp'); }
+.pieces-plano .cg-wrap piece.queen.white { background-image: url('/pieces/plano/wQ.webp'); }
+.pieces-plano .cg-wrap piece.king.white { background-image: url('/pieces/plano/wK.webp'); }
+.pieces-plano .cg-wrap piece.pawn.black { background-image: url('/pieces/plano/bP.webp'); }
+.pieces-plano .cg-wrap piece.knight.black { background-image: url('/pieces/plano/bN.webp'); }
+.pieces-plano .cg-wrap piece.bishop.black { background-image: url('/pieces/plano/bB.webp'); }
+.pieces-plano .cg-wrap piece.rook.black { background-image: url('/pieces/plano/bR.webp'); }
+.pieces-plano .cg-wrap piece.queen.black { background-image: url('/pieces/plano/bQ.webp'); }
+.pieces-plano .cg-wrap piece.king.black { background-image: url('/pieces/plano/bK.webp'); }
+.pieces-pixel .cg-wrap piece.pawn.white { background-image: url('/pieces/pixel/wP.webp'); }
+.pieces-pixel .cg-wrap piece.knight.white { background-image: url('/pieces/pixel/wN.webp'); }
+.pieces-pixel .cg-wrap piece.bishop.white { background-image: url('/pieces/pixel/wB.webp'); }
+.pieces-pixel .cg-wrap piece.rook.white { background-image: url('/pieces/pixel/wR.webp'); }
+.pieces-pixel .cg-wrap piece.queen.white { background-image: url('/pieces/pixel/wQ.webp'); }
+.pieces-pixel .cg-wrap piece.king.white { background-image: url('/pieces/pixel/wK.webp'); }
+.pieces-pixel .cg-wrap piece.pawn.black { background-image: url('/pieces/pixel/bP.webp'); }
+.pieces-pixel .cg-wrap piece.knight.black { background-image: url('/pieces/pixel/bN.webp'); }
+.pieces-pixel .cg-wrap piece.bishop.black { background-image: url('/pieces/pixel/bB.webp'); }
+.pieces-pixel .cg-wrap piece.rook.black { background-image: url('/pieces/pixel/bR.webp'); }
+.pieces-pixel .cg-wrap piece.queen.black { background-image: url('/pieces/pixel/bQ.webp'); }
+.pieces-pixel .cg-wrap piece.king.black { background-image: url('/pieces/pixel/bK.webp'); }
+.pieces-neon .cg-wrap piece.pawn.white { background-image: url('/pieces/neon/wP.webp'); }
+.pieces-neon .cg-wrap piece.knight.white { background-image: url('/pieces/neon/wN.webp'); }
+.pieces-neon .cg-wrap piece.bishop.white { background-image: url('/pieces/neon/wB.webp'); }
+.pieces-neon .cg-wrap piece.rook.white { background-image: url('/pieces/neon/wR.webp'); }
+.pieces-neon .cg-wrap piece.queen.white { background-image: url('/pieces/neon/wQ.webp'); }
+.pieces-neon .cg-wrap piece.king.white { background-image: url('/pieces/neon/wK.webp'); }
+.pieces-neon .cg-wrap piece.pawn.black { background-image: url('/pieces/neon/bP.webp'); }
+.pieces-neon .cg-wrap piece.knight.black { background-image: url('/pieces/neon/bN.webp'); }
+.pieces-neon .cg-wrap piece.bishop.black { background-image: url('/pieces/neon/bB.webp'); }
+.pieces-neon .cg-wrap piece.rook.black { background-image: url('/pieces/neon/bR.webp'); }
+.pieces-neon .cg-wrap piece.queen.black { background-image: url('/pieces/neon/bQ.webp'); }
+.pieces-neon .cg-wrap piece.king.black { background-image: url('/pieces/neon/bK.webp'); }
+.pieces-catedral .cg-wrap piece.pawn.white { background-image: url('/pieces/catedral/wP.webp'); }
+.pieces-catedral .cg-wrap piece.knight.white { background-image: url('/pieces/catedral/wN.webp'); }
+.pieces-catedral .cg-wrap piece.bishop.white { background-image: url('/pieces/catedral/wB.webp'); }
+.pieces-catedral .cg-wrap piece.rook.white { background-image: url('/pieces/catedral/wR.webp'); }
+.pieces-catedral .cg-wrap piece.queen.white { background-image: url('/pieces/catedral/wQ.webp'); }
+.pieces-catedral .cg-wrap piece.king.white { background-image: url('/pieces/catedral/wK.webp'); }
+.pieces-catedral .cg-wrap piece.pawn.black { background-image: url('/pieces/catedral/bP.webp'); }
+.pieces-catedral .cg-wrap piece.knight.black { background-image: url('/pieces/catedral/bN.webp'); }
+.pieces-catedral .cg-wrap piece.bishop.black { background-image: url('/pieces/catedral/bB.webp'); }
+.pieces-catedral .cg-wrap piece.rook.black { background-image: url('/pieces/catedral/bR.webp'); }
+.pieces-catedral .cg-wrap piece.queen.black { background-image: url('/pieces/catedral/bQ.webp'); }
+.pieces-catedral .cg-wrap piece.king.black { background-image: url('/pieces/catedral/bK.webp'); }
+.pieces-egipto .cg-wrap piece.pawn.white { background-image: url('/pieces/egipto/wP.webp'); }
+.pieces-egipto .cg-wrap piece.knight.white { background-image: url('/pieces/egipto/wN.webp'); }
+.pieces-egipto .cg-wrap piece.bishop.white { background-image: url('/pieces/egipto/wB.webp'); }
+.pieces-egipto .cg-wrap piece.rook.white { background-image: url('/pieces/egipto/wR.webp'); }
+.pieces-egipto .cg-wrap piece.queen.white { background-image: url('/pieces/egipto/wQ.webp'); }
+.pieces-egipto .cg-wrap piece.king.white { background-image: url('/pieces/egipto/wK.webp'); }
+.pieces-egipto .cg-wrap piece.pawn.black { background-image: url('/pieces/egipto/bP.webp'); }
+.pieces-egipto .cg-wrap piece.knight.black { background-image: url('/pieces/egipto/bN.webp'); }
+.pieces-egipto .cg-wrap piece.bishop.black { background-image: url('/pieces/egipto/bB.webp'); }
+.pieces-egipto .cg-wrap piece.rook.black { background-image: url('/pieces/egipto/bR.webp'); }
+.pieces-egipto .cg-wrap piece.queen.black { background-image: url('/pieces/egipto/bQ.webp'); }
+.pieces-egipto .cg-wrap piece.king.black { background-image: url('/pieces/egipto/bK.webp'); }
+.pieces-vikingo .cg-wrap piece.pawn.white { background-image: url('/pieces/vikingo/wP.webp'); }
+.pieces-vikingo .cg-wrap piece.knight.white { background-image: url('/pieces/vikingo/wN.webp'); }
+.pieces-vikingo .cg-wrap piece.bishop.white { background-image: url('/pieces/vikingo/wB.webp'); }
+.pieces-vikingo .cg-wrap piece.rook.white { background-image: url('/pieces/vikingo/wR.webp'); }
+.pieces-vikingo .cg-wrap piece.queen.white { background-image: url('/pieces/vikingo/wQ.webp'); }
+.pieces-vikingo .cg-wrap piece.king.white { background-image: url('/pieces/vikingo/wK.webp'); }
+.pieces-vikingo .cg-wrap piece.pawn.black { background-image: url('/pieces/vikingo/bP.webp'); }
+.pieces-vikingo .cg-wrap piece.knight.black { background-image: url('/pieces/vikingo/bN.webp'); }
+.pieces-vikingo .cg-wrap piece.bishop.black { background-image: url('/pieces/vikingo/bB.webp'); }
+.pieces-vikingo .cg-wrap piece.rook.black { background-image: url('/pieces/vikingo/bR.webp'); }
+.pieces-vikingo .cg-wrap piece.queen.black { background-image: url('/pieces/vikingo/bQ.webp'); }
+.pieces-vikingo .cg-wrap piece.king.black { background-image: url('/pieces/vikingo/bK.webp'); }
+.pieces-olimpo .cg-wrap piece.pawn.white { background-image: url('/pieces/olimpo/wP.webp'); }
+.pieces-olimpo .cg-wrap piece.knight.white { background-image: url('/pieces/olimpo/wN.webp'); }
+.pieces-olimpo .cg-wrap piece.bishop.white { background-image: url('/pieces/olimpo/wB.webp'); }
+.pieces-olimpo .cg-wrap piece.rook.white { background-image: url('/pieces/olimpo/wR.webp'); }
+.pieces-olimpo .cg-wrap piece.queen.white { background-image: url('/pieces/olimpo/wQ.webp'); }
+.pieces-olimpo .cg-wrap piece.king.white { background-image: url('/pieces/olimpo/wK.webp'); }
+.pieces-olimpo .cg-wrap piece.pawn.black { background-image: url('/pieces/olimpo/bP.webp'); }
+.pieces-olimpo .cg-wrap piece.knight.black { background-image: url('/pieces/olimpo/bN.webp'); }
+.pieces-olimpo .cg-wrap piece.bishop.black { background-image: url('/pieces/olimpo/bB.webp'); }
+.pieces-olimpo .cg-wrap piece.rook.black { background-image: url('/pieces/olimpo/bR.webp'); }
+.pieces-olimpo .cg-wrap piece.queen.black { background-image: url('/pieces/olimpo/bQ.webp'); }
+.pieces-olimpo .cg-wrap piece.king.black { background-image: url('/pieces/olimpo/bK.webp'); }
+.pieces-samurai .cg-wrap piece.pawn.white { background-image: url('/pieces/samurai/wP.webp'); }
+.pieces-samurai .cg-wrap piece.knight.white { background-image: url('/pieces/samurai/wN.webp'); }
+.pieces-samurai .cg-wrap piece.bishop.white { background-image: url('/pieces/samurai/wB.webp'); }
+.pieces-samurai .cg-wrap piece.rook.white { background-image: url('/pieces/samurai/wR.webp'); }
+.pieces-samurai .cg-wrap piece.queen.white { background-image: url('/pieces/samurai/wQ.webp'); }
+.pieces-samurai .cg-wrap piece.king.white { background-image: url('/pieces/samurai/wK.webp'); }
+.pieces-samurai .cg-wrap piece.pawn.black { background-image: url('/pieces/samurai/bP.webp'); }
+.pieces-samurai .cg-wrap piece.knight.black { background-image: url('/pieces/samurai/bN.webp'); }
+.pieces-samurai .cg-wrap piece.bishop.black { background-image: url('/pieces/samurai/bB.webp'); }
+.pieces-samurai .cg-wrap piece.rook.black { background-image: url('/pieces/samurai/bR.webp'); }
+.pieces-samurai .cg-wrap piece.queen.black { background-image: url('/pieces/samurai/bQ.webp'); }
+.pieces-samurai .cg-wrap piece.king.black { background-image: url('/pieces/samurai/bK.webp'); }
+.pieces-sombras .cg-wrap piece.pawn.white { background-image: url('/pieces/sombras/wP.webp'); }
+.pieces-sombras .cg-wrap piece.knight.white { background-image: url('/pieces/sombras/wN.webp'); }
+.pieces-sombras .cg-wrap piece.bishop.white { background-image: url('/pieces/sombras/wB.webp'); }
+.pieces-sombras .cg-wrap piece.rook.white { background-image: url('/pieces/sombras/wR.webp'); }
+.pieces-sombras .cg-wrap piece.queen.white { background-image: url('/pieces/sombras/wQ.webp'); }
+.pieces-sombras .cg-wrap piece.king.white { background-image: url('/pieces/sombras/wK.webp'); }
+.pieces-sombras .cg-wrap piece.pawn.black { background-image: url('/pieces/sombras/bP.webp'); }
+.pieces-sombras .cg-wrap piece.knight.black { background-image: url('/pieces/sombras/bN.webp'); }
+.pieces-sombras .cg-wrap piece.bishop.black { background-image: url('/pieces/sombras/bB.webp'); }
+.pieces-sombras .cg-wrap piece.rook.black { background-image: url('/pieces/sombras/bR.webp'); }
+.pieces-sombras .cg-wrap piece.queen.black { background-image: url('/pieces/sombras/bQ.webp'); }
+.pieces-sombras .cg-wrap piece.king.black { background-image: url('/pieces/sombras/bK.webp'); }
+.pieces-cosmos .cg-wrap piece.pawn.white { background-image: url('/pieces/cosmos/wP.webp'); }
+.pieces-cosmos .cg-wrap piece.knight.white { background-image: url('/pieces/cosmos/wN.webp'); }
+.pieces-cosmos .cg-wrap piece.bishop.white { background-image: url('/pieces/cosmos/wB.webp'); }
+.pieces-cosmos .cg-wrap piece.rook.white { background-image: url('/pieces/cosmos/wR.webp'); }
+.pieces-cosmos .cg-wrap piece.queen.white { background-image: url('/pieces/cosmos/wQ.webp'); }
+.pieces-cosmos .cg-wrap piece.king.white { background-image: url('/pieces/cosmos/wK.webp'); }
+.pieces-cosmos .cg-wrap piece.pawn.black { background-image: url('/pieces/cosmos/bP.webp'); }
+.pieces-cosmos .cg-wrap piece.knight.black { background-image: url('/pieces/cosmos/bN.webp'); }
+.pieces-cosmos .cg-wrap piece.bishop.black { background-image: url('/pieces/cosmos/bB.webp'); }
+.pieces-cosmos .cg-wrap piece.rook.black { background-image: url('/pieces/cosmos/bR.webp'); }
+.pieces-cosmos .cg-wrap piece.queen.black { background-image: url('/pieces/cosmos/bQ.webp'); }
+.pieces-cosmos .cg-wrap piece.king.black { background-image: url('/pieces/cosmos/bK.webp'); }
+
 /* ---------- Tienda ---------- */
 .coin { flex: none; display: inline-block; vertical-align: middle; }
 .balance { display: flex; align-items: center; gap: 0.5rem; min-height: 48px; padding: 0 1rem; margin-bottom: 4px; border-radius: var(--r-md); text-decoration: none; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; background: var(--t-graphite-2); box-shadow: var(--t-sh-raise); transition: background-color 0.15s; }
@@ -93,7 +245,9 @@
 
 .pieces-list, .boards-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-5); }
 .pieces-list { grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 28rem)); }
-.boards-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr)); }
+.boards-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 8rem), 1fr)); }
+/* 16 tableros: en móvil van de dos en dos para no alargar la tienda */
+@media (max-width: 479px) { .boards-grid { gap: var(--s-3); } .item-board { padding: 12px; } }
 .item h3 { font-size: var(--fs-md); margin: 0 0 2px; }
 .item p { margin: 0 0 var(--s-2); }
 .item-pieces { display: flex; gap: var(--s-4); align-items: flex-start; }

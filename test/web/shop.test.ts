@@ -107,7 +107,7 @@ describe('créditos', () => {
     const boards = catalogCredits().find((g) => g.kind === 'board')!;
     const rows = creditRows(boards.items);
     expect(rows).toHaveLength(1);
-    expect(rows[0]!.names).toEqual(['Noche', 'Clásico', 'Pizarra', 'Bosque', 'Papel', 'Brasa']);
+    expect(rows[0]!.names).toEqual(['Noche', 'Clásico', 'Pizarra', 'Bosque', 'Papel', 'Brasa', 'Plano', 'Píxel', 'Catedral', 'Neón', 'Olimpo', 'Samurái', 'Egipto', 'Vikingo', 'Sombras', 'Cosmos']);
   });
   it('cubre todo el catálogo y las librerías obligatorias', () => {
     const ids = catalogCredits().flatMap((g) => g.items.map((i) => i.id));

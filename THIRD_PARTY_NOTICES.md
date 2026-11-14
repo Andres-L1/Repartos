@@ -21,3 +21,7 @@ no forman parte del programa distribuido.
 
 Los temas de tablero de la tienda, el juego de piezas «Geométricas» (`web/public/pieces/geo/`), los
 iconos y la ficha de Chedex son creación propia y se publican con el resto del código bajo GPL-3.0-or-later.
+
+Los diez juegos ilustrados (`web/public/pieces/{catedral,neon,olimpo,plano,pixel,samurai,egipto,vikingo,sombras,cosmos}/`)
+son material propio: ilustraciones generadas con IA por el equipo y recortadas con `scripts/cut-pieces.py`.
+Se publican bajo la misma licencia.
