@@ -733,6 +733,6 @@ describe('migraciones D1', () => {
     const names = (raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((r) => r.name);
     const indexes = (raw.prepare("SELECT name FROM sqlite_master WHERE type='index' AND name LIKE 'idx_cp_%'").all() as { name: string }[]).map((r) => r.name);
     expect(indexes).toEqual(expect.arrayContaining(['idx_cp_session_items_session', 'idx_cp_session_items_status', 'idx_cp_puzzle_pool_pick', 'idx_cp_review_positions_open', 'idx_cp_review_schedule_due']));
-    expect(names.sort()).toEqual(['cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_claims', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
+    expect(names.sort()).toEqual(['cp_cron_state', 'cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_claims', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
   });
 });

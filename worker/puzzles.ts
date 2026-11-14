@@ -20,16 +20,17 @@ export interface TakenPuzzle {
   line: string[];
 }
 
-/** Tras un 429, Lichess pide esperar un minuto: hasta entonces no se le vuelve a llamar (por Db = por isolate en producción). */
+/** Tras un 429, Lichess pide esperar un minuto: hasta entonces no se le vuelve a llamar. Guardado en D1 para que valga en cualquier isolate. */
 const PAUSE_MS = 60_000;
-const pausedUntil = new WeakMap<Db, number>();
+const PAUSE_KEY = 'lichess_paused_until';
 
 async function refill(db: Db, theme: string, difficulty: string, nowMs: number, fetchImpl: typeof fetch): Promise<void> {
   const res = await fetchImpl(
     `https://lichess.org/api/puzzle/batch/${encodeURIComponent(theme)}?nb=${BATCH}&difficulty=${encodeURIComponent(difficulty)}`,
     { headers: { Accept: 'application/json' } },
   );
-  if (res.status === 429) pausedUntil.set(db, nowMs + PAUSE_MS);
+  if (res.status === 429)
+    await db.run('INSERT INTO cp_cron_state (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value', [PAUSE_KEY, nowMs + PAUSE_MS]);
   if (!res.ok) return;
   const list = ((await res.json()) as { puzzles?: unknown }).puzzles;
   if (!Array.isArray(list)) return;
@@ -52,7 +53,8 @@ async function refill(db: Db, theme: string, difficulty: string, nowMs: number, 
 
 /** Una petición como mucho: la combinación con menos sin usar (empate: la de relleno más antiguo). true si llamó. */
 export async function fillPool(db: Db, nowMs: number, fetchImpl: typeof fetch): Promise<boolean> {
-  if (nowMs < (pausedUntil.get(db) ?? 0)) return false;
+  const paused = await db.first<{ value: number }>('SELECT value FROM cp_cron_state WHERE key = ?', [PAUSE_KEY]);
+  if (nowMs < (paused?.value ?? 0)) return false;
   const stats = await db.all<{ theme: string; difficulty: string; unused: number; last: number | null }>(
     'SELECT theme, difficulty, SUM(used_at IS NULL) AS unused, MAX(fetched_at) AS last FROM cp_puzzle_pool GROUP BY theme, difficulty',
   );

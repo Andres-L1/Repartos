@@ -86,6 +86,16 @@ describe('fillPool (Cron Trigger)', () => {
     expect(await fillPool(db, NOW + 60_000, f)).toBe(true);
     expect(f.urls).toHaveLength(2);
   });
+  it('la pausa tras un 429 está en D1: otra ejecución del Worker (otro objeto Db sobre la misma base) la respeta', async () => {
+    const db = openTestDb();
+    const f = fakeFetch({}, 429);
+    await scheduledRun({ ...db }, NOW, f);
+    expect(db.raw.prepare("SELECT value FROM cp_cron_state WHERE key = 'lichess_paused_until'").get()).toEqual({ value: NOW + 60_000 });
+    await scheduledRun({ ...db }, NOW + 30_000, f);
+    expect(f.urls).toHaveLength(1);
+    await scheduledRun({ ...db }, NOW + 60_000, f);
+    expect(f.urls).toHaveLength(2);
+  });
   it('scheduledRun nunca lanza: red caída, cuerpo raro o base rota', async () => {
     const db = openTestDb();
     await expect(scheduledRun(db, NOW, (async () => { throw new Error('red'); }) as unknown as typeof fetch)).resolves.toBeUndefined();
