@@ -7,3 +7,8 @@ dist
 test/validation/last-run.json
 .superpowers/
 web/public/engine/
+# graphify: solo se comparten el grafo y su informe; el resto es caché y rutas locales
+graphify-out/*
+!graphify-out/graph.json
+!graphify-out/GRAPH_REPORT.md
+.claude/worktrees/
