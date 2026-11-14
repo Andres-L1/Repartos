@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { AnswerResult, FinishResult, SessionItem, SessionStart, SessionStatus } from '../../../src/shared/api';
 import { CONCEPTS } from '../../../src/pedagogy/concepts';
 import { ruleFor } from '../../../src/pedagogy/review-copy';
 import { api, ApiError } from '../api';
-import { applyUci, canonicalUci, lastMoveOf, needsPromotion, turnOf } from '../chess';
+import { applyUci, canonicalUci, lastMoveOf, needsPromotion, PROMO_ROLES, turnOf } from '../chess';
 import { playSound } from '../sound';
 import { Board } from '../components/Board';
 import { Icon, Loading } from '../components/Icon';
@@ -14,6 +14,8 @@ import '../session.css';
 const conceptName = (id: string) => CONCEPTS.find((c) => c.id === id)?.name ?? 'Ajedrez táctico';
 const formatDay = (iso: string) => new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
 const dueText = (n: number) => `Hoy toca repasar ${n} ${n === 1 ? 'concepto' : 'conceptos'}`;
+const GONE = 'Esta sesión ya no está disponible. Vuelve a empezar.';
+const OFFLINE = 'No hay conexión con el servidor. Inténtalo de nuevo.'; // el mismo texto que da api.ts sin red
 const errMsg = (e: unknown) => (e instanceof ApiError ? e.message : 'Ha ocurrido un error inesperado.');
 
 /** Tarjeta de entrada (mapa y perfil): recuento de conceptos que tocan, o «Hoy no toca repasar» con la próxima fecha. */
@@ -190,6 +192,7 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
   const [nonce, setNonce] = useState(0);
   const [status, setStatus] = useState<Status>('ready');
   const [fail, setFail] = useState<Fail | null>(null);
+  const [promo, setPromo] = useState<{ from: string; to: string } | null>(null);
   const timers = useRef<number[]>([]);
   useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), []);
   const later = (ms: number, fn: () => void) => void timers.current.push(window.setTimeout(fn, ms));
@@ -218,7 +221,7 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
       // La jugada sigue en el tablero: «Reintentar» vuelve a enviar la misma.
       const gone = e instanceof ApiError && e.status === 404;
       setFail({
-        message: gone ? 'Esta sesión ya no está disponible. Vuelve a empezar.' : errMsg(e),
+        message: gone ? GONE : errMsg(e),
         retry: gone ? () => window.location.reload() : () => void send(uci, before),
       });
       return;
@@ -249,9 +252,13 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
   }
 
   function onMove(from: string, to: string) {
+    if (needsPromotion(fenRef.current, from, to)) setPromo({ from, to }); // el alumno elige la pieza
+    else submit(from + to);
+  }
+
+  function submit(move: string) {
     const before = fenRef.current;
-    let uci = canonicalUci(before, from + to); // el enroque llega como e1g1, no e1h1
-    if (needsPromotion(before, from, to)) uci += 'q'; // se corona a dama
+    const uci = canonicalUci(before, move); // el enroque llega como e1g1, no e1h1
     const res = applyUci(before, uci);
     if (!res) {
       setNonce((n) => n + 1);
@@ -262,7 +269,30 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
   }
 
   const done = status === 'solved' || status === 'revealed';
-  const playable = status === 'ready' && !fail;
+  const playable = status === 'ready' && !fail && !promo;
+  const feedback = (cls: string, icon: 'bulb' | 'check' | 'alert', text: string) => (
+    <p className={`rl-feedback ${cls}`}>
+      <Icon name={icon} size={18} /> {text}
+    </p>
+  );
+  const hint = <p className="rl-hint">Arrastra la pieza, o tócala y toca la casilla a la que va.</p>;
+  const wrong = feedback('is-kind', 'bulb', 'Esa no es. Mira la posición con calma.');
+  const solved = feedback('is-good', 'check', 'Bien visto.');
+  const revealed = feedback('is-kind', 'bulb', 'Esta era la jugada. No pasa nada: así se aprende.');
+  const failLine = (message: string, role?: 'alert') => (
+    <p className="rl-feedback is-kind" role={role}>
+      <Icon name="alert" size={18} /> {message}
+    </p>
+  );
+  const current: ReactNode = fail ? failLine(fail.message, 'alert') : status === 'ready' ? (
+    hint
+  ) : status === 'wrong' ? (
+    wrong
+  ) : status === 'solved' ? (
+    solved
+  ) : status === 'revealed' ? (
+    revealed
+  ) : null;
 
   return (
     <section className="rl" aria-label="Posición para repasar">
@@ -277,42 +307,43 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
             onMove={playable ? onMove : undefined}
             label={playable ? 'Tablero: mueve una pieza' : 'Tablero del repaso'}
           />
+          {promo && (
+            <PromoPicker
+              onPick={(letter) => {
+                setPromo(null);
+                submit(promo.from + promo.to + letter);
+              }}
+              onCancel={() => {
+                setPromo(null);
+                setNonce((n) => n + 1);
+              }}
+            />
+          )}
         </div>
         <div className="rl-panel">
           <p className="ss-concept">{conceptName(item.conceptId)}</p>
           <div className="rl-text" aria-live="polite">
-            <div className="rl-step m-swap" key={status + (fail ? 'f' : '')}>
-              <p className="rl-question">{item.prompt}</p>
-              {status === 'ready' && !fail && <p className="rl-hint">Arrastra la pieza, o tócala y toca la casilla a la que va.</p>}
-              {status === 'wrong' && (
-                <p className="rl-feedback is-kind">
-                  <Icon name="bulb" size={18} /> Esa no es. Mira la posición con calma.
-                </p>
-              )}
-              {status === 'solved' && (
-                <p className="rl-feedback is-good">
-                  <Icon name="check" size={18} /> Bien visto.
-                </p>
-              )}
-              {status === 'revealed' && (
-                <p className="rl-feedback is-kind">
-                  <Icon name="bulb" size={18} /> Esta era la jugada. No pasa nada: así se aprende.
-                </p>
-              )}
-              {done && (
-                <p className="rl-rule">
-                  <span className="rl-rule-tag">La regla</span>
-                  {ruleFor(item.conceptId)}
-                </p>
-              )}
-              {fail && (
-                <p className="rl-feedback is-kind" role="alert">
-                  <Icon name="alert" size={18} /> {fail.message}
-                </p>
-              )}
+            <p className="rl-question">{item.prompt}</p>
+            {/* Todas las variantes ocupan la misma celda: el panel mide lo que la más alta y el tablero (debajo en móvil) no se desplaza. */}
+            <div className="ss-slot">
+              {[hint, wrong, solved, revealed, failLine(OFFLINE), failLine(GONE)].map((n, k) => (
+                <div key={k} className="rl-step ss-ghost" aria-hidden="true">
+                  {n}
+                </div>
+              ))}
+              <div className="rl-step m-swap" key={status + (fail ? 'f' : '')}>
+                {current}
+              </div>
             </div>
           </div>
         </div>
+        {/* La regla va después del tablero: en móvil aparece debajo y no lo empuja. */}
+        {done && (
+          <p className="rl-rule ss-rule m-enter">
+            <span className="rl-rule-tag">La regla</span>
+            {ruleFor(item.conceptId)}
+          </p>
+        )}
         {(done || fail) && (
           <div className="rl-actions">
             {fail && (
@@ -332,8 +363,28 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
   );
 }
 
+/** Elegir la pieza al coronar: 4 botones de 44 px, foco en el primero y Escape cancela. */
+function PromoPicker({ onPick, onCancel }: { onPick: (letter: string) => void; onCancel: () => void }) {
+  return (
+    <div className="promo ss-promo" role="dialog" aria-label="Elige la pieza de promoción" onKeyDown={(e) => e.key === 'Escape' && onCancel()}>
+      <p>Elige la pieza para coronar:</p>
+      <div className="promo-options">
+        {PROMO_ROLES.map((p, k) => (
+          <button key={p.role} type="button" className="t-btn" autoFocus={k === 0} onClick={() => onPick(p.letter)}>
+            {p.label}
+          </button>
+        ))}
+        <button type="button" className="t-btn t-btn-ghost" onClick={onCancel}>
+          Cancelar
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Summary({ result }: { result: FinishResult }) {
-  const missed = result.reviewed.find((r) => !r.correct);
+  // El concepto con más jugadas falladas en la sesión (no basta con «no a la primera»).
+  const missed = result.reviewed.reduce<FinishResult['reviewed'][number] | undefined>((m, r) => (r.misses > (m?.misses ?? 0) ? r : m), undefined);
   const n = result.reviewed.length;
   return (
     <div className="t-card ss-card m-enter">

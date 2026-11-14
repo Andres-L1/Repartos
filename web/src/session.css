@@ -20,4 +20,24 @@
 .ss-train > div { min-width: 0; flex: 1 1 220px; display: grid; gap: 4px; }
 .ss-train h2, .ss-train p { margin: 0; }
 .ss-train .t-btn { min-height: 48px; margin-bottom: 0; }
+/* Hueco fijo para la pista o el aviso: todas las variantes en la misma celda; solo la actual se ve. */
+.ss-slot { display: grid; }
+.ss-slot > * { grid-area: 1 / 1; display: grid; gap: 10px; align-content: start; }
+.ss-ghost { visibility: hidden; }
+/* Elegir pieza al coronar: encima del tablero. */
+.ss .rl-board { position: relative; }
+.ss-promo .t-btn { min-height: 44px; min-width: 44px; margin-bottom: 0; }
+/* Con dos columnas: texto, botones y debajo la regla (los botones a la vista también en horizontal). */
+@container (width >= 52rem) {
+  .ss .rl-layout { grid-template-rows: auto auto 1fr; }
+  .ss .rl-board { grid-row: 1 / span 3; }
+  .ss .rl-actions { grid-row: 2; }
+  .ss-rule { grid-column: 2; grid-row: 3; align-self: start; }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .ss .rl-layout { grid-template-rows: auto auto 1fr; }
+  .ss .rl-board { grid-row: 1 / span 3; }
+  .ss .rl-actions { grid-row: 2; }
+  .ss-rule { grid-column: 2; grid-row: 3; align-self: start; }
+}
 @media (prefers-reduced-motion: reduce) { .ss-bar-fill { transition: none; } }
