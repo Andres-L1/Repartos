@@ -51,7 +51,7 @@ async function user(id: string) {
   const app = createApp({
     db: d1Db(d1), content: { units }, billingMode: 'beta_open', billing: devBilling(),
     sessionSecret: SECRET, publicOrigin: ORIGIN, now: () => new Date(clock),
-    fetchImpl: (async () => new Response('{}', { status: 429 })) as unknown as typeof fetch,
+    fetchImpl: (async () => new Response('{}', { status: 429 })) as unknown as typeof fetch, random: () => 0.9,
   });
   await exec('INSERT INTO cp_users (id, username, created_at, last_login_at) VALUES (?,?,?,?)', id, id, 'x', 'x');
   const cookie = `__Host-chedex_session=${await seal({ kind: 'session', id, username: id, exp: clock + 30 * DAY }, SECRET)}`;

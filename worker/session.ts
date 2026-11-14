@@ -2,6 +2,7 @@
 import type { AnswerResult, FinishResult, SessionItem, SessionStart, SessionStatus } from '../src/shared/api.js';
 import type { Level } from '../src/types.js';
 import { EXERCISES } from '../src/pedagogy/exercises.js';
+import { mirrorExercise } from '../src/pedagogy/mirror.js';
 import { LEVELS } from '../src/shared/levels.js';
 import { difficultyForLevel, dueAfter, nextBox, themeForConcept } from '../src/review/srs.js';
 import { Chess } from 'chessops/chess';
@@ -14,6 +15,8 @@ import { takePuzzle } from './puzzles.js';
 export const SESSION_SIZE = 5;
 export const SESSION_TTL_MS = 86_400_000;
 export const UCI_RE = /^[a-h][1-8][a-h][1-8][qrbn]?$/;
+/** Banco para la sesión: cada ejercicio y su espejo con el otro color (id + '.m'). EXERCISES no cambia. */
+const BANK = new Map(EXERCISES.flatMap((e) => [e, mirrorExercise(e)]).map((e) => [e.id, e]));
 
 interface ItemRow {
   id: string;
@@ -65,7 +68,7 @@ const toItem = (r: Pick<ItemRow, 'id' | 'kind' | 'concept_id' | 'fen' | 'source_
 });
 function promptFor(r: Pick<ItemRow, 'kind' | 'fen' | 'source_id'>): string {
   const side = sideToMove(r.fen);
-  if (r.kind === 'bank') return EXERCISES.find((e) => e.id === r.source_id)?.prompt ?? `Juegan ${side}. Encuentra la mejor jugada.`;
+  if (r.kind === 'bank') return BANK.get(r.source_id ?? '')?.prompt ?? `Juegan ${side}. Encuentra la mejor jugada.`;
   if (r.kind === 'own') return `Juegan ${side}. En tu partida aquí había algo mejor. Encuéntralo.`;
   return `Juegan ${side}. Encuentra la mejor continuación.`;
 }
@@ -101,6 +104,7 @@ export async function startSession(
   level: Level,
   nowMs: number,
   fetchImpl?: typeof fetch,
+  random: () => number = Math.random,
 ): Promise<SessionStart | null> {
   const open = await db.first<{ session_id: string }>(
     "SELECT session_id FROM cp_session_items WHERE user_id = ? AND status = 'open' AND created_at > ? ORDER BY created_at DESC LIMIT 1",
@@ -141,8 +145,10 @@ export async function startSession(
     const ex = EXERCISES.filter((e) => e.conceptId === conceptId && !used.has(e.id)).sort(
       (a, b) => Math.abs(lvl(a.level) - lvl(level)) - Math.abs(lvl(b.level) - lvl(level)),
     )[0];
-    if (ex) return { kind: 'bank' as const, source_id: ex.id, fen: ex.fen, line: ex.solutionUci };
-    return null;
+    if (!ex) return null;
+    used.add(ex.id); // el original y su espejo cuentan como el mismo
+    const v = random() < 0.5 ? BANK.get(`${ex.id}.m`)! : ex; // blancas o negras al azar
+    return { kind: 'bank' as const, source_id: v.id, fen: v.fen, line: v.solutionUci };
   }
 
   // Un elemento por concepto en cada vuelta; con menos de 5 conceptos se repite concepto con otra posición.

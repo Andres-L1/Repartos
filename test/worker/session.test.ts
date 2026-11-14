@@ -4,6 +4,7 @@ import { createApp } from '../../worker/app.js';
 import { devBilling } from '../../worker/billing.js';
 import { base64url, seal } from '../../worker/auth.js';
 import { EXERCISES } from '../../src/pedagogy/exercises.js';
+import { mirrorExercise } from '../../src/pedagogy/mirror.js';
 import { puzzleStart } from '../../src/review/srs.js';
 import { openTestDb } from './sqlite-db.js';
 
@@ -24,11 +25,12 @@ const fetch429 = () => {
 
 function setup() {
   let clock = Date.UTC(2026, 0, 10, 12, 0, 0);
+  const rnd = { value: 0.9 }; // >= 0.5: el ejercicio original del banco; < 0.5: su espejo
   const db = openTestDb();
   const fetchImpl = fetch429();
   const app = createApp({
     db, content: { units: [] }, billingMode: 'beta_open', billing: devBilling(),
-    sessionSecret: SECRET, publicOrigin: ORIGIN, now: () => new Date(clock), fetchImpl,
+    sessionSecret: SECRET, publicOrigin: ORIGIN, now: () => new Date(clock), fetchImpl, random: () => rnd.value,
   });
   const user = async (id: string) => {
     db.raw.prepare('INSERT INTO cp_users (id, username, created_at, last_login_at) VALUES (?,?,?,?)').run(id, id, 'x', 'x');
@@ -47,8 +49,8 @@ function setup() {
   };
   const box = (userId: string, conceptId: string) =>
     db.raw.prepare('SELECT box, due_at FROM cp_review_schedule WHERE user_id = ? AND concept_id = ?').get(userId, conceptId) as { box: number; due_at: number };
-  const solutionOf = (fen: string) => EXERCISES.find((e) => e.fen === fen)!.solutionUci;
-  return { db, user, due, box, solutionOf, fetchImpl, now: () => clock, advance: (ms: number) => (clock += ms) };
+  const solutionOf = (fen: string) => [...EXERCISES, ...EXERCISES.map(mirrorExercise)].find((e) => e.fen === fen)!.solutionUci;
+  return { db, rnd, user, due, box, solutionOf, fetchImpl, now: () => clock, advance: (ms: number) => (clock += ms) };
 }
 
 describe('sesión diaria', () => {
@@ -322,5 +324,21 @@ describe('sesión diaria', () => {
     expect(second).toEqual({ correct: false, done: true, solution: s.solutionOf(it0.fen) });
     expect((await send(2)).json).toEqual(second);
     expect(s.db.raw.prepare('SELECT attempts FROM cp_session_items WHERE id = ?').get(it0.itemId)).toEqual({ attempts: 2 });
+  });
+
+  it('banco en espejo: el ejercicio sale con negras y el servidor verifica la jugada volteada', async () => {
+    const s = setup();
+    s.rnd.value = 0.1;
+    const ana = await s.user('ana');
+    s.due('ana', 'tactics.fork');
+    const items = (await ana('GET', '/api/session')).json.items;
+    const orig = EXERCISES.find((e) => e.conceptId === 'tactics.fork' && e.level === 'initiation')!;
+    const m = mirrorExercise(orig);
+    expect(items[0]).toMatchObject({ kind: 'bank', fen: m.fen, prompt: m.prompt });
+    expect(items[0].fen.split(' ')[1]).toBe('b');
+    expect(items[0].prompt).toMatch(/^Juegan negras/);
+    expect(new Set(items.map((i: any) => i.fen.split(' ')[0])).size).toBe(items.length); // nunca original y espejo juntos
+    expect((await ana('POST', '/api/session/answer', { itemId: items[0].itemId, uci: orig.solutionUci[0], attempt: 1 })).json.correct).toBe(false);
+    expect((await ana('POST', '/api/session/answer', { itemId: items[0].itemId, uci: m.solutionUci[0], attempt: 2 })).json).toMatchObject({ correct: true });
   });
 });
