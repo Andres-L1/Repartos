@@ -79,12 +79,12 @@ describe('carreras en D1 local real (20 peticiones a la vez)', () => {
       await exec("INSERT INTO cp_puzzle_pool VALUES (?, 'fork', 'easiest', 600, ?, '[\"e2e4\"]', ?, NULL)", `rp${i}`, '8/8/8/8/8/8/4P3/4K2k w - - 0 1', clock);
     const rs = await all(() => ana('GET', '/api/session'));
     expect(rs.map((r) => r.status)).toEqual(Array(N).fill(200));
-    const first = JSON.stringify(rs[0].json);
-    expect(rs.every((r) => JSON.stringify(r.json) === first)).toBe(true);
-    expect(rs[0].json.items.length).toBeGreaterThan(0);
+    const s0 = rs[0]!.json;
+    expect(rs.every((r) => JSON.stringify(r.json) === JSON.stringify(s0))).toBe(true);
+    expect(s0.items.length).toBeGreaterThan(0);
     expect(await q('SELECT COUNT(DISTINCT session_id) AS n FROM cp_session_items WHERE user_id = ?', 'r_ses')).toEqual({ n: 1 });
-    expect(await q('SELECT COUNT(*) AS n FROM cp_session_items WHERE user_id = ?', 'r_ses')).toEqual({ n: rs[0].json.items.length });
-    const usedInSession = rs[0].json.items.filter((i: { kind: string }) => i.kind === 'puzzle').length;
+    expect(await q('SELECT COUNT(*) AS n FROM cp_session_items WHERE user_id = ?', 'r_ses')).toEqual({ n: s0.items.length });
+    const usedInSession = s0.items.filter((i: { kind: string }) => i.kind === 'puzzle').length;
     expect(usedInSession).toBeGreaterThan(0);
     expect(await q('SELECT COUNT(*) AS n FROM cp_puzzle_pool WHERE used_at IS NOT NULL')).toEqual({ n: usedInSession });
     await exec('DELETE FROM cp_puzzle_pool'); // las demás pruebas esperan ejercicios del banco

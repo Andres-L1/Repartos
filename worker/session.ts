@@ -213,7 +213,7 @@ async function newSession(
       params: [it.id, userId, sessionId, it.concept_id, it.kind, it.source_id, it.fen, it.line_json, nowMs, userId, sessionId],
     })),
   ]);
-  const won = await db.first<{ id: string }>('SELECT id FROM cp_session_items WHERE id = ?', [items[0].id]);
+  const won = await db.first<{ id: string }>('SELECT id FROM cp_session_items WHERE id = ?', [items[0]!.id]);
   if (won) return { sessionId, items: items.map(toItem) };
   const taken = items.filter((it) => it.kind === 'puzzle').map((it) => it.source_id!);
   if (taken.length)
