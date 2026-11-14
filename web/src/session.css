@@ -21,23 +21,90 @@
 .ss-train h2, .ss-train p { margin: 0; }
 .ss-train .t-btn { min-height: 48px; margin-bottom: 0; }
 /* Hueco fijo para la pista o el aviso: todas las variantes en la misma celda; solo la actual se ve. */
-.ss-slot { display: grid; }
+.ss-slot { display: grid; min-width: 0; }
 .ss-slot > * { grid-area: 1 / 1; display: grid; gap: 10px; align-content: start; }
 .ss-ghost { visibility: hidden; }
+.ss-slot p, .rl-panel p { margin: 0; }
+.ss-dock { display: grid; gap: 10px; min-width: 0; }
+.ss-dock .rl-actions { position: static; box-shadow: none; }
+.rl-panel .ss-concept + .rl-question { margin-top: -4px; }
+/* Cabecera: el progreso ocupa su propia fila salvo en el móvil vertical (ver abajo). */
+.ss-head .ss-bar { flex: 1 0 100%; order: 3; }
+.ss-exit { min-height: 44px; margin-bottom: 0; }
 /* Elegir pieza al coronar: encima del tablero. */
 .ss .rl-board { position: relative; }
 .ss-promo .t-btn { min-height: 44px; min-width: 44px; margin-bottom: 0; }
-/* Con dos columnas: texto, botones y debajo la regla (los botones a la vista también en horizontal). */
+/* Con dos columnas: tablero a la izquierda; enunciado, aviso con botones y la regla a la derecha. */
 @container (width >= 52rem) {
   .ss .rl-layout { grid-template-rows: auto auto 1fr; }
   .ss .rl-board { grid-row: 1 / span 3; }
-  .ss .rl-actions { grid-row: 2; }
-  .ss-rule { grid-column: 2; grid-row: 3; align-self: start; }
+  .ss .ss-dock { grid-column: 2; grid-row: 2; }
 }
 @media (orientation: landscape) and (max-height: 500px) {
   .ss .rl-layout { grid-template-rows: auto auto 1fr; }
   .ss .rl-board { grid-row: 1 / span 3; }
-  .ss .rl-actions { grid-row: 2; }
-  .ss-rule { grid-column: 2; grid-row: 3; align-self: start; }
+  .ss .ss-dock { grid-column: 2; grid-row: 2; }
+}
+/*
+ * Móvil y tableta en vertical (barra superior y barra inferior fijas): enunciado, tablero y aviso con botones caben en
+ * la primera pantalla. El tablero toma el alto que queda (unidades de contenedor); la regla queda debajo.
+ * 152 px = barra superior (68) + margen del main (24) + cabecera (44) + huecos (16).
+ */
+@media (max-width: 899px) and (orientation: portrait) {
+  .ss-play { gap: 8px; }
+  .ss-play .ss-head { flex-wrap: nowrap; gap: 12px; margin-bottom: 0; }
+  .ss-play .ss-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ss-play .ss-head .ss-bar { flex: 1 1 auto; order: 0; gap: 4px; }
+  .ss-play .ss-bar-text { font-size: 0.8125rem; }
+  .ss-play .rl { gap: 12px; }
+  .ss-play .rl-layout {
+    display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+    height: calc(100vh - 152px - var(--bottom-nav, 0px));
+    height: calc(100dvh - 152px - var(--bottom-nav, 0px));
+    min-height: 360px;
+  }
+  .ss-play .rl-panel { order: -1; flex: none; gap: 2px; padding: 10px 12px; }
+  .ss-play .ss-concept { font-size: 0.8125rem; }
+  .ss-play .rl-panel .ss-concept + .rl-question { margin-top: 0; }
+  .ss-play .rl-question { font-size: 1rem; line-height: 1.35; }
+  .ss-play .rl-board { flex: 1 1 0; min-height: 0; container-type: size; display: grid; place-items: center; }
+  .ss-play .rl-board .board-frame { width: min(100cqw, 100cqh, 560px); max-width: none; }
+  /* Columna del botón reservada aunque no haya botón: el aviso mide siempre lo mismo y el tablero no cambia de tamaño. */
+  .ss-play .ss-dock { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) 112px; align-items: center; gap: 8px; min-height: 56px; }
+  .ss-play .ss-slot { grid-column: 1; }
+  .ss-play .ss-dock .rl-feedback, .ss-play .ss-dock .rl-hint { font-size: 0.875rem; line-height: 1.3; padding: 6px 10px; }
+  .ss-play .ss-dock .rl-hint { padding-inline: 0; }
+  /* El color y el texto ya dicen si fue acierto o fallo: sin icono, el aviso cabe en menos líneas. */
+  .ss-play .ss-dock .rl-feedback .icon { display: none; }
+  .ss-play .ss-dock .rl-actions { grid-column: 2; padding: 0; background: none; }
+  .ss-play .ss-dock .rl-actions .t-btn { flex: 1 1 auto; padding-inline: 0.5rem; }
+}
+/*
+ * Móvil en horizontal (p. ej. 740x360): el tablero ocupa todo el alto libre a la izquierda y la cabecera, el enunciado
+ * y el aviso con botones van a la derecha, sin desplazar. 83 px = barra superior (67) + margen arriba (8) + respiro (8).
+ */
+@media (orientation: landscape) and (max-height: 500px) {
+  .main:has(.ss-play) { padding-top: 8px; }
+  .ss-play {
+    --ss-board: calc(100vh - 83px - var(--bottom-nav, 0px));
+    --ss-board: calc(100dvh - 83px - var(--bottom-nav, 0px));
+    display: grid; grid-template-columns: var(--ss-board) minmax(0, 1fr); gap: 8px 16px; align-items: start;
+  }
+  .ss-play .rl, .ss-play .rl-layout { display: contents; }
+  .ss-play .ss-head { grid-column: 2; grid-row: 1; flex-wrap: nowrap; margin-bottom: 0; }
+  .ss-play .ss-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ss-play .ss-head .ss-bar { flex: 1 1 auto; order: 0; }
+  .ss-play .rl-board { grid-column: 1; grid-row: 1 / span 4; }
+  .ss-play .rl-board .board-frame { width: var(--ss-board); max-width: none; }
+  .ss-play .rl-panel { grid-column: 2; grid-row: 2; padding: 10px 12px; gap: 2px; }
+  .ss-play .rl-question { font-size: 1rem; line-height: 1.35; }
+  .ss-play .ss-dock { grid-column: 2; grid-row: 3; grid-template-columns: minmax(0, 1fr) 112px; align-items: center; gap: 8px; min-height: 56px; }
+  .ss-play .ss-slot { grid-column: 1; }
+  .ss-play .ss-dock .rl-actions { grid-column: 2; grid-row: 1; padding: 0; background: none; }
+  .ss-play .ss-dock .rl-actions .t-btn { flex: 1 1 auto; padding-inline: 0.5rem; }
+  .ss-play .ss-dock .rl-feedback, .ss-play .ss-dock .rl-hint { font-size: 0.875rem; line-height: 1.3; padding: 6px 10px; }
+  .ss-play .ss-dock .rl-hint { padding-inline: 0; }
+  .ss-play .ss-dock .rl-feedback .icon { display: none; }
+  .ss-play .ss-rule { grid-column: 2; grid-row: 4; }
 }
 @media (prefers-reduced-motion: reduce) { .ss-bar-fill { transition: none; } }

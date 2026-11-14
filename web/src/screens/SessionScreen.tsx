@@ -86,14 +86,15 @@ export function SessionScreen() {
   if (phase.k === 'finishing') return <Loading label="Guardando tu sesión…" />;
 
   return (
-    <div className="ss">
+    <div className={`ss${phase.k === 'play' ? ' ss-play' : ''}`}>
       <header className="ss-head page-head">
-        <div>
+        <div className="ss-title">
           <p className="kicker">Entrenar hoy</p>
           <h1>{phase.k === 'summary' ? 'Sesión terminada' : 'Repaso del día'}</h1>
         </div>
+        {phase.k === 'play' && <Progress i={phase.i} total={phase.start.items.length} />}
         {phase.k === 'play' && (
-          <Link className="t-btn t-btn-ghost t-btn-sm" href="/aprender">
+          <Link className="t-btn t-btn-ghost t-btn-sm ss-exit" href="/aprender">
             Salir
           </Link>
         )}
@@ -112,15 +113,12 @@ export function SessionScreen() {
       {phase.k === 'intro' && <Intro status={phase.status} onStart={start} />}
 
       {phase.k === 'play' && (
-        <>
-          <Progress i={phase.i} total={phase.start.items.length} />
-          <ItemView
-            key={phase.start.items[phase.i]!.itemId}
-            item={phase.start.items[phase.i]!}
-            last={phase.i === phase.start.items.length - 1}
-            onNext={() => (phase.i + 1 < phase.start.items.length ? setPhase({ ...phase, i: phase.i + 1 }) : finish(phase.start.sessionId))}
-          />
-        </>
+        <ItemView
+          key={phase.start.items[phase.i]!.itemId}
+          item={phase.start.items[phase.i]!}
+          last={phase.i === phase.start.items.length - 1}
+          onNext={() => (phase.i + 1 < phase.start.items.length ? setPhase({ ...phase, i: phase.i + 1 }) : finish(phase.start.sessionId))}
+        />
       )}
 
       {phase.k === 'summary' && <Summary result={phase.result} />}
@@ -325,43 +323,44 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
         </div>
         <div className="rl-panel">
           <p className="ss-concept">{conceptName(item.conceptId)}</p>
-          <div className="rl-text" aria-live="polite">
-            <p className="rl-question">{item.prompt}</p>
-            {/* Todas las variantes ocupan la misma celda: el panel mide lo que la más alta y el tablero (debajo en móvil) no se desplaza. */}
-            <div className="ss-slot">
-              {[hint, wrong, solved, revealed, failLine(OFFLINE), failLine(GONE)].map((n, k) => (
-                <div key={k} className="rl-step ss-ghost" aria-hidden="true">
-                  {n}
-                </div>
-              ))}
-              <div className="rl-step m-swap" key={status + (fail ? 'f' : '')}>
-                {current}
+          <p className="rl-question">{item.prompt}</p>
+        </div>
+        {/* Aviso y botones juntos, siempre en el mismo hueco: en móvil quedan bajo el tablero, al alcance del pulgar. */}
+        <div className="ss-dock">
+          {/* Todas las variantes ocupan la misma celda: el hueco mide lo que la más alta y el tablero no se mueve. */}
+          <div className="ss-slot" aria-live="polite">
+            {[hint, wrong, solved, revealed, failLine(OFFLINE), failLine(GONE)].map((n, k) => (
+              <div key={k} className="rl-step ss-ghost" aria-hidden="true">
+                {n}
               </div>
+            ))}
+            <div className="rl-step m-swap" key={status + (fail ? 'f' : '')}>
+              {current}
             </div>
           </div>
+          {(done || fail) && (
+            <div className="rl-actions">
+              {fail && (
+                <button type="button" className="t-btn t-btn-primary rl-btn" onClick={fail.retry}>
+                  Reintentar
+                </button>
+              )}
+              {done && (
+                <button type="button" className="t-btn t-btn-primary rl-btn" onClick={onNext}>
+                  {last ? 'Ver resumen' : 'Siguiente'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
-        {/* La regla va después del tablero: en móvil aparece debajo y no lo empuja. */}
-        {done && (
-          <p className="rl-rule ss-rule m-enter">
-            <span className="rl-rule-tag">La regla</span>
-            {ruleFor(item.conceptId)}
-          </p>
-        )}
-        {(done || fail) && (
-          <div className="rl-actions">
-            {fail && (
-              <button type="button" className="t-btn t-btn-primary rl-btn" onClick={fail.retry}>
-                Reintentar
-              </button>
-            )}
-            {done && (
-              <button type="button" className="t-btn t-btn-primary rl-btn" onClick={onNext}>
-                {last ? 'Ver resumen' : 'Siguiente'}
-              </button>
-            )}
-          </div>
-        )}
       </div>
+      {/* La regla va después: en móvil, bajo el tablero y los botones, sin empujarlos. */}
+      {done && (
+        <p className="rl-rule ss-rule m-enter">
+          <span className="rl-rule-tag">La regla</span>
+          {ruleFor(item.conceptId)}
+        </p>
+      )}
     </section>
   );
 }
