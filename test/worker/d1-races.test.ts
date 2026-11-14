@@ -72,6 +72,24 @@ const solutionOf = (fen: string) => EXERCISES.find((e) => e.fen === fen)!.soluti
 const all = <T>(f: (i: number) => Promise<T>) => Promise.all(Array.from({ length: N }, (_, i) => f(i)));
 
 describe('carreras en D1 local real (20 peticiones a la vez)', () => {
+  it('GET /api/session: 20 a la vez crean una sola sesión, todas con los mismos elementos, y no gastan puzles de más', async () => {
+    const ana = await user('r_ses');
+    for (const c of ['tactics.fork', 'tactics.pin', 'tactics.hanging_piece', 'tactics.mate_threat']) await due('r_ses', c);
+    for (let i = 0; i < 30; i++)
+      await exec("INSERT INTO cp_puzzle_pool VALUES (?, 'fork', 'easiest', 600, ?, '[\"e2e4\"]', ?, NULL)", `rp${i}`, '8/8/8/8/8/8/4P3/4K2k w - - 0 1', clock);
+    const rs = await all(() => ana('GET', '/api/session'));
+    expect(rs.map((r) => r.status)).toEqual(Array(N).fill(200));
+    const first = JSON.stringify(rs[0].json);
+    expect(rs.every((r) => JSON.stringify(r.json) === first)).toBe(true);
+    expect(rs[0].json.items.length).toBeGreaterThan(0);
+    expect(await q('SELECT COUNT(DISTINCT session_id) AS n FROM cp_session_items WHERE user_id = ?', 'r_ses')).toEqual({ n: 1 });
+    expect(await q('SELECT COUNT(*) AS n FROM cp_session_items WHERE user_id = ?', 'r_ses')).toEqual({ n: rs[0].json.items.length });
+    const usedInSession = rs[0].json.items.filter((i: { kind: string }) => i.kind === 'puzzle').length;
+    expect(usedInSession).toBeGreaterThan(0);
+    expect(await q('SELECT COUNT(*) AS n FROM cp_puzzle_pool WHERE used_at IS NOT NULL')).toEqual({ n: usedInSession });
+    await exec('DELETE FROM cp_puzzle_pool'); // las demás pruebas esperan ejercicios del banco
+  });
+
   it('answer: 20 fallos iguales del mismo intento cuentan un solo fallo', async () => {
     const ana = await user('r_ans1');
     await due('r_ans1', 'tactics.fork');

@@ -108,7 +108,25 @@ export async function sessionStatus(db: Db, userId: string, nowMs: number): Prom
   return { due: (await dueConcepts(db, userId, nowMs)).length, nextDueAt: await nextDueAt(db, userId, nowMs) };
 }
 
-/** Sesión abierta de menos de 24 h o una nueva. null si no hay nada que repasar. */
+async function openSession(db: Db, userId: string, nowMs: number): Promise<SessionStart | null> {
+  const open = await db.first<{ session_id: string }>(
+    "SELECT session_id FROM cp_session_items WHERE user_id = ? AND status = 'open' AND created_at > ? ORDER BY created_at DESC LIMIT 1",
+    [userId, nowMs - SESSION_TTL_MS],
+  );
+  if (!open) return null;
+  const rows = await db.all<ItemRow>(
+    "SELECT * FROM cp_session_items WHERE user_id = ? AND session_id = ? AND status = 'open' ORDER BY rowid",
+    [userId, open.session_id],
+  );
+  return { sessionId: open.session_id, items: rows.map(toItem) };
+}
+
+/**
+ * Sesión abierta de menos de 24 h o una nueva. null si no hay nada que repasar.
+ * Varias peticiones a la vez: cada una prepara su sesión, pero solo una gana el reclamo de cp_session_claims
+ * (comparar y cambiar sobre el reclamo leído al empezar) y solo esa inserta sus elementos; las demás devuelven
+ * los puzles que tomaron al depósito y releen la sesión ganadora.
+ */
 export async function startSession(
   db: Db,
   userId: string,
@@ -116,18 +134,24 @@ export async function startSession(
   nowMs: number,
   random: () => number = Math.random,
 ): Promise<SessionStart | null> {
-  const open = await db.first<{ session_id: string }>(
-    "SELECT session_id FROM cp_session_items WHERE user_id = ? AND status = 'open' AND created_at > ? ORDER BY created_at DESC LIMIT 1",
-    [userId, nowMs - SESSION_TTL_MS],
-  );
-  if (open) {
-    const rows = await db.all<ItemRow>(
-      "SELECT * FROM cp_session_items WHERE user_id = ? AND session_id = ? AND status = 'open' ORDER BY rowid",
-      [userId, open.session_id],
-    );
-    return { sessionId: open.session_id, items: rows.map(toItem) };
+  for (let tries = 0; tries < 2; tries++) {
+    const prev = (await db.first<{ session_id: string }>('SELECT session_id FROM cp_session_claims WHERE user_id = ?', [userId]))?.session_id ?? null;
+    const open = await openSession(db, userId, nowMs);
+    if (open) return open;
+    const res = await newSession(db, userId, level, nowMs, random, prev);
+    if (res !== 'lost') return res;
   }
+  return openSession(db, userId, nowMs);
+}
 
+async function newSession(
+  db: Db,
+  userId: string,
+  level: Level,
+  nowMs: number,
+  random: () => number,
+  prevClaim: string | null,
+): Promise<SessionStart | null | 'lost'> {
   const concepts = await dueConcepts(db, userId, nowMs);
   if (!concepts.length) return null;
   const sessionId = crypto.randomUUID();
@@ -175,14 +199,26 @@ export async function startSession(
     }
   }
   if (!items.length) return null;
-  await db.batch(
-    items.map((it) => ({
+  // Atómico: el reclamo solo cambia si sigue como se leyó, y los elementos solo entran si el reclamo es de esta sesión.
+  await db.batch([
+    {
+      sql: `INSERT INTO cp_session_claims (user_id, session_id, created_at) VALUES (?,?,?)
+            ON CONFLICT(user_id) DO UPDATE SET session_id = excluded.session_id, created_at = excluded.created_at
+            WHERE cp_session_claims.session_id IS ?`,
+      params: [userId, sessionId, nowMs, prevClaim],
+    },
+    ...items.map((it) => ({
       sql: `INSERT INTO cp_session_items (id, user_id, session_id, concept_id, kind, source_id, fen, line_json, created_at)
-            VALUES (?,?,?,?,?,?,?,?,?)`,
-      params: [it.id, userId, sessionId, it.concept_id, it.kind, it.source_id, it.fen, it.line_json, nowMs],
+            SELECT ?,?,?,?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM cp_session_claims WHERE user_id = ? AND session_id = ?)`,
+      params: [it.id, userId, sessionId, it.concept_id, it.kind, it.source_id, it.fen, it.line_json, nowMs, userId, sessionId],
     })),
-  );
-  return { sessionId, items: items.map(toItem) };
+  ]);
+  const won = await db.first<{ id: string }>('SELECT id FROM cp_session_items WHERE id = ?', [items[0].id]);
+  if (won) return { sessionId, items: items.map(toItem) };
+  const taken = items.filter((it) => it.kind === 'puzzle').map((it) => it.source_id!);
+  if (taken.length)
+    await db.run(`UPDATE cp_puzzle_pool SET used_at = NULL WHERE used_at = ? AND puzzle_id IN (${taken.map(() => '?').join(',')})`, [nowMs, ...taken]);
+  return 'lost';
 }
 
 /**
