@@ -14,23 +14,13 @@ const DAY = 86_400_000;
 const SESSION_TTL = DAY;
 const { puzzles } = JSON.parse(readFileSync(new URL('../fixtures/lichess-puzzles.json', import.meta.url), 'utf8')) as { puzzles: any[] };
 
-const fetch429 = () => {
-  const f = (async () => {
-    f.calls++;
-    return new Response('{}', { status: 429 });
-  }) as unknown as typeof fetch & { calls: number };
-  f.calls = 0;
-  return f;
-};
-
 function setup() {
   let clock = Date.UTC(2026, 0, 10, 12, 0, 0);
   const rnd = { value: 0.9 }; // >= 0.5: el ejercicio original del banco; < 0.5: su espejo
   const db = openTestDb();
-  const fetchImpl = fetch429();
   const app = createApp({
     db, content: { units: [] }, billingMode: 'beta_open', billing: devBilling(),
-    sessionSecret: SECRET, publicOrigin: ORIGIN, now: () => new Date(clock), fetchImpl, random: () => rnd.value,
+    sessionSecret: SECRET, publicOrigin: ORIGIN, now: () => new Date(clock), random: () => rnd.value,
   });
   const user = async (id: string) => {
     db.raw.prepare('INSERT INTO cp_users (id, username, created_at, last_login_at) VALUES (?,?,?,?)').run(id, id, 'x', 'x');
@@ -50,7 +40,7 @@ function setup() {
   const box = (userId: string, conceptId: string) =>
     db.raw.prepare('SELECT box, due_at FROM cp_review_schedule WHERE user_id = ? AND concept_id = ?').get(userId, conceptId) as { box: number; due_at: number };
   const solutionOf = (fen: string) => [...EXERCISES, ...EXERCISES.map(mirrorExercise)].find((e) => e.fen === fen)!.solutionUci;
-  return { db, rnd, user, due, box, solutionOf, fetchImpl, now: () => clock, advance: (ms: number) => (clock += ms) };
+  return { db, rnd, user, due, box, solutionOf, now: () => clock, advance: (ms: number) => (clock += ms) };
 }
 
 describe('sesión diaria', () => {
@@ -92,7 +82,8 @@ describe('sesión diaria', () => {
     expect(r.text).not.toMatch(/line|solution/i);
     for (const it of r.json.items) {
       expect(Object.keys(it).sort()).toEqual(['conceptId', 'fen', 'itemId', 'kind', 'prompt']);
-      for (const m of s.solutionOf(it.fen)) expect(r.text).not.toContain(m);
+      // Sin los UUID: su hexadecimal puede contener por azar algo como «f1b5».
+      for (const m of s.solutionOf(it.fen)) expect(r.text.replace(/[0-9a-f-]{36}/g, '')).not.toContain(m);
     }
     // Reutiliza la sesión abierta; pasadas 24 h crea otra.
     expect((await ana('GET', '/api/session')).json.sessionId).toBe(r.json.sessionId);
@@ -105,25 +96,23 @@ describe('sesión diaria', () => {
     const ana = await s.user('ana');
     s.due('ana', 'tactics.fork');
     const items = (await ana('GET', '/api/session')).json.items;
-    expect(items.length).toBe(4); // el banco tiene 4 de horquilla y Lichess no responde
+    expect(items.length).toBe(4); // el banco tiene 4 de horquilla y el depósito está vacío
     expect(new Set(items.map((i: any) => i.fen)).size).toBe(4);
   });
 
-  it('Lichess con 429: banco del nivel del alumno sin error; bad_exchange usa el banco sin llamar a Lichess', async () => {
+  it('depósito vacío: banco del nivel del alumno sin error; bad_exchange usa el banco', async () => {
     const s = setup();
     const ana = await s.user('ana');
     s.due('ana', 'tactics.fork');
     let r = await ana('GET', '/api/session');
     expect(r.status).toBe(200);
     expect(r.json.items[0]).toMatchObject({ kind: 'bank', fen: EXERCISES.find((e) => e.conceptId === 'tactics.fork' && e.level === 'initiation')!.fen });
-    expect(s.fetchImpl.calls).toBe(1);
 
     const bea = await s.user('bea');
     s.db.raw.prepare("INSERT INTO cp_user_level (user_id, level, chosen_at) VALUES ('bea','basic','x')").run();
     s.due('bea', 'tactics.bad_exchange');
     r = await bea('GET', '/api/session');
     expect(r.json.items[0]).toMatchObject({ kind: 'bank', fen: EXERCISES.find((e) => e.conceptId === 'tactics.bad_exchange' && e.level === 'basic')!.fen });
-    expect(s.fetchImpl.calls).toBe(1);
   });
 
   it('posición propia primero; acertarla la marca resuelta', async () => {
@@ -155,7 +144,7 @@ describe('sesión diaria', () => {
     s.due('ana', 'tactics.fork');
     const st = puzzleStart(puzzles[0].game.pgn, puzzles[0].puzzle.solution)!;
     const line = st.line.slice(0, 3);
-    s.db.raw.prepare("INSERT INTO cp_puzzle_pool (puzzle_id, theme, difficulty, rating, fen, line_json, fetched_at) VALUES ('AjiNP','fork','easier',1263,?,?,?)").run(st.fen, JSON.stringify(line), s.now());
+    s.db.raw.prepare("INSERT INTO cp_puzzle_pool (puzzle_id, theme, difficulty, rating, fen, line_json, fetched_at) VALUES ('AjiNP','fork','easiest',900,?,?,?)").run(st.fen, JSON.stringify(line), s.now());
     const item = (await ana('GET', '/api/session')).json.items[0];
     expect(item).toMatchObject({ kind: 'puzzle', fen: st.fen });
     expect((await ana('POST', '/api/session/answer', { itemId: item.itemId, uci: line[0] })).json).toEqual({ correct: true, reply: line[1], done: false });
@@ -292,7 +281,7 @@ describe('sesión diaria', () => {
     s.due('ana', 'tactics.fork');
     const st = puzzleStart(puzzles[0].game.pgn, puzzles[0].puzzle.solution)!;
     const line = st.line.slice(0, 3);
-    s.db.raw.prepare("INSERT INTO cp_puzzle_pool (puzzle_id, theme, difficulty, rating, fen, line_json, fetched_at) VALUES ('AjiNP','fork','easier',1263,?,?,?)").run(st.fen, JSON.stringify(line), s.now());
+    s.db.raw.prepare("INSERT INTO cp_puzzle_pool (puzzle_id, theme, difficulty, rating, fen, line_json, fetched_at) VALUES ('AjiNP','fork','easiest',900,?,?,?)").run(st.fen, JSON.stringify(line), s.now());
     const id = (await ana('GET', '/api/session')).json.items[0].itemId;
     const send = (uci: string, attempt?: number) => ana('POST', '/api/session/answer', { itemId: id, uci, attempt });
     const row = () => s.db.raw.prepare('SELECT step, attempts, status FROM cp_session_items WHERE id = ?').get(id);
@@ -340,5 +329,39 @@ describe('sesión diaria', () => {
     expect(new Set(items.map((i: any) => i.fen.split(' ')[0])).size).toBe(items.length); // nunca original y espejo juntos
     expect((await ana('POST', '/api/session/answer', { itemId: items[0].itemId, uci: orig.solutionUci[0], attempt: 1 })).json.correct).toBe(false);
     expect((await ana('POST', '/api/session/answer', { itemId: items[0].itemId, uci: m.solutionUci[0], attempt: 2 })).json).toMatchObject({ correct: true });
+  });
+
+  it('tope de valoración por nivel: Principiante no recibe un puzle de 900 y cae al banco', async () => {
+    const s = setup();
+    const ana = await s.user('ana');
+    s.db.raw.prepare("INSERT INTO cp_user_level (user_id, level, chosen_at) VALUES ('ana','beginner','x')").run();
+    s.due('ana', 'tactics.fork');
+    const st = puzzleStart(puzzles[0].game.pgn, puzzles[0].puzzle.solution)!;
+    const ins = s.db.raw.prepare("INSERT INTO cp_puzzle_pool (puzzle_id, theme, difficulty, rating, fen, line_json, fetched_at) VALUES (?,'fork','easiest',?,?,?,?)");
+    ins.run('alto', 900, st.fen, JSON.stringify(st.line), s.now());
+    let items = (await ana('GET', '/api/session')).json.items;
+    expect(items.every((i: any) => i.kind === 'bank')).toBe(true);
+    ins.run('bajo', 780, st.fen, JSON.stringify(st.line), s.now());
+    s.advance(DAY + 1);
+    items = (await ana('GET', '/api/session')).json.items;
+    expect(items[0]).toMatchObject({ kind: 'puzzle', fen: st.fen });
+    expect(s.db.raw.prepare("SELECT puzzle_id FROM cp_puzzle_pool WHERE used_at IS NOT NULL").all()).toEqual([{ puzzle_id: 'bajo' }]);
+  });
+
+  it('mate: si la solución da mate vale otro mate (también coronando); una jugada que no mata, no', async () => {
+    const s = setup();
+    const ana = await s.user('ana');
+    s.due('ana', 'tactics.mate_threat');
+    const own = s.db.raw.prepare("INSERT INTO cp_review_positions (id, user_id, game_id, ply, concept_id, fen, best_uci, created_at) VALUES (?,'ana','g1',?,'tactics.mate_threat',?,'a1a8',?)");
+    own.run('p1', 1, '7k/6pp/8/8/8/8/8/RR4K1 w - - 0 1', 1);
+    own.run('p2', 2, '7k/1P4pp/8/8/8/8/8/R5K1 w - - 0 1', 2);
+    const items = (await ana('GET', '/api/session')).json.items;
+    const [a, b] = items.filter((i: any) => i.kind === 'own');
+    const send = (id: string, uci: string, attempt: number) => ana('POST', '/api/session/answer', { itemId: id, uci, attempt }).then((r) => r.json);
+    expect(await send(a.itemId, 'a1a7', 1)).toEqual({ correct: false, done: false, tryAgain: true }); // no es mate
+    expect(await send(a.itemId, 'b1b8', 2)).toEqual({ correct: true, done: true }); // otro mate
+    expect(await send(b.itemId, 'b7b8n', 1)).toEqual({ correct: false, done: false, tryAgain: true }); // coronar a caballo no mata
+    expect(await send(b.itemId, 'b7b8q', 2)).toEqual({ correct: true, done: true }); // a dama sí
+    expect(s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE solved_at IS NOT NULL").get()).toEqual({ n: 2 });
   });
 });

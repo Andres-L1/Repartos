@@ -52,8 +52,6 @@ export interface AppDeps {
   devOrigin?: string | undefined;
   /** Sirve los estáticos para rutas que no son /api ni /auth (binding ASSETS). */
   assets?: { fetch(req: Request): Promise<Response> } | undefined;
-  /** fetch para la API anónima de Lichess (puzles); por defecto el global. Los tests lo sustituyen. */
-  fetchImpl?: typeof fetch | undefined;
   /** Azar del banco de la sesión (blancas o espejo con negras); los tests lo fijan. */
   random?: () => number;
 }
@@ -502,7 +500,7 @@ export function createApp(deps: AppDeps) {
   app.get('/api/session', requireAuth, async (c) => {
     const userId = c.get('user').id;
     const level = (await chosenLevel(userId)) ?? 'initiation';
-    const s = await startSession(db, userId, level, now().getTime(), deps.fetchImpl, deps.random);
+    const s = await startSession(db, userId, level, now().getTime(), deps.random);
     if (!s) throw new HttpError(409, 'Hoy no toca repasar');
     return c.json(s);
   });

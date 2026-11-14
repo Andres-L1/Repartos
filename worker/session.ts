@@ -4,7 +4,7 @@ import type { Level } from '../src/types.js';
 import { EXERCISES } from '../src/pedagogy/exercises.js';
 import { mirrorExercise } from '../src/pedagogy/mirror.js';
 import { LEVELS } from '../src/shared/levels.js';
-import { difficultyForLevel, dueAfter, nextBox, themeForConcept } from '../src/review/srs.js';
+import { difficultyForLevel, dueAfter, maxRatingForLevel, nextBox, themeForConcept } from '../src/review/srs.js';
 import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
 import { makeSquare, parseUci } from 'chessops/util';
@@ -43,7 +43,10 @@ function canonical(pos: Chess, uci: string): string {
   return from + (m.to > m.from ? 'g' : 'c') + from[1];
 }
 
-/** ¿`uci` es la jugada esperada en el paso `step` de la línea? Compara el enroque en forma canónica. */
+/**
+ * ¿`uci` es la jugada esperada en el paso `step` de la línea? Compara el enroque en forma canónica y, como Lichess
+ * en los puzles de mate, si la esperada da jaque mate vale cualquier jugada legal que también lo dé.
+ */
 function isExpected(fen: string, line: string[], step: number, uci: string): boolean {
   const want = line[step];
   if (want === undefined) return false;
@@ -51,10 +54,18 @@ function isExpected(fen: string, line: string[], step: number, uci: string): boo
   try {
     const pos = Chess.fromSetup(parseFen(fen).unwrap()).unwrap();
     for (const u of line.slice(0, step)) pos.play(parseUci(u)!);
-    return canonical(pos, uci) === canonical(pos, want);
+    return canonical(pos, uci) === canonical(pos, want) || (mates(pos, want) && mates(pos, uci));
   } catch {
     return false;
   }
+}
+
+function mates(pos: Chess, uci: string): boolean {
+  const m = parseUci(uci);
+  if (!m || !pos.isLegal(m)) return false;
+  const after = pos.clone();
+  after.play(m);
+  return after.isCheckmate();
 }
 
 const sideToMove = (fen: string) => (fen.split(' ')[1] === 'b' ? 'negras' : 'blancas');
@@ -103,7 +114,6 @@ export async function startSession(
   userId: string,
   level: Level,
   nowMs: number,
-  fetchImpl?: typeof fetch,
   random: () => number = Math.random,
 ): Promise<SessionStart | null> {
   const open = await db.first<{ session_id: string }>(
@@ -122,8 +132,9 @@ export async function startSession(
   if (!concepts.length) return null;
   const sessionId = crypto.randomUUID();
   const used = new Set<string>();
-  const deadThemes = new Set<string>(); // Lichess sin puzles en esta petición: no se vuelve a intentar
+  const deadThemes = new Set<string>(); // depósito sin puzles de ese tema: no se vuelve a consultar
   const difficulty = difficultyForLevel(level);
+  const maxRating = maxRatingForLevel(level);
   const lvl = (l: Level) => LEVELS.findIndex((x) => x.id === l);
   const items: Omit<ItemRow, 'session_id' | 'step' | 'attempts' | 'first_try_ok' | 'status'>[] = [];
 
@@ -137,7 +148,7 @@ export async function startSession(
     if (own) return { kind: 'own' as const, source_id: own.id, fen: own.fen, line: [own.best_uci] };
     const theme = themeForConcept(conceptId);
     if (theme && !deadThemes.has(theme)) {
-      const p = await takePuzzle(db, theme, difficulty, nowMs, fetchImpl);
+      const p = await takePuzzle(db, theme, difficulty, nowMs, maxRating);
       if (p) return { kind: 'puzzle' as const, source_id: p.puzzleId, fen: p.fen, line: p.line };
       deadThemes.add(theme);
     }

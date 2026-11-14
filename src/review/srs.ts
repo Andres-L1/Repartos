@@ -41,19 +41,39 @@ export function conceptForThemes(themes: string[]): string | null {
 
 export type PuzzleDifficulty = 'easiest' | 'easier' | 'normal' | 'harder' | 'hardest';
 
-// Calibración pendiente: ajustar con datos reales de aciertos por nivel.
+// Calibración PROVISIONAL: ajustar con datos reales de aciertos por nivel. Valoraciones medidas el 2026-11-14:
+// easiest 687-1082, easier 964-1173, normal 1297-1667, hardest 1801-2327 (harder sin medir).
 const DIFFICULTY_BY_LEVEL: Record<Level, PuzzleDifficulty> = {
   beginner: 'easiest',
-  initiation: 'easier',
-  basic: 'normal',
+  initiation: 'easiest',
+  basic: 'easier',
   intermediate: 'normal',
   advanced: 'harder',
   competitive: 'hardest',
 };
 
+/** Valoración máxima de puzle por nivel (PROVISIONAL); null: sin tope. Sin puzle bajo el tope se usa el banco. */
+const MAX_PUZZLE_RATING: Record<Level, number | null> = {
+  beginner: 800,
+  initiation: 1000,
+  basic: 1200,
+  intermediate: 1500,
+  advanced: 1800,
+  competitive: null,
+};
+
 export function difficultyForLevel(level: Level): PuzzleDifficulty {
   return DIFFICULTY_BY_LEVEL[level];
 }
+
+export function maxRatingForLevel(level: Level): number | null {
+  return MAX_PUZZLE_RATING[level];
+}
+
+/** Combinaciones que el depósito debe tener: cada tema de Lichess por cada dificultad que usa algún nivel. */
+export const POOL_COMBOS: { theme: string; difficulty: PuzzleDifficulty }[] = [...new Set(Object.values(THEME_BY_CONCEPT))].flatMap((theme) =>
+  [...new Set(Object.values(DIFFICULTY_BY_LEVEL))].map((difficulty) => ({ theme, difficulty })),
+);
 
 /** Posición propia guardada para repasar (error del alumno): contrato compartido cliente/servidor. */
 export interface ReviewPosition {

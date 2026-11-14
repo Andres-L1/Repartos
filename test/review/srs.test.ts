@@ -29,7 +29,7 @@ describe('temas y dificultad', () => {
   });
   it('difficultyForLevel', () => {
     expect((['beginner', 'initiation', 'basic', 'intermediate', 'advanced', 'competitive'] as const).map(difficultyForLevel)).toEqual([
-      'easiest', 'easier', 'normal', 'normal', 'harder', 'hardest',
+      'easiest', 'easiest', 'easier', 'normal', 'harder', 'hardest',
     ]);
   });
 });

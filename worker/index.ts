@@ -6,6 +6,7 @@ import { UNITS } from '../src/content/index.js';
 import { createApp } from './app.js';
 import { devBilling, parseBillingMode } from './billing.js';
 import { d1Db, type D1Like } from './db.js';
+import { scheduledRun } from './puzzles.js';
 
 export interface Env {
   /** D1: base existente chedexpulse-users. Solo se tocan tablas cp_*. */
@@ -36,5 +37,9 @@ function appFor(env: Env) {
 export default {
   fetch(request: Request, env: Env): Response | Promise<Response> {
     return appFor(env).fetch(request);
+  },
+  /** Cron Trigger de cada minuto (wrangler.jsonc): rellena el depósito de puzles y limpia. Nunca lanza. */
+  scheduled(event: { scheduledTime: number }, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }): void {
+    ctx.waitUntil(scheduledRun(d1Db(env.PULSE_DB), event.scheduledTime, fetch));
   },
 };

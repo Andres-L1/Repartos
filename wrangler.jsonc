@@ -31,6 +31,8 @@
     "PUBLIC_ORIGIN": "https://chedexpulse.app",
     "BILLING_MODE": "beta_open"
   },
+  // Cada minuto: como mucho una petición a Lichess para rellenar el depósito de puzles, y limpieza a la hora en punto.
+  "triggers": { "crons": ["* * * * *"] },
   "observability": { "enabled": false },
   "routes": [{ "pattern": "chedexpulse.app", "custom_domain": true }]
 }
