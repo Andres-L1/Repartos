@@ -24,12 +24,12 @@ const SessionScreen = lazy(() => import('./screens/SessionScreen').then((m) => (
 
 export function App() {
   const path = usePath();
-  const { loading, user, logout, billingMode, shop, levelChosen } = useSession();
+  const { loading, connectionError, retryConnection, user, logout, billingMode, shop, levelChosen } = useSession();
   const isPrivate = isPrivatePath(path);
 
   useEffect(() => {
-    if (!loading && !user && isPrivate) navigate('/entrar', { replace: true });
-  }, [loading, user, isPrivate]);
+    if (!loading && !user && isPrivate && !connectionError) navigate('/entrar', { replace: true });
+  }, [loading, user, isPrivate, connectionError]);
 
   // Primer acceso: sin nivel elegido, toda ruta privada lleva a la pantalla de nivel.
   const needsLevel = !loading && !!user && isPrivate && !levelChosen && path !== '/bienvenida';
@@ -46,6 +46,16 @@ export function App() {
 
   let screen: ReactNode;
   if (loading) screen = <Loading label="Cargando…" />;
+  else if (isPrivate && !user && connectionError)
+    screen = (
+      <div className="t-card empty-state">
+        <h1>No se pudo conectar</h1>
+        <p>No hemos podido comprobar tu sesión. Tu progreso está guardado: revisa tu conexión e inténtalo de nuevo.</p>
+        <button className="t-btn t-btn-primary" onClick={retryConnection} autoFocus>
+          Reintentar
+        </button>
+      </div>
+    );
   else if (isPrivate && !user) screen = <Loading label="Redirigiendo al acceso…" />;
   else if (needsLevel) screen = <Loading label="Cargando…" />;
   else if (path === '/') screen = <Landing />;

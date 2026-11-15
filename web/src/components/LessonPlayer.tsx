@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Lesson } from '../../../src/content/schema';
 import type { LessonProgress, Profile } from '../../../src/shared/api';
 import { api, ApiError } from '../api';
@@ -39,6 +39,9 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [saving, setSaving] = useState(false);
   const [run, setRun] = useState(0);
+  // Un doble toque en «Ver resultado» no debe guardar dos veces; y si el guardado falla, se conservan los aciertos para reintentarlo sin repetir la lección.
+  const inFlight = useRef(false);
+  const lastResults = useRef<boolean[]>([]);
 
   const total = lesson.evaluation.length;
   const passMark = lesson.passMark ?? Math.max(1, total - 1);
@@ -85,11 +88,15 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
   }
 
   async function finish(results: boolean[]) {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    lastResults.current = results;
     const correct = results.filter(Boolean).length;
     const passed = correct >= passMark;
     setPhase({ kind: 'result' });
     if (demo) {
       setOutcome({ correct, total, passed });
+      inFlight.current = false;
       return;
     }
     setSaving(true);
@@ -116,6 +123,7 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
       });
     } finally {
       setSaving(false);
+      inFlight.current = false;
     }
   }
 
@@ -216,7 +224,7 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
         )}
 
         {phase.kind === 'result' && (
-          <ResultView lesson={lesson} demo={demo} saving={saving} outcome={outcome} passMark={passMark} onRestart={restart} />
+          <ResultView lesson={lesson} demo={demo} saving={saving} outcome={outcome} passMark={passMark} onRestart={restart} onRetrySave={() => void finish(lastResults.current)} />
         )}
       </div>
     </article>
@@ -262,6 +270,7 @@ function ResultView({
   outcome,
   passMark,
   onRestart,
+  onRetrySave,
 }: {
   lesson: Lesson;
   demo: boolean;
@@ -269,13 +278,14 @@ function ResultView({
   outcome: Outcome | null;
   passMark: number;
   onRestart(): void;
+  onRetrySave(): void;
 }) {
   const [nextId, setNextId] = useState<string | null>(null);
   const passed = outcome?.passed === true;
   // Un solo sonido de victoria al completar la lección (nunca al suspender).
   useEffect(() => {
-    if (!saving && passed) playSound('victory');
-  }, [saving, passed]);
+    if (!saving && passed && !outcome?.error) playSound('victory');
+  }, [saving, passed, outcome?.error]);
   useEffect(() => {
     if (demo || saving || !passed) return;
     let live = true;
@@ -308,7 +318,7 @@ function ResultView({
       <p className={`result-icon${passed ? ' result-pass' : ' result-retry'}`} aria-hidden="true">
         <Icon name={passed ? 'check' : 'repeat'} size={44} />
       </p>
-      <h2>{passed ? 'Lección completada' : 'Casi lo tienes'}</h2>
+      <h2>{outcome.error ? 'No se ha guardado tu resultado' : passed ? 'Lección completada' : 'Casi lo tienes'}</h2>
       <p className="lead">
         Aciertos en la evaluación: <strong>{correct} de {total}</strong>.
         {!passed && ` Necesitas al menos ${passMark} para completarla; puedes repasar y volver a intentarlo cuando quieras.`}
@@ -329,9 +339,16 @@ function ResultView({
           </p>
         ))}
       {outcome.error && (
-        <p className="field-error" role="alert">
-          {outcome.error}
-        </p>
+        <>
+          <p className="field-error" role="alert">
+            {outcome.error} Tus aciertos siguen aquí: pulsa «Guardar de nuevo» para no repetir la lección.
+          </p>
+          <div className="actions">
+            <button className="t-btn t-btn-primary" onClick={onRetrySave} autoFocus>
+              Guardar de nuevo
+            </button>
+          </div>
+        </>
       )}
       <div className="actions">
         {demo ? (
@@ -346,12 +363,12 @@ function ResultView({
         ) : (
           <>
             {passed && nextId ? (
-              <button className="t-btn t-btn-primary" onClick={() => navigate(`/leccion/${encodeURIComponent(nextId)}`)} autoFocus>
+              <button className="t-btn t-btn-primary" onClick={() => navigate(`/leccion/${encodeURIComponent(nextId)}`)} autoFocus={!outcome.error}>
                 Siguiente lección
                 <Icon name="chevron" size={18} />
               </button>
             ) : (
-              <button className="t-btn t-btn-primary" onClick={() => navigate('/aprender')} autoFocus>
+              <button className="t-btn t-btn-primary" onClick={() => navigate('/aprender')} autoFocus={!outcome.error}>
                 Volver a la ruta
               </button>
             )}

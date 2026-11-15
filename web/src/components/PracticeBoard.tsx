@@ -45,6 +45,12 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
+  // Cada ejercicio nuevo nace tras pulsar un botón que desaparece: sin esto el foco cae al documento y el teclado vuelve a empezar desde arriba.
+  const prompt = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (!showcase) prompt.current?.focus({ preventScroll: true });
+  }, [showcase]);
+
   const shapes = useMemo(() => {
     const s = showcase && lastMove ? [] : marksToShapes(step);
     if (hint && status === 'playing') {
@@ -160,12 +166,22 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
           onMove={onBoardMove}
         />
         {promo && (
-          <div className="promo" role="dialog" aria-label="Elige la pieza de promoción">
+          <div
+            className="promo"
+            role="dialog"
+            aria-label="Elige la pieza de promoción"
+            onKeyDown={(e) => {
+              if (e.key !== 'Escape') return;
+              setPromo(null);
+              setNonce((n) => n + 1);
+            }}
+          >
             <p>Elige la pieza para coronar:</p>
             <div className="promo-options">
-              {PROMO_ROLES.map((p) => (
+              {PROMO_ROLES.map((p, k) => (
                 <button
                   key={p.role}
+                  autoFocus={k === 0}
                   className="t-btn"
                   onClick={() => {
                     const m = promo;
@@ -193,7 +209,9 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
         <p className="step-kicker" hidden={showcase}>
           {mode === 'practice' ? 'Práctica' : 'Evaluación'}{plain ? ':' : ' ·'} mueven {orientation === 'white' ? 'las blancas' : 'las negras'}
         </p>
-        <p className="step-prompt">{step.prompt}</p>
+        <p className="step-prompt" ref={prompt} tabIndex={-1}>
+          {step.prompt}
+        </p>
 
         <div className={`feedback feedback-${status}`} aria-live="polite" role="status">
           {status === 'correct' && (
