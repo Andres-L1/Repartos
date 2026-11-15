@@ -163,7 +163,10 @@ export function describeLessons(units: Unit[], { principleLessons = new Set(), d
                 expect(entry!.score, key).toBeGreaterThanOrEqual(ranked[0]!.score);
                 return;
               }
-              const strictOk = ranked[0]!.uci === sol && ranked[0]!.score - (ranked[1]?.score ?? -Infinity) >= 100;
+              // Las alternativas `alt` (verificadas con motor) cuentan como solución: margen sobre la mejor no aceptada.
+              const accepted = [sol, ...(step.solutionUci.length === 1 ? (step.alt ?? []).map((a) => rankUci(step.fen, a)) : [])];
+              const other = ranked.find((r) => !accepted.includes(r.uci));
+              const strictOk = accepted.includes(ranked[0]!.uci) && ranked[0]!.score - (other?.score ?? -Infinity) >= 100;
               if (principleLessons.has(l.id)) {
                 // Principios: la jugada no debe perder material respecto a lo mejor (margen de un peón).
                 expect(strictOk || entry!.score >= ranked[0]!.score - 100, key).toBe(true);

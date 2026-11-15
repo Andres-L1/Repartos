@@ -237,4 +237,110 @@ export const CONCEPTS: Concept[] = [
       'Comprueba que el rival no puede responder a las dos amenazas a la vez.',
     ],
   },
+  // ───── Fase 4 (intermedio en adelante). Pendiente de validación de profesores. ─────
+  {
+    id: 'tactics.skewer',
+    category: 'Táctica',
+    name: 'Enfilada',
+    definition:
+      'Una enfilada es un ataque a una pieza valiosa (a menudo el rey) que tiene detrás, en la misma línea, otra pieza propia: al apartarse la de delante, la de detrás queda expuesta y se pierde.',
+    recommendedLevel: 'intermediate',
+    learningObjectives: [
+      'Reconocer dos piezas en la misma fila, columna o diagonal con la más valiosa delante.',
+      'Atacar la pieza de delante, mejor con jaque, para ganar la de detrás.',
+      'Evitar dejar el rey o la dama en línea con otra pieza propia ante un alfil, torre o dama rival.',
+    ],
+    detection:
+      'Tras la jugada del alumno, una pieza rival de largo alcance puede atacar a su rey o dama de modo que, al apartarse, quede expuesta otra pieza situada detrás en la misma línea; el motor confirma la pérdida de material.',
+    explanations: {
+      beginner:
+        '{hecho}\nUna enfilada es un ataque a una pieza importante que tiene otra detrás, en la misma línea. Cuando la de delante se aparta, se pierde la de detrás.\nAntes de mover, mira si tu rey o tu dama quedan en línea con otra pieza tuya.',
+      initiation:
+        '{hecho}\nEn la enfilada la pieza atacada vale más que la de detrás, así que tiene que apartarse y deja la otra sin protección.\nCasillas implicadas: {casillas}.\nAntes de mover, mira las filas, columnas y diagonales donde tu rey o tu dama tengan otra pieza detrás.',
+      basic:
+        '{hecho}\nLa enfilada es una clavada al revés: delante está la pieza más valiosa, que debe moverse.\nCasillas implicadas: {casillas}; piezas: {piezas}.\nSe pierde material equivalente a {perdida}.\nPrevención: no dejes rey y torre, o dama y torre, en la misma línea frente a un alfil, torre o dama rival.',
+      intermediate:
+        '{hecho}\nLa jugada {refutacion} ataca la pieza de delante en la línea de {casillas} ({piezas}); al apartarse, la de detrás queda expuesta. Pérdida: {perdida}.\nRevisa las líneas abiertas hacia tu rey y tu dama, sobre todo en finales, donde el rey se acerca al centro.',
+      advanced:
+        '{hecho}\nTras {jugada}, la enfilada {refutacion} gana la pieza situada detrás en {casillas}. Material perdido: {perdida}.\nLa defensa típica es no alinear piezas o mantener protegida la de detrás; si la de delante es el rey, el jaque elimina cualquier otra respuesta.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Alineación explotada en {casillas}: {piezas}. Material en juego: {perdida}.\nIncluye en el cálculo los jaques en líneas largas: en finales con torres y alfiles la enfilada decide muchas posiciones aparentemente igualadas.',
+    },
+    exerciseIds: ['ex.skewer.01', 'ex.skewer.02', 'ex.skewer.03', 'ex.skewer.04'],
+    evaluationCriteria: [
+      'Identifica las dos piezas alineadas y cuál vale más.',
+      'Encuentra la casilla desde la que se ataca la pieza de delante, preferiblemente con jaque.',
+      'Comprueba que la pieza de detrás queda sin protección tras apartarse la de delante.',
+    ],
+  },
+  {
+    id: 'tactics.deflection',
+    category: 'Táctica',
+    name: 'Desviación',
+    definition:
+      'La desviación obliga a una pieza defensora a abandonar la casilla, la línea o la pieza que protege, normalmente con una captura que debe recapturar o con un jaque; una pieza que defiende dos cosas a la vez está sobrecargada.',
+    recommendedLevel: 'intermediate',
+    learningObjectives: [
+      'Averiguar qué defiende cada pieza rival y detectar las que defienden dos cosas a la vez.',
+      'Forzar al defensor a moverse con una captura o un jaque.',
+      'Comprobar qué queda sin defensa cuando el defensor se mueve.',
+    ],
+    detection:
+      'El rival obliga con una captura o un jaque a una pieza del alumno a abandonar su función defensiva (una casilla de mate, una fila o una pieza) y después gana material o da mate; el motor confirma la pérdida.',
+    explanations: {
+      beginner:
+        '{hecho}\nUna pieza que defiende algo no puede moverse sin dejarlo sin defensa. El rival la obligó a moverse.\nAntes de capturar o mover una pieza que defiende, piensa qué deja de proteger.',
+      initiation:
+        '{hecho}\nTu pieza defendía dos cosas a la vez y el rival la obligó a elegir.\nCasillas implicadas: {casillas}.\nCuando una pieza tuya tiene dos tareas, busca otra pieza que ayude con una de ellas.',
+      basic:
+        '{hecho}\nDesviación: una captura o un jaque obligan a tu defensor a irse, y lo que defendía queda expuesto.\nPiezas implicadas: {piezas}; casillas: {casillas}.\nSe pierde material equivalente a {perdida}.\nRevisa qué defiende cada una de tus piezas antes de mover.',
+      intermediate:
+        '{hecho}\nLa jugada {refutacion} desvía a tu defensor ({piezas}) de su tarea en {casillas}. Pérdida: {perdida}.\nUna pieza sobrecargada es un blanco: reparte las defensas entre varias piezas, sobre todo la de la última fila.',
+      advanced:
+        '{hecho}\nTras {jugada}, {refutacion} explota a un defensor sobrecargado; la casilla o pieza que protegía queda sin cobertura. Material perdido: {perdida}.\nAl evaluar una posición, haz la lista de funciones de cada pieza defensiva: una pieza con dos funciones críticas es un punto de ruptura.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Defensor desviado en {casillas}: {piezas}. Material en juego: {perdida}.\nLas desviaciones suelen preceder al golpe final: calcula qué defensas desaparecen tras cada captura forzada del rival.',
+    },
+    exerciseIds: ['ex.deflection.01', 'ex.deflection.02', 'ex.deflection.03', 'ex.deflection.04'],
+    evaluationCriteria: [
+      'Identifica la pieza rival que defiende dos cosas a la vez.',
+      'Encuentra la captura o el jaque que la obliga a moverse.',
+      'Comprueba qué gana (material o mate) cuando el defensor se aparta.',
+    ],
+  },
+  {
+    id: 'tactics.remove_defender',
+    category: 'Táctica',
+    name: 'Eliminar al defensor',
+    definition:
+      'Eliminar al defensor consiste en capturar (o cambiar) la pieza que protege a otra pieza o a una casilla clave, de modo que lo que protegía queda sin defensa.',
+    recommendedLevel: 'intermediate',
+    learningObjectives: [
+      'Contar los defensores de cada pieza atacada y localizar las que solo tienen uno.',
+      'Capturar al único defensor para ganar la pieza que protegía o la casilla del mate.',
+      'Comprobar que el rival no puede recapturar y salvar la pieza a la vez.',
+    ],
+    detection:
+      'El rival captura la única pieza del alumno que defendía otra pieza atacada o una casilla de mate, y después gana esa pieza o da mate; el motor confirma la pérdida.',
+    explanations: {
+      beginner:
+        '{hecho}\nEl rival capturó la pieza que protegía a otra tuya; la otra se quedó sin protección.\nSi una pieza tuya solo tiene un defensor, piensa qué pasa si el rival lo captura.',
+      initiation:
+        '{hecho}\nLa pieza que defendía a {pieza} desapareció y {pieza} quedó sin defensa.\nCasillas implicadas: {casillas}.\nCuenta cuántas piezas defienden a cada una de las tuyas: con un solo defensor, es fácil quitárselo.',
+      basic:
+        '{hecho}\nEliminar al defensor: el rival captura a tu defensor y luego la pieza que este protegía.\nPiezas implicadas: {piezas}; casillas: {casillas}.\nSe pierde material equivalente a {perdida}.\nAñade un segundo defensor a las piezas atacadas o apártalas antes de que capturen al primero.',
+      intermediate:
+        '{hecho}\nCon {refutacion} el rival elimina al defensor de {casillas} ({piezas}). Pérdida: {perdida}.\nNo basta con tener una defensa: comprueba si el defensor puede ser capturado o cambiado con ganancia de tiempo.',
+      advanced:
+        '{hecho}\nTras {jugada}, {refutacion} captura al defensor y deja sin cobertura {casillas}. Material perdido: {perdida}.\nLas defensas de una sola pieza son frágiles: busca defensas redundantes en las casillas críticas (rey, piezas atacadas).',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Defensor eliminado en {casillas}: {piezas}. Material en juego: {perdida}.\nEn el cálculo, trata los cambios del rival sobre tus defensores como jugadas forzantes: suelen ser el primer paso de una combinación.',
+    },
+    exerciseIds: ['ex.removedef.01', 'ex.removedef.02', 'ex.removedef.03', 'ex.removedef.04'],
+    evaluationCriteria: [
+      'Identifica la pieza que solo tiene un defensor.',
+      'Captura al defensor con la pieza adecuada.',
+      'Comprueba que el rival no puede recuperar el material y salvar la pieza a la vez.',
+    ],
+  },
 ];

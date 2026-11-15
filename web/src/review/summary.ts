@@ -8,6 +8,9 @@ const CONCEPT_PHRASE: Record<string, { title: string; short: string }> = {
   'tactics.pin': { title: 'Clavadas', short: 'clavadas' },
   'tactics.mate_threat': { title: 'Mates y amenazas de mate', short: 'mates y amenazas de mate' },
   'tactics.discovered_attack': { title: 'Ataques que se destapan', short: 'ataques que se destapan' },
+  'tactics.skewer': { title: 'Enfiladas', short: 'enfiladas' },
+  'tactics.deflection': { title: 'Defensores desviados', short: 'defensores desviados' },
+  'tactics.remove_defender': { title: 'Defensores eliminados', short: 'defensores eliminados' },
 };
 
 export const conceptTitle = (id: string): string => CONCEPT_PHRASE[id]?.title ?? 'Errores tácticos';

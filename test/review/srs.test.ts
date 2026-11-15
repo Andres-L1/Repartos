@@ -21,9 +21,12 @@ describe('cajas', () => {
 describe('temas y dificultad', () => {
   it('themeForConcept / conceptForThemes', () => {
     expect(themeForConcept('tactics.bad_exchange')).toBeNull();
-    expect(['hanging_piece', 'fork', 'pin', 'discovered_attack', 'mate_threat'].map((c) => themeForConcept(`tactics.${c}`))).toEqual([
-      'hangingPiece', 'fork', 'pin', 'discoveredAttack', 'mate',
-    ]);
+    expect(
+      ['hanging_piece', 'fork', 'pin', 'discovered_attack', 'mate_threat', 'skewer', 'deflection', 'remove_defender'].map((c) =>
+        themeForConcept(`tactics.${c}`),
+      ),
+    ).toEqual(['hangingPiece', 'fork', 'pin', 'discoveredAttack', 'mate', 'skewer', 'deflection', 'capturingDefender']);
+    expect(conceptForThemes(['endgame', 'capturingDefender'])).toBe('tactics.remove_defender');
     expect(conceptForThemes(['middlegame', 'fork'])).toBe('tactics.fork');
     expect(conceptForThemes(['middlegame'])).toBeNull();
   });

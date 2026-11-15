@@ -25,6 +25,10 @@ const THEME_BY_CONCEPT: Record<string, string> = {
   'tactics.pin': 'pin',
   'tactics.discovered_attack': 'discoveredAttack',
   'tactics.mate_threat': 'mate',
+  // Fase 4: nombres comprobados contra /api/puzzle/batch/{tema} el 2026-11-14 (200 y puzles con ese tema).
+  'tactics.skewer': 'skewer',
+  'tactics.deflection': 'deflection',
+  'tactics.remove_defender': 'capturingDefender',
 };
 
 export function themeForConcept(conceptId: string): string | null {

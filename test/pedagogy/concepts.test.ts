@@ -18,7 +18,7 @@ const KNOWN_PLACEHOLDERS = new Set([
 ]);
 
 describe('biblioteca de conceptos', () => {
-  it('tiene exactamente los 6 ids esperados', () => {
+  it('tiene exactamente los ids esperados (6 iniciales y los de Fase 4)', () => {
     expect(CONCEPTS.map((c) => c.id).sort()).toEqual(
       [
         'tactics.bad_exchange',
@@ -27,6 +27,9 @@ describe('biblioteca de conceptos', () => {
         'tactics.hanging_piece',
         'tactics.mate_threat',
         'tactics.pin',
+        'tactics.skewer',
+        'tactics.deflection',
+        'tactics.remove_defender',
       ].sort(),
     );
   });

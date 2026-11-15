@@ -14,6 +14,9 @@ const RULES: Record<string, string> = {
   'tactics.pin': 'Antes de mover, mira si alguna pieza tuya tapa a tu rey o a tu dama.',
   'tactics.mate_threat': 'Antes de mover, mira qué jaques puede darte el rival y cuáles puedes dar tú.',
   'tactics.discovered_attack': 'Antes de mover, mira qué piezas rivales tapan líneas hacia tu rey o tu dama.',
+  'tactics.skewer': 'Antes de mover, mira si tu rey o tu dama quedan en línea con otra pieza tuya detrás.',
+  'tactics.deflection': 'Antes de capturar o mover un defensor, mira qué deja de proteger.',
+  'tactics.remove_defender': 'Antes de mover, mira qué piezas tuyas tienen un solo defensor.',
 };
 
 const FALLBACK_RULE = 'Antes de mover, mira qué puede hacer tu rival después.';
@@ -30,6 +33,9 @@ const WHY: Record<string, string> = {
   'tactics.pin': 'Una pieza que no se puede mover no puede escapar cuando la atacan.',
   'tactics.mate_threat': 'El jaque mate decide la partida: vale más que cualquier pieza.',
   'tactics.discovered_attack': 'Salen dos amenazas a la vez y solo puedes parar una.',
+  'tactics.skewer': 'La pieza de delante tiene que apartarse y la de detrás se pierde.',
+  'tactics.deflection': 'Una pieza no puede defender dos cosas a la vez: si se mueve, deja una sin protección.',
+  'tactics.remove_defender': 'Sin su único defensor, la pieza que protegía queda a merced del rival.',
 };
 
 const FALLBACK_WHY = 'Esta jugada le dio ventaja a tu rival.';

@@ -29,7 +29,7 @@ describe('contenido C: unidades 7-9 (básico, pendiente de validación de profes
   it('están en el temario y el nivel Básico deja de estar «en preparación»', () => {
     for (const u of UNITS_C) expect(UNITS).toContain(u);
     expect(levelPlan('basic', { units: UNITS })).toMatchObject({ recommendedUnitId: 'u07', comingSoon: false });
-    expect(levelPlan('intermediate', { units: UNITS }).comingSoon).toBe(true);
+    expect(levelPlan('basic', { units: UNITS }).openUnitIds).not.toContain('u07');
   });
 
   it('sin emojis en los textos', () => {
