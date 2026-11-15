@@ -20,7 +20,6 @@ import type {
 } from '../../src/shared/api';
 import type { Level } from '../../src/types';
 import type { Lesson } from '../../src/content/schema';
-import { mockFetch } from './dev/mock';
 
 export class ApiError extends Error {
   constructor(
@@ -58,7 +57,7 @@ async function request<T>(method: string, path: string, body?: unknown, opts: { 
   };
   let res: Response;
   try {
-    res = USE_MOCK ? await mockFetch(path, init) : await fetch(path, init);
+    res = USE_MOCK ? await (await import('./dev/mock')).mockFetch(path, init) : await fetch(path, init); // el simulador no pesa en el paquete inicial
   } catch {
     throw new ApiError(0, 'No hay conexión con el servidor. Inténtalo de nuevo.');
   }

@@ -1,24 +1,26 @@
-import { useEffect, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { USE_MOCK } from './api';
 import { isPrivatePath, navigate, usePath } from './router';
 import { Link } from './components/Link';
 import { useSession } from './session';
 import { Landing, DemoScreen, SiteFooter } from './screens/Landing';
-import { PrivacyScreen } from './screens/Privacy';
 import { AuthScreen, LichessLogin } from './screens/Auth';
-import { MapScreen } from './screens/MapScreen';
-import { LessonScreen } from './screens/LessonScreen';
-import { ProfileScreen } from './screens/ProfileScreen';
-import { BillingScreen } from './screens/BillingScreen';
-import { ReviewScreen } from './screens/ReviewScreen';
-import { LevelScreen } from './screens/LevelScreen';
-import { ShopScreen } from './screens/ShopScreen';
-import { SessionScreen } from './screens/SessionScreen';
-import { CreditsScreen } from './screens/CreditsScreen';
 import { Coin } from './components/ShopVisuals';
 import { chedexText } from './shop';
 import { Icon, Loading, type IconName } from './components/Icon';
 import { SoundToggle } from './components/SoundToggle';
+
+// Pantallas con carga diferida: el paquete inicial solo lleva portada, acceso y marco; cada pantalla se descarga al visitarla.
+const PrivacyScreen = lazy(() => import('./screens/Privacy').then((m) => ({ default: m.PrivacyScreen })));
+const MapScreen = lazy(() => import('./screens/MapScreen').then((m) => ({ default: m.MapScreen })));
+const LessonScreen = lazy(() => import('./screens/LessonScreen').then((m) => ({ default: m.LessonScreen })));
+const ProfileScreen = lazy(() => import('./screens/ProfileScreen').then((m) => ({ default: m.ProfileScreen })));
+const BillingScreen = lazy(() => import('./screens/BillingScreen').then((m) => ({ default: m.BillingScreen })));
+const ReviewScreen = lazy(() => import('./screens/ReviewScreen').then((m) => ({ default: m.ReviewScreen })));
+const LevelScreen = lazy(() => import('./screens/LevelScreen').then((m) => ({ default: m.LevelScreen })));
+const ShopScreen = lazy(() => import('./screens/ShopScreen').then((m) => ({ default: m.ShopScreen })));
+const SessionScreen = lazy(() => import('./screens/SessionScreen').then((m) => ({ default: m.SessionScreen })));
+const CreditsScreen = lazy(() => import('./screens/CreditsScreen').then((m) => ({ default: m.CreditsScreen })));
 
 export function App() {
   const path = usePath();
@@ -135,7 +137,7 @@ export function App() {
           <div className="shell-body">
             {mock}
             <main id="main" tabIndex={-1} className="main main-shell">
-              {screen}
+              <Suspense fallback={<Loading label="Cargando…" />}>{screen}</Suspense>
             </main>
           </div>
         </div>
@@ -166,7 +168,7 @@ export function App() {
       </header>
       {mock}
       <main id="main" tabIndex={-1} className={onLanding ? 'main main-landing' : 'main'}>
-        {screen}
+        <Suspense fallback={<Loading label="Cargando…" />}>{screen}</Suspense>
       </main>
       <SiteFooter />
     </>
