@@ -40,7 +40,7 @@ Chrome real en modo headless controlado por CDP (script propio fuera del repo; e
 | T1 | Tablero táctil | Importante (sin confirmar) | `touch-action` está en `manipulation` (motion.css pisa al `none` de styles.css). Con la emulación táctil de CDP el navegador cancela el gesto (`pointercancel`) y el arrastre no se completa; con `none` tampoco, porque `touchstart` llega no cancelable y chessground ignora esos eventos. No es concluyente: en dedo real `touchstart` sí es cancelable | No arreglado: no se puede reproducir sin dedo real. Propuesta: probar en un Android/iPhone y, si el arrastre vertical desplaza la página, poner `touch-action: none` en `.board-touch cg-board piece` (solo sobre las piezas, el resto del tablero sigue permitiendo desplazar) | — |
 | T2 | Teclado | Menor | Tras cancelar la promoción el foco se pierde (el diálogo desaparece) | No arreglado: el tablero no es focalizable por teclado; se ofrece la jugada escrita como alternativa | — |
 | A1 | Administración | Menor | La UI no contiene lógica de administrador: depende de lo que devuelve el servidor (`ownedIds`, `levelEffect`, `hasAccess`). El protector (consumable) no se regala al administrador: ve «Faltan N días» en esa tarjeta. Administración sin nivel elegido pasa por `/bienvenida` | No arreglado (decisión de producto / worker). Sin comprobar con mock de administrador (el mock no distingue cuentas) | — |
-| X1 | Rendimiento | Menor | La portada espera a `/api/me` antes de pintar (un viaje de red antes del LCP) | No arreglado: pintar la portada a ciegas obliga a decidir qué barra mostrar y puede dar parpadeo. Propuesta: mostrar la portada de invitado de inmediato y cambiar la barra al llegar la sesión | — |
+| X1 | Rendimiento | Menor | La portada espera a `/api/me` antes de pintar (un viaje de red antes del LCP) | Arreglado (ver «Arreglo de X1»): la portada pinta de inmediato; la sesión solo decide los botones | — |
 
 
 ## Métricas antes y después (Chrome headless, 1280x800, build de producción local sin compresión)
@@ -75,3 +75,20 @@ Chrome real en modo headless controlado por CDP (script propio fuera del repo; e
 - Flujos con 429, 500 y corte de red en mitad de lección: revisados leyendo el código y la pantalla de conexión comprobada; el mock no simula errores.
 - Análisis completo de una partida de Lichess real desde `/partidas` (sin acceso a la red de Lichess); sí con el motor y una partida de 20 jugadas.
 - Cuenta de administración con un mock de administrador.
+
+## Arreglo de X1 (2026-11-15): la portada ya no espera a `/api/me`
+
+Cambio: `App.tsx` solo muestra «Cargando…» durante la comprobación en las rutas que no son la portada; en «/» pinta `Landing` y el pie al instante. El botón principal (hero y cierre) es `PrimaryCta`: mientras `loading` ocupa su sitio con un hueco sin etiqueta (`.cta-pending`, misma altura que el botón real, `role="status"` con «Comprobando tu sesión») y después pasa a «Entrar con Lichess» o «Ir a mi ruta de aprendizaje». La cabecera ya no mostraba botones durante la carga y su `min-height` fija los 64 px. Comportamiento con sesión sin cambios (comprobado en el código): `/` no redirige, enseña la portada con «Ir a Aprender» y «Ir a mi ruta de aprendizaje»; las rutas privadas sin sesión siguen llevando a `/entrar` y con fallo de red muestran «No se pudo conectar» con «Reintentar» (comprobado: con `/api/me` en 503 aparece, y al reintentar con 401 lleva a `/entrar`).
+
+Medición: Chrome headless por CDP (script fuera del repo), Vite en desarrollo detrás de un proxy que responde `/api/me` con 400 ms de retraso (sin sesión o con sesión), 375x667, 3-4 cargas por caso. «Hero pintado» = `h1#hero-title` en el DOM más un `requestAnimationFrame`.
+
+| Métrica | Antes | Después |
+|---|---|---|
+| Hero pintado (375x667) | 525 a 578 ms | 136 a 181 ms |
+| CLS (375x667, sin sesión) | 0 a 0,042 (2 de 3 cargas con salto al llegar `/api/me`) | 0 en 4 de 4 |
+| CLS (375x667, con sesión) | 0 a 0,042 | 0 |
+| CLS (1280x800, sin sesión) | 0,0225 | 0 |
+| CLS (320x640, con sesión) | no medido | 0,0001 |
+| LCP según Chrome | 580 a 650 ms (el botón principal) | 590 a 660 ms: **sin mejora** |
+
+El LCP no mejora y se dice tal cual: Chrome no cuenta como candidatos los textos de la portada porque entran con la animación `hero-in` desde `opacity: 0`, así que el último candidato sigue siendo el botón principal, que depende de la sesión. El contenido sí es visible 400 ms antes. No se tocó la animación (bajarla de 0 a 0,01 de opacidad sería cumplir la métrica sin pintar nada visible). Propuesta si se quiere mover el LCP: que el `h1` no parta de opacidad 0.

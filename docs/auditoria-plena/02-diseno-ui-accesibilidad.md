@@ -43,8 +43,8 @@ Nota sobre el id 10: su commit es el que cierra esta tanda (`Cabecera pública s
 
 ## Lo que no se arregló y por qué
 
-- **Lección a 320x640 con la parte de arriba del tablero oculta bajo la cabecera fija al pulsar «Siguiente»** (Menor): la pila título + etapas (220 px) + tablero (288 px) + texto + botón no cabe en 509 px útiles. Propuesta: botón de acción fijo sobre la barra inferior, como ya hace «Ver mi informe» en la lista de partidas. No se hizo porque cambia el flujo de todos los pasos de la lección y necesita probarse con el dedo.
-- **Nombre de usuario recortado con puntos suspensivos en la cabecera móvil** (Menor, `.whoami-name`, máximo 6,5 rem): el nombre completo no se lee en pantallas estrechas. Propuesta: `title` y ancho mayor; no se tocó porque el avatar y el balance compiten por el mismo espacio.
+- ~~Lección a 320x640 con la parte de arriba del tablero oculta bajo la cabecera fija al pulsar «Siguiente»~~ **Arreglado** (ver «Arreglos posteriores»).
+- ~~Nombre de usuario recortado con puntos suspensivos en la cabecera móvil~~ **Arreglado** (ver «Arreglos posteriores»).
 - **Coordenadas del tablero dentro de las casillas** (Menor): se montan sobre piezas de la columna h y la fila 1 en tableros de menos de 260 px. Es el estilo habitual de Lichess; propuesta: ocultarlas bajo 260 px.
 - **Etiqueta de movimiento del visor** (Menor): los botones de jugada leen solo «Nc3», sin número ni color. Propuesta: `aria-label` con «jugada 2, blancas, Nc3».
 - La barra «Modo simulado» de `?mock=1` no es de producción.
@@ -66,3 +66,18 @@ Nota sobre el id 10: su commit es el que cierra esta tanda (`Cabecera pública s
 - **prefers-reduced-motion**: se leyeron las reglas (motion.css es de otro agente) pero no se forzó el modo.
 - **prefers-color-scheme**: no aplica, la app es siempre oscura (un test existente impide añadirlo).
 - El estado de una partida con errores graves se vio en 667x375 y 320x640, pero el resto de pasos de la mini lección (pausa, mejor jugada) solo se midió en el paso 1.
+
+## Arreglos posteriores (2026-11-15): tablero bajo la cabecera y nombre de usuario
+
+**Tablero tapado tras «Siguiente»** (Menor). Causa medida, no supuesta: `autoFocus` de React llama a `focus()` sin `preventScroll`, así que el navegador desplazaba la página hasta el botón (debajo del tablero) y la parte alta del tablero quedaba bajo la cabecera fija; además la página conservaba el desplazamiento entre pasos y no había `scroll-padding` que descontara la cabecera ni la barra inferior. Arreglo estructural: (1) `web/src/headerHeight.ts` publica la altura real de la cabecera en `--header-h` (solo si es fija y a todo el ancho; 0 si es estática o la barra lateral de escritorio; se actualiza con `ResizeObserver` y las mismas media queries de `styles.css`); (2) `html { scroll-padding-top: var(--header-h); scroll-padding-bottom: var(--bottom-nav) }` y `.lesson-body { scroll-margin-top }`; (3) los botones con `autoFocus` de `LessonPlayer` pasan a foco con `preventScroll`; (4) tras cambiar de paso, si el inicio del paso no está entre la cabecera y la barra inferior se hace `scrollIntoView({ block: 'start' })`, y si ya lo está no se mueve nada. `.rl-panel` del repaso usaba un 60 px fijo y ahora usa `--header-h`.
+
+Medición (navegador integrado, `?mock=1`, u10.l01 completa: explicación, práctica, evaluación y resultado; borde superior del tablero frente a cabecera y barra inferior):
+
+| Viewport | Antes | Después |
+|---|---|---|
+| 320x640 | Al empezar la explicación: página desplazada 464 px, tablero en y = -189 (entero bajo la cabecera de 67 px); en la práctica 1: y = -38 | Tablero entre 146 y 434 en todos los pasos (9 de 9), cabecera 67 px, barra inferior en 576; 0 pasos tapados |
+| 360x640, 375x667 | no medido antes | 9 de 9 sin tapar (tablero mínimo en y = 146; barra inferior en 576 y 603) |
+| 667x375 | cabecera estática | 9 de 9 con el borde superior del tablero en y = 12; el tablero (560 px) es más alto que los 323 px visibles: se ve su parte alta y se baja con el dedo |
+| 1280x800 | n/a | tablero 186 a 763, sin tapar |
+
+**Nombre de usuario** (Menor). Antes: por debajo de 480 px el nombre estaba oculto del todo (solo lectores de pantalla) y de 480 a 899 px tenía un tope fijo de 6,5 rem. Ahora el nombre ocupa el hueco libre entre el logo y el saldo (`.side-user` pasa a `display: contents` en móvil, `.whoami` con `flex: 1 1 0` y mínimo de 4 rem), el logo basta por debajo de 480 px (el enlace conserva su `aria-label`) y el `title` lleva el nombre completo. Si no cabe se abrevia con puntos suspensivos; el nombre completo se lee en el `title`, en el lector de pantalla y en el `h1` de Perfil. Medido con un nombre de 20 caracteres (162 px de texto): 320 px, 76 px visibles (unos 8 caracteres, abreviado); 375 px, 131 px (unos 16); 600 px, completo. Sin solapes con el saldo ni «Salir», sin desbordes de página, cabecera de 67 px en todos. **Límite:** a 320 px no caben 20 caracteres junto al saldo, el sonido y «Salir»; se abrevia a propósito.
