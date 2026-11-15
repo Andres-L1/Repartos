@@ -84,7 +84,8 @@ export function GameViewer({ analysis, startIndex = 0, closeLabel = 'Volver a la
   });
 
   return (
-    <section className="gv t-card" aria-label="Visor de la partida">
+    <section className="gv t-card" aria-labelledby="gv-title">
+      <h1 id="gv-title" className="sr-only">Visor de la partida</h1>
       <div className="gv-top">
         <button type="button" className="t-btn t-btn-secondary t-btn-sm" onClick={onClose}>
           <Icon name="back" size={20} />
