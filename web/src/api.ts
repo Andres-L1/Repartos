@@ -38,15 +38,26 @@ export function setApiHandlers(h: { unauthorized: Listener; payment: (lessonId?:
   onPaymentRequired = h.payment;
 }
 
-export const USE_MOCK = new URLSearchParams(window.location.search).has('mock') ||
-  sessionStorage.getItem('chedex-mock') === '1';
-if (USE_MOCK) {
-  try {
-    sessionStorage.setItem('chedex-mock', '1');
-  } catch {
-    /* sin almacenamiento */
-  }
-}
+/** Almacenamiento de sesión que puede estar bloqueado (modo privado, cookies desactivadas): sin él, simplemente no recuerda. */
+const mockFlag = {
+  read: (): boolean => {
+    try {
+      return sessionStorage.getItem('chedex-mock') === '1';
+    } catch {
+      return false; // almacenamiento bloqueado: el modo simulado solo vale por ?mock de la URL actual
+    }
+  },
+  write: (): void => {
+    try {
+      sessionStorage.setItem('chedex-mock', '1');
+    } catch {
+      /* sin almacenamiento */
+    }
+  },
+};
+
+export const USE_MOCK = new URLSearchParams(window.location.search).has('mock') || mockFlag.read();
+if (USE_MOCK) mockFlag.write();
 
 async function request<T>(method: string, path: string, body?: unknown, opts: { silent401?: boolean } = {}): Promise<T> {
   const init: RequestInit = {
