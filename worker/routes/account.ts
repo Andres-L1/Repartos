@@ -1,0 +1,60 @@
+/** Auth con Lichess, configuración, temario público, /api/me, borrado de cuenta y perfil. */
+import type { Hono } from 'hono';
+import type { AppContext } from '../context.js';
+import { HttpError, type Env } from '../http.js';
+import { clearedCookies, handleCallback, handleLogin, handleLogout } from '../auth.js';
+import { equippedFor } from '../shop.js';
+
+export function registerAccountRoutes(app: Hono<Env>, k: AppContext): void {
+  const { db, content, billingMode, auth, requireAuth, subscriptionFor, chosenLevel, profileFor, deps } = k;
+  // ---------- auth (solo Lichess) ----------
+  app.get('/auth/login', (c) => handleLogin(c, auth));
+  app.get('/auth/callback', (c) => handleCallback(c, auth));
+  app.post('/auth/logout', (c) => handleLogout(c, auth));
+
+  app.get('/api/config', (c) => c.json({ billingMode }));
+
+  // Temario público: solo ids, títulos, orden, descripción y nivel. Nunca el contenido de las lecciones.
+  app.get('/api/outline', (c) =>
+    c.json({
+      units: [...content.units]
+        .sort((a, b) => a.order - b.order)
+        .map((u) => ({
+          id: u.id,
+          order: u.order,
+          title: u.title,
+          description: u.description,
+          level: u.level,
+          lessons: u.lessons.map((l) => ({ id: l.id, title: l.title })),
+        })),
+    }),
+  );
+
+  app.get('/api/me', requireAuth, async (c) => {
+    const user = c.get('user');
+    const chosen = await chosenLevel(user.id);
+    return c.json({
+      user,
+      subscription: await subscriptionFor(user.id),
+      billingMode,
+      equipped: await equippedFor(db, user.id),
+      level: chosen ?? 'initiation',
+      levelChosen: chosen !== null,
+    });
+  });
+
+  // ---------- borrado de la cuenta ----------
+  // Borra al usuario y, por ON DELETE CASCADE, todo lo suyo (progreso, tienda, repasos, nivel...). Exige Origin propio.
+  app.delete('/api/account', requireAuth, async (c) => {
+    const origin = c.req.header('origin');
+    if (!origin || (origin !== deps.publicOrigin && origin !== deps.devOrigin)) throw new HttpError(403, 'Origen no permitido');
+    await db.run('DELETE FROM cp_users WHERE id = ?', [c.get('user').id]);
+    const res = c.json({ ok: true });
+    for (const ck of clearedCookies(deps.publicOrigin!)) res.headers.append('Set-Cookie', ck);
+    return res;
+  });
+
+  // ---------- perfil ----------
+  app.get('/api/profile', requireAuth, async (c) => c.json({ profile: await profileFor(c.get('user').id) }));
+
+}
