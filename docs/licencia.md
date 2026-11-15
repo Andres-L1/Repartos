@@ -29,3 +29,7 @@ El repositorio está como **MIT**, pero la web incluye librerías **GPL-3.0-or-l
 
 ## Alternativa
 Sustituir `chessground` y `chessops` por código propio (un tablero y un motor de reglas). Permitiría mantener MIT, pero es un trabajo grande, con riesgo de errores en las reglas del ajedrez, y no resuelve Stockfish ni las piezas GPL del entrenador. No lo recomiendo.
+
+## Excepción: ilustraciones de la tienda
+
+Los diez juegos de piezas ilustrados (`web/public/pieces/{catedral,neon,olimpo,plano,pixel,samurai,egipto,vikingo,sombras,cosmos}/`) son imágenes generadas con IA por el equipo y quedan fuera de la GPL: © Chedex, todos los derechos reservados (decisión del usuario, 2026-11-15). Es una decisión de licencia, no asesoría legal; la autoría de obras generadas con IA puede ser discutible según el país.

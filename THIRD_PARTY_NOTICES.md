@@ -24,4 +24,5 @@ iconos y la ficha de Chedex son creación propia y se publican con el resto del 
 
 Los diez juegos ilustrados (`web/public/pieces/{catedral,neon,olimpo,plano,pixel,samurai,egipto,vikingo,sombras,cosmos}/`)
 son material propio: ilustraciones generadas con IA por el equipo y recortadas con `scripts/cut-pieces.py`.
-Se publican bajo la misma licencia.
+**No están bajo la GPL**: son © Chedex, todos los derechos reservados (ver `web/public/pieces/LICENCIA-ILUSTRADOS.md`).
+El código que las carga sí es GPL-3.0-or-later; las imágenes son datos y no forman parte del programa.

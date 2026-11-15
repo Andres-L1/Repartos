@@ -46,4 +46,4 @@ Pasos en [docs/phase2-design.md](docs/phase2-design.md). Resumen: secreto `SESSI
 
 ## Licencia
 
-El código es software libre bajo la **GNU GPL 3.0 o posterior** (ver [LICENSE](LICENSE) y [NOTICE.md](NOTICE.md)). Las lecciones y ejercicios de `src/content/` son © Chedex, todos los derechos reservados (ver [src/content/README.md](src/content/README.md)). Atribuciones de terceros en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+El código es software libre bajo la **GNU GPL 3.0 o posterior** (ver [LICENSE](LICENSE) y [NOTICE.md](NOTICE.md)). Las lecciones y ejercicios de `src/content/` son © Chedex, todos los derechos reservados (ver [src/content/README.md](src/content/README.md)). Los diez juegos de piezas ilustrados de la tienda (`web/public/pieces/`, salvo `contorno`, `geo` y `cburnett`) son © Chedex, todos los derechos reservados, y no están bajo la GPL (ver [web/public/pieces/LICENCIA-ILUSTRADOS.md](web/public/pieces/LICENCIA-ILUSTRADOS.md)). Atribuciones de terceros en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
