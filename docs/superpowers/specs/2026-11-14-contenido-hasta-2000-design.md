@@ -72,3 +72,14 @@ Planificado, no hecho:
 1. (Resuelta 2026-11-15: sí a conceptos nuevos.) Competitivo: ¿se publica u12 con la propuesta de arriba o se espera a profesores para todo el nivel?
 2. (Resuelta: Stockfish sí, como script bajo demanda; los tests de Vitest no lo ejecutan.) ¿Se integra `scripts/verify-fase4.mts` en el auditor `npm run audit:content` que prepara otro agente?
 3. Quién valida: u07-u12 necesitan revisión de profesores antes de presentarlos como validados.
+
+## Cuarta tanda (2026-11-15): finales con tablebase, u13 y u14
+
+**Pendiente de validación de profesores.** Los finales no se pueden verificar con material ni de forma fiable con motor, pero sí de forma exacta con la tablebase Syzygy de Lichess (`https://tablebase.lichess.ovh/standard?fen=`: categoría, DTZ, DTM y categoría de cada jugada). Solo se envían FEN de ejercicios, con pausa entre peticiones y reintento ante 429.
+
+- u13 «Finales de rey y peón» (`basic`, `order` 10, `requires: ['u09']`): cuadrado, oposición, casillas clave/rey delante y peón de torre. u14 «Finales de torre» (`intermediate`, `order` 12, `requires: ['u10']`): cortar al rey, jaques por detrás (Philidor) y salir del jaque hacia el peón (Lucena). 3 lecciones cada una, con 2 explicaciones, 3 prácticas y 3 evaluaciones. `order` de u10, u11 y u12 pasa a 11, 13 y 14 (los ids no cambian); los órdenes son únicos.
+- Conceptos nuevos: `endgame.king_pawn` (`pawnEndgame`) y `endgame.rook` (`rookEndgame`), con regla, porqué, nombre en el informe y 4 ejercicios de banco cada uno (con espejo de negras y `alt`).
+- Criterio de corrección (`scripts/lib/tablebase.ts`, `checkLine`): en cada jugada del alumno la posición es ganada o tablas (nunca «cursed win») y se aceptan exactamente las jugadas que conservan ese resultado (la de la línea más `alt` en la última jugada; una jugada intermedia con varias válidas no se permite, por eso los pasos de torre son de una jugada); ninguna que lo degrade. Respuestas del rival: conservan su mejor resultado y, si pierde, son de las que más resisten (DTZ o DTM). Las explicaciones declaran su resultado y las afirmaciones sueltas de los textos están en `scripts/lib/finales-claims.ts`.
+- Comandos: `npm run verify:finales` (usa la caché y pide lo que falte; `-- --refresh` repite todo y avisa de cambios; `probe "<fen>" ["<uci ...>"]` inspecciona una posición). Tests sin red con `test/fixtures/tablebase/positions.json` (95 posiciones) en `test/content/unitsE.test.ts`.
+- Depósito de puzles: +2 temas (`pawnEndgame`, `rookEndgame`) por 5 dificultades = +10 combinaciones, 75 en total (unos 10 minutos más, con una petición por minuto).
+- Límites: tablebase hasta 7 piezas y solo resultado teórico; no mide dificultad humana. Lucena y Philidor se enseñan en sus primeros pasos, no el método completo. No se ha hecho Avanzado de torre (u15): no se ha podido sostener la calidad verificada sin más iteración, y no se han hecho planes ni estrategia.
