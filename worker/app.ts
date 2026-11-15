@@ -35,6 +35,7 @@ import {
 import { completeReview, parseCompleteReview } from './review.js';
 import { answerItem, finishPlan, nextDueAt, sessionStatus, startSession, UCI_RE } from './session.js';
 import { CONCEPT_IDS, touchSchedule } from './srs.js';
+import { isAdmin } from '../src/shared/admin.js';
 import { buildShop, buyItem, effectiveStreak, equipItem, equippedFor, isUnique, protectorCount, streakAdvance, streakUpdate } from './shop.js';
 
 export interface AppDeps {
@@ -210,7 +211,7 @@ export function createApp(deps: AppDeps) {
   }
   /** Acceso a lecciones de pago: siempre en beta abierta; en 'dev', suscripción activa o cancelada dentro del periodo. */
   const hasAccess = async (userId: string) =>
-    billingMode === 'beta_open' || (await subscriptionFor(userId)).status !== 'none';
+    billingMode === 'beta_open' || isAdmin(userId) || (await subscriptionFor(userId)).status !== 'none';
 
   async function progressMap(userId: string): Promise<Map<string, ProgressRow>> {
     const rows = await db.all<{ lesson_id: string; completed: number; best_score: number }>(
@@ -304,6 +305,8 @@ export function createApp(deps: AppDeps) {
   // ---------- mapa y lecciones ----------
   /** Efecto en el mapa: solo con nivel elegido; sin elección, ninguno. */
   async function levelEffect(userId: string) {
+    // Administración: todas las unidades abiertas (como repaso, sin regalar progreso), con o sin nivel elegido.
+    if (isAdmin(userId)) return { openUnitIds: new Set(content.units.map((u) => u.id)), recommendedUnitId: null };
     const level = await chosenLevel(userId);
     if (!level) return { openUnitIds: new Set<string>(), recommendedUnitId: null };
     const plan = levelPlan(level, content);

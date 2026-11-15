@@ -3,7 +3,7 @@
  * Sin E/S ni motor: se prueban en test/audit/. Ver scripts/audit/README.md.
  */
 import { Chess, normalizeMove } from 'chessops/chess';
-import { parseFen, INITIAL_FEN } from 'chessops/fen';
+import { makeFen, parseFen, INITIAL_FEN } from 'chessops/fen';
 import { parseSan } from 'chessops/san';
 import { makeUci, parseUci } from 'chessops/util';
 import type { Move, Role } from 'chessops/types';
@@ -206,26 +206,80 @@ export function checkMateClaim(fen: string, solution: string[], claim: { n?: num
   return out;
 }
 
+/** Criterios compartidos con scripts/verify-fase4.mts: profundidad, «igual de buena» (cp) y ventaja clara (cp). */
+export const FASE4 = { depth: 18, near: 30, clear: 150 };
+
+/** Línea principal del motor en `fen` (solo entre `searchmoves`, si se dan), a la profundidad que elija quien llama. */
+export type Analyze = (fen: string, searchmoves?: string[]) => Promise<Line>;
+
+/** Medias jugadas como mucho al seguir la línea principal hasta una posición estable. */
+export const STABLE_CAP = 16;
+
+/** Captura, coronación o jaque: la posición no está estable mientras quede una de estas. */
+function isForcing(pos: Chess, m: Move): boolean {
+  if (!('from' in m)) return false;
+  const target = pos.board.get(m.to);
+  const piece = pos.board.get(m.from);
+  if (m.promotion || (target && target.color !== pos.turn) || (piece?.role === 'pawn' && m.to === pos.epSquare)) return true;
+  const q = pos.clone();
+  q.play(m);
+  return q.isCheck();
+}
+
 /**
- * Comprueba «gana material»: tras la solución y la mejor respuesta del rival (línea del motor),
- * el material del bando que mueve sube al menos un peón. Un mate también vale.
+ * Sigue la línea principal desde la solución hasta una posición estable: tras al menos la solución y la respuesta,
+ * sin jaque, con la última jugada tranquila y la siguiente también. Si la variante del motor se acaba antes,
+ * vuelve a preguntar desde donde llegó. Tope: STABLE_CAP medias jugadas.
  */
-export function checkMaterialClaim(fen: string, solLine: Line): Finding[] {
-  if (solLine.mate !== undefined && solLine.mate > 0) return [];
+export async function followToStable(fen: string, sol: string, analyze: Analyze, cap = STABLE_CAP) {
   const pos = loadPos(fen);
-  if (typeof pos === 'string') return [];
-  const me = pos.turn;
-  const before = materialBalance(pos, me);
-  const pv = solLine.pv.slice(0, 4);
-  let bestGain = 0;
-  for (let i = 0; i < pv.length; i++) {
-    const m = uciMove(pos, pv[i]!);
+  if (typeof pos === 'string') throw new Error(pos);
+  const first = await analyze(fen, [sol]);
+  const played: string[] = [];
+  let pv = first.pv;
+  let k = 0;
+  let lastForcing = true;
+  while (played.length < cap) {
+    if (k >= pv.length) {
+      if (pos.isEnd()) break;
+      pv = (await analyze(makeFen(pos.toSetup()))).pv;
+      k = 0;
+      if (!pv.length) break;
+    }
+    const m = uciMove(pos, pv[k]!);
     if (!m) break;
+    const forcing = isForcing(pos, m);
+    if (played.length >= 2 && !lastForcing && !forcing && !pos.isCheck()) break;
     pos.play(m);
-    // Se mide tras la respuesta del rival (o al final de la línea): así cuenta la recaptura.
-    if (i % 2 === 1 || i === pv.length - 1) bestGain = Math.max(bestGain, materialBalance(pos, me) - before);
+    played.push(pv[k++]!);
+    lastForcing = forcing;
   }
-  return bestGain >= 1 ? [] : [f('AFIRMACION_FALSA', `dice que gana material y tras la línea del motor (${pv.join(' ')}) el material no sube`)];
+  return { first, end: pos, played };
+}
+
+/**
+ * Comprueba «gana material» como scripts/verify-fase4.mts: un mate vale; si no, sigue la línea del motor hasta una
+ * posición estable y la afirmación es falsa solo si NI el balance material neto sube (> 0) NI la evaluación de la
+ * solución supera en al menos +1,0 al balance material de antes (la ganancia que llega más allá de la línea).
+ */
+export async function checkMaterialClaim(fen: string, sol: string, analyze: Analyze): Promise<Finding[]> {
+  const start = loadPos(fen);
+  if (typeof start === 'string') return [];
+  const { first, end, played } = await followToStable(fen, sol, analyze);
+  if (first.mate !== undefined && first.mate > 0) return [];
+  const me = start.turn;
+  const before = materialBalance(start, me);
+  const net = materialBalance(end, me) - before;
+  const evalGain = lineScore(first) / 100 - before;
+  if (net > 0 || evalGain >= 1) return [];
+  // Tablas muertas (0.00 y la línea acaba sin material para dar mate): el motor juega cualquier cosa y su línea no refuta nada.
+  if (lineScore(first) === 0 && end.isInsufficientMaterial()) return [];
+  return [
+    f(
+      'AFIRMACION_FALSA',
+      `dice que gana material y, tras la línea del motor hasta una posición estable (${played.join(' ')}), el balance cambia ${net} y la evaluación (${fmtScore(first)}) queda ${evalGain.toFixed(1)} sobre el material de antes`,
+    ),
+  ];
 }
 
 // ───────────── Lint de texto ─────────────
@@ -277,6 +331,8 @@ export interface SanToken {
   numbered: boolean;
   /** Texto que sigue al token (para «es mate», «da jaque»). */
   after: string;
+  /** Texto de la misma frase antes del token (para «Si el rey estuviera en f8, Nd7+»). */
+  before: string;
 }
 
 const ES: Record<string, string> = { C: 'N', A: 'B', T: 'R', D: 'Q' };
@@ -303,7 +359,8 @@ export function sanTokens(text: string): SanToken[] {
     prevNumbered = numbered;
     const spanish = /^[CATD]/.test(raw);
     const san = raw.replace(/^[CATD]/, (c) => ES[c]!).replace(/=([DTAC])/, (_, c: string) => '=' + ES[c]!);
-    out.push({ raw, san, spanish, numbered, after: text.slice(end, end + 40) });
+    const before = text.slice(0, m.index).split(/[.!?…]\s+/).pop()!;
+    out.push({ raw, san, spanish, numbered, after: text.slice(end, end + 40), before });
   }
   return out;
 }
@@ -356,13 +413,18 @@ function alreadyPlayed(pos: Chess, san: string): boolean {
  * todas ellas con el turno cambiado (amenazas del rival). Para no dar ilegal por error, también vale si la
  * jugada es legal tras una jugada intermedia no citada («cuando el rey se mueva, Nxa8») o si ya está hecha.
  * Un «+»/«#» se da por falso solo si no es jaque/mate en ningún contexto, ni tras hasta dos jugadas intermedias
- * («después de cualquier movimiento del rey, Rh8 es mate»).
+ * («después de cualquier movimiento del rey, Rh8 es mate»); lo mismo un «+» en frase condicional («Si el rey
+ * estuviera en f8, Nd7+»). Los ejemplos de notación («Ra5 es «torre a a5»») no se comprueban.
  */
 export function checkSanMentions(text: string, fens: string[]): Finding[] {
   const bases = [...fens, INITIAL_FEN].map(loadPos).filter((p): p is Chess => typeof p !== 'string');
   const out: Finding[] = [];
   let history: Chess[] = [];
   for (const t of sanTokens(text)) {
+    // Ejemplo de notación («Ra5 es «torre a a5»»): no es una jugada sobre el tablero.
+    if (/^\s*(es|significa|se lee|quiere decir)\s*:?\s*[«"“]/i.test(t.after)) continue;
+    // Jaque condicional («Si el rey estuviera en f8, Nd7+», «después de Rf8+ Kxf8, Nd7+»): se busca más hondo, como un mate.
+    const conditional = /\b(si|cuando|después de|tras)\b/i.test(t.before);
     const ctx = [...history, ...bases];
     const all = [...ctx, ...ctx.map(withTurnFlipped)];
     const claimsMate = t.raw.endsWith('#') || /^\s*(es|da)\s+(jaque\s+)?mate\b/i.test(t.after);
@@ -383,7 +445,7 @@ export function checkSanMentions(text: string, fens: string[]): Finding[] {
       }
     }
     // Un mate rara vez sale por azar tras dos jugadas; un jaque sí, por eso solo los mates se buscan más hondo.
-    const chosen = results.find(ok) ?? (claimsMate ? deeper(2, ok) : undefined);
+    const chosen = results.find(ok) ?? (claimsMate || (claimsCheck && conditional) ? deeper(2, ok) : undefined);
     // Se guardan todas las lecturas posibles: el texto puede seguir desde cualquiera.
     history = [...(chosen ? [chosen] : []), ...results, ...history].slice(0, 40);
     if (!chosen) out.push(claimsMate ? f('SAN_MATE_FALSO', `el texto da «${t.raw}» como mate y no lo es`) : f('SAN_JAQUE_FALSO', `el texto da «${t.raw}» como jaque y no lo es`));
