@@ -12,6 +12,8 @@ import { moveSoundOf, playSound, primeSounds } from '../sound';
 import { useSession } from '../session';
 import { appearanceClass } from '../shop';
 
+const prefersReducedMotion = (): boolean => !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
 export function marksToShapes(mark: BoardMark | undefined): DrawShape[] {
   const shapes: DrawShape[] = [];
   for (const s of mark?.squares ?? []) shapes.push({ orig: s as Key, brush: 'green' });
@@ -101,7 +103,8 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
       events: { select: (k) => onSelectRef.current?.(k) },
       premovable: { enabled: false },
       draggable: { enabled: true, showGhost: true },
-      animation: { enabled: true, duration: 200 },
+      // chessground anima con requestAnimationFrame: el CSS de «reducir movimiento» no le llega, hay que pedírselo.
+      animation: { enabled: !prefersReducedMotion(), duration: 200 },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fen, interactive, wantsSelect, orientation, lastMove?.[0], lastMove?.[1], nonce]);

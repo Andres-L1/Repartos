@@ -8,7 +8,7 @@ import { TrainCard } from './SessionScreen';
 import { Icon, Loading, ErrorBox } from '../components/Icon';
 import { CONCEPTS } from '../../../src/pedagogy/concepts';
 import { ruleFor } from '../../../src/pedagogy/review-copy';
-import { lessonsForConcept } from '../../../src/content';
+import { lessonsForConcept } from '../lessonIndex';
 import { topWeakConcepts } from '../../../src/review/weak';
 import '../weak.css';
 

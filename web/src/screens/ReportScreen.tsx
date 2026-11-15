@@ -6,7 +6,7 @@ import { keyErrors } from '../../../src/review/select';
 import type { GameAnalysis, KeyError, Report, ReviewGame } from '../../../src/review/types';
 import { buildErrorLesson } from '../../../src/pedagogy/error-lesson';
 import { ruleFor } from '../../../src/pedagogy/review-copy';
-import { lessonsForConcept } from '../../../src/content';
+import { lessonsForConcept } from '../lessonIndex';
 import type { Level } from '../../../src/types';
 import { navigate } from '../router';
 import { Link } from '../components/Link';

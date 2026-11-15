@@ -1,13 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { BillingMode, Equipped, Shop, Subscription, User } from '../../src/shared/api';
 import type { Level } from '../../src/types';
-import { api, setApiHandlers } from './api';
+import { api, ApiError, setApiHandlers } from './api';
 import { navigate } from './router';
-import { DEFAULT_EQUIPPED, sanitizeEquipped } from './shop';
+import { DEFAULT_EQUIPPED, preloadPieces, sanitizeEquipped } from './shop';
 import { setReviewUser } from './review/completion';
 
 interface SessionValue {
   loading: boolean;
+  /** No se pudo comprobar la sesión (sin conexión o error del servidor): no equivale a «sin sesión». */
+  connectionError: boolean;
+  retryConnection(): void;
   user: User | null;
   /** Nivel interno para adaptar los textos (nunca se muestra); 'initiation' hasta que /api/me lo devuelva. */
   level: Level;
@@ -43,6 +46,7 @@ export function useSession(): SessionValue {
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
+  const [connectionError, setConnectionError] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [level, setLevelState] = useState<Level>('initiation');
   const [levelChosen, setLevelChosen] = useState(false);
@@ -64,6 +68,29 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, [setShop]);
 
+  const loadMe = useCallback(() => {
+    setConnectionError(false);
+    api
+      .me()
+      .then((r) => {
+        setUser(r.user);
+        if (r.level) setLevelState(r.level);
+        setLevelChosen(r.levelChosen === true);
+        setSub(r.subscription);
+        setBillingMode(r.billingMode);
+        if (r.equipped) setEquipped(sanitizeEquipped(r.equipped));
+      })
+      .catch((e: unknown) => {
+        // 401 = sin sesión (normal). Cualquier otro fallo es un problema de conexión o del servidor: se avisa y se puede reintentar.
+        if (!(e instanceof ApiError && e.status === 401)) setConnectionError(true);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+  const retryConnection = useCallback(() => {
+    setLoading(true);
+    loadMe();
+  }, [loadMe]);
+
   useEffect(() => {
     setApiHandlers({
       unauthorized: () => {
@@ -80,19 +107,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       .config()
       .then((r) => setBillingMode(r.billingMode))
       .catch(() => {});
-    api
-      .me()
-      .then((r) => {
-        setUser(r.user);
-        if (r.level) setLevelState(r.level);
-        setLevelChosen(r.levelChosen === true);
-        setSub(r.subscription);
-        setBillingMode(r.billingMode);
-        if (r.equipped) setEquipped(sanitizeEquipped(r.equipped));
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+    loadMe();
+  }, [loadMe]);
+
+  useEffect(() => preloadPieces(equipped.pieces), [equipped.pieces]);
 
   // Con sesión, el saldo se carga aparte: la barra lo muestra en cuanto llega.
   const userId = user?.id ?? null;
@@ -137,6 +155,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const value = useMemo<SessionValue>(
     () => ({
       loading,
+      connectionError,
+      retryConnection,
       user,
       level,
       levelChosen,
@@ -164,7 +184,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         navigate('/');
       },
     }),
-    [loading, user, level, levelChosen, setLevel, subscription, billingMode, paywallLesson, equipped, shop, setShop, refreshShop, setSession],
+    [loading, connectionError, retryConnection, user, level, levelChosen, setLevel, subscription, billingMode, paywallLesson, equipped, shop, setShop, refreshShop, setSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

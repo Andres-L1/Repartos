@@ -34,6 +34,8 @@ export function ShopScreen() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [notice, setNotice] = useState<{ text: string; equip?: ShopItem } | null>(null);
   const tabRefs = useRef<Record<Tab, HTMLButtonElement | null>>({ tienda: null, coleccion: null });
+  // Un doble toque lanzaría dos compras (la segunda saldría como error «ya lo tienes» tras comprar bien).
+  const inFlight = useRef(false);
 
   useEffect(() => {
     api.shop().then(setShop).catch((e) => setLoadError(e instanceof ApiError ? e.message : 'No se pudo cargar la tienda.'));
@@ -58,6 +60,8 @@ export function ShopScreen() {
   }
 
   async function buy(item: ShopItem) {
+    if (inFlight.current) return;
+    inFlight.current = true;
     setBusy(item.id);
     setErrors((e) => ({ ...e, [item.id]: '' }));
     try {
@@ -73,11 +77,13 @@ export function ShopScreen() {
       setErrors((x) => ({ ...x, [item.id]: e instanceof ApiError ? e.message : 'No se pudo completar la compra. No se ha gastado ningún Chedex.' }));
     } finally {
       setBusy(null);
+      inFlight.current = false;
     }
   }
 
   async function equip(item: ShopItem) {
-    if (item.kind === 'protector') return;
+    if (item.kind === 'protector' || inFlight.current) return;
+    inFlight.current = true;
     setBusy(item.id);
     setErrors((e) => ({ ...e, [item.id]: '' }));
     try {
@@ -87,6 +93,7 @@ export function ShopScreen() {
       setErrors((x) => ({ ...x, [item.id]: e instanceof ApiError ? e.message : 'No se pudo equipar. Inténtalo de nuevo.' }));
     } finally {
       setBusy(null);
+      inFlight.current = false;
     }
   }
 
