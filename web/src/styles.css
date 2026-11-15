@@ -163,6 +163,15 @@ a { text-underline-offset: 3px; }
   :root { --bottom-nav: calc(64px + env(safe-area-inset-bottom)); }
   .main.main-shell { padding-bottom: calc(var(--bottom-nav) + var(--s-6)); }
 }
+/* Móvil apaisado (p. ej. 667x375): barra superior fija + barra inferior fija se comían 128 px de 375 y el tablero quedaba tapado.
+   La superior se va con el desplazamiento y la inferior pasa a una sola fila de 52 px. */
+@media (max-width: 899px) and (max-height: 500px) {
+  .topbar, .sidebar { position: static; }
+  :root { --bottom-nav: calc(52px + env(safe-area-inset-bottom)); }
+  .side-nav { padding-block: 2px calc(2px + env(safe-area-inset-bottom)); }
+  .side-nav .nav-link { flex-direction: row; gap: 0.5rem; min-height: 46px; padding-block: 0.2rem; max-width: none; }
+  .side-nav .nav-link.active::before { left: 25%; right: 25%; }
+}
 @media (max-width: 479px) {
   .topbar .chip-beta { display: none; }
   .whoami-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
