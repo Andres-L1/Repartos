@@ -15,6 +15,7 @@ const lesson = (id: string, unitId: string, extra: Partial<Lesson> = {}): Lesson
 });
 const units: Unit[] = [
   { id: 'a', order: 1, title: 'A', description: 'd', level: 'beginner', requires: [], lessons: [lesson('a.1', 'a', { demo: true })] },
+  { id: 'b', order: 2, title: 'B', description: 'd', level: 'intermediate', requires: ['a'], lessons: [lesson('b.1', 'b'), lesson('b.2', 'b')] },
 ];
 
 let clock = Date.UTC(2026, 0, 1, 12, 0, 0);
@@ -409,5 +410,25 @@ describe('aislamiento entre usuarios', () => {
     for (let d = 1; d <= 5; d++) { await ana.done(); advance(DAY); }
     expect((await ana.shop()).balance).toBe(1);
     expect((await luis.shop())).toMatchObject({ balance: 0, streak: { days: 0 } });
+  });
+});
+
+describe('administración (Lichess andresli)', () => {
+  it('ve todo desbloqueado: lecciones de pago, tienda entera y equipar sin gastar; otro usuario no', async () => {
+    const s = setup();
+    const admin = await s.client('AndresLi');
+    const ana = await s.client('ana');
+    const bOf = async (u: typeof admin) => (await u.req('GET', '/api/map')).json.units.find((x: any) => x.id === 'b');
+    expect((await bOf(admin)).lessons.map((l: any) => l.status)).toEqual(['available', 'available']);
+    expect((await bOf(ana)).lessons.map((l: any) => l.status)).toEqual(['locked', 'locked']);
+    expect((await admin.req('GET', '/api/lessons/b.2')).status).toBe(200);
+    expect((await ana.req('GET', '/api/lessons/b.2')).status).toBe(403);
+    const sh = await admin.shop();
+    expect(sh.balance).toBe(0);
+    for (const i of sh.items.filter((x: any) => x.kind !== 'protector')) expect(i.owned).toBe(true);
+    expect((await admin.equip('pieces', 'cosmos')).status).toBe(200);
+    expect((await admin.equip('board', 'cosmos-tablero')).status).toBe(200);
+    expect((await admin.shop()).balance).toBe(0);
+    expect((await ana.equip('pieces', 'cosmos')).status).toBe(400);
   });
 });

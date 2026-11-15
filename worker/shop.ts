@@ -1,4 +1,5 @@
 import type { Equipped, Shop, ShopItem } from '../src/shared/api.js';
+import { isAdmin } from '../src/shared/admin.js';
 import {
   CATALOG,
   DEFAULT_BOARD,
@@ -116,7 +117,8 @@ export async function equippedFor(db: Db, userId: string): Promise<Equipped> {
 export async function ownedIds(db: Db, userId: string): Promise<Set<string>> {
   const rows = await db.all<{ item_id: string }>('SELECT item_id FROM cp_inventory WHERE user_id = ?', [userId]);
   const s = new Set(rows.map((r) => r.item_id));
-  for (const i of CATALOG) if (i.price === 0 && i.kind !== 'protector') s.add(i.id);
+  // Administración: todo el catálogo equipable, sin gastar Chedex.
+  for (const i of CATALOG) if ((i.price === 0 || isAdmin(userId)) && i.kind !== 'protector') s.add(i.id);
   return s;
 }
 
