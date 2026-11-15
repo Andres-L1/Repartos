@@ -4,7 +4,8 @@ import { isExpectedMove } from '../../../src/shared/moves';
 import { Board, marksToShapes } from './Board';
 import { Icon } from './Icon';
 import { playSound } from '../sound';
-import { applyUci, canonicalUci, lastMoveOf, needsPromotion, parseTypedMove, PROMO_ROLES, sanOfUci, turnOf } from '../chess';
+import { applyUci, canonicalUci, lastMoveOf, needsPromotion, PROMO_ROLES, sanOfUci, turnOf } from '../chess';
+import { TypedMove } from './TypedMove';
 
 export interface StepResult {
   /** acertado a la primera (sin errores) */
@@ -38,8 +39,6 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
   const [nonce, setNonce] = useState(0);
   const [promo, setPromo] = useState<{ from: string; to: string } | null>(null);
   const [solutionSan, setSolutionSan] = useState('');
-  const [typed, setTyped] = useState('');
-  const [typedErr, setTypedErr] = useState('');
   const timer = useRef<number | undefined>(undefined);
   const fenBefore = useRef(step.fen);
 
@@ -136,19 +135,6 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
     setFeedback('');
     setNonce((n) => n + 1);
   }
-
-  function submitTyped(e: React.FormEvent) {
-    e.preventDefault();
-    const uci = parseTypedMove(fen, typed);
-    if (!uci) {
-      setTypedErr('No entiendo esa jugada o no es legal. Ejemplos: e4, Nf3, Rxa8, e8=Q.');
-      return;
-    }
-    setTypedErr('');
-    setTyped('');
-    attempt(uci);
-  }
-
 
   return (
     <div className="step-layout">
@@ -277,36 +263,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
           )}
         </div>
 
-        {status === 'playing' && !showcase && (
-          <details className="typed">
-            <summary>Escribir la jugada (alternativa al tablero)</summary>
-            <form onSubmit={submitTyped}>
-              <label htmlFor="typed-move">Jugada</label>
-              <input
-                id="typed-move"
-                className="t-input"
-                value={typed}
-                onChange={(e) => setTyped(e.target.value)}
-                autoComplete="off"
-                autoCapitalize="off"
-                spellCheck={false}
-                aria-describedby="typed-help"
-                placeholder="p. ej. e4 o Nf3"
-              />
-              <button className="t-btn" type="submit">
-                Jugar
-              </button>
-              <p id="typed-help" className="muted">
-                Notación de Lichess (N caballo, B alfil, R torre, Q dama, K rey) o coordenadas (e2e4).
-              </p>
-              {typedErr && (
-                <p className="field-error" role="alert">
-                  {typedErr}
-                </p>
-              )}
-            </form>
-          </details>
-        )}
+        {status === 'playing' && !showcase && <TypedMove fen={fen} onUci={attempt} />}
       </div>
     </div>
   );

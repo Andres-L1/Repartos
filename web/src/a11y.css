@@ -1,0 +1,35 @@
+/* Preferencias de accesibilidad del sistema (se carga la última, para ganar al resto de hojas).
+   La app es siempre oscura: no hay modo claro, así que no hay variante por esquema de color. */
+
+/* Modo de alto contraste de Windows (forced-colors). Allí no se dibujan las sombras ni los colores de fondo propios:
+   las piezas «físicas» (botones, fichas, pestañas) sin borde serían texto suelto y los estados solo de color desaparecerían. */
+@media (forced-colors: active) {
+  .t-btn, .t-chip, .t-tab, .t-pill, .chip, .chip-beta, .nav-link, .balance, .whoami-avatar, .gv-move, .lvl-card, .rv-row, .rv-icon, .empty-icon, .lvl-badge, .rp-cell, .rp-chip, .t-input {
+    border: 2px solid ButtonText;
+  }
+  .t-btn-ghost { border-color: transparent; text-decoration: underline; }
+  /* Estados que se distinguían solo por el color de fondo: borde grueso y doble. */
+  .t-chip[aria-pressed='true'], .t-chip-active, .t-tab[aria-selected='true'], .t-tab-active, .nav-link.active,
+  .gv-move[aria-current='step'], .lvl-card.is-selected, .t-btn-primary {
+    border: 4px double Highlight;
+  }
+  .t-alert, .t-card, .t-well { border: 2px solid CanvasText; }
+  /* Tablero y piezas: sus colores son el contenido (casillas, última jugada, destinos); no se sustituyen. */
+  .board-frame, .mini-board { forced-color-adjust: none; }
+  /* Barras de progreso: el relleno es un fondo y se perdería. */
+  .t-progress, .ss-bar-track, .rv-bar { border: 1px solid CanvasText; }
+  .t-progress-fill, .ss-bar-fill { forced-color-adjust: none; background: Highlight; }
+}
+
+/* Contraste alto pedido por el usuario: texto secundario, bordes de campo y marcos más marcados. */
+@media (prefers-contrast: more) {
+  :root {
+    --muted: #d9dbdf;
+    --t-muted: #d9dbdf;
+    --t-placeholder: #c9ccd1;
+    --t-field-edge: #b4b7be;
+    --t-edge: #6b6e76;
+    --line: rgb(255 255 255 / 0.35);
+  }
+  .t-card, .t-alert { border-color: #8b8e96; }
+}

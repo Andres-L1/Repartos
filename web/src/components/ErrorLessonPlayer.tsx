@@ -7,6 +7,7 @@ import { applyUci, lastMoveOf, turnOf } from '../chess';
 import { playSound } from '../sound';
 import { Board } from './Board';
 import { Icon } from './Icon';
+import { TypedMove, TypedSquare } from './TypedMove';
 import '../review-lesson.css';
 
 interface Props {
@@ -188,7 +189,7 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
         </div>
 
         <div className="rl-panel" ref={panelRef}>
-          <h3 className="rl-title">{heading}</h3>
+          <h2 className="rl-title">{heading}</h2>
           <div className="rl-text" aria-live="polite" ref={textRef} tabIndex={-1}>
             <div className="rl-step m-swap" key={`${step}-${bestShown ? 'shown' : 'try'}`}>
             {step === 'look' && <p>Esta es la posición antes de tu jugada ({lesson.yourMoveSan}). Mírala un momento: ¿qué ves?</p>}
@@ -230,6 +231,9 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
             {step === 'done' && <p>Lección terminada.</p>}
             </div>
           </div>
+          {/* Sin ratón ni dedo: el tablero (arrastrar o tocar) tiene su alternativa escrita. */}
+          {step === 'pause' && !finished && <TypedSquare onSquare={(sq) => dispatch({ type: 'select', square: sq })} />}
+          {bestPlayable && <TypedMove fen={lesson.fenBefore} onUci={(uci) => onBestMove(uci.slice(0, 2), uci.slice(2, 4))} />}
         </div>
 
         {/* Fuera del panel para poder fijarse abajo en el móvil mientras se mira el tablero. */}

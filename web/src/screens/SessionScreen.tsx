@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import type { AnswerResult, FinishResult, SessionItem, SessionStart, SessionStatus } from '../../../src/shared/api';
 import { CONCEPTS } from '../../../src/pedagogy/concepts';
 import { ruleFor } from '../../../src/pedagogy/review-copy';
@@ -8,6 +9,7 @@ import { playSound } from '../sound';
 import { Board } from '../components/Board';
 import { Icon, Loading } from '../components/Icon';
 import { Link } from '../components/Link';
+import { TypedMove } from '../components/TypedMove';
 import '../review-lesson.css';
 import '../session.css';
 
@@ -53,6 +55,7 @@ type Phase =
 
 export function SessionScreen() {
   const [phase, setPhase] = useState<Phase>({ k: 'loading' });
+  const [typedSlot, setTypedSlot] = useState<HTMLElement | null>(null);
 
   const loadStatus = useCallback(() => {
     setPhase({ k: 'loading' });
@@ -86,6 +89,7 @@ export function SessionScreen() {
   if (phase.k === 'finishing') return <Loading label="Guardando tu sesión…" />;
 
   return (
+    <>
     <div className={`ss${phase.k === 'play' ? ' ss-play' : ''}`}>
       <header className="ss-head page-head">
         <div className="ss-title">
@@ -94,7 +98,7 @@ export function SessionScreen() {
         </div>
         {phase.k === 'play' && <Progress i={phase.i} total={phase.start.items.length} />}
         {phase.k === 'play' && (
-          <Link className="t-btn t-btn-ghost t-btn-sm ss-exit" href="/aprender">
+          <Link className="t-btn t-btn-ghost t-btn-sm ss-exit" href="/aprender" aria-label="Salir del repaso">
             Salir
           </Link>
         )}
@@ -118,11 +122,15 @@ export function SessionScreen() {
           item={phase.start.items[phase.i]!}
           last={phase.i === phase.start.items.length - 1}
           onNext={() => (phase.i + 1 < phase.start.items.length ? setPhase({ ...phase, i: phase.i + 1 }) : finish(phase.start.sessionId))}
+          typedSlot={typedSlot}
         />
       )}
 
       {phase.k === 'summary' && <Summary result={phase.result} />}
     </div>
+    {/* Hueco para la alternativa escrita al tablero: fuera de .ss-play, que mide exactamente una pantalla. */}
+    <div className="ss-typed" ref={setTypedSlot} />
+    </>
   );
 }
 
@@ -183,7 +191,7 @@ interface Fail {
   retry: () => void;
 }
 
-function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; onNext: () => void }) {
+function ItemView({ item, last, onNext, typedSlot }: { item: SessionItem; last: boolean; onNext: () => void; typedSlot: HTMLElement | null }) {
   const fenRef = useRef(item.fen);
   const [fen, setFen] = useState(item.fen);
   const [lastMove, setLastMove] = useState<[string, string] | undefined>();
@@ -366,6 +374,7 @@ function ItemView({ item, last, onNext }: { item: SessionItem; last: boolean; on
           )}
         </div>
       </div>
+      {playable && typedSlot && createPortal(<TypedMove fen={fen} onUci={submit} />, typedSlot)}
     </section>
   );
 }

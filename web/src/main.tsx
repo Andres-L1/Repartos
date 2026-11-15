@@ -7,6 +7,7 @@ import './tactile.css';
 import './styles.css';
 import './shop.css';
 import './motion.css';
+import './a11y.css';
 
 applyLegacyRedirect();
 

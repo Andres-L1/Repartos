@@ -546,5 +546,18 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     save();
     return json({ subscription: state.sub });
   }
+  // «Entrenar hoy» simulado: ?due=0 para el estado vacío.
+  if (path === '/session/status') return json({ due: new URLSearchParams(window.location.search).get('due') === '0' ? 0 : 3, nextDueAt: new Date(Date.now() + 864e5).toISOString() });
+  if (path === '/session' && method === 'GET') {
+    return json({
+      sessionId: 'mock-session',
+      items: [
+        { itemId: 'm1', kind: 'bank', conceptId: 'tactics.hanging_piece', fen: '7k/8/6K1/8/8/8/8/R7 w - - 0 1', prompt: 'Da jaque mate en una jugada.' },
+        { itemId: 'm2', kind: 'own', conceptId: 'tactics.fork', fen: '4k3/8/8/8/8/8/3P4/4K3 w - - 0 1', prompt: 'Mueve el peón de d2 dos casillas.' },
+      ],
+    });
+  }
+  if (path === '/session/answer') return json({ correct: String(body.uci) === 'a1a8' || String(body.uci) === 'd2d4', done: true });
+  if (path === '/session/finish') return json({ reviewed: [{ conceptId: 'tactics.hanging_piece', correct: true, misses: 0 }], nextDueAt: null, streak: 3 });
   return err(404, 'Ruta no encontrada.');
 }
