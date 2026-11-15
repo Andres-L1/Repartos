@@ -303,3 +303,6 @@
   .level:not(:last-child)::before { left: 23px; top: 60px; }
   .level-head h3 { font-size: 1.5rem; }
 }
+
+/* Hueco del boton principal mientras se comprueba la sesion: misma altura que el boton real, sin etiqueta ni accion. */
+.cta-pending { min-width: 13.5rem; background: var(--t-graphite-2); border-color: transparent; box-shadow: none; pointer-events: none; }

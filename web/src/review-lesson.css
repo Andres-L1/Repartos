@@ -39,7 +39,7 @@
   .rl-actions { flex-wrap: nowrap; }
   .rl-actions .t-btn { flex: 1 1 0; min-width: 0; padding: 0.55rem 0.6rem; font-size: 1rem; text-align: center; white-space: normal; }
   /* Primero se lee (pregunta o explicación), luego se mira el tablero y justo debajo se responde. */
-  .rl-panel { order: -1; padding: 14px 16px; scroll-margin-top: calc(60px + 12px); }
+  .rl-panel { order: -1; padding: 14px 16px; scroll-margin-top: calc(var(--header-h, 0px) + 12px); }
   /* El nombre del momento ya se ve en la pastilla actual: el título queda solo para lectores de pantalla. */
   .rl-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   /* Pastillas de progreso compactas: solo el momento actual muestra su nombre. */

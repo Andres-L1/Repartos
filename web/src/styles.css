@@ -86,7 +86,8 @@
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+/* --header-h lo fija App.tsx con la altura real de la cabecera fija: el foco y scrollIntoView no dejan contenido bajo ella ni bajo la barra inferior. */
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: var(--header-h, 0px); scroll-padding-bottom: var(--bottom-nav, 0px); }
 body {
   margin: 0;
   background: var(--bg);
@@ -151,7 +152,11 @@ a { text-underline-offset: 3px; }
   }
   .sidebar .brand-name { font-size: 1.05rem; }
   .side-user .chip-beta, .whoami-sub { display: none; }
-  .whoami-name { max-width: 6.5rem; font-size: var(--fs-sm); }
+  /* El nombre ocupa el hueco libre entre el logo y el saldo (sin tope fijo: Lichess permite 20 caracteres) y se abrevia con puntos suspensivos solo si no cabe; el nombre completo va en el title y lo leen los lectores de pantalla. */
+  .side-user { display: contents; }
+  .sidebar .brand { order: -2; }
+  .whoami { order: -1; flex: 1 1 0; min-width: 4rem; }
+  .whoami-name { font-size: var(--fs-sm); }
   .side-nav {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; justify-content: space-around; gap: 0;
     background: #101114; border-top: 1px solid var(--line);
@@ -174,8 +179,10 @@ a { text-underline-offset: 3px; }
 }
 @media (max-width: 479px) {
   .topbar .chip-beta { display: none; }
-  .whoami-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .sidebar .t-btn-ghost { padding-inline: 0.5rem; }
+  /* Con sesión el logo basta (el enlace conserva su aria-label): el hueco se lo queda el nombre de usuario. */
+  .sidebar .brand { min-width: 44px; justify-content: center; }
+  .sidebar .brand-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 @media (max-width: 380px) { .brand-name { font-size: 1rem; } .topbar, .sidebar { gap: 0.25rem; } .whoami-avatar { display: none; } }
 /* Con sesión, la barra pública lleva dos botones: a 320 px solo cabe el logo (el nombre queda para lectores de pantalla). */
@@ -279,6 +286,7 @@ fieldset { border: 0; padding: 0; margin: var(--s-4) 0; min-width: 0; }
 .step-text { font-weight: 500; }
 .step-side { min-width: 0; }
 .lesson { container-type: inline-size; }
+.lesson-body { scroll-margin-top: calc(var(--header-h, 0px) + var(--s-3)); }
 @container (min-width: 640px) {
   .step-layout { grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); gap: var(--s-6); align-items: start; }
   .step-board .board-frame { max-width: max(320px, min(100%, 680px, calc(100vh - 11rem))); margin: 0; }

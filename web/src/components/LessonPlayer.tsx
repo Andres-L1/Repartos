@@ -11,6 +11,7 @@ import { turnOf } from '../chess';
 import { Icon } from './Icon';
 import { Coin } from './ShopVisuals';
 import { playSound } from '../sound';
+import { stepStartVisible } from '../headerHeight';
 
 type Phase =
   | { kind: 'intro' }
@@ -32,6 +33,9 @@ interface Outcome {
 
 const STAGES = ['Introducción', 'Explicación', 'Práctica', 'Evaluación'] as const;
 
+/** Foco al montar sin desplazar la página (autoFocus de React sí desplaza y dejaba el tablero bajo la cabecera). */
+const focusNoScroll = (el: HTMLElement | null) => el?.focus({ preventScroll: true });
+
 export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: boolean }) {
   const { refreshShop } = useSession();
   const [phase, setPhase] = useState<Phase>({ kind: 'intro' });
@@ -42,6 +46,24 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
   // Un doble toque en «Ver resultado» no debe guardar dos veces; y si el guardado falla, se conservan los aciertos para reintentarlo sin repetir la lección.
   const inFlight = useRef(false);
   const lastResults = useRef<boolean[]>([]);
+
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const stepKey = `${run}-${phase.kind}-${'i' in phase ? phase.i : 0}`;
+  const firstStep = useRef(true);
+  useEffect(() => {
+    if (firstStep.current) {
+      firstStep.current = false;
+      return;
+    }
+    const el = bodyRef.current;
+    if (!el) return;
+    const css = getComputedStyle(document.documentElement);
+    const px = (v: string) => parseFloat(css.getPropertyValue(v)) || 0;
+    const bottomNav = px('--bottom-nav') || (document.querySelector('.side-nav')?.getBoundingClientRect().height ?? 0);
+    if (!stepStartVisible(el.getBoundingClientRect().top, px('--header-h'), window.innerHeight, window.matchMedia('(max-width: 899px)').matches ? bottomNav : 0)) {
+      el.scrollIntoView({ block: 'start' });
+    }
+  }, [stepKey]);
 
   const total = lesson.evaluation.length;
   const passMark = lesson.passMark ?? Math.max(1, total - 1);
@@ -182,7 +204,7 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
         </ol>
       )}
 
-      <div className="lesson-body" key={`${run}-${phase.kind}-${'i' in phase ? phase.i : 0}`}>
+      <div className="lesson-body" ref={bodyRef} key={stepKey}>
         {phase.kind === 'intro' && (
           <section className="t-card intro">
             <p className="kicker">
@@ -190,7 +212,7 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
             </p>
             <h2>{lesson.objective}</h2>
             <p className="lead">{lesson.intro}</p>
-            <button className="t-btn t-btn-primary" onClick={toExplain} autoFocus>
+            <button className="t-btn t-btn-primary" onClick={toExplain} ref={focusNoScroll}>
               Empezar
             </button>
           </section>
@@ -254,7 +276,7 @@ function ExplainStepView({ lesson, i, plain, onNext, onPrev }: { lesson: Lesson;
               Anterior
             </button>
           )}
-          <button className="t-btn t-btn-primary" onClick={onNext} autoFocus>
+          <button className="t-btn t-btn-primary" onClick={onNext} ref={focusNoScroll}>
             {last ? 'Pasar a la práctica' : 'Siguiente'}
           </button>
         </div>
@@ -344,7 +366,7 @@ function ResultView({
             {outcome.error} Tus aciertos siguen aquí: pulsa «Guardar de nuevo» para no repetir la lección.
           </p>
           <div className="actions">
-            <button className="t-btn t-btn-primary" onClick={onRetrySave} autoFocus>
+            <button className="t-btn t-btn-primary" onClick={onRetrySave} ref={focusNoScroll}>
               Guardar de nuevo
             </button>
           </div>
@@ -363,12 +385,12 @@ function ResultView({
         ) : (
           <>
             {passed && nextId ? (
-              <button className="t-btn t-btn-primary" onClick={() => navigate(`/leccion/${encodeURIComponent(nextId)}`)} autoFocus={!outcome.error}>
+              <button className="t-btn t-btn-primary" onClick={() => navigate(`/leccion/${encodeURIComponent(nextId)}`)} ref={outcome.error ? undefined : focusNoScroll}>
                 Siguiente lección
                 <Icon name="chevron" size={18} />
               </button>
             ) : (
-              <button className="t-btn t-btn-primary" onClick={() => navigate('/aprender')} autoFocus={!outcome.error}>
+              <button className="t-btn t-btn-primary" onClick={() => navigate('/aprender')} ref={outcome.error ? undefined : focusNoScroll}>
                 Volver a la ruta
               </button>
             )}
