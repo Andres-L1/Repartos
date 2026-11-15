@@ -150,7 +150,8 @@ export function App() {
       {skip}
       <header className="topbar">
         {brand}
-        {user ? (
+        {/* Mientras se comprueba la sesión no se enseña «Entrar con Lichess»: a quien ya entró le saltaba un botón que no es suyo. */}
+        {loading ? null : user ? (
           <nav className="nav nav-guest" aria-label="Principal">
             <Link className="t-btn t-btn-primary t-btn-sm" href="/aprender">
               Ir a Aprender
