@@ -13,7 +13,6 @@ import {
   dayText,
   itemsOf,
   ownedEquippable,
-  priceText,
   progressText,
   shortfallText,
   streakMarks,

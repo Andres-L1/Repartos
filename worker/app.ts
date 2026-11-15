@@ -28,7 +28,6 @@ import {
   dayOf,
   findLesson,
   passMarkFor,
-  yesterdayOf,
   type ContentSource,
   type ProgressRow,
 } from './progress.js';
@@ -419,7 +418,6 @@ export function createApp(deps: AppDeps) {
     const { streak, lastActive, protectorUsed, chedexEarned, rewards } = passed
       ? await streakAdvance(db, userId, p, t)
       : { streak: p.streak_days, lastActive: p.last_active_date, protectorUsed: false, chedexEarned: 0, rewards: [] as Stmt[] };
-    const xpToday = (p.xp_today_date === today ? p.xp_today : 0) + xpGained;
 
     const stmts: Stmt[] = [
       // Reclamo del intento (índice único): de dos envíos concurrentes que leyeron el mismo `prev`, solo uno confirma.

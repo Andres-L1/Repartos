@@ -3,7 +3,6 @@
  * Funciones puras: sin base de datos ni red. El nivel del alumno lo elige él (ver level.ts); esto solo describe lo visto.
  */
 import type { PlacementPerf } from '../src/shared/api.js';
-import type { Level } from '../src/types.js';
 
 /** Partidas mínimas en un ritmo para fiarse de su Elo (además de no ser provisional). */
 export const PLACEMENT_MIN_GAMES = 10;
