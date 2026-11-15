@@ -27,7 +27,7 @@ const PAUSE_KEY = 'lichess_paused_until';
 async function refill(db: Db, theme: string, difficulty: string, nowMs: number, fetchImpl: typeof fetch): Promise<void> {
   const res = await fetchImpl(
     `https://lichess.org/api/puzzle/batch/${encodeURIComponent(theme)}?nb=${BATCH}&difficulty=${encodeURIComponent(difficulty)}`,
-    { headers: { Accept: 'application/json' } },
+    { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(15_000) }, // un Lichess colgado no bloquea la ejecución
   );
   if (res.status === 429)
     await db.run('INSERT INTO cp_cron_state (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value', [PAUSE_KEY, nowMs + PAUSE_MS]);

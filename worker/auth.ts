@@ -215,12 +215,16 @@ export async function handleCallback(c: Context, cfg: AuthConfig): Promise<Respo
   }
 }
 
+/** Cabeceras Set-Cookie que borran la sesión y el estado OAuth. */
+export function clearedCookies(origin: string): string[] {
+  const n = cookieNames(origin);
+  return [cookieHeader(n.session, '', 0, n.secure), cookieHeader(n.oauth, '', 0, n.secure)];
+}
+
 export function handleLogout(c: Context, cfg: AuthConfig): Response {
   if (!cfg.origin) return json(NOT_CONFIGURED, 503);
   if (c.req.header('origin') !== cfg.origin) return json({ error: 'Origen no permitido' }, 403);
-  const n = cookieNames(cfg.origin);
   const headers = new Headers({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-  headers.append('Set-Cookie', cookieHeader(n.session, '', 0, n.secure));
-  headers.append('Set-Cookie', cookieHeader(n.oauth, '', 0, n.secure));
+  for (const ck of clearedCookies(cfg.origin)) headers.append('Set-Cookie', ck);
   return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
 }

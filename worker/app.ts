@@ -16,7 +16,7 @@ import type {
 } from '../src/shared/api.js';
 import type { Db, Stmt } from './db.js';
 import type { BillingProvider, SubscriptionRecord } from './billing.js';
-import { handleCallback, handleLogin, handleLogout, readSession, type AuthConfig } from './auth.js';
+import { clearedCookies, handleCallback, handleLogin, handleLogout, readSession, type AuthConfig } from './auth.js';
 import { describePerfs, parseSeen, selectPerf } from './placement.js';
 import { levelPlan } from './level.js';
 import { LEVELS, suggestLevel } from '../src/shared/levels.js';
@@ -28,7 +28,6 @@ import {
   dayOf,
   findLesson,
   passMarkFor,
-  yesterdayOf,
   type ContentSource,
   type ProgressRow,
 } from './progress.js';
@@ -154,7 +153,7 @@ export function createApp(deps: AppDeps) {
       origin: (o) => (deps.devOrigin && o === deps.devOrigin ? o : null),
       credentials: true,
       allowHeaders: ['Content-Type'],
-      allowMethods: ['GET', 'POST', 'PUT', 'OPTIONS'],
+      allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       maxAge: 600,
     }),
   );
@@ -419,7 +418,6 @@ export function createApp(deps: AppDeps) {
     const { streak, lastActive, protectorUsed, chedexEarned, rewards } = passed
       ? await streakAdvance(db, userId, p, t)
       : { streak: p.streak_days, lastActive: p.last_active_date, protectorUsed: false, chedexEarned: 0, rewards: [] as Stmt[] };
-    const xpToday = (p.xp_today_date === today ? p.xp_today : 0) + xpGained;
 
     const stmts: Stmt[] = [
       // Reclamo del intento (índice único): de dos envíos concurrentes que leyeron el mismo `prev`, solo uno confirma.
@@ -545,6 +543,17 @@ export function createApp(deps: AppDeps) {
       nextDueAt: await nextDueAt(db, userId, t.getTime()),
       streak: (await profileFor(userId)).streakDays,
     } satisfies FinishResult);
+  });
+
+  // ---------- borrado de la cuenta ----------
+  // Borra al usuario y, por ON DELETE CASCADE, todo lo suyo (progreso, tienda, repasos, nivel...). Exige Origin propio.
+  app.delete('/api/account', requireAuth, async (c) => {
+    const origin = c.req.header('origin');
+    if (!origin || (origin !== deps.publicOrigin && origin !== deps.devOrigin)) throw new HttpError(403, 'Origen no permitido');
+    await db.run('DELETE FROM cp_users WHERE id = ?', [c.get('user').id]);
+    const res = c.json({ ok: true });
+    for (const ck of clearedCookies(deps.publicOrigin!)) res.headers.append('Set-Cookie', ck);
+    return res;
   });
 
   // ---------- perfil ----------

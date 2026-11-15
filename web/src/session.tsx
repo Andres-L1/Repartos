@@ -4,6 +4,7 @@ import type { Level } from '../../src/types';
 import { api, setApiHandlers } from './api';
 import { navigate } from './router';
 import { DEFAULT_EQUIPPED, sanitizeEquipped } from './shop';
+import { setReviewUser } from './review/completion';
 
 interface SessionValue {
   loading: boolean;
@@ -96,6 +97,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // Con sesión, el saldo se carga aparte: la barra lo muestra en cuanto llega.
   const userId = user?.id ?? null;
   useEffect(() => {
+    setReviewUser(userId);
     if (userId === null) {
       setShopState(null);
       setEquipped(DEFAULT_EQUIPPED);
