@@ -734,7 +734,12 @@ describe('migraciones D1', () => {
   it('solo crean tablas e índices cp_ con IF NOT EXISTS: sin DROP, ALTER, DELETE ni UPDATE', () => {
     expect(sqlFiles.length).toBeGreaterThan(0);
     for (const f of sqlFiles) {
-      const sql = readFileSync(new URL(f, dir), 'utf8').replace(/--.*$/gm, '').replace(/ON DELETE CASCADE/gi, '');
+      const sql = readFileSync(new URL(f, dir), 'utf8')
+        .replace(/--.*$/gm, '')
+        .replace(/ON DELETE CASCADE/gi, '')
+        // Únicas excepciones: el cuerpo de los disparadores de contadores cp_puzzle_stats y su relleno idempotente (0010).
+        .replace(/CREATE TRIGGER IF NOT EXISTS trg_cp_puzzle_pool_\w+ AFTER (?:INSERT|UPDATE OF used_at|DELETE) ON cp_puzzle_pool\s+BEGIN[^]*?\bEND;/g, '')
+        .replace(/INSERT OR REPLACE INTO cp_puzzle_stats[^;]*;/g, '');
       expect(sql).not.toMatch(/\b(DROP|ALTER|DELETE|UPDATE|INSERT|REPLACE|TRUNCATE)\b/i);
       const creates = [...sql.matchAll(/CREATE\s+(?:UNIQUE\s+)?(TABLE|INDEX)\s+(IF NOT EXISTS\s+)?(\w+)/gi)];
       expect(creates.length).toBeGreaterThan(0);
@@ -750,7 +755,7 @@ describe('migraciones D1', () => {
     for (const f of sqlFiles) raw.exec(readFileSync(new URL(f, dir), 'utf8')); // segunda aplicación
     const names = (raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((r) => r.name);
     const indexes = (raw.prepare("SELECT name FROM sqlite_master WHERE type='index' AND name LIKE 'idx_cp_%'").all() as { name: string }[]).map((r) => r.name);
-    expect(indexes).toEqual(expect.arrayContaining(['idx_cp_session_items_session', 'idx_cp_session_items_status', 'idx_cp_puzzle_pool_pick', 'idx_cp_review_positions_open', 'idx_cp_review_schedule_due']));
-    expect(names.sort()).toEqual(['cp_cron_state', 'cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_claims', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
+    expect(indexes).toEqual(expect.arrayContaining(['idx_cp_session_items_session', 'idx_cp_session_items_status', 'idx_cp_puzzle_pool_pick', 'idx_cp_puzzle_pool_take', 'idx_cp_puzzle_pool_used', 'idx_cp_session_items_created', 'idx_cp_review_positions_open', 'idx_cp_review_schedule_due']));
+    expect(names.sort()).toEqual(['cp_cron_state', 'cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_puzzle_stats', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_claims', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
   });
 });

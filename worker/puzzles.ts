@@ -55,8 +55,9 @@ async function refill(db: Db, theme: string, difficulty: string, nowMs: number, 
 export async function fillPool(db: Db, nowMs: number, fetchImpl: typeof fetch): Promise<boolean> {
   const paused = await db.first<{ value: number }>('SELECT value FROM cp_cron_state WHERE key = ?', [PAUSE_KEY]);
   if (nowMs < (paused?.value ?? 0)) return false;
-  const stats = await db.all<{ theme: string; difficulty: string; unused: number; last: number | null }>(
-    'SELECT theme, difficulty, SUM(used_at IS NULL) AS unused, MAX(fetched_at) AS last FROM cp_puzzle_pool GROUP BY theme, difficulty',
+  // Contadores mantenidos por disparadores (migración 0010): una fila por combinación, no todo el depósito.
+  const stats = await db.all<{ theme: string; difficulty: string; unused: number; last: number }>(
+    'SELECT theme, difficulty, unused, last_fetched AS last FROM cp_puzzle_stats',
   );
   const of = (t: string, d: string) => stats.find((s) => s.theme === t && s.difficulty === d);
   const need = POOL_COMBOS.map((c) => ({ ...c, unused: of(c.theme, c.difficulty)?.unused ?? 0, last: of(c.theme, c.difficulty)?.last ?? 0 }))
@@ -73,10 +74,12 @@ export function cleanupStmts(nowMs: number): Stmt[] {
     { sql: 'DELETE FROM cp_session_items WHERE created_at < ?', params: [nowMs - 7 * DAY] },
     { sql: 'DELETE FROM cp_puzzle_pool WHERE used_at IS NOT NULL AND used_at < ?', params: [nowMs - 30 * DAY] },
     {
+      // Solo las combinaciones que según los contadores se pasan del tope: normalmente ninguna, así que no lee nada.
       sql: `DELETE FROM cp_puzzle_pool WHERE puzzle_id IN (
               SELECT puzzle_id FROM (
                 SELECT puzzle_id, ROW_NUMBER() OVER (PARTITION BY theme, difficulty ORDER BY fetched_at DESC, rowid DESC) AS n
-                FROM cp_puzzle_pool WHERE used_at IS NULL)
+                FROM cp_puzzle_pool WHERE used_at IS NULL
+                  AND (theme, difficulty) IN (SELECT theme, difficulty FROM cp_puzzle_stats WHERE unused > ${KEEP_UNUSED}))
               WHERE n > ${KEEP_UNUSED})`,
     },
   ];
