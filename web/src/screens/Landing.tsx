@@ -262,8 +262,21 @@ function LichessData() {
 
 /* ---------- Cierre ---------- */
 
+/** Botón principal de la portada. Mientras se comprueba la sesión ocupa su sitio sin etiqueta (misma altura que el botón real) para que no haya saltos de diseño. */
+function PrimaryCta() {
+  const { user, loading } = useSession();
+  if (loading) return <span className="t-btn t-btn-primary t-btn-lg cta-pending" role="status" aria-label="Comprobando tu sesión" />;
+  return user ? (
+    <button className="t-btn t-btn-primary t-btn-lg" onClick={() => navigate('/aprender')}>
+      Ir a mi ruta de aprendizaje
+    </button>
+  ) : (
+    <LichessLogin large />
+  );
+}
+
 function Closing() {
-  const { user, billingMode } = useSession();
+  const { billingMode } = useSession();
   const row = ['wP', 'wN', 'wB', 'wR', 'wQ', 'wK'];
   return (
     <section className="band band-raised closing" aria-labelledby="close-title">
@@ -276,13 +289,7 @@ function Closing() {
         <h2 id="close-title">Empieza por tu primera jugada</h2>
         <p>{billingMode === 'beta_open' ? 'Gratis durante la beta. Después, 10 € al mes con todo incluido.' : 'Una sola suscripción de 10 € al mes, con todo incluido.'}</p>
         <div className="actions">
-          {user ? (
-            <button className="t-btn t-btn-primary t-btn-lg" onClick={() => navigate('/aprender')}>
-              Ir a mi ruta de aprendizaje
-            </button>
-          ) : (
-            <LichessLogin large />
-          )}
+          <PrimaryCta />
           <Link className="t-btn t-btn-secondary t-btn-lg" href="/demo">
             Probar una lección
           </Link>
@@ -313,7 +320,7 @@ export function SiteFooter() {
 }
 
 export function Landing() {
-  const { user, billingMode } = useSession();
+  const { billingMode } = useSession();
   const { lesson } = useDemo();
   return (
     <div className="landing">
@@ -327,13 +334,7 @@ export function Landing() {
               Una academia digital que te acompaña desde tus primeros pasos hasta los 2000 Elo. Aquí entiendes el ajedrez, no solo resuelves ejercicios.
             </p>
             <div className="actions">
-              {user ? (
-                <button className="t-btn t-btn-primary t-btn-lg" onClick={() => navigate('/aprender')}>
-                  Ir a mi ruta de aprendizaje
-                </button>
-              ) : (
-                <LichessLogin large />
-              )}
+              <PrimaryCta />
               <Link className="t-btn t-btn-secondary t-btn-lg" href="/demo">
                 Probar una lección
               </Link>

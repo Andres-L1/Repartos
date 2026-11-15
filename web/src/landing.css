@@ -100,9 +100,12 @@
   .hero-copy > * { animation: hero-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(0.15s + var(--i, 0) * 0.09s); }
   .hero-copy > :nth-child(2) { --i: 1; } .hero-copy > :nth-child(3) { --i: 2; } .hero-copy > :nth-child(4) { --i: 3; }
   .hero-demo { animation: hero-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.35s both; }
+  /* El titular sube sin partir de opacidad 0: así es contenido visible desde el primer fotograma y cuenta para el LCP. */
+  .hero-copy > h1 { animation-name: hero-rise; animation-delay: 0s; }
 }
 @keyframes knight-in { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hero-rise { from { transform: translateY(18px); } to { transform: none; } }
 @keyframes hero-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 
 @media (min-width: 1240px) {
@@ -303,3 +306,6 @@
   .level:not(:last-child)::before { left: 23px; top: 60px; }
   .level-head h3 { font-size: 1.5rem; }
 }
+
+/* Hueco del boton principal mientras se comprueba la sesion: misma altura que el boton real, sin etiqueta ni accion. */
+.cta-pending { min-width: 13.5rem; background: var(--t-graphite-2); border-color: transparent; box-shadow: none; pointer-events: none; }

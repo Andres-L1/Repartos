@@ -35,6 +35,11 @@ Academia digital de ajedrez, de principiante a ~2000 Elo: ruta de aprendizaje co
 - Movimiento con tokens únicos en `web/src/motion.css` (duraciones cortas, entradas escalonadas por pantalla, piezas que se levantan); con «reducir movimiento» solo quedan fundidos breves.
 - Beta abierta y gratuita; la suscripción de 10 €/mes del modelo de negocio aún no está activa.
 
+## Arreglos de interfaz (2026-11-15)
+
+- Lección en pantallas pequeñas: el tablero ya no queda bajo la cabecera ni la barra inferior al pasar de paso (foco con `preventScroll`, `--header-h` con la altura real de la cabecera y `scroll-padding`/`scroll-margin`; `web/src/headerHeight.ts`). El nombre de usuario ocupa el hueco libre de la cabecera móvil y se abrevia con puntos suspensivos solo si no cabe (nombre completo en `title`).
+- Portada sin esperar a `/api/me`: contenido al instante, hueco neutro en el botón principal, CLS 0. El LCP medido no mejora (los textos de la portada entran con fundido desde opacidad 0). Detalle y cifras en `docs/auditoria-plena/02-...` y `03-...`.
+
 ## Pendiente, por orden recomendado
 00. **Aplicar la migración 0010 en remoto antes de desplegar** (`npx wrangler d1 migrations apply PULSE_DB --remote`): crea `cp_puzzle_stats` con sus tres disparadores y los índices, y rellena los contadores desde `cp_puzzle_pool`. Sin ella el cron falla (se registra, no tumba nada) y el relleno del depósito se para. Es idempotente. Primera vez que una migración lleva disparadores (`CREATE TRIGGER ... BEGIN ... END`): se probó con D1 local real (workerd) y node:sqlite, **no** con `wrangler d1 migrations apply --remote`; si el comando rechazara el `BEGIN ... END`, avisa antes de tocar nada más. Con ella aplicada el cron queda cada minuto (ya en `wrangler.jsonc`).
 0. **Aplicar la migración 0009 en remoto antes de desplegar** (`npx wrangler d1 migrations apply PULSE_DB --remote`): sin `cp_session_claims` ni `cp_cron_state` fallan la creación de sesiones y el relleno del depósito. Solo se ha aplicado en las bases de los tests (node:sqlite y D1 local temporal).

@@ -9,6 +9,7 @@ import { Coin } from './components/ShopVisuals';
 import { chedexText } from './shop';
 import { Icon, Loading, type IconName } from './components/Icon';
 import { SoundToggle } from './components/SoundToggle';
+import { useHeaderHeight } from './headerHeight';
 
 // Pantallas con carga diferida: el paquete inicial solo lleva portada, acceso y marco; cada pantalla se descarga al visitarla.
 const PrivacyScreen = lazy(() => import('./screens/Privacy').then((m) => ({ default: m.PrivacyScreen })));
@@ -26,6 +27,7 @@ export function App() {
   const path = usePath();
   const { loading, connectionError, retryConnection, user, logout, billingMode, shop, levelChosen } = useSession();
   const isPrivate = isPrivatePath(path);
+  useHeaderHeight(!!user && isPrivate);
 
   useEffect(() => {
     if (!loading && !user && isPrivate && !connectionError) navigate('/entrar', { replace: true });
@@ -47,7 +49,8 @@ export function App() {
   }, [path]);
 
   let screen: ReactNode;
-  if (loading) screen = <Loading label="Cargando…" />;
+  // La portada es pública: pinta ya y solo sus botones esperan a la sesión (ver PrimaryCta y la cabecera).
+  if (loading && !onLanding) screen = <Loading label="Cargando…" />;
   else if (isPrivate && !user && connectionError)
     screen = (
       <div className="t-card empty-state">
@@ -133,7 +136,7 @@ export function App() {
             )}
             <div className="side-user">
               {billingMode === 'beta_open' && <span className="chip chip-beta">Beta abierta</span>}
-              <span className="whoami" title="Cuenta de Lichess">
+              <span className="whoami" title={`${user.username} (cuenta de Lichess)`}>
                 <span className="whoami-avatar" aria-hidden="true">{user.username.slice(0, 1).toUpperCase()}</span>
                 <span className="whoami-text">
                   <span className="whoami-name">{user.username}</span>
@@ -183,7 +186,7 @@ export function App() {
       <main id="main" tabIndex={-1} className={onLanding ? 'main main-landing' : 'main'}>
         <Suspense fallback={<Loading label="Cargando…" />}>{screen}</Suspense>
       </main>
-      {!loading && <SiteFooter />}
+      {(!loading || onLanding) && <SiteFooter />}
     </>
   );
 }
