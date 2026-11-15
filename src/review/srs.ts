@@ -29,6 +29,8 @@ const THEME_BY_CONCEPT: Record<string, string> = {
   'tactics.skewer': 'skewer',
   'tactics.deflection': 'deflection',
   'tactics.remove_defender': 'capturingDefender',
+  'tactics.attraction': 'attraction',
+  'tactics.intermezzo': 'intermezzo',
 };
 
 export function themeForConcept(conceptId: string): string | null {

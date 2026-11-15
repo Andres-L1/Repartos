@@ -2,11 +2,18 @@ import { describe, expect, it } from 'vitest';
 import { UNITS } from '../../src/content/index.js';
 import { levelPlan } from '../../worker/level.js';
 import { unit as u10 } from '../../src/content/units/u10.js';
+import { unit as u11 } from '../../src/content/units/u11.js';
 import type { Unit } from '../../src/content/schema.js';
 import { describeLessons } from './lesson-checks.js';
 
-/** Fase 4 desde Intermedio. Además de estas comprobaciones, Stockfish: `npx tsx scripts/verify-fase4.mts u10 --bank`. */
-const UNITS_D: { unit: Unit; level: Unit['level']; requires: string }[] = [{ unit: u10, level: 'intermediate', requires: 'u09' }];
+/** Fase 4 desde Intermedio. Además de estas comprobaciones, Stockfish: `npx tsx scripts/verify-fase4.mts u10 u11 --bank`. */
+const UNITS_D: { unit: Unit; level: Unit['level']; requires: string }[] = [
+  { unit: u10, level: 'intermediate', requires: 'u09' },
+  { unit: u11, level: 'advanced', requires: 'u10' },
+];
+
+/** Sacrificios de 5 medias jugadas (atracción a una horquilla): verificados con Stockfish, aquí por balance final. */
+const CALCULATION = new Set(['u11.l01:practice:0', 'u11.l01:practice:1', 'u11.l01:evaluation:1', 'u11.l01:evaluation:2']);
 
 describe('contenido D: Fase 4 desde Intermedio (pendiente de validación de profesores)', () => {
   it('unidades con metadatos correctos, encadenadas en orden', () => {
@@ -24,11 +31,15 @@ describe('contenido D: Fase 4 desde Intermedio (pendiente de validación de prof
   it('están en el temario y sus niveles dejan de estar «en preparación»', () => {
     for (const { unit: u } of UNITS_D) expect(UNITS).toContain(u);
     expect(levelPlan('intermediate', { units: UNITS })).toMatchObject({ recommendedUnitId: 'u10', comingSoon: false });
+    expect(levelPlan('advanced', { units: UNITS })).toMatchObject({ recommendedUnitId: 'u11', comingSoon: false });
   });
 
   it('sin emojis en los textos', () => {
     expect(JSON.stringify(UNITS_D.map((d) => d.unit))).not.toMatch(/\p{Extended_Pictographic}/u);
   });
 
-  describeLessons(UNITS_D.map((d) => d.unit));
+  describeLessons(
+    UNITS_D.map((d) => d.unit),
+    { calculation: CALCULATION },
+  );
 });

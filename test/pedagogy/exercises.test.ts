@@ -35,7 +35,18 @@ describe('banco de ejercicios', () => {
         expect(() => playLine(e.fen, e.solutionUci)).not.toThrow();
       });
 
-      if (e.conceptId !== 'tactics.mate_threat' && !isPinCreation(e.fen)) {
+      // Sacrificios de 5 medias jugadas: la búsqueda de profundidad 3 no los ve (Stockfish: scripts/verify-fase4.mts --bank).
+      const longSac = e.solutionUci.length >= 5 && !playLine(e.fen, e.solutionUci).isCheckmate();
+      if (longSac) {
+        it('la línea termina con al menos dos peones más para quien juega', () => {
+          const me = load(e.fen).turn;
+          const val = { pawn: 1, knight: 3, bishop: 3, rook: 5, queen: 9, king: 0 } as const;
+          const mat = (p: ReturnType<typeof load>) => [...p.board].reduce((s, [, x]) => s + (x.color === me ? 1 : -1) * val[x.role], 0);
+          expect(mat(playLine(e.fen, e.solutionUci)) - mat(load(e.fen))).toBeGreaterThanOrEqual(2);
+        });
+      }
+
+      if (e.conceptId !== 'tactics.mate_threat' && !isPinCreation(e.fen) && !longSac) {
         it('la solución es la mejor jugada y es única salvo sus alternativas (búsqueda de material)', () => {
           const ranked = rankMoves(e.fen, 3);
           const accepted = [e.solutionUci[0], ...(e.alt ?? [])];

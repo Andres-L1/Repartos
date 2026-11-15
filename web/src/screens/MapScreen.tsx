@@ -15,7 +15,7 @@ export const LEVEL_LABEL: Record<Level, string> = {
   basic: 'Básico · 800-1100',
   intermediate: 'Intermedio · 1100-1400',
   advanced: 'Avanzado · 1400-1700',
-  competitive: 'Competitivo · 1700-2000',
+  competitive: 'Competitivo · 1700 o más',
 };
 
 const STATUS_ICON: Record<LessonStatus, IconName> = { locked: 'lock', available: 'play', completed: 'check' };

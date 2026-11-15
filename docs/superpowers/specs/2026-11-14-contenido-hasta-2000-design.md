@@ -29,7 +29,29 @@ Orden pedagógico dentro de cada nivel: táctica primero (se verifica y da resul
 - `test/content/lesson-checks.ts` (`describeLessons`) aplica a cada unidad: FEN legal, solución legal, `wrongByMove` legal, mate en 1 único, mate en 2 forzado con una sola primera jugada, o mejor jugada por material con al menos un peón de margen (profundidad 3). `unitsB` y `unitsC` lo usan.
 - Límite conocido: la búsqueda de material no ve horizontes largos; las posiciones se construyen para que la idea se resuelva en 3 jugadas.
 
+## Estado tras la segunda tanda (2026-11-15)
+
+Decisiones 1 y 2 aprobadas por el usuario (conceptos nuevos y Stockfish para verificar). Todo lo nuevo sigue **pendiente de validación de profesores**.
+
+Hecho (los ids de unidad cambian respecto a la tabla de arriba: la tabla reservaba u10 para finales de Básico, que siguen sin verificador exacto):
+| Nivel | Unidad | Lecciones | Conceptos (tema de Lichess) |
+|---|---|---|---|
+| Intermedio | u10 «Táctica II: enfilada, desviación y eliminar al defensor» | 3 (18 ejercicios) | nuevos `tactics.skewer` (`skewer`), `tactics.deflection` (`deflection`), `tactics.remove_defender` (`capturingDefender`) |
+| Avanzado | u11 «Cálculo: atracción, jugada intermedia y mates en tres» | 3 (18 ejercicios) | nuevos `tactics.attraction` (`attraction`), `tactics.intermezzo` (`intermezzo`); `tactics.mate_threat` |
+
+- Temas de Lichess comprobados con `GET /api/puzzle/batch/{tema}` el 2026-11-14: 200 y cada puzle devuelto lleva ese tema. `overloading` no existe (404): la sobrecarga se enseña dentro de `deflection`.
+- Banco: 20 ejercicios nuevos (4 por concepto, niveles `intermediate` y `advanced`), posiciones de u10-u11 reflejadas de izquierda a derecha, más sus espejos de negras.
+- D1: ningún `CHECK` ni lista de ids de concepto en las migraciones (`concept_id TEXT`); el servidor valida contra `CONCEPTS`. **No hace falta migración.**
+- Depósito de puzles: de 5 a 10 temas, de 25 a 50 combinaciones tema x dificultad. A una petición por minuto, el primer lote de cada combinación tarda unos 50 minutos tras desplegar (más si Lichess responde 429); mientras tanto, la sesión usa el banco.
+- Verificación: `npx tsx scripts/verify-fase4.mts u10 u11 --bank` (Stockfish 16, profundidad 18, MultiPV 8) da 76/76: en cada jugada del alumno la solución es la mejor; las líneas sin mate dejan al menos +1,5 tras la primera jugada; toda jugada a 30 cp o menos está en `alt` (última jugada) o no existe (intermedias); los mates son el más corto y únicos salvo en la última jugada (allí vale cualquier mate); las respuestas del rival están a 30 cp o menos de su mejor defensa. Además, por código (`test/content/unitsD.test.ts`): legalidad, mate en 2 forzado y único, mejor jugada por material con un peón de margen y, en los 4 sacrificios de 5 medias jugadas que esa búsqueda no ve, balance final de al menos dos peones.
+- Una alternativa aceptada: u10.l01 práctica 3 (Qc8+ o Qa8+, a 7 cp).
+
+Planificado, no hecho:
+- **Competitivo (1700+)**: sigue «En preparación». Propuesta de primera unidad verificable: u12 «Defensa y cálculo largo»: (1) la única jugada que salva (Stockfish: la solución a 30 cp o menos de la mejor y todas las demás al menos 1,5 peores), (2) combinaciones mixtas de 5 a 7 medias jugadas con varios temas a la vez, (3) interferencia y despeje (temas `interference`, `clearance`, comprobados con 200). Las unidades de estrategia (estructuras de peones, profilaxis, conversión) no se pueden verificar con motor de forma fiable: solo con profesores.
+- Intermedio: finales de torre básicos y planes (columnas abiertas, casillas débiles). Avanzado: finales técnicos (Lucena, Philidor). Necesitan criterio de corrección por plan, no por jugada única: con Stockfish casi siempre hay varias jugadas ganadoras equivalentes.
+- Básico: finales de rey y peón (oposición, cuadrado). Siguen fuera: hace falta un verificador exacto (tablas de finales); cuando se haga necesita un id nuevo (p. ej. u20) con `order` entre 9 y 10 o reordenar sin cambiar ids persistidos.
+
 ## Decisiones abiertas para el usuario
-1. ¿Se aceptan conceptos nuevos (con su tema de Lichess, que alarga el relleno del depósito) o se limita el temario a los 6 actuales hasta Intermedio?
-2. ¿Se añade Stockfish (ya es dependencia, WASM) a los tests de contenido para verificar finales y planes? Sin él, solo se puede publicar táctica y mates verificados.
-3. Quién valida: el contenido u07-u09 necesita revisión de profesores antes de presentarlo como validado.
+1. (Resuelta 2026-11-15: sí a conceptos nuevos.) Competitivo: ¿se publica u12 con la propuesta de arriba o se espera a profesores para todo el nivel?
+2. (Resuelta: Stockfish sí, como script bajo demanda; los tests de Vitest no lo ejecutan.) ¿Se integra `scripts/verify-fase4.mts` en el auditor `npm run audit:content` que prepara otro agente?
+3. Quién valida: u07-u11 necesitan revisión de profesores antes de presentarlos como validados.

@@ -204,7 +204,7 @@ const LEVELS: LevelInfo[] = [
   { id: 'basic', name: 'Básico', range: '800 a 1100 Elo', focus: 'Cálculo y comprensión.' },
   { id: 'intermediate', name: 'Intermedio', range: '1100 a 1400 Elo', focus: 'Estrategia y planificación.' },
   { id: 'advanced', name: 'Avanzado', range: '1400 a 1700 Elo', focus: 'Profundización técnica.' },
-  { id: 'competitive', name: 'Competitivo', range: '1700 a 2000 Elo', focus: 'Rendimiento y preparación.' },
+  { id: 'competitive', name: 'Competitivo', range: '1700 Elo o más', focus: 'Rendimiento y preparación.' },
 ];
 
 const AVAILABLE: Level[] = ['beginner', 'initiation'];

@@ -168,7 +168,7 @@ export function ProfileScreen() {
           const info = LEVELS.find((l) => l.id === level);
           return levelChosen && info ? (
             <p>
-              Estás en <strong>{info.label}</strong> ({info.minElo} a {info.maxElo} Elo). Lichess solo sugiere: el nivel lo eliges tú.
+              Estás en <strong>{info.label}</strong> ({info.id === 'competitive' ? `${info.minElo} Elo o más` : `${info.minElo} a ${info.maxElo} Elo`}). Lichess solo sugiere: el nivel lo eliges tú.
             </p>
           ) : (
             <p>Todavía no has elegido tu nivel.</p>

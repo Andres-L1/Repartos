@@ -53,10 +53,25 @@ export interface LessonCheckOptions {
   principleLessons?: Set<string>;
   /** Ejercicios de defensa: la solución evita un mate y no pierde material (puede haber otras defensas válidas). */
   defend?: Set<string>;
+  /**
+   * Líneas de cálculo (sacrificios de 5 medias jugadas) que la búsqueda de profundidad 3 no ve: se verifican con
+   * Stockfish (scripts/verify-fase4.mts); aquí, que el alumno acaba la línea con al menos dos peones más que al empezar.
+   */
+  calculation?: Set<string>;
+}
+
+const VAL: Record<string, number> = { pawn: 100, knight: 300, bishop: 300, rook: 500, queen: 900, king: 0 };
+function materialFor(pos: ReturnType<typeof load>, color: 'white' | 'black'): number {
+  let s = 0;
+  for (const [, p] of pos.board) s += (p.color === color ? 1 : -1) * VAL[p.role]!;
+  return s;
 }
 
 /** Esquema, legalidad y solución verificada por código de cada lección de las unidades dadas. */
-export function describeLessons(units: Unit[], { principleLessons = new Set(), defend = new Set() }: LessonCheckOptions = {}): void {
+export function describeLessons(
+  units: Unit[],
+  { principleLessons = new Set(), defend = new Set(), calculation = new Set() }: LessonCheckOptions = {},
+): void {
   it('ids únicos y con el formato uNN.lNN', () => {
     const ids = units.flatMap((u) => u.lessons.map((l) => l.id));
     expect(new Set(ids).size).toBe(ids.length);
@@ -151,6 +166,11 @@ export function describeLessons(units: Unit[], { principleLessons = new Set(), d
                   // intermedia del rival es ilegal (playLine ya lo comprueba). El texto aclara que es una trampa.
                   expect(step.solutionUci.length).toBeGreaterThanOrEqual(5);
                 }
+                return;
+              }
+              if (calculation.has(key)) {
+                const me = load(step.fen).turn;
+                expect(materialFor(end, me) - materialFor(load(step.fen), me), key).toBeGreaterThanOrEqual(200);
                 return;
               }
               const ranked = rankMoves(step.fen, 3);

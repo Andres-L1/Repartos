@@ -343,4 +343,74 @@ export const CONCEPTS: Concept[] = [
       'Comprueba que el rival no puede recuperar el material y salvar la pieza a la vez.',
     ],
   },
+  {
+    id: 'tactics.attraction',
+    category: 'Táctica',
+    name: 'Atracción',
+    definition:
+      'La atracción es un sacrificio que obliga a una pieza rival, a menudo el rey, a ocupar una casilla concreta donde después sufre una horquilla, una clavada o un mate.',
+    recommendedLevel: 'advanced',
+    learningObjectives: [
+      'Ver la casilla a la que conviene llevar al rey o a una pieza rival (horquilla, mate, clavada).',
+      'Encontrar el sacrificio forzado, normalmente con jaque, que la obliga a ir allí.',
+      'Calcular la línea completa y comprobar que se recupera más material del entregado.',
+    ],
+    detection:
+      'El rival sacrifica material que el alumno está obligado a capturar y, con la pieza capturadora en esa casilla, gana más material o da mate; el motor confirma la pérdida.',
+    explanations: {
+      beginner:
+        '{hecho}\nEl rival te ofreció una pieza para llevar a tu rey o a otra pieza a una casilla mala.\nAntes de capturar algo gratis, mira dónde quedará tu pieza después.',
+      initiation:
+        '{hecho}\nAl capturar, tu pieza fue a una casilla donde el rival tenía preparado un golpe.\nCasillas implicadas: {casillas}.\nCuando el rival entrega material con jaque, busca qué amenaza después.',
+      basic:
+        '{hecho}\nAtracción: un sacrificio que obliga a capturar y deja tu pieza en una casilla de horquilla o de mate.\nCasillas implicadas: {casillas}; piezas: {piezas}.\nSe pierde material equivalente a {perdida}.\nAntes de aceptar un sacrificio, mira los saltos de caballo y los jaques que quedarían.',
+      intermediate:
+        '{hecho}\nLa jugada {refutacion} atrae a tu pieza a {casillas}, donde el rival recupera con creces lo sacrificado. Pérdida: {perdida}.\nUn sacrificio con jaque te deja sin elección: calcula a qué casilla te obliga y qué viene después.',
+      advanced:
+        '{hecho}\nTras {jugada}, el sacrificio {refutacion} atrae a la pieza capturadora a {casillas}. Material perdido: {perdida}.\nEn la defensa, valora los sacrificios forzados del rival como líneas de cálculo obligatorio, no como regalos.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Atracción a {casillas} ({piezas}). Material en juego: {perdida}.\nLas combinaciones de atracción se ven al revés: primero la casilla final del golpe, después el sacrificio que lleva allí a la pieza.',
+    },
+    exerciseIds: ['ex.attraction.01', 'ex.attraction.02', 'ex.attraction.03', 'ex.attraction.04'],
+    evaluationCriteria: [
+      'Identifica la casilla donde la pieza rival sufriría el golpe.',
+      'Encuentra el sacrificio forzado que la lleva allí.',
+      'Calcula la línea hasta recuperar más material del entregado o dar mate.',
+    ],
+  },
+  {
+    id: 'tactics.intermezzo',
+    category: 'Táctica',
+    name: 'Jugada intermedia',
+    definition:
+      'Una jugada intermedia es un jaque, una captura o una amenaza que se intercala antes de la jugada esperada (casi siempre una recaptura), obligando al rival a responder y ganando algo por el camino.',
+    recommendedLevel: 'advanced',
+    learningObjectives: [
+      'Antes de recapturar de forma automática, buscar jaques y capturas forzantes.',
+      'Comprobar que la recaptura seguirá disponible después de la jugada intermedia.',
+      'Tener en cuenta las jugadas intermedias del rival al calcular un cambio.',
+    ],
+    detection:
+      'En una secuencia de capturas, el rival intercala un jaque o una captura forzante en lugar de recapturar y termina con más material; el motor confirma la pérdida.',
+    explanations: {
+      beginner:
+        '{hecho}\nEl rival no recapturó enseguida: primero dio un jaque o capturó otra pieza, y luego recapturó.\nCuando cambies piezas, mira si el rival tiene un jaque antes de recapturar.',
+      initiation:
+        '{hecho}\nEl rival intercaló una jugada que tenías que atender y después recuperó el material.\nCasillas implicadas: {casillas}.\nAntes de iniciar un cambio, revisa los jaques del rival.',
+      basic:
+        '{hecho}\nJugada intermedia: en medio de un cambio, el rival juega algo forzante (jaque o captura) y gana material extra.\nCasillas implicadas: {casillas}; piezas: {piezas}.\nSe pierde material equivalente a {perdida}.\nCalcula los cambios contando también los jaques del rival en cada paso.',
+      intermediate:
+        '{hecho}\nEn lugar de la recaptura esperada, {refutacion} obliga a responder y el cambio termina a favor del rival. Pérdida: {perdida}.\nAl calcular un cambio, la pregunta no es solo «qué recaptura», sino «qué jugada forzante tiene antes».',
+      advanced:
+        '{hecho}\nTras {jugada}, la jugada intermedia {refutacion} altera el resultado del cambio. Material perdido: {perdida}.\nComprueba en cada paso de una secuencia de capturas si alguna pieza tuya queda expuesta a una captura con jaque.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Jugada intermedia en {casillas}. Material en juego: {perdida}.\nLas líneas de cambio deben calcularse con todas las jugadas forzantes intercaladas; la recaptura «obvia» rara vez es la única opción.',
+    },
+    exerciseIds: ['ex.intermezzo.01', 'ex.intermezzo.02', 'ex.intermezzo.03', 'ex.intermezzo.04'],
+    evaluationCriteria: [
+      'Antes de recapturar, busca jaques y capturas forzantes.',
+      'Comprueba que la recaptura sigue disponible tras la jugada intermedia.',
+      'Calcula el balance final del cambio.',
+    ],
+  },
 ];

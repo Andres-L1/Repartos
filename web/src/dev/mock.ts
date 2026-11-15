@@ -4,6 +4,7 @@ import type { Level } from '../../../src/types';
 import { LEVELS, suggestLevel } from '../../../src/shared/levels';
 import type { BillingMode, Equipped, MapUnit, LevelInfo, OutlineUnit, Profile, Shop, Subscription, User } from '../../../src/shared/api';
 import type { Lesson } from '../../../src/content/schema';
+import { UNITS } from '../../../src/content/index';
 
 const L1: Lesson = {
   id: 'u01.l01',
@@ -166,7 +167,31 @@ const MOCK_ELO: number | null = (() => {
 })();
 
 /** Niveles del mock con contenido: el resto avisa de que llega pronto. */
-const MOCK_AVAILABLE: Level[] = ['beginner', 'initiation'];
+const MOCK_AVAILABLE: Level[] = ['beginner', 'initiation', 'basic', 'intermediate', 'advanced'];
+
+/** Unidades reales de la Fase 4 (u07 en adelante): el mapa simulado las muestra tal cual (el temario ya va en el paquete). */
+const fase4 = async () => UNITS.filter((u) => u.order >= 7);
+
+async function fase4Map(chosen: Level | null): Promise<MapUnit[]> {
+  const units = await fase4();
+  return units.map((u) => ({
+    id: u.id,
+    order: u.order,
+    title: u.title,
+    description: u.description,
+    level: u.level,
+    status: state.completed[u.lessons.at(-1)!.id] !== undefined ? 'completed' : 'available',
+    ...(chosen === u.level && units.find((x) => x.level === u.level) === u ? { recommended: true } : {}),
+    lessons: u.lessons.map((l) => ({
+      id: l.id,
+      title: l.title,
+      objective: l.objective,
+      demo: false,
+      status: state.completed[l.id] !== undefined ? 'completed' : 'available',
+      ...(state.completed[l.id] !== undefined ? { bestScore: state.completed[l.id] ?? 0 } : {}),
+    })),
+  }));
+}
 
 function levelInfo(): LevelInfo {
   const reliable = MOCK_ELO !== null;
@@ -449,7 +474,7 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     save();
     return json(buildShop());
   }
-  if (path === '/map') return json({ units: buildMap() });
+  if (path === '/map') return json({ units: [...buildMap(), ...(await fase4Map(levelInfo().chosen))] });
   if (path === '/level' && method === 'GET') return json(levelInfo());
   if (path === '/level' && method === 'PUT') {
     const lv = LEVELS.find((l) => l.id === body.level);
@@ -460,7 +485,8 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   }
   const lm = path.match(/^\/lessons\/([^/]+)(\/complete)?$/);
   if (lm) {
-    const lesson = LESSONS[decodeURIComponent(lm[1] ?? '')];
+    const id = decodeURIComponent(lm[1] ?? '');
+    const lesson = LESSONS[id] ?? (await fase4()).flatMap((u) => u.lessons).find((l) => l.id === id);
     if (!lesson) return err(404, 'Lección no encontrada.');
     if (!lm[2]) {
       if (MODE === 'dev' && !lesson.demo && state.sub.status !== 'active') return err(402, 'Esta lección requiere suscripción.');

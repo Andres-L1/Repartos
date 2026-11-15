@@ -30,6 +30,8 @@ describe('biblioteca de conceptos', () => {
         'tactics.skewer',
         'tactics.deflection',
         'tactics.remove_defender',
+        'tactics.attraction',
+        'tactics.intermezzo',
       ].sort(),
     );
   });
