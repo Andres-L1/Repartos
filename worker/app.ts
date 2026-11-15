@@ -266,6 +266,12 @@ export function createApp(deps: AppDeps) {
   const requireAuth = async (c: Ctx, next: () => Promise<void>) => {
     const s = await readSession(c, auth);
     if (!s) return c.json({ error: 'Sesión requerida' }, 401);
+    // Cuenta borrada (DELETE /api/account desde otro dispositivo o navegador): la cookie sigue firmada pero ya no hay usuario.
+    if (!(await db.first('SELECT 1 FROM cp_users WHERE id = ?', [s.id]))) {
+      const res = c.json({ error: 'Sesión requerida' }, 401);
+      for (const ck of clearedCookies(deps.publicOrigin!)) res.headers.append('Set-Cookie', ck);
+      return res;
+    }
     c.set('user', { id: s.id, username: s.username });
     await next();
   };

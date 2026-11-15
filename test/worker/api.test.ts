@@ -249,6 +249,19 @@ describe('OAuth con Lichess', () => {
     expect((await s.req('GET', '/api/me')).status).toBe(401);
   });
 
+  it('cookie firmada de una cuenta ya borrada (otro dispositivo): 401 y se limpia la cookie, nunca 500', async () => {
+    const s = setup();
+    await s.login();
+    const cookie = [...s.jar].map(([k, v]) => `${k}=${v}`).join('; ');
+    expect((await s.req('GET', '/api/profile', undefined, { cookie })).status).toBe(200);
+    expect((await s.raw('DELETE', '/api/account', undefined, { origin: ORIGIN })).status).toBe(200);
+    for (const [method, path, body] of [['GET', '/api/profile'], ['GET', '/api/session'], ['POST', '/api/review/complete', { gameId: 'abcd1234', concepts: [] }], ['GET', '/api/shop']] as const) {
+      const res = await s.raw(method, path, body, { cookie });
+      expect(res.status, `${method} ${path}`).toBe(401);
+      expect(res.headers.getSetCookie().some((c) => c.startsWith('__Host-chedex_session=;') && c.includes('Max-Age=0'))).toBe(true);
+    }
+  });
+
   it('GET /auth/logout no existe; registro/login con contraseña eliminados', async () => {
     const s = setup();
     expect((await s.raw('GET', '/auth/logout')).status).toBe(404);
