@@ -117,3 +117,6 @@
   .ss-play .ss-dock { grid-column: 2; grid-row: 3; }
 }
 @media (prefers-reduced-motion: reduce) { .ss-bar-fill { transition: none; } }
+
+/* Alternativa escrita al tablero (portal en #main, tras el juego). */
+.ss-typed { max-width: 1000px; margin: 12px auto 0; }
