@@ -231,6 +231,24 @@ describe('OAuth con Lichess', () => {
     expect((await s.req('GET', '/api/me')).status).toBe(401);
   });
 
+  it('DELETE /api/account borra al usuario y todo lo suyo, cierra la sesión y exige Origin propio', async () => {
+    const s = setup();
+    await s.login();
+    await s.req('PUT', '/api/level', { level: 'beginner' });
+    await s.req('PUT', '/api/profile/daily-goal', { xp: 30 });
+    expect((await s.req('DELETE', '/api/account')).status).toBe(403);
+    expect((await s.req('DELETE', '/api/account', undefined, { origin: 'https://evil.example' })).status).toBe(403);
+    const n = (t: string) => (s.db.raw.prepare(`SELECT COUNT(*) AS n FROM ${t} WHERE user_id = 'ana'`).get() as { n: number }).n;
+    expect(n('cp_profiles')).toBe(1);
+    expect(n('cp_user_level')).toBe(1);
+    const ok = await s.raw('DELETE', '/api/account', undefined, { origin: ORIGIN });
+    expect(ok.status).toBe(200);
+    expect(ok.headers.getSetCookie().some((c) => c.startsWith('__Host-chedex_session=;') && c.includes('Max-Age=0'))).toBe(true);
+    for (const t of ['cp_profiles', 'cp_user_level', 'cp_placement', 'cp_placement_seen']) expect(n(t)).toBe(0);
+    expect(s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_users WHERE id = 'ana'").get()).toEqual({ n: 0 });
+    expect((await s.req('GET', '/api/me')).status).toBe(401);
+  });
+
   it('GET /auth/logout no existe; registro/login con contraseña eliminados', async () => {
     const s = setup();
     expect((await s.raw('GET', '/auth/logout')).status).toBe(404);
