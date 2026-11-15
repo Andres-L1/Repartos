@@ -98,6 +98,19 @@ export function useMuted(): boolean {
   return useSyncExternalStore(subscribe, isMuted, () => false);
 }
 
+/** Los de acierto y victoria (los más pesados) se descargan con el primer gesto, no al cargar la página. */
+const EAGER: SoundName[] = ['move', 'capture', 'check'];
+const loaded = new Set<SoundName>();
+/** Solo el primer elemento descarga el fichero; los demás lo toman de la caché cuando ya está (una petición por sonido, no una por elemento). */
+function load(name: SoundName): void {
+  const list = pool.get(name);
+  if (!list?.length || loaded.has(name)) return;
+  loaded.add(name);
+  const [first, ...rest] = list as [HTMLAudioElement, ...HTMLAudioElement[]];
+  first.addEventListener('canplaythrough', () => { for (const a of rest) a.src = FILES[name]; }, { once: true });
+  first.src = FILES[name];
+}
+
 /** Crea y precarga los elementos de audio. No reproduce nada. Seguro de llamar varias veces. */
 export function primeSounds(): void {
   if (!hasWindow || pool.size || typeof Audio === 'undefined') return;
@@ -110,11 +123,8 @@ export function primeSounds(): void {
         a.volume = SOUND_VOLUME;
         list.push(a);
       }
-      // Solo el primer elemento descarga el fichero; los demás lo toman de la caché cuando ya está (una petición por sonido, no una por elemento).
-      const [first, ...rest] = list as [HTMLAudioElement, ...HTMLAudioElement[]];
-      first.addEventListener('canplaythrough', () => { for (const a of rest) a.src = FILES[name]; }, { once: true });
-      first.src = FILES[name];
       pool.set(name, list);
+      if (EAGER.includes(name)) load(name);
     }
     installUnlock();
   } catch {
@@ -129,6 +139,7 @@ function installUnlock(): void {
     if (unlocked) return;
     unlocked = true;
     for (const ev of EVENTS) window.removeEventListener(ev, unlock, true);
+    for (const name of pool.keys()) load(name);
     for (const list of pool.values())
       for (const a of list) {
         try {
@@ -160,8 +171,9 @@ export function playSound(name: SoundName): void {
     if (!pool.size) primeSounds();
     const list = pool.get(name);
     if (!list?.length) return;
+    load(name); // por si el gesto de desbloqueo aún no llegó (p. ej. teclado)
     // Primer elemento libre; si todos suenan, se reinicia el más antiguo.
-    const a = list.find((x) => x.paused || x.ended) ?? list[0]!;
+    const a = list.find((x) => x.src && (x.paused || x.ended)) ?? list[0]!;
     a.muted = false;
     a.volume = SOUND_VOLUME;
     try {
