@@ -87,7 +87,6 @@ async function request<T>(method: string, path: string, body?: unknown, opts: { 
 /** Respuesta de completar una lección. Los campos de la tienda pueden faltar en un servidor antiguo. */
 export interface CompleteResponse {
   progress: LessonProgress;
-  xpGained: number;
   profile: Profile;
   chedexEarned?: number;
   protectorUsed?: boolean;

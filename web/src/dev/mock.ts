@@ -237,12 +237,9 @@ function load(): MockState {
     completed: {},
     chosenLevel: null,
     profile: {
-      xp: 0,
       level: 'beginner',
       streakDays: 0,
       longestStreak: 0,
-      dailyGoalXp: 20,
-      xpToday: 0,
       lessonsCompleted: 0,
       weakConcepts: {},
     },
@@ -504,13 +501,10 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     const total = Number(body.total ?? 1);
     const score = total ? correct / total : 0;
     const passed = correct >= (lesson.passMark ?? Math.max(1, total - 1));
-    const xpGained = passed ? 10 + correct * 5 : 3;
     const w = wallet();
     const firstTime = passed && state.completed[lesson.id] === undefined;
     if (passed) state.completed[lesson.id] = Math.max(state.completed[lesson.id] ?? 0, score);
     const p = state.profile;
-    p.xp += xpGained;
-    p.xpToday += xpGained;
     // El modo simulado cuenta cada lección nueva como un día más de racha.
     if (firstTime) p.streakDays += 1;
     else p.streakDays = Math.max(1, p.streakDays);
@@ -532,7 +526,6 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     save();
     return json({
       progress: { lessonId: lesson.id, completed: passed, bestScore: score, attempts: 1 },
-      xpGained,
       profile: p,
       chedexEarned,
       protectorUsed,

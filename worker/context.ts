@@ -1,5 +1,5 @@
 /** Contexto compartido por las rutas: acceso a datos y helpers que usan varios dominios (perfil, nivel, suscripción, sesión). */
-import type { BillingMode, ProfileData, Subscription, SubscriptionStatus } from '../src/shared/api.js';
+import type { BillingMode, Profile, Subscription, SubscriptionStatus } from '../src/shared/api.js';
 import type { Db, Stmt } from './db.js';
 import type { BillingProvider } from './billing.js';
 import { clearedCookies, readSession, type AuthConfig } from './auth.js';
@@ -121,7 +121,7 @@ export function createContext(deps: AppDeps) {
     return row && isLevel(row.level) ? row.level : null;
   }
 
-  async function profileFor(userId: string): Promise<ProfileData> {
+  async function profileFor(userId: string): Promise<Profile> {
     const p = await loadProfile(userId);
     const t = now();
     // Racha efectiva (días UTC): hoy/ayer, o un hueco de exactamente un día cubierto por un protector (sin consumirlo).

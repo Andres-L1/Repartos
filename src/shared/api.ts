@@ -52,7 +52,7 @@ export interface Subscription {
 }
 
 /** Lo que envía el servidor en `profile`. */
-export interface ProfileData {
+export interface Profile {
   level: Level; // nivel educativo interno (no Elo)
   streakDays: number;
   longestStreak: number;
@@ -61,16 +61,6 @@ export interface ProfileData {
   weakConcepts: Record<string, number>;
 }
 
-/**
- * Forma que aún espera la web (`web/src/api.ts`, simulador `web/src/dev/mock.ts`). El servidor ya no envía XP ni objetivo
- * diario y la web no los lee: borrar estos tres campos junto con el uso del simulador y entonces `Profile` = `ProfileData`.
- * @deprecated
- */
-export interface Profile extends ProfileData {
-  xp: number;
-  dailyGoalXp: number;
-  xpToday: number;
-}
 
 export type LessonStatus = 'locked' | 'available' | 'completed';
 export interface MapLesson {
