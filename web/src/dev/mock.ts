@@ -445,6 +445,11 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     save();
     return json({ user: state.user });
   }
+  if (path === '/account' && method === 'DELETE') {
+    state.user = null;
+    save();
+    return json({ ok: true });
+  }
   if (path === '/auth/logout') {
     state.user = null;
     save();

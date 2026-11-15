@@ -98,6 +98,8 @@ export const api = {
   /** El acceso real es un enlace a /auth/login (redirección a Lichess); solo el modo simulado usa la API. */
   mockLogin: () => request<{ user: User }>('GET', '/auth/login', undefined, { silent401: true }),
   logout: () => request<{ ok: true }>('POST', '/auth/logout'),
+  /** Borra la cuenta y todos sus datos (irreversible). */
+  deleteAccount: () => request<{ ok: true }>('DELETE', '/api/account'),
   me: () =>
     request<{ user: User; subscription: Subscription; billingMode: BillingMode; equipped?: Equipped; level?: Level; levelChosen?: boolean }>('GET', '/api/me', undefined, { silent401: true }),
   map: () => request<{ units: MapUnit[] }>('GET', '/api/map'),

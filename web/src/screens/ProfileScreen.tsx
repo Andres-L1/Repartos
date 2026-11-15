@@ -15,7 +15,10 @@ import '../weak.css';
 const dayWord = (n: number) => `${n} ${n === 1 ? 'día' : 'días'}`;
 
 export function ProfileScreen() {
-  const { user, level, levelChosen } = useSession();
+  const { user, level, levelChosen, deleteAccount } = useSession();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const [profile, setProfile] = useState<Profile | null>(null);
   const [units, setUnits] = useState<MapUnit[] | null>(null);
   const [error, setError] = useState('');
@@ -177,6 +180,49 @@ export function ProfileScreen() {
         <Link className="t-btn" href="/bienvenida">
           Cambiar nivel
         </Link>
+      </section>
+
+      <section className="t-card" aria-labelledby="account-title">
+        <h2 id="account-title">Tu cuenta</h2>
+        <p className="muted">Si borras tu cuenta se eliminan tu progreso, tus repasos, tus compras y tu Chedex. No se puede deshacer.</p>
+        {!confirmDelete ? (
+          <button type="button" className="t-btn" onClick={() => setConfirmDelete(true)}>
+            Borrar mi cuenta
+          </button>
+        ) : (
+          <div role="alertdialog" aria-labelledby="delete-q" className="account-confirm">
+            <p id="delete-q">
+              <strong>¿Seguro que quieres borrar tu cuenta y todos tus datos?</strong>
+            </p>
+            {deleteError && (
+              <p role="alert" className="muted">
+                {deleteError}
+              </p>
+            )}
+            <div className="actions">
+              <button
+                type="button"
+                className="t-btn"
+                disabled={deleting}
+                onClick={async () => {
+                  setDeleting(true);
+                  setDeleteError('');
+                  try {
+                    await deleteAccount();
+                  } catch (e) {
+                    setDeleting(false);
+                    setDeleteError(e instanceof ApiError ? e.message : 'No se pudo borrar la cuenta. Tu cuenta sigue como estaba; inténtalo de nuevo.');
+                  }
+                }}
+              >
+                {deleting ? 'Borrando...' : 'Sí, borrar todo'}
+              </button>
+              <button type="button" className="t-btn t-btn-ghost" disabled={deleting} onClick={() => { setConfirmDelete(false); setDeleteError(''); }}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

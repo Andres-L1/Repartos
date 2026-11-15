@@ -61,8 +61,8 @@ export function PrivacyScreen() {
       <h2>Tú decides</h2>
       <p>
         Puedes ignorar la recomendación y empezar desde el principio cuando quieras, y salir de tu cuenta en cualquier
-        momento con el botón «Salir». Para borrar tu cuenta y todos tus datos, de momento hay que pedirlo abriendo una
-        incidencia en el repositorio del proyecto (enlace en Créditos).
+        momento con el botón «Salir». Para borrar tu cuenta y todos tus datos, usa «Borrar mi cuenta» al final de tu
+        Perfil: es inmediato y no se puede deshacer.
       </p>
       <p className="actions">
         <Link className="t-btn" href="/">

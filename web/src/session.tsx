@@ -34,6 +34,8 @@ interface SessionValue {
   setSubscription(s: Subscription): void;
   clearPaywall(): void;
   logout(): Promise<void>;
+  /** Borra la cuenta en el servidor y limpia la sesión local; lanza si el servidor no la borró. */
+  deleteAccount(): Promise<void>;
 }
 
 const Ctx = createContext<SessionValue | null>(null);
@@ -177,6 +179,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         } catch {
           /* da igual: se limpia el estado local */
         }
+        setUser(null);
+        setSub(null);
+        setLevelState('initiation');
+        setLevelChosen(false);
+        navigate('/');
+      },
+      deleteAccount: async () => {
+        await api.deleteAccount(); // si falla no se limpia nada: la cuenta sigue existiendo
         setUser(null);
         setSub(null);
         setLevelState('initiation');
