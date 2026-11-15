@@ -14,7 +14,7 @@ export const unit: Unit = {
   order: 14,
   title: 'Finales de torre: nivel Avanzado',
   description:
-    'El puente de Lucena completo, la defensa de Philidor en sus dos fases y tres reglas más para los finales de torre: peón de torre y de alfil, torre detrás del peón pasado y regla de las columnas.',
+    'El puente de Lucena completo y la defensa de Philidor en sus dos fases. Además, tres reglas: peón de torre y de alfil, torre detrás del peón pasado y regla de las columnas.',
   level: 'advanced',
   requires: ['u14'],
   lessons: [

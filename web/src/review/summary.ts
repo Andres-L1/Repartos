@@ -18,6 +18,9 @@ const CONCEPT_PHRASE: Record<string, { title: string; short: string }> = {
   'tactics.clearance': { title: 'Despejes de líneas y casillas', short: 'despejes de líneas y casillas' },
   'endgame.king_pawn': { title: 'Finales de rey y peón', short: 'finales de rey y peón' },
   'endgame.rook': { title: 'Finales de torre', short: 'finales de torre' },
+  'strategy.open_file': { title: 'Columnas abiertas', short: 'columnas abiertas' },
+  'strategy.seventh_rank': { title: 'Torre en la séptima fila', short: 'la torre en la séptima fila' },
+  'strategy.outpost': { title: 'Casillas de avanzada para el caballo', short: 'casillas de avanzada para el caballo' },
 };
 
 export const conceptTitle = (id: string): string => CONCEPT_PHRASE[id]?.title ?? 'Errores tácticos';

@@ -83,3 +83,21 @@ Planificado, no hecho:
 - Comandos: `npm run verify:finales` (usa la caché y pide lo que falte; `-- --refresh` repite todo y avisa de cambios; `probe "<fen>" ["<uci ...>"]` inspecciona una posición). Tests sin red con `test/fixtures/tablebase/positions.json` (95 posiciones) en `test/content/unitsE.test.ts`.
 - Depósito de puzles: +2 temas (`pawnEndgame`, `rookEndgame`) por 5 dificultades = +10 combinaciones, 75 en total (unos 10 minutos más, con una petición por minuto).
 - Límites: tablebase hasta 7 piezas y solo resultado teórico; no mide dificultad humana. Lucena y Philidor se enseñan en sus primeros pasos, no el método completo. No se ha hecho Avanzado de torre (u15): no se ha podido sostener la calidad verificada sin más iteración, y no se han hecho planes ni estrategia.
+
+## Quinta tanda (2026-11-15): u15 torre Avanzado y u16 estrategia verificable
+
+**Pendiente de validación de profesores.**
+
+### u15 «Finales de torre: nivel Avanzado» (`advanced`, `order` 14, `requires: ['u14']`; u12 pasa a `order` 15)
+- Lecciones: l01 Lucena completo (Rd1+ o Rc4, Rd4, salida del rey Kc7-Kb6 y Rb4), l02 Philidor en dos fases (torre en la sexta fila; con el peón en la sexta, jaques por detrás) y el paso de una a otra, l03 peón de torre y de alfil, torre detrás del peón pasado y regla de las columnas. Concepto `endgame.rook`.
+- Criterio `optimal` (`scripts/lib/tablebase.ts`): en posiciones ganadas, solo las jugadas de menor DTM (DTZ si no hay DTM); empates en `alt` de la última jugada; en tablas, todas las que conservan el resultado; rival: máxima resistencia por DTM. Se eligió DTM y no DTZ porque con DTZ la tablebase prefiere salidas rápidas del peón que se alejan del puente (Ka6 en vez de Kc6); con DTM la línea óptima coincide con el método de manual.
+- Mejora de `isExpectedMove`: no se hizo. Una jugada intermedia con varias ganadoras exigiría que el reproductor (`web/src/components/PracticeBoard.tsx`) siguiera una línea alternativa; el esquema solo permite `alt` en la última jugada. En su lugar, cada ejercicio se construye con jugadas intermedias únicas (la comprobación falla si hay otra jugada de DTM óptimo).
+- Regla de las columnas: solo se afirma lo verificado en posiciones concretas (rey negro en b6 o b5 contra peón e4 y torre cortando: gana; en c6, d6 o c5: tablas). Es una regla orientativa, no un teorema general.
+- Banco: `ex.rook.05` a `08`. Depósito de puzles: sin cambios.
+
+### u16 «Estrategia verificable: actividad de las piezas» (`competitive`, `order` 16, `requires: ['u12']`)
+- Lecciones: l01 torre a la columna abierta (`strategy.open_file`), l02 torre a la séptima fila (`strategy.seventh_rank`), l03 caballo en casilla de avanzada (`strategy.outpost`); 6 ejercicios de una jugada cada una (3 práctica, 3 evaluación), 2 explicaciones, banco de 4 por concepto con espejo.
+- Posiciones: generadas con `scripts/gen-strategy.mts` (peones y piezas aleatorios con reyes enrocados, material igual o con un peón de diferencia) y filtradas: la mejor jugada a profundidad 18, MultiPV 8, es la del tema, no es captura ni jaque, supera en 60 cp o más a la segunda y la valoración queda entre 0 y +3 (jugadas con negativas se descartaron). Se probaron antes puzles de Lichess con temas `quietMove`, `advantage`, `endgame`, `middlegame`: salen casi siempre tácticas decisivas, no planes, y se descartaron.
+- Verificación: `npx tsx scripts/verify-fase4.mts u16 --bank` (modo estrategia: solución mejor, el resto al menos 60 cp por debajo, sin `alt`); por código (`test/content/unitsF.test.ts`): legalidad, jugada única y hechos del concepto en lecciones, explicaciones, banco y espejos.
+- **Lo que el motor no valida:** la pedagogía de explicar un plan, la representatividad de las posiciones y el orden de enseñanza. Las valoraciones de los textos se limitan a hechos comprobados por código y a «Stockfish la valora al menos 0,6 peones por encima de cualquier otra jugada».
+- Depósito de puzles y cron: los conceptos `strategy.*` no tienen tema de Lichess 1 a 1 (`themeForConcept` devuelve `null`, como `tactics.bad_exchange`): +0 combinaciones. Sin migración (D1 no restringe ids de concepto).

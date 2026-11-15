@@ -10,6 +10,8 @@
  * Defensa (`defense`, lecciones y banco de `tactics.defensive_move`): en la primera jugada la solución es la mejor
  * (<=30 cp) y cualquier otra jugada, salvo `alt`, está al menos 150 cp por debajo; no se exige ventaja (salvar puede
  * ser llegar a tablas).
+ * Estrategia (lecciones y banco con conceptos `strategy.*`, u16): la solución es la mejor y toda otra jugada, salvo `alt`,
+ * queda al menos 60 cp por debajo; sin exigir ventaja mínima.
  *   npx tsx scripts/verify-fase4.mts line "<fen>" "<uci uci ...>" [defense] [alt=uci,uci]   comprueba una línea suelta
  */
 import { Chess } from 'chessops/chess';
@@ -26,6 +28,8 @@ import { Stockfish, type Line } from './verify-lib.mts';
 const DEPTH = Number(process.env.DEPTH ?? FASE4.depth);
 const NEAR = FASE4.near;
 const CLEAR = FASE4.clear;
+/** Estrategia: ventaja mínima de la solución sobre la segunda mejor jugada. */
+const STRATEGY_GAP = 60;
 
 const load = (fen: string) => Chess.fromSetup(parseFen(fen).unwrap()).unwrap();
 const san = (pos: Chess, uci: string) => makeSan(pos, parseUci(uci)!);
@@ -38,6 +42,8 @@ interface Step {
   solutionUci: string[];
   alt?: string[];
   defense?: boolean;
+  /** Estrategia (`strategy.*`): la solución es la mejor y toda otra jugada, salvo `alt`, queda al menos 60 cp por debajo. */
+  strategy?: boolean;
 }
 
 async function checkStep(sf: Stockfish, s: Step): Promise<string[]> {
@@ -67,9 +73,9 @@ async function checkStep(sf: Stockfish, s: Step): Promise<string[]> {
       }
     } else {
       if (sol.score < best.score - NEAR) errors.push(`${tag}: no es la mejor (${fmt(cur, best)} frente a ${fmt(cur, sol)})`);
-      const only = s.defense && i === 0;
-      if (i === 0 && !s.defense && sol.score < CLEAR) errors.push(`${tag}: ventaja insuficiente (${fmt(cur, sol)})`);
-      const near = top.filter((l) => l.uci !== uci && l.score >= sol!.score - (only ? CLEAR - 1 : NEAR));
+      const only = (s.defense || s.strategy) && i === 0;
+      if (i === 0 && !s.defense && !s.strategy && sol.score < CLEAR) errors.push(`${tag}: ventaja insuficiente (${fmt(cur, sol)})`);
+      const near = top.filter((l) => l.uci !== uci && l.score >= sol!.score - (s.strategy ? STRATEGY_GAP - 1 : only ? CLEAR - 1 : NEAR));
       const allowed = last || only ? (s.alt ?? []) : [];
       const extra = near.filter((l) => !allowed.includes(l.uci));
       if (extra.length) errors.push(`${tag}: jugadas igual de buenas fuera de alt: ${extra.map((l) => `${fmt(cur, l)} (${l.uci})`).join(', ')}`);
@@ -126,8 +132,9 @@ const steps: Step[] = [];
 for (const u of UNITS.filter((x) => unitIds.includes(x.id)))
   for (const l of u.lessons) {
     const defense = l.conceptIds?.includes(DEFENSE) ?? false;
-    l.practice.forEach((p, i) => steps.push({ key: `${l.id}:practice:${i}`, ...p, defense }));
-    l.evaluation.forEach((p, i) => steps.push({ key: `${l.id}:evaluation:${i}`, ...p, defense }));
+    const strategy = l.conceptIds?.some((c) => c.startsWith('strategy.')) ?? false;
+    l.practice.forEach((p, i) => steps.push({ key: `${l.id}:practice:${i}`, ...p, defense, strategy }));
+    l.evaluation.forEach((p, i) => steps.push({ key: `${l.id}:evaluation:${i}`, ...p, defense, strategy }));
   }
 if (args.includes('--bank')) {
   const levels = new Set(['intermediate', 'advanced', 'competitive']);
@@ -141,11 +148,12 @@ if (args.includes('--bank')) {
     'tactics.interference',
     'tactics.clearance',
   ]);
-  for (const e of EXERCISES.filter((x) => fase4.has(x.conceptId) || (levels.has(x.level) && /\.(1\d|2\d)$/.test(x.id)))) {
+  for (const e of EXERCISES.filter((x) => fase4.has(x.conceptId) || x.conceptId.startsWith('strategy.') || (levels.has(x.level) && /\.(1\d|2\d)$/.test(x.id)))) {
     const defense = e.conceptId === DEFENSE;
-    steps.push({ key: e.id, ...e, defense });
+    const strategy = e.conceptId.startsWith('strategy.');
+    steps.push({ key: e.id, ...e, defense, strategy });
     const m = mirrorExercise(e);
-    steps.push({ key: m.id, ...m, defense });
+    steps.push({ key: m.id, ...m, defense, strategy });
   }
 }
 

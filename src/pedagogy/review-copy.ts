@@ -24,6 +24,9 @@ const RULES: Record<string, string> = {
   'tactics.clearance': 'Antes de mover, mira qué línea abre el rival si aparta una pieza con jaque.',
   'endgame.king_pawn': 'En los finales de peones, cuenta el cuadrado y busca la oposición antes de mover el rey.',
   'endgame.rook': 'En los finales de torre, corta al rey rival y mantén tu torre activa.',
+  'strategy.open_file': 'Antes de mover, mira si hay una columna sin peones y si tus torres la ocupan.',
+  'strategy.seventh_rank': 'Antes de mover, mira si una torre tuya o rival puede llegar a la séptima fila.',
+  'strategy.outpost': 'Antes de mover un peón, mira qué casillas deja de proteger y si un caballo rival puede ocuparlas.',
 };
 
 const FALLBACK_RULE = 'Antes de mover, mira qué puede hacer tu rival después.';
@@ -50,6 +53,9 @@ const WHY: Record<string, string> = {
   'tactics.clearance': 'Al apartarse una pieza, otra que estaba tapada entra en juego.',
   'endgame.king_pawn': 'En un final de peones, un solo tiempo decide entre ganar y hacer tablas.',
   'endgame.rook': 'En los finales de torre, la posición del rey y de la torre decide más que el material.',
+  'strategy.open_file': 'Una torre en una columna sin peones ve todo el tablero.',
+  'strategy.seventh_rank': 'Una torre en la séptima fila ataca los peones rivales desde atrás.',
+  'strategy.outpost': 'Un caballo protegido por un peón y fuera del alcance de los peones rivales no se puede echar.',
 };
 
 const FALLBACK_WHY = 'Esta jugada le dio ventaja a tu rival.';

@@ -592,4 +592,105 @@ export const CONCEPTS: Concept[] = [
       'En ataque, saca el rey y construye el puente.',
     ],
   },
+  // Estrategia verificable (u16). Sin tema de Lichess 1 a 1: la sesión usa errores propios y el banco. Pendiente de validación de profesores.
+  {
+    id: 'strategy.open_file',
+    category: 'Estrategia',
+    name: 'Columna abierta',
+    definition:
+      'Una columna abierta es una columna sin peones de ningún bando. La torre rinde más allí porque ve todo el tablero: ocupar una columna abierta es un plan útil cuando nada más urgente lo impide.',
+    recommendedLevel: 'competitive',
+    learningObjectives: [
+      'Reconocer una columna sin peones de ningún bando.',
+      'Llevar una torre a una columna abierta antes de que lo haga el rival.',
+    ],
+    detection:
+      'Una torre del alumno queda sin usar mientras una columna abierta está libre o la ocupa el rival; el motor confirma la pérdida de ventaja.',
+    explanations: {
+      beginner:
+        '{hecho}\nUna torre vale más en una columna sin peones.\nBusca columnas libres para tus torres.',
+      initiation:
+        '{hecho}\nLa columna abierta quedó libre para el rival.\nCasillas implicadas: {casillas}.\nLas torres trabajan mejor en columnas sin peones.',
+      basic:
+        '{hecho}\nTras {jugada}, la columna abierta queda para el rival.\nCasillas implicadas: {casillas}.\nBusca la columna sin peones y lleva allí una torre.',
+      intermediate:
+        '{hecho}\nTras {jugada}, el rival ocupa la columna abierta con {refutacion}.\nCompara las columnas abiertas de la posición antes de mover una torre.',
+      advanced:
+        '{hecho}\nLa jugada {jugada} deja la columna abierta al rival; {refutacion} la aprovecha.\nDisputa o toma la columna antes de gastar tiempos en otro plan.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Casillas críticas: {casillas}.\nEn estructuras con una sola columna abierta, quien la domina suele tener la iniciativa.',
+    },
+    exerciseIds: ['ex.openfile.01', 'ex.openfile.02', 'ex.openfile.03', 'ex.openfile.04'],
+    evaluationCriteria: [
+      'Identifica la columna sin peones.',
+      'Lleva una torre a ella.',
+      'Comprueba que no hay una jugada más urgente.',
+    ],
+  },
+  {
+    id: 'strategy.seventh_rank',
+    category: 'Estrategia',
+    name: 'Torre en la séptima fila',
+    definition:
+      'La séptima fila es la fila donde empiezan los peones rivales. Una torre allí, con el rey rival en la octava fila, ataca los peones desde atrás y limita al rey; suele ser un plan fuerte cuando el camino está libre.',
+    recommendedLevel: 'competitive',
+    learningObjectives: [
+      'Reconocer cuándo una torre puede llegar a la séptima fila.',
+      'Comprobar que el rey rival queda en la octava fila.',
+    ],
+    detection:
+      'Una torre del alumno podía llegar a la séptima fila y no lo hizo, o el rival la ocupó; el motor confirma la pérdida de ventaja.',
+    explanations: {
+      beginner:
+        '{hecho}\nUna torre en la fila de los peones rivales los molesta mucho.\nBusca si tu torre puede llegar allí.',
+      initiation:
+        '{hecho}\nLa torre rival llegó a la séptima fila.\nCasillas implicadas: {casillas}.\nUna torre allí ataca los peones desde atrás.',
+      basic:
+        '{hecho}\nTras {jugada}, la torre rival llega a la séptima fila.\nCasillas implicadas: {casillas}.\nBusca la séptima fila para tu torre.',
+      intermediate:
+        '{hecho}\nTras {jugada}, el rival responde {refutacion} y su torre llega a la séptima fila.\nLa séptima fila vale más si el rey rival queda en la octava.',
+      advanced:
+        '{hecho}\nLa jugada {jugada} permite {refutacion}, con la torre en la séptima fila.\nImpide la entrada o llega tú primero.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Casillas críticas: {casillas}.\nCalcula si la torre en la séptima fila gana material o ata al rey antes de ceder la columna.',
+    },
+    exerciseIds: ['ex.seventh.01', 'ex.seventh.02', 'ex.seventh.03', 'ex.seventh.04'],
+    evaluationCriteria: [
+      'Comprueba que el camino a la séptima fila está libre.',
+      'Comprueba que el rey rival queda en la octava fila.',
+    ],
+  },
+  {
+    id: 'strategy.outpost',
+    category: 'Estrategia',
+    name: 'Caballo en una casilla de avanzada',
+    definition:
+      'Una casilla de avanzada es una casilla del campo rival donde tu caballo está protegido por un peón propio y ningún peón rival puede atacarlo. Un caballo allí no se puede echar con un peón y presiona toda la zona.',
+    recommendedLevel: 'competitive',
+    learningObjectives: [
+      'Reconocer una casilla protegida por un peón propio y fuera del alcance de los peones rivales.',
+      'Llevar un caballo a esa casilla.',
+    ],
+    detection:
+      'Un caballo del alumno podía ocupar una casilla de avanzada y no lo hizo, o el rival ocupó una; el motor confirma la pérdida de ventaja.',
+    explanations: {
+      beginner:
+        '{hecho}\nUn caballo protegido por un peón y sin peones que lo ataquen es muy fuerte.\nBusca una casilla así para tu caballo.',
+      initiation:
+        '{hecho}\nEl caballo rival llegó a una casilla segura.\nCasillas implicadas: {casillas}.\nUn peón no puede echarlo de allí.',
+      basic:
+        '{hecho}\nTras {jugada}, el rival coloca un caballo en una casilla de avanzada.\nCasillas implicadas: {casillas}.\nBusca casillas que ningún peón rival pueda atacar.',
+      intermediate:
+        '{hecho}\nTras {jugada}, el rival responde {refutacion} y su caballo no puede ser atacado por peones.\nComprueba qué casillas de tu campo ya no defienden tus peones.',
+      advanced:
+        '{hecho}\nLa jugada {jugada} cede una casilla de avanzada; {refutacion} la ocupa.\nCambia el caballo o impide el avance del peón que la protege.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Casillas críticas: {casillas}.\nUn caballo en una casilla de avanzada suele pedir un cambio o una ruptura que lo expulse.',
+    },
+    exerciseIds: ['ex.outpost.01', 'ex.outpost.02', 'ex.outpost.03', 'ex.outpost.04'],
+    evaluationCriteria: [
+      'Comprueba que un peón propio protege la casilla.',
+      'Comprueba que ningún peón rival puede atacarla.',
+    ],
+  },
 ];

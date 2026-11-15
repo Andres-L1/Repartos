@@ -37,6 +37,9 @@ describe('biblioteca de conceptos', () => {
         'tactics.clearance',
         'endgame.king_pawn',
         'endgame.rook',
+        'strategy.open_file',
+        'strategy.seventh_rank',
+        'strategy.outpost',
       ].sort(),
     );
   });

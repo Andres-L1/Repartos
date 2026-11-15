@@ -19,6 +19,9 @@ describe('lessonsForConcept', () => {
     'tactics.clearance',
     'endgame.king_pawn',
     'endgame.rook',
+    'strategy.open_file',
+    'strategy.seventh_rank',
+    'strategy.outpost',
   ])('%s resolves to at least one lesson', (c) => {
     const r = lessonsForConcept(c);
     expect(r.length).toBeGreaterThan(0);
