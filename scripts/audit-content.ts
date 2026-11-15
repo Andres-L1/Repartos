@@ -19,6 +19,7 @@ import {
   checkMateClaim,
   checkSanMentions,
   compareSolution,
+  FASE4,
   type Finding,
   type FindingType,
   isDirected,
@@ -29,6 +30,7 @@ import {
   parseClaims,
   SEVERITY,
   type Severity,
+  STABLE_CAP,
   THRESHOLDS,
   uciMove,
 } from './audit/lib.js';
@@ -206,7 +208,10 @@ async function runEngine() {
         if (t.claims) {
           const c = parseClaims(t.claims.prompt);
           if (c.mate) add(t.where, t.loc, checkMateClaim(t.fen, t.claims.solution, c.mate, lines[0]));
-          if (c.winsMaterial) add(t.where, t.loc, checkMaterialClaim(t.fen, solLine));
+          if (c.winsMaterial) {
+            const deep = (fen: string, sm?: string[]) => e.analyzeMulti(fen, FASE4.depth, 1, sm).then((l) => l[0] ?? { pv: [] });
+            add(t.where, t.loc, await checkMaterialClaim(t.fen, t.sol, deep));
+          }
         }
         if (++done % 20 === 0) process.stderr.write(`  motor: ${done}/${tasks.length}\n`);
       }
@@ -238,12 +243,13 @@ const md = [
   '',
   `> **Aviso.** ${DISCLAIMER}`,
   '',
-  `- Alcance: ${scope ? scope.join(', ') : 'u01-u06 y banco de ejercicios con sus espejos'}. Las mini lecciones de error (error-lesson) no tienen posiciones fijas: se generan de cada partida y no entran.`,
+  `- Alcance: ${scope ? scope.join(', ') : `${UNITS[0]!.id}-${UNITS.at(-1)!.id} y banco de ejercicios con sus espejos`}. Las mini lecciones de error (error-lesson) no tienen posiciones fijas: se generan de cada partida y no entran.`,
   `- Posiciones con solución: ${positions}; jugadas del alumno analizadas: ${useEngine ? tasks.length : 0}.`,
   useEngine
     ? `- Motor: Stockfish 16 NNUE de un hilo, profundidad ${depth}, MultiPV ${multipv}, hash limpio por posición (${secs} s).`
     : '- Sin motor (--no-engine): solo legalidad, mates en 1, afirmaciones de mate y lint.',
   `- Umbrales: solución peor que la mejor en más de ${THRESHOLDS.worse} cp; alternativa a ${THRESHOLDS.alt} cp o menos de la solución; «sigue ganando» desde +${THRESHOLDS.stillWinning / 100}. Mate en N = 20000 − 100·N cp.`,
+  `- «Gana material»: profundidad ${FASE4.depth}, línea principal seguida hasta una posición estable (tope ${STABLE_CAP} medias jugadas); falsa si ni el balance neto sube ni la evaluación supera en +1 al material de antes.`,
   '',
   '## Resumen',
   '',

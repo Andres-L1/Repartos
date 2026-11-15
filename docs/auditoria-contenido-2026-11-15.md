@@ -2,33 +2,25 @@
 
 > **Aviso.** Auditor automático: Stockfish 16 NNUE (en táctica, muy por encima de 2500) más reglas de lint. No es un maestro titulado ni valida la pedagogía; sus hallazgos son candidatos que revisa una persona. No presentar este informe como validación humana.
 
-- Alcance: u01-u06 y banco de ejercicios con sus espejos. Las mini lecciones de error (error-lesson) no tienen posiciones fijas: se generan de cada partida y no entran.
-- Posiciones con solución: 346; jugadas del alumno analizadas: 419.
-- Motor: Stockfish 16 NNUE de un hilo, profundidad 16, MultiPV 4, hash limpio por posición (288 s).
+- Alcance: u01-u12 y banco de ejercicios con sus espejos. Las mini lecciones de error (error-lesson) no tienen posiciones fijas: se generan de cada partida y no entran.
+- Posiciones con solución: 388; jugadas del alumno analizadas: 524.
+- Motor: Stockfish 16 NNUE de un hilo, profundidad 16, MultiPV 4, hash limpio por posición (401 s).
 - Umbrales: solución peor que la mejor en más de 60 cp; alternativa a 30 cp o menos de la solución; «sigue ganando» desde +3. Mate en N = 20000 − 100·N cp.
+- «Gana material»: profundidad 18, línea principal seguida hasta una posición estable (tope 16 medias jugadas); falsa si ni el balance neto sube ni la evaluación supera en +1 al material de antes.
 
 ## Resumen
 
 | Tipo | Gravedad | Hallazgos |
 |---|---|---|
-| SAN_ILEGAL | grave | 1 |
-| AFIRMACION_FALSA | importante | 9 |
-| ALTERNATIVA_IGUAL_O_MEJOR | importante | 189 |
-| MATE_MULTIPLE | importante | 2 |
-| SAN_JAQUE_FALSO | importante | 1 |
+| ALTERNATIVA_IGUAL_O_MEJOR | importante | 192 |
+| MATE_MULTIPLE | importante | 5 |
 | ALTERNATIVA_EN_POSICION_GANADA | aviso | 38 |
 | CULPA | aviso | 3 |
 | FRASE_LARGA | aviso | 25 |
 | SOLUCION_DIRIGIDA_NO_OPTIMA | aviso | 13 |
 | SOLUCION_EN_POSICION_PERDIDA | aviso | 2 |
 | SOLUCION_SUBOPTIMA_GANADORA | aviso | 7 |
-| **Total** | | **290** |
-
-## Grave
-
-| Tipo | Dónde | Archivo | Detalle |
-|---|---|---|---|
-| SAN_ILEGAL | u01.l01 explicación 1 | src/content/units/u01.ts:22 | «Ra5» no es legal en la posición del paso ni en su línea |
+| **Total** | | **285** |
 
 ## Importante
 
@@ -36,7 +28,9 @@
 |---|---|---|---|
 | MATE_MULTIPLE | u03.l04 práctica 1 | src/content/units/u03.ts:383 | 5 mates en 1: Qh1#, Qh2#, Qh3#, Qg7#, Qg8# (solución Qh2#) |
 | MATE_MULTIPLE | u04.l04 práctica 4 | src/content/units/u04.ts:445 | 2 mates en 1: Qh2#, Qg4# (solución Qh2#) |
-| SAN_JAQUE_FALSO | u11.l01 explicación 1 | src/content/units/u11.ts:31 | el texto da «Nd7+» como jaque y no lo es |
+| MATE_MULTIPLE | u12.l02 evaluación 3 | src/content/units/u12.ts:227 | 2 mates en 1: Qh2#, Bh2# (solución Qh2#) |
+| MATE_MULTIPLE | ex.clearance.04 | src/pedagogy/exercises.ts:554 | 2 mates en 1: Rgxg8#, Rfxg8# (solución Rgxg8#) |
+| MATE_MULTIPLE | ex.clearance.04.m (espejo) | src/pedagogy/exercises.ts:554 | 2 mates en 1: Rfxg1#, Rgxg1# (solución Rgxg1#) |
 | ALTERNATIVA_IGUAL_O_MEJOR | u01.l02 práctica 2 | src/content/units/u01.ts:178 | Bb2 (+0.00) frente a la solución Bxf4 (+0.00): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u01.l02 práctica 2 | src/content/units/u01.ts:178 | Bd2 (+0.00) frente a la solución Bxf4 (+0.00): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u01.l02 práctica 2 | src/content/units/u01.ts:178 | Ba3 (+0.00) frente a la solución Bxf4 (+0.00): candidata a jugada aceptada |
@@ -133,27 +127,27 @@
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 1 | src/content/units/u06.ts:58 | d4 (+0.08) frente a la solución e4 (+0.04): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 1 | src/content/units/u06.ts:58 | Nf3 (+0.08) frente a la solución e4 (+0.04): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 1 | src/content/units/u06.ts:58 | e3 (+0.04) frente a la solución e4 (+0.04): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 2 | src/content/units/u06.ts:73 | Bc4 (+0.13) frente a la solución d4 (+0.04): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 2 | src/content/units/u06.ts:73 | Nc3 (+0.11) frente a la solución d4 (+0.04): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 2 | src/content/units/u06.ts:73 | Bb5 (+0.08) frente a la solución d4 (+0.04): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 3 | src/content/units/u06.ts:86 | c5 (-0.22) frente a la solución e5 (-0.13): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 3 | src/content/units/u06.ts:86 | e6 (-0.22) frente a la solución e5 (-0.13): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 3 | src/content/units/u06.ts:86 | Nc6 (-0.36) frente a la solución e5 (-0.13): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 2 | src/content/units/u06.ts:73 | Bc4 (+0.13) frente a la solución d4 (+0.04): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 2 | src/content/units/u06.ts:73 | Nc3 (+0.11) frente a la solución d4 (+0.04): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 práctica 2 | src/content/units/u06.ts:73 | Bb5 (+0.08) frente a la solución d4 (+0.04): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 evaluación 1 | src/content/units/u06.ts:116 | Nf6 (-0.08) frente a la solución d5 (-0.08): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 evaluación 1 | src/content/units/u06.ts:116 | e6 (-0.08) frente a la solución d5 (-0.08): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l01 evaluación 1 | src/content/units/u06.ts:116 | c6 (-0.31) frente a la solución d5 (-0.08): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 2 | src/content/units/u06.ts:205 | c3 (+0.13) frente a la solución O-O (+0.17): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 2 | src/content/units/u06.ts:205 | h3 (+0.13) frente a la solución O-O (+0.17): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 2 | src/content/units/u06.ts:205 | Nc3 (+0.07) frente a la solución O-O (+0.17): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 1 | src/content/units/u06.ts:190 | Nc3 (+0.11) frente a la solución Bc4 (+0.13): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 1 | src/content/units/u06.ts:190 | Bb5 (+0.08) frente a la solución Bc4 (+0.13): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 1 | src/content/units/u06.ts:190 | d4 (+0.04) frente a la solución Bc4 (+0.13): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 4 | src/content/units/u06.ts:231 | Bc5 (-0.13) frente a la solución Nf6 (-0.13): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 4 | src/content/units/u06.ts:231 | Be7 (-0.17) frente a la solución Nf6 (-0.13): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 4 | src/content/units/u06.ts:231 | d6 (-0.22) frente a la solución Nf6 (-0.13): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 2 | src/content/units/u06.ts:205 | c3 (+0.13) frente a la solución O-O (+0.17): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 2 | src/content/units/u06.ts:205 | h3 (+0.13) frente a la solución O-O (+0.17): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 2 | src/content/units/u06.ts:205 | Nc3 (+0.07) frente a la solución O-O (+0.17): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 evaluación 1 | src/content/units/u06.ts:247 | d4 (+0.22) frente a la solución Nf3 (+0.22): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 evaluación 1 | src/content/units/u06.ts:247 | Bc4 (+0.04) frente a la solución Nf3 (+0.22): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 evaluación 1 | src/content/units/u06.ts:247 | Nc3 (+0.00) frente a la solución Nf3 (+0.22): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 4 | src/content/units/u06.ts:231 | Bc5 (-0.13) frente a la solución Nf6 (-0.13): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 4 | src/content/units/u06.ts:231 | Be7 (-0.17) frente a la solución Nf6 (-0.13): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 práctica 4 | src/content/units/u06.ts:231 | d6 (-0.22) frente a la solución Nf6 (-0.13): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 evaluación 2 | src/content/units/u06.ts:260 | Na4 (+0.08) frente a la solución O-O (+0.17): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 evaluación 2 | src/content/units/u06.ts:260 | a3 (+0.06) frente a la solución O-O (+0.17): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l02 evaluación 2 | src/content/units/u06.ts:260 | Nd5 (+0.04) frente a la solución O-O (+0.17): candidata a jugada aceptada |
@@ -163,11 +157,11 @@
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 práctica 2 | src/content/units/u06.ts:332 | d3 (+0.17) frente a la solución c3 (+0.25): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 práctica 2 | src/content/units/u06.ts:332 | O-O (+0.17) frente a la solución c3 (+0.25): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 práctica 2 | src/content/units/u06.ts:332 | h3 (+0.08) frente a la solución c3 (+0.25): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 práctica 1 | src/content/units/u06.ts:318 | Qe7 (+0.08) frente a la solución Nc6 (+0.13): candidata a jugada aceptada |
-| ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 práctica 1 | src/content/units/u06.ts:318 | d6 (-0.04) frente a la solución Nc6 (+0.13): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 práctica 3 | src/content/units/u06.ts:346 | Nf6 (-0.13) frente a la solución Bc5 (-0.13): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 práctica 3 | src/content/units/u06.ts:346 | Be7 (-0.17) frente a la solución Bc5 (-0.13): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 práctica 3 | src/content/units/u06.ts:346 | d6 (-0.22) frente a la solución Bc5 (-0.13): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 práctica 1 | src/content/units/u06.ts:318 | Qe7 (+0.08) frente a la solución Nc6 (+0.13): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 práctica 1 | src/content/units/u06.ts:318 | d6 (-0.04) frente a la solución Nc6 (+0.13): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 evaluación 1 | src/content/units/u06.ts:362 | a6 (-0.17) frente a la solución Nf6 (-0.17): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 evaluación 1 | src/content/units/u06.ts:362 | Be7 (-0.22) frente a la solución Nf6 (-0.17): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u06.l03 evaluación 1 | src/content/units/u06.ts:362 | Bd6 (-0.27) frente a la solución Nf6 (-0.17): candidata a jugada aceptada |
@@ -191,14 +185,10 @@
 | ALTERNATIVA_IGUAL_O_MEJOR | u07.l03 práctica 3 | src/content/units/u07.ts:283 | Kd7 (+0.00) frente a la solución d4 (+0.00): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u07.l03 práctica 3 | src/content/units/u07.ts:283 | Ke7 (+0.00) frente a la solución d4 (+0.00): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u07.l03 práctica 3 | src/content/units/u07.ts:283 | Kd8 (+0.00) frente a la solución d4 (+0.00): candidata a jugada aceptada |
-| AFIRMACION_FALSA | u07.l03 práctica 3 | src/content/units/u07.ts:283 | dice que gana material y tras la línea del motor (d5d4 e1e2 b4c3 b2c3) el material no sube |
 | ALTERNATIVA_IGUAL_O_MEJOR | u07.l03 evaluación 3 | src/content/units/u07.ts:318 | Kg7 (+0.00) frente a la solución f4 (+0.00): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u07.l03 evaluación 3 | src/content/units/u07.ts:318 | Kf7 (+0.00) frente a la solución f4 (+0.00): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | u07.l03 evaluación 3 | src/content/units/u07.ts:318 | Kf8 (+0.00) frente a la solución f4 (+0.00): candidata a jugada aceptada |
-| AFIRMACION_FALSA | u11.l01 práctica 1 | src/content/units/u11.ts:51 | dice que gana material y tras la línea del motor (f1f8 g8f8 e5d7 f8f7) el material no sube |
-| AFIRMACION_FALSA | u11.l01 práctica 2 | src/content/units/u11.ts:64 | dice que gana material y tras la línea del motor (f8f1 g1f1 e4d2 f1f2) el material no sube |
-| AFIRMACION_FALSA | u11.l01 evaluación 2 | src/content/units/u11.ts:102 | dice que gana material y tras la línea del motor (f1f8 g8f8 g5e6 f8e7) el material no sube |
-| AFIRMACION_FALSA | u11.l01 evaluación 3 | src/content/units/u11.ts:115 | dice que gana material y tras la línea del motor (d8d1 b3d1 g4f2 h1g1) el material no sube |
+| ALTERNATIVA_IGUAL_O_MEJOR | u12.l02 evaluación 3 (jugada 2) | src/content/units/u12.ts:227 | Bh2# (#1) frente a la solución Qh2# (#1): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | ex.hanging.03.m (espejo) | src/pedagogy/exercises.ts:31 | Ba4 (+0.00) frente a la solución Bxf3 (+0.00): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | ex.hanging.03.m (espejo) | src/pedagogy/exercises.ts:31 | Be4 (+0.00) frente a la solución Bxf3 (+0.00): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | ex.hanging.03.m (espejo) | src/pedagogy/exercises.ts:31 | Bb5 (+0.00) frente a la solución Bxf3 (+0.00): candidata a jugada aceptada |
@@ -231,10 +221,8 @@
 | ALTERNATIVA_IGUAL_O_MEJOR | ex.pin.02.m (espejo) | src/pedagogy/exercises.ts:152 | Kg7 (+0.15) frente a la solución Re8 (+0.11): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | ex.pin.02.m (espejo) | src/pedagogy/exercises.ts:152 | Ra3 (+0.14) frente a la solución Re8 (+0.11): candidata a jugada aceptada |
 | ALTERNATIVA_IGUAL_O_MEJOR | ex.pin.02.m (espejo) | src/pedagogy/exercises.ts:152 | Rd8 (+0.11) frente a la solución Re8 (+0.11): candidata a jugada aceptada |
-| AFIRMACION_FALSA | ex.attraction.01 | src/pedagogy/exercises.ts:379 | dice que gana material y tras la línea del motor (c1c8 b8c8 d5e7 c8c7) el material no sube |
-| AFIRMACION_FALSA | ex.attraction.01.m (espejo) | src/pedagogy/exercises.ts:379 | dice que gana material y tras la línea del motor (c8c1 b1c1 d4e2 c1c2) el material no sube |
-| AFIRMACION_FALSA | ex.attraction.04 | src/pedagogy/exercises.ts:406 | dice que gana material y tras la línea del motor (c1c8 b8c8 b5d6 c8d7) el material no sube |
-| AFIRMACION_FALSA | ex.attraction.04.m (espejo) | src/pedagogy/exercises.ts:406 | dice que gana material y tras la línea del motor (c8c1 b1c1 b4d3 c1d2) el material no sube |
+| ALTERNATIVA_IGUAL_O_MEJOR | ex.clearance.04 (jugada 3) | src/pedagogy/exercises.ts:554 | Rfxg8# (#1) frente a la solución Rgxg8# (#1): candidata a jugada aceptada |
+| ALTERNATIVA_IGUAL_O_MEJOR | ex.clearance.04.m (espejo) (jugada 3) | src/pedagogy/exercises.ts:554 | Rfxg1# (#1) frente a la solución Rgxg1# (#1): candidata a jugada aceptada |
 
 ## Aviso
 
@@ -279,8 +267,8 @@
 | SOLUCION_DIRIGIDA_NO_OPTIMA | u01.l03 práctica 2 | src/content/units/u01.ts:302 | Kf2 (-30.01) pierde 78 cp frente a Kd2 (-29.23) |
 | SOLUCION_DIRIGIDA_NO_OPTIMA | u01.l04 práctica 1 | src/content/units/u01.ts:408 | d4 (+0.00) pierde 2880 cp frente a Ke2 (+28.80) |
 | SOLUCION_DIRIGIDA_NO_OPTIMA | u01.l04 práctica 4 | src/content/units/u01.ts:439 | d5 (+0.00) pierde 2895 cp frente a Kf7 (+28.95) |
-| SOLUCION_DIRIGIDA_NO_OPTIMA | u01.l04 práctica 3 | src/content/units/u01.ts:431 | a4 (+3.60) pierde 2476 cp frente a Ke2 (+28.36) |
 | SOLUCION_DIRIGIDA_NO_OPTIMA | u01.l04 evaluación 1 | src/content/units/u01.ts:449 | g3 (+0.00) pierde 2895 cp frente a Kf2 (+28.95) |
+| SOLUCION_DIRIGIDA_NO_OPTIMA | u01.l04 práctica 3 | src/content/units/u01.ts:431 | a4 (+3.60) pierde 2476 cp frente a Ke2 (+28.36) |
 | SOLUCION_DIRIGIDA_NO_OPTIMA | u02.l02 práctica 4 | src/content/units/u02.ts:182 | Rc1 (+2.00) pierde 2868 cp frente a Be6 (+30.68) |
 | ALTERNATIVA_EN_POSICION_GANADA | u02.l03 evaluación 2 | src/content/units/u02.ts:318 | Qe2+ (+3.80) frente a la solución Qxh5+ (+3.79): candidata a jugada aceptada |
 | ALTERNATIVA_EN_POSICION_GANADA | u02.l03 evaluación 2 | src/content/units/u02.ts:318 | Qg6+ (+3.79) frente a la solución Qxh5+ (+3.79): candidata a jugada aceptada |
@@ -311,9 +299,9 @@
 | ALTERNATIVA_EN_POSICION_GANADA | u07.l01 evaluación 1 | src/content/units/u07.ts:89 | Qd8+ (+33.93) frente a la solución Qd6+ (+34.09): candidata a jugada aceptada |
 | ALTERNATIVA_EN_POSICION_GANADA | u10.l01 práctica 3 | src/content/units/u10.ts:70 | Qa8+ (+3.52) frente a la solución Qc8+ (+3.64): candidata a jugada aceptada |
 | SOLUCION_DIRIGIDA_NO_OPTIMA | ex.exchange.02.m (espejo) | src/pedagogy/exercises.ts:72 | Nxd4 (-30.38) pierde 131 cp frente a Kf7 (-29.07) |
-| SOLUCION_DIRIGIDA_NO_OPTIMA | ex.exchange.02 | src/pedagogy/exercises.ts:72 | Nxd5 (-30.12) pierde 230 cp frente a Na4 (-27.82) |
 | SOLUCION_EN_POSICION_PERDIDA | ex.exchange.03 | src/pedagogy/exercises.ts:82 | exd5 (-37.56) pierde 271 cp frente a Ra3 (-34.85) |
 | SOLUCION_EN_POSICION_PERDIDA | ex.exchange.03.m (espejo) | src/pedagogy/exercises.ts:82 | exd4 (-40.12) pierde 354 cp frente a Ra7 (-36.58) |
+| SOLUCION_DIRIGIDA_NO_OPTIMA | ex.exchange.02 | src/pedagogy/exercises.ts:72 | Nxd5 (-30.12) pierde 230 cp frente a Na4 (-27.82) |
 | ALTERNATIVA_EN_POSICION_GANADA | ex.fork.03 | src/pedagogy/exercises.ts:122 | Qg2+ (+34.35) frente a la solución Qd5+ (+34.25): candidata a jugada aceptada |
 | ALTERNATIVA_EN_POSICION_GANADA | ex.fork.03.m (espejo) | src/pedagogy/exercises.ts:122 | Qd1+ (+33.74) frente a la solución Qd4+ (+33.55): candidata a jugada aceptada |
 | ALTERNATIVA_EN_POSICION_GANADA | ex.fork.03.m (espejo) | src/pedagogy/exercises.ts:122 | Qg7+ (+33.55) frente a la solución Qd4+ (+33.55): candidata a jugada aceptada |
@@ -329,10 +317,13 @@
 | ALTERNATIVA_EN_POSICION_GANADA | ex.pin.03.m (espejo) | src/pedagogy/exercises.ts:161 | Kf7 (+3.28) frente a la solución Qa5 (+3.03): candidata a jugada aceptada |
 | ALTERNATIVA_EN_POSICION_GANADA | ex.pin.03.m (espejo) | src/pedagogy/exercises.ts:161 | Qd4 (+3.26) frente a la solución Qa5 (+3.03): candidata a jugada aceptada |
 
-## Revisión de los hallazgos (a mano, 2026-11-15)
+## Revisión de los hallazgos (a mano, 2026-11-15, actualizada tras corregir el auditor)
 
-- **SAN_ILEGAL u01.l01 (grave):** falso positivo. «Ra5» es un ejemplo de cómo se escribe una jugada, no una jugada propuesta sobre la posición inicial.
-- **SAN_JAQUE_FALSO u11.l01:** falso positivo. El texto dice que Nd7+ será jaque después de Rf8+ Kxf8, no en la posición inicial.
-- **AFIRMACION_FALSA (9):** falsos positivos de método. El auditor mide el material al final de la línea del motor, que se corta a 4 jugadas, y en las combinaciones con sacrificio (atracción en u11, ex.attraction, y la clavada de u07.l03 p3) la ganancia llega después. La verificación específica de u10/u11 y del banco (`scripts/verify-fase4.mts`) sí mide la evaluación tras la combinación (al menos +1,5 en las líneas sin mate) y cuenta el material a más jugadas. Pendiente: que el auditor use esa misma medida.
-- **ALTERNATIVA_IGUAL_O_MEJOR (189):** candidatas a `alt`, no errores. Solo importan donde el texto afirma que la jugada es la única; se revisan por unidad cuando un profesor lo pida.
+Antes de la corrección, con el mismo contenido (u01-u12 y banco): 304 hallazgos, entre ellos SAN_ILEGAL 1, SAN_JAQUE_FALSO 1 y AFIRMACION_FALSA 17. Después: 285, sin ninguno de esos tres tipos. El resto de tipos no cambia.
+
+- **SAN_ILEGAL u01.l01 (grave):** era un falso positivo. «Ra5» es un ejemplo de notación («Ra5 es «torre a a5»»). El lint ya no comprueba los ejemplos de notación.
+- **SAN_JAQUE_FALSO u11.l01:** era un falso positivo. El texto dice que Nd7+ será jaque si el rey está en f8, después de Rf8+ Kxf8. Ahora un «+» en frase condicional («si», «cuando», «después de», «tras») vale si es jaque tras hasta dos jugadas intermedias, como ya pasaba con los mates.
+- **AFIRMACION_FALSA (17 → 0):** eran falsos positivos de método. El auditor medía el material al final de la línea del motor cortada a 4 jugadas, y en las combinaciones con sacrificio la ganancia llega después. Afectaba a u07.l03 práctica 3, u11.l01 (4), u12.l02 evaluación 2, u12.l03 (3), ex.attraction.01/.04 y ex.clearance.02/.03 con sus espejos. Ahora analiza a profundidad 18 (la de `verify-fase4.mts`) y sigue la línea principal hasta una posición estable. Solo marca si ni el balance material neto sube ni la evaluación supera en +1 al material de antes. u07.l03 práctica 3 y u05.l03 evaluación 1 son tablas muertas (0.00, la línea acaba en rey contra rey) y no se marcan. Los tests fijos comprueban que sigue detectando una afirmación falsa real: Bxc6+ bxc6, un cambio de pieza por pieza.
+- **MATE_MULTIPLE (5):** u03.l04 práctica 1 y u04.l04 práctica 4 ya estaban. Son nuevos u12.l02 evaluación 3 (Qh2# y Bh2#) y ex.clearance.04 con su espejo (Rgxg8# y Rfxg8#). Hay que revisarlos: la corrección acepta solo la jugada exacta.
+- **ALTERNATIVA_IGUAL_O_MEJOR (192):** son candidatas a `alt`, no errores. Solo importan donde el texto afirma que la jugada es la única. Se revisan por unidad cuando un profesor lo pida.
 - No se encontró ninguna solución incorrecta ni ningún texto que contradiga la posición, más allá de lo ya corregido.

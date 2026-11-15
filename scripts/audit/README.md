@@ -5,7 +5,7 @@
 ## Cómo se corre
 
 ```sh
-npm run audit:content                       # todo: u01-u06 + banco EXERCISES y sus espejos de negras
+npm run audit:content                       # todo: todas las unidades + banco EXERCISES y sus espejos de negras
 npm run audit:content -- --unit u03,bank    # solo esas unidades ("bank" = banco de ejercicios)
 npm run audit:content -- --changed          # solo lo modificado frente a main (git diff + cambios sin confirmar)
 npm run audit:content -- --no-engine        # sin motor: legalidad, mates en 1 y lint (menos de 1 s)
@@ -31,7 +31,7 @@ Para cada posición con solución (práctica y evaluación de las lecciones, eje
 | SOLUCION_SUBOPTIMA_GANADORA | aviso | pierde más de 60 cp frente a la mejor, pero sigue ganando (p. ej. +33 frente a mate en 13) |
 | ALTERNATIVA_IGUAL_O_MEJOR | importante | una jugada distinta de la solución, entre las MultiPV, está a 30 cp o menos: candidata a jugada aceptada |
 | MATE_MULTIPLE | importante | hay más de un mate en 1 (la corrección acepta solo la jugada exacta) |
-| AFIRMACION_FALSA | importante | el enunciado dice «mate (en N)» o «gana material» y la línea o el motor no lo confirman |
+| AFIRMACION_FALSA | importante | el enunciado dice «mate (en N)» o «gana material» y la línea o el motor no lo confirman (ver abajo) |
 | SAN_MATE_FALSO, SAN_JAQUE_FALSO | importante | el texto da una jugada como mate o jaque («Ra8#», «Qh5 da jaque») y no lo es |
 | NOTACION_MEZCLADA | aviso | jugada con letra española (C, A, T, D) cuando la app usa la inglesa |
 | FRASE_LARGA | aviso | más de 30 palabras entre puntos |
@@ -40,7 +40,9 @@ Para cada posición con solución (práctica y evaluación de las lecciones, eje
 
 Escala: el motor puntúa desde el bando que mueve; mate en N = 20000 − 100·N cp, para que un mate más largo cuente como peor.
 
-Jugadas citadas en el texto: solo cuentan las que llevan letra de pieza, captura, enroque, «+»/«#» o número de jugada; las casillas sueltas («la casilla e4») no. Una cita vale si es legal en la posición del paso, en su línea de solución, tras las jugadas citadas antes, con el turno cambiado (amenazas del rival), tras una jugada intermedia no citada o si ya está hecha (relatos de apertura). Por eso no da por ilegal una cita bien hecha, pero puede dejar pasar alguna mal hecha.
+«Gana material» se mide como en la pasada de Fase 4, para no marcar combinaciones con sacrificio: un mate vale; si no, el motor analiza la solución a profundidad 18 (`FASE4.depth`, compartida con `verify-fase4.mts`) y se sigue su línea principal hasta una posición estable (tras la solución y la respuesta, sin jaque y sin capturas, coronaciones ni jaques pendientes; si la variante se corta, se vuelve a preguntar al motor; tope de 16 medias jugadas). La afirmación es falsa solo si ni el balance material neto sube ni la evaluación de la solución supera en +1,0 o más al balance material de antes (la ganancia que llega más allá de la línea). En tablas muertas (evaluación 0.00 y la línea acaba sin material para dar mate) no se marca: el motor juega cualquier cosa y su línea no refuta la afirmación. Límites: ahí tampoco se detecta una afirmación falsa; si la posición ya tenía ventaja posicional de más de un peón, la evaluación puede dar por buena una afirmación que el material no confirma.
+
+Jugadas citadas en el texto: solo cuentan las que llevan letra de pieza, captura, enroque, «+»/«#» o número de jugada; las casillas sueltas («la casilla e4») no. Una cita vale si es legal en la posición del paso, en su línea de solución, tras las jugadas citadas antes, con el turno cambiado (amenazas del rival), tras una jugada intermedia no citada o si ya está hecha (relatos de apertura). Un «+» en frase condicional («Si el rey estuviera en f8, Nd7+», «después de Rf8+ Kxf8, Nd7+») vale si es jaque tras hasta dos jugadas intermedias, como los mates. Los ejemplos de notación («Ra5 es «torre a a5»», «Nf3 significa "caballo a f3"») no se comprueban. Por eso no da por ilegal una cita bien hecha, pero puede dejar pasar alguna mal hecha.
 
 Las mini lecciones de error (`src/pedagogy/error-lesson.ts`) no entran: no tienen posiciones fijas, se generan de cada partida.
 
@@ -66,6 +68,6 @@ Si algo falla, el código de salida es 1. Se puede correr sola: `npx tsx scripts
 ## Archivos
 
 - `scripts/audit-content.ts`: recorre el contenido, reparte el trabajo al motor y escribe el informe.
-- `scripts/audit/lib.ts`: funciones puras (legalidad, comparación, afirmaciones, lint, citas SAN).
+- `scripts/audit/lib.ts`: funciones puras (legalidad, comparación, afirmaciones, lint, citas SAN) y los criterios `FASE4` (profundidad, 30 cp, 150 cp) que importa `scripts/verify-fase4.mts`. «Gana material» recibe el motor como función (`Analyze`), así los tests usan líneas fijas grabadas de Stockfish.
 - `scripts/audit/engine.ts`: Stockfish con MultiPV; reutiliza `UciSession` de `src/analysis` e implementa `EngineLike`.
 - `scripts/audit/stockfish-proc.cjs`: proceso UCI de Node para `stockfish-nnue-16-single.js` (el build de la web), cuyo modo CLI no funciona en Node. Usa `node_modules/stockfish/src/` (la copia de `web/public/engine/` falla en Node porque el repo es ESM).

@@ -5,7 +5,9 @@ import {
   checkMateClaim,
   checkSanMentions,
   compareSolution,
+  followToStable,
   isDirected,
+  type Line,
   lineScore,
   lintText,
   loadPos,
@@ -81,10 +83,40 @@ describe('afirmaciones del enunciado', () => {
     expect(checkMateClaim(fen, ['a1a8'], { n: 1 }, { mate: 1, pv: ['a1a8'] })).toEqual([]);
     expect(types(checkMateClaim(fen, ['a1a7'], { n: 1 }))).toEqual(['AFIRMACION_FALSA']);
   });
-  it('comprueba que se gana material tras la respuesta', () => {
+  // Motor falso: la primera llamada (con searchmoves) da la línea de la solución; las siguientes, la continuación.
+  const engine = (first: Line, rest: Line = { pv: [] }) => async (_fen: string, sm?: string[]) => (sm ? first : rest);
+  it('comprueba que se gana material tras la respuesta', async () => {
     const fen = '4k3/8/8/3q4/8/8/8/3RK3 w - - 0 1';
-    expect(checkMaterialClaim(fen, { cp: 900, pv: ['d1d5', 'e8e7'] })).toEqual([]);
-    expect(types(checkMaterialClaim(fen, { cp: 0, pv: ['d1d3', 'd5d3'] }))).toEqual(['AFIRMACION_FALSA']);
+    expect(await checkMaterialClaim(fen, 'd1d5', engine({ cp: 900, pv: ['d1d5', 'e8e7'] }))).toEqual([]);
+    expect(types(await checkMaterialClaim(fen, 'd1d3', engine({ cp: -900, pv: ['d1d3', 'd5d3'] })))).toEqual(['AFIRMACION_FALSA']);
+  });
+  it('sacrificio verdadero: sigue la línea hasta una posición estable aunque la variante se corte (u11.l01)', async () => {
+    // Stockfish 16, profundidad 18: Rf8+ Kxf8 Nd7+ Kf7 Nxb6 g5 Kg1 (+2.58). Cortada a 4 jugadas, el material aún baja.
+    const fen = '6k1/1p4pp/pqn5/4N3/8/6B1/PP4PP/5R1K w - - 0 1';
+    const first = { cp: 258, pv: ['f1f8', 'g8f8', 'e5d7', 'f8f7'] };
+    const rest = { cp: 258, pv: ['d7b6', 'g7g5', 'h1g1', 'f7e6'] };
+    const { played } = await followToStable(fen, 'f1f8', engine(first, rest));
+    expect(played).toEqual(['f1f8', 'g8f8', 'e5d7', 'f8f7', 'd7b6', 'g7g5']);
+    expect(await checkMaterialClaim(fen, 'f1f8', engine(first, rest))).toEqual([]);
+  });
+  it('afirmación falsa real: Bxc6+ bxc6 cambia pieza por pieza', async () => {
+    // Inventada y comprobada con Stockfish 16, profundidad 18: Bxc6+ bxc6 Rd1 (+0.17), material igual.
+    const fen = 'r3k3/pp3ppp/2n5/1B6/8/8/PP3PPP/R3K3 w - - 0 1';
+    const line = { cp: 17, pv: ['b5c6', 'b7c6', 'a1d1', 'a7a5', 'd1d4'] };
+    const out = await checkMaterialClaim(fen, 'b5c6', engine(line));
+    expect(types(out)).toEqual(['AFIRMACION_FALSA']);
+    expect(out[0]!.detail).toContain('b5c6 b7c6 a1d1');
+  });
+  it('vale un mate o una evaluación clara aunque el material llegue más tarde', async () => {
+    const fen = '4k3/8/8/3q4/8/8/8/3RK3 w - - 0 1';
+    expect(await checkMaterialClaim(fen, 'd1d3', engine({ mate: 5, pv: ['d1d3', 'd5d3'] }))).toEqual([]);
+    expect(await checkMaterialClaim(fen, 'e1e2', engine({ cp: -250, pv: ['e1e2', 'e8e7', 'e2e1'] }))).toEqual([]);
+  });
+  it('en tablas muertas la línea del motor no refuta la afirmación (u07.l03 práctica 3)', async () => {
+    // Stockfish 16, profundidad 18: d4 Kd2 Bxc3 bxc3 dxc3 Kxc3 Ke7 (0.00): cambia todo porque cualquier línea es tablas.
+    const fen = '4k3/8/8/3p4/1b6/2N5/1P6/4K3 b - - 0 1';
+    const line = { cp: 0, pv: ['d5d4', 'e1d2', 'b4c3', 'b2c3', 'd4c3', 'd2c3', 'e8e7'] };
+    expect(await checkMaterialClaim(fen, 'd5d4', engine(line))).toEqual([]);
   });
 });
 
@@ -121,6 +153,17 @@ describe('jugadas citadas', () => {
     expect(checkSanMentions('Las blancas amenazan Qxf7#.', [pastor])).toEqual([]);
     expect(checkSanMentions('Qa8+ obliga a Qd8 y Qxd8 es mate.', ['6k1/5ppp/8/8/7q/8/5PPP/Q5K1 w - - 0 1'])).toEqual([]);
     expect(checkSanMentions('Nc7+ y cuando el rey se mueva, Nxa8.', ['r3k3/8/8/1N6/8/8/8/4K3 w - - 0 1'])).toEqual([]);
+  });
+  it('ignora ejemplos de notación y acepta jaques condicionales', () => {
+    const inicial = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+    expect(checkSanMentions('Así, Ra5 es «torre a a5».', [inicial])).toEqual([]);
+    expect(types(checkSanMentions('Ra5 gana.', [inicial]))).toEqual(['SAN_ILEGAL']);
+    // u11.l01 explicación 1: el jaque llega tras Rf8+ Kxf8.
+    const atraccion = '6k1/1p4pp/pqn5/4N3/8/6B1/PP4PP/5R1K w - - 0 1';
+    expect(checkSanMentions('Si el rey estuviera en f8, Nd7+ sería horquilla.', [atraccion])).toEqual([]);
+    expect(checkSanMentions('Después de Rf8+ Kxf8, Nd7+ gana la dama.', [atraccion])).toEqual([]);
+    expect(types(checkSanMentions('Nd7+ gana la dama.', [atraccion]))).toEqual(['SAN_JAQUE_FALSO']);
+    expect(types(checkSanMentions('Si juegas Ra2+, el rey se mueve.', [pasillo]))).toEqual(['SAN_JAQUE_FALSO']);
   });
   it('acepta relatos de jugadas ya hechas', () => {
     const tras = 'rnbqkb1r/pppp1ppp/5n2/4p2Q/4P3/8/PPPP1PPP/RNB1KBNR w KQkq - 2 3';

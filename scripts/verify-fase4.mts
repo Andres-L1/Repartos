@@ -19,16 +19,18 @@ import { parseUci } from 'chessops/util';
 import { UNITS } from '../src/content/index.ts';
 import { EXERCISES } from '../src/pedagogy/exercises.ts';
 import { mirrorExercise } from '../src/pedagogy/mirror.ts';
+import { FASE4, legalMoves } from './audit/lib.ts';
 import { Stockfish, type Line } from './verify-lib.mts';
 
-const DEPTH = Number(process.env.DEPTH ?? 18);
-const NEAR = 30;
-const CLEAR = 150;
+// Criterios compartidos con el auditor general (scripts/audit/lib.ts), que los usa para «gana material».
+const DEPTH = Number(process.env.DEPTH ?? FASE4.depth);
+const NEAR = FASE4.near;
+const CLEAR = FASE4.clear;
 
 const load = (fen: string) => Chess.fromSetup(parseFen(fen).unwrap()).unwrap();
 const san = (pos: Chess, uci: string) => makeSan(pos, parseUci(uci)!);
 const fmt = (pos: Chess, l: Line) => `${san(pos, l.uci)} ${l.mate !== null ? `#${l.mate}` : (l.score / 100).toFixed(2)}`;
-const legalCount = (pos: Chess) => [...pos.allDests().values()].reduce((n, d) => n + d.size(), 0);
+const legalCount = (pos: Chess) => legalMoves(pos).length;
 
 interface Step {
   key: string;
