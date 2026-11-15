@@ -6,6 +6,8 @@
 
 /* La landing ocupa todo el ancho: las bandas son de borde a borde y el contenido va dentro de .wrap */
 .main.main-landing { max-width: none; padding: 0; animation: none; }
+/* Mientras carga la sesión la portada no tiene .main con sus márgenes: el aviso de carga se quedaba pegado al borde. */
+.main-landing > .loading { width: calc(100% - 2 * var(--s-4)); }
 .topbar { border-bottom-color: rgb(255 255 255 / 0.07); }
 .main-landing ~ .site-footer { margin-top: 0; padding: 2rem 1rem 2.5rem; border-top-color: rgb(255 255 255 / 0.08); }
 .main-landing ~ .site-footer .site-footer-in { max-width: 1240px; padding-inline: clamp(0rem, 3vw, 1rem); }
