@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { USE_MOCK } from './api';
-import { isPrivatePath, navigate, usePath } from './router';
+import { isPrivatePath, navigate, titleFor, usePath } from './router';
 import { Link } from './components/Link';
 import { useSession } from './session';
 import { Landing, DemoScreen, SiteFooter } from './screens/Landing';
@@ -40,6 +40,8 @@ export function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
     document.getElementById('main')?.focus({ preventScroll: true });
+    // Cada pantalla con su título (WCAG 2.4.2): el lector de pantalla y las pestañas lo anuncian al cambiar de ruta.
+    document.title = titleFor(path);
   }, [path]);
 
   let screen: ReactNode;
@@ -72,8 +74,8 @@ export function App() {
       </div>
     );
 
-  const link = (to: string, label: string, icon: IconName) => {
-    const active = path === to || path.startsWith(to + '/');
+  const link = (to: string, label: string, icon: IconName, also: string[] = []) => {
+    const active = [to, ...also].some((p) => path === p || path.startsWith(p + '/'));
     return (
       <Link href={to} className={active ? 'nav-link active' : 'nav-link'} aria-current={active ? 'page' : undefined}>
         <Icon name={icon} size={22} />
@@ -104,7 +106,7 @@ export function App() {
           <header className="sidebar">
             {brand}
             <nav className="nav side-nav" aria-label="Principal">
-              {link('/aprender', 'Aprender', 'learn')}
+              {link('/aprender', 'Aprender', 'learn', ['/leccion', '/entrenar'])}
               {link('/partidas', 'Partidas', 'eye')}
               {link('/tienda', 'Tienda', 'shop')}
               {link('/perfil', 'Perfil', 'user')}
@@ -127,7 +129,7 @@ export function App() {
                 </span>
               </span>
               <SoundToggle />
-              <button className="t-btn t-btn-ghost t-btn-sm" onClick={() => void logout()}>
+              <button className="t-btn t-btn-ghost t-btn-sm" aria-label="Salir de tu cuenta" onClick={() => void logout()}>
                 Salir
               </button>
             </div>
@@ -153,7 +155,7 @@ export function App() {
             <Link className="t-btn t-btn-primary t-btn-sm" href="/aprender">
               Ir a Aprender
             </Link>
-            <button className="t-btn t-btn-ghost t-btn-sm" onClick={() => void logout()}>
+            <button className="t-btn t-btn-ghost t-btn-sm" aria-label="Salir de tu cuenta" onClick={() => void logout()}>
               Salir
             </button>
           </nav>

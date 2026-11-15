@@ -18,6 +18,30 @@ export function normalizePath(raw: string): string {
   return p === '' ? '/' : p;
 }
 
+const SITE = 'Chedex Pulse';
+const TITLES: [string, string][] = [
+  ['/aprender', 'Mapa de aprendizaje'],
+  ['/leccion', 'Lección'],
+  ['/entrenar', 'Entrenar hoy'],
+  ['/partidas/informe', 'Informe de tus partidas'],
+  ['/partidas', 'Repaso de partidas'],
+  ['/tienda', 'Tienda'],
+  ['/perfil', 'Perfil'],
+  ['/suscripcion', 'Suscripción'],
+  ['/bienvenida', 'Elige tu nivel'],
+  ['/entrar', 'Entrar'],
+  ['/demo', 'Prueba una lección'],
+  ['/privacidad', 'Privacidad'],
+  ['/creditos', 'Créditos'],
+];
+
+/** Título del documento para una ruta limpia (WCAG 2.4.2): «Tienda · Chedex Pulse». La portada conserva el título largo. */
+export function titleFor(path: string): string {
+  if (path === '/') return `${SITE} · Aprende ajedrez`;
+  const hit = TITLES.find(([p]) => path === p || path.startsWith(p + '/'));
+  return `${hit ? hit[1] : 'Página no encontrada'} · ${SITE}`;
+}
+
 export function isPrivatePath(path: string): boolean {
   return PRIVATE_PREFIXES.some((p) => path === p || path.startsWith(p + '/'));
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isPlainClick, isPrivatePath, legacyRedirect, normalizePath } from '../../web/src/router.js';
+import { isPlainClick, isPrivatePath, legacyRedirect, normalizePath, titleFor } from '../../web/src/router.js';
 
 describe('router: normalizePath', () => {
   it('quita query, hash y barra final', () => {
@@ -81,5 +81,16 @@ describe('router: clics de enlace', () => {
     expect(isPlainClick({ ...base, button: 1 })).toBe(false);
     expect(isPlainClick(base, '_blank')).toBe(false);
     expect(isPlainClick({ ...base, defaultPrevented: true })).toBe(false);
+  });
+});
+
+describe('router: titleFor', () => {
+  it('da un título distinto a cada pantalla y conserva el de la portada', () => {
+    expect(titleFor('/')).toBe('Chedex Pulse · Aprende ajedrez');
+    expect(titleFor('/tienda')).toBe('Tienda · Chedex Pulse');
+    expect(titleFor('/leccion/u01.l01')).toBe('Lección · Chedex Pulse');
+    expect(titleFor('/partidas/informe')).toBe('Informe de tus partidas · Chedex Pulse');
+    expect(titleFor('/partidas/repaso/3')).toBe('Repaso de partidas · Chedex Pulse');
+    expect(titleFor('/nada')).toBe('Página no encontrada · Chedex Pulse');
   });
 });

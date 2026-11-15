@@ -129,7 +129,7 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
   return (
     <article className="lesson" aria-labelledby="lesson-title">
       <header className="lesson-head">
-        <button className="t-btn t-btn-ghost t-btn-sm" onClick={() => navigate(demo ? '/' : '/aprender')}>
+        <button className="t-btn t-btn-ghost t-btn-sm" aria-label={demo ? 'Salir de la demostración' : 'Salir de la lección'} onClick={() => navigate(demo ? '/' : '/aprender')}>
           <Icon name="back" size={18} />
           Salir
         </button>
