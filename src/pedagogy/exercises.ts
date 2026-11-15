@@ -601,11 +601,10 @@ export const EXERCISES: Exercise[] = [
     id: 'ex.rook.01',
     conceptId: 'endgame.rook',
     level: 'intermediate',
-    fen: '6r1/8/6k1/8/3P4/3K4/8/R7 w - - 0 1',
+    fen: '7r/8/6k1/8/3P4/3K4/8/R7 w - - 0 1',
     prompt: 'Juegan blancas. Corta con la torre al rey negro de g6 y gana.',
     solutionUci: ['a1f1'],
-    alt: ['a1g1'],
-    hint: 'Pon la torre en la columna que el rey negro tiene que cruzar; también hay una jugada con jaque.',
+    hint: 'Pon la torre en la columna f, la que el rey negro tiene que cruzar para acercarse al peón.',
   },
   {
     id: 'ex.rook.02',
