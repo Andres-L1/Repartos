@@ -11,8 +11,10 @@ import { unit as u09 } from './units/u09.js';
 import { unit as u10 } from './units/u10.js';
 import { unit as u11 } from './units/u11.js';
 import { unit as u12 } from './units/u12.js';
+import { unit as u13 } from './units/u13.js';
+import { unit as u14 } from './units/u14.js';
 
-export const UNITS: Unit[] = [u01, u02, u03, u04, u05, u06, u07, u08, u09, u10, u11, u12].sort((a, b) => a.order - b.order);
+export const UNITS: Unit[] = [u01, u02, u03, u04, u05, u06, u07, u08, u09, u10, u11, u12, u13, u14].sort((a, b) => a.order - b.order);
 export const LESSONS: Lesson[] = UNITS.flatMap((u) => u.lessons);
 export const getLesson = (id: string): Lesson | undefined => LESSONS.find((l) => l.id === id);
 export const getUnit = (id: string): Unit | undefined => UNITS.find((u) => u.id === id);

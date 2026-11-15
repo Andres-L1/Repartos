@@ -22,6 +22,8 @@ const RULES: Record<string, string> = {
   'tactics.defensive_move': 'Ante un jaque o una amenaza, revisa todas las respuestas antes de elegir.',
   'tactics.interference': 'Antes de mover, mira si una pieza rival puede meterse en la línea que defiende a otra tuya.',
   'tactics.clearance': 'Antes de mover, mira qué línea abre el rival si aparta una pieza con jaque.',
+  'endgame.king_pawn': 'En los finales de peones, cuenta el cuadrado y busca la oposición antes de mover el rey.',
+  'endgame.rook': 'En los finales de torre, corta al rey rival y mantén tu torre activa.',
 };
 
 const FALLBACK_RULE = 'Antes de mover, mira qué puede hacer tu rival después.';
@@ -46,6 +48,8 @@ const WHY: Record<string, string> = {
   'tactics.defensive_move': 'En las posiciones críticas, a menudo solo una jugada salva la partida.',
   'tactics.interference': 'Una defensa a distancia deja de funcionar si algo se pone en medio.',
   'tactics.clearance': 'Al apartarse una pieza, otra que estaba tapada entra en juego.',
+  'endgame.king_pawn': 'En un final de peones, un solo tiempo decide entre ganar y hacer tablas.',
+  'endgame.rook': 'En los finales de torre, la posición del rey y de la torre decide más que el material.',
 };
 
 const FALLBACK_WHY = 'Esta jugada le dio ventaja a tu rival.';

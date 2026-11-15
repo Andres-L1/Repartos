@@ -8,10 +8,11 @@ import type { Unit } from '../../src/content/schema.js';
 import { describeLessons } from './lesson-checks.js';
 
 /** Fase 4 desde Intermedio. Además de estas comprobaciones, Stockfish: `npx tsx scripts/verify-fase4.mts u10 u11 u12 --bank`. */
-const UNITS_D: { unit: Unit; level: Unit['level']; requires: string }[] = [
-  { unit: u10, level: 'intermediate', requires: 'u09' },
-  { unit: u11, level: 'advanced', requires: 'u10' },
-  { unit: u12, level: 'competitive', requires: 'u11' },
+/** `order` es el número que ve el alumno en el mapa: desde 2026-11-15 los finales (u13...) se intercalan en su nivel. */
+const UNITS_D: { unit: Unit; level: Unit['level']; requires: string; order: number }[] = [
+  { unit: u10, level: 'intermediate', requires: 'u09', order: 11 },
+  { unit: u11, level: 'advanced', requires: 'u10', order: 13 },
+  { unit: u12, level: 'competitive', requires: 'u11', order: 14 },
 ];
 
 /** Sacrificios de 5 medias jugadas (atracción a una horquilla): verificados con Stockfish, aquí por balance final. */
@@ -35,8 +36,8 @@ const ENGINE = new Set(['u12.l01:practice:2', 'u12.l01:evaluation:1', 'u12.l02:p
 
 describe('contenido D: Fase 4 desde Intermedio (pendiente de validación de profesores)', () => {
   it('unidades con metadatos correctos, encadenadas en orden', () => {
-    for (const { unit: u, level, requires } of UNITS_D) {
-      expect(u.order, u.id).toBe(Number(u.id.slice(1)));
+    for (const { unit: u, level, requires, order } of UNITS_D) {
+      expect(u.order, u.id).toBe(order);
       expect(u.requires, u.id).toEqual([requires]);
       expect(u.level, u.id).toBe(level);
       expect(u.description.length).toBeGreaterThan(20);

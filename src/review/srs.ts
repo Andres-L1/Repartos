@@ -35,6 +35,9 @@ const THEME_BY_CONCEPT: Record<string, string> = {
   'tactics.defensive_move': 'defensiveMove',
   'tactics.interference': 'interference',
   'tactics.clearance': 'clearance',
+  // Finales: comprobados el 2026-11-15 (200 y cada puzle devuelto lleva el tema).
+  'endgame.king_pawn': 'pawnEndgame',
+  'endgame.rook': 'rookEndgame',
 };
 
 export function themeForConcept(conceptId: string): string | null {

@@ -519,4 +519,77 @@ export const CONCEPTS: Concept[] = [
       'Calcula la línea hasta el mate o la ganancia de material.',
     ],
   },
+  // Finales (u13, u14). Verificados con la tablebase de Lichess; pendientes de validación de profesores.
+  {
+    id: 'endgame.king_pawn',
+    category: 'Finales',
+    name: 'Finales de rey y peón',
+    definition:
+      'En los finales con solo reyes y peones deciden la regla del cuadrado (si el rey alcanza a un peón pasado), la oposición entre los reyes y las casillas clave por delante del peón; el peón de torre suele dar tablas si el rey defensor llega a la esquina.',
+    recommendedLevel: 'basic',
+    learningObjectives: [
+      'Contar el cuadrado de un peón pasado para saber si el rey lo alcanza.',
+      'Tomar la oposición para defender, o ganarla con una jugada de espera para atacar.',
+      'Llevar el rey a las casillas clave delante del peón y dejar el peón atrás.',
+      'Reconocer el peón de torre y llevar el rey defensor a la esquina.',
+    ],
+    detection:
+      'En un final de rey y peón, el alumno juega una jugada que cambia el resultado teórico (de ganar a tablas, o de tablas a perder) según la tablebase.',
+    explanations: {
+      beginner:
+        '{hecho}\nEn los finales de peones, una sola jugada del rey cambia el resultado.\nAntes de mover el rey, mira si llega a tiempo al peón.',
+      initiation:
+        '{hecho}\nEn este final cuenta cada tiempo.\nCasillas implicadas: {casillas}.\nCuenta el cuadrado del peón y busca la oposición antes de mover.',
+      basic:
+        '{hecho}\nFinal de rey y peón: tras {jugada} se pierde el tiempo que decidía la partida.\nCasillas implicadas: {casillas}.\nCuenta el cuadrado, busca la oposición y lleva el rey delante del peón.',
+      intermediate:
+        '{hecho}\nTras {jugada}, el rival responde {refutacion} y cambia el resultado del final.\nEn los finales de peones, compara las casillas clave y quién tiene la oposición antes de mover.',
+      advanced:
+        '{hecho}\nLa jugada {jugada} cede la oposición o las casillas clave; {refutacion} lo aprovecha.\nCalcula los tiempos de los dos reyes y de los peones hasta el final.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Casillas críticas: {casillas}.\nEn los finales de peones, las casillas clave y la oposición se calculan antes de entrar en ellos.',
+    },
+    exerciseIds: ['ex.kp.01', 'ex.kp.02', 'ex.kp.03', 'ex.kp.04'],
+    evaluationCriteria: [
+      'Cuenta bien el cuadrado del peón.',
+      'Toma o gana la oposición cuando hace falta.',
+      'Lleva el rey a una casilla clave antes de avanzar el peón.',
+      'Con el peón de torre, el rey defensor va a la esquina.',
+    ],
+  },
+  {
+    id: 'endgame.rook',
+    category: 'Finales',
+    name: 'Finales de torre',
+    definition:
+      'En los finales de torre y peón contra torre, el atacante gana si corta al rey rival y construye el puente (posición de Lucena); el defensor hace tablas con el rey delante del peón y la torre activa, primero en su tercera fila y después dando jaques por detrás (posición de Philidor).',
+    recommendedLevel: 'intermediate',
+    learningObjectives: [
+      'Cortar al rey rival con la torre para que no llegue a defender.',
+      'Defender la posición de Philidor: torre en la tercera fila y, cuando avanza el peón, jaques por detrás.',
+      'Ganar la posición de Lucena construyendo el puente con la torre.',
+    ],
+    detection:
+      'En un final de torre, el alumno juega una jugada que cambia el resultado teórico (de ganar a tablas, o de tablas a perder) según la tablebase.',
+    explanations: {
+      beginner:
+        '{hecho}\nEn los finales de torre, la posición del rey y de la torre importa más que el material.\nMira si tu torre puede cortar al rey rival.',
+      initiation:
+        '{hecho}\nEn este final, la torre tenía una tarea concreta.\nCasillas implicadas: {casillas}.\nUna torre activa vale más que una torre que solo espera.',
+      basic:
+        '{hecho}\nFinal de torre: tras {jugada} cambia el resultado.\nCasillas implicadas: {casillas}.\nCorta al rey rival con la torre y acerca tu rey al peón.',
+      intermediate:
+        '{hecho}\nTras {jugada}, el rival responde {refutacion} y el final cambia de resultado.\nRecuerda las posiciones de Philidor (defender) y Lucena (ganar).',
+      advanced:
+        '{hecho}\nLa jugada {jugada} deja la torre pasiva o el rey sin refugio; {refutacion} lo aprovecha.\nEn defensa, jaques por detrás; en ataque, el puente.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Casillas críticas: {casillas}.\nEn los finales de torre, la actividad de la torre y del rey decide más que el material.',
+    },
+    exerciseIds: ['ex.rook.01', 'ex.rook.02', 'ex.rook.03', 'ex.rook.04'],
+    evaluationCriteria: [
+      'Corta al rey rival con la torre.',
+      'En defensa, coloca la torre activa y da jaques por detrás cuando avanza el peón.',
+      'En ataque, saca el rey y construye el puente.',
+    ],
+  },
 ];
