@@ -2,8 +2,8 @@
 
 Plataforma de entrenamiento de ajedrez para aprender con un camino claro, entender los errores y entrenar con un propósito. Web: <https://chedexpulse.app>
 
-- **Ruta de aprendizaje** por unidades y lecciones (de 0 a ~800 Elo en esta primera versión), con lecciones interactivas sobre tablero, práctica con corrección y evaluación.
-- **Acceso con Lichess** (OAuth PKCE sin permisos). Se usa tu Elo de partidas rápidas y clásicas solo para recomendarte por dónde empezar.
+- **Ruta de aprendizaje** por unidades y lecciones (de 0 a ~2000 Elo: 12 unidades y 42 lecciones), con lecciones interactivas sobre tablero, práctica con corrección y evaluación.
+- **Acceso con Lichess** (OAuth PKCE sin permisos). Tu Elo de rápidas, clásicas y blitz solo sirve para sugerirte un nivel; el nivel lo eliges tú.
 - **Entrenador pedagógico** (prototipo): analiza partidas PGN con Stockfish, diagnostica errores tácticos verificados y propone ejercicios.
 - Notación de jugadas como en Lichess (N, B, R, Q, K).
 
@@ -24,7 +24,7 @@ Estado: beta abierta, sin pagos. Contenido verificado por código; la revisión 
 
 ## Desarrollo
 
-Requiere Node.js 22 o superior.
+Requiere Node.js 22.5 o superior.
 
 ```bash
 npm install
