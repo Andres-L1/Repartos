@@ -108,9 +108,12 @@ export function primeSounds(): void {
         const a = new Audio();
         a.preload = 'auto';
         a.volume = SOUND_VOLUME;
-        a.src = FILES[name];
         list.push(a);
       }
+      // Solo el primer elemento descarga el fichero; los demás lo toman de la caché cuando ya está (una petición por sonido, no una por elemento).
+      const [first, ...rest] = list as [HTMLAudioElement, ...HTMLAudioElement[]];
+      first.addEventListener('canplaythrough', () => { for (const a of rest) a.src = FILES[name]; }, { once: true });
+      first.src = FILES[name];
       pool.set(name, list);
     }
     installUnlock();

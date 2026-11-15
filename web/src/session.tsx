@@ -3,7 +3,7 @@ import type { BillingMode, Equipped, Shop, Subscription, User } from '../../src/
 import type { Level } from '../../src/types';
 import { api, setApiHandlers } from './api';
 import { navigate } from './router';
-import { DEFAULT_EQUIPPED, sanitizeEquipped } from './shop';
+import { DEFAULT_EQUIPPED, preloadPieces, sanitizeEquipped } from './shop';
 
 interface SessionValue {
   loading: boolean;
@@ -92,6 +92,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => preloadPieces(equipped.pieces), [equipped.pieces]);
 
   // Con sesión, el saldo se carga aparte: la barra lo muestra en cuanto llega.
   const userId = user?.id ?? null;

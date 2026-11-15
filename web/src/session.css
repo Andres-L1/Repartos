@@ -5,7 +5,7 @@
 .ss-bar { display: grid; gap: 6px; }
 .ss-bar-text { margin: 0; color: var(--t-muted); font-size: 0.875rem; }
 .ss-bar-track { height: 8px; border-radius: var(--t-r-pill); background: var(--t-graphite-3); overflow: hidden; }
-.ss-bar-fill { display: block; height: 100%; background: var(--t-orange); transition: width 0.35s ease; }
+.ss-bar-fill { display: block; height: 100%; background: var(--t-orange); transition: width var(--m-dur-slow) var(--m-ease-out); }
 .ss-card { display: grid; gap: 12px; padding: 16px; min-width: 0; overflow-wrap: anywhere; }
 .ss-card h2, .ss-card h3, .ss-card p { margin: 0; }
 .ss-concept { margin: 0; color: var(--t-orange-text); font-size: 0.875rem; font-weight: 800; }

@@ -39,6 +39,16 @@ export function sanitizeEquipped(eq: Partial<Equipped> | null | undefined): Equi
   };
 }
 
+const SVG_SETS = new Set(['contorno', 'geo']);
+const preloaded = new Set<string>();
+/** Descarga los 12 sprites de un juego de piezas antes de usarlo, para que no aparezcan casillas vacías al equiparlo. El juego por defecto va incrustado en el CSS. */
+export function preloadPieces(id: string): void {
+  if (typeof Image === 'undefined' || id === DEFAULT_PIECES || preloaded.has(id)) return;
+  preloaded.add(id);
+  const ext = SVG_SETS.has(id) ? 'svg' : 'webp';
+  for (const c of ['w', 'b']) for (const p of ['K', 'Q', 'R', 'B', 'N', 'P']) new Image().src = `/pieces/${id}/${c}${p}.${ext}`;
+}
+
 /** «1 Chedex», «3 Chedex»: la palabra no cambia con el número. */
 export function chedexText(n: number): string {
   return `${n} Chedex`;

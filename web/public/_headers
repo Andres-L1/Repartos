@@ -5,3 +5,15 @@
   Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://lichess.org; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self' https://lichess.org; frame-ancestors 'none'
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/pieces/*
+  Cache-Control: public, max-age=604800
+/sound/*
+  Cache-Control: public, max-age=604800
+/brand/*
+  Cache-Control: public, max-age=604800
+/landing/*
+  Cache-Control: public, max-age=604800
+/engine/*
+  Cache-Control: public, max-age=2592000
