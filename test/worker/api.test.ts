@@ -725,6 +725,47 @@ describe('partidas repasadas', () => {
     expect((s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE game_id = 'game0000'").get() as any).n).toBe(1);
     expect((s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE game_id = 'game0033'").get() as any).n).toBe(3);
   });
+
+  it('topes por usuario: 500 partidas repasadas (se borran las más antiguas), 200 posiciones resueltas y 300 conceptos distintos', async () => {
+    const s = setup(); await s.login();
+    const raw = s.db.raw;
+    const ins = raw.prepare("INSERT INTO cp_reviewed_games (user_id, game_id, reviewed_at) VALUES ('ana', ?, ?)");
+    for (let i = 0; i < 500; i++) ins.run(`old${String(i).padStart(5, '0')}`, `2025-01-01T00:00:00.000Z#${String(i).padStart(4, '0')}`);
+    expect((await s.req('POST', '/api/review/complete', { gameId: 'nuevo001', concepts: [] })).json).toEqual({ counted: true });
+    expect(count(s, 'cp_reviewed_games')).toBe(500);
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_reviewed_games WHERE game_id IN ('old00000', 'nuevo001')").get()).toEqual({ n: 1 }); // sale la más antigua, entra la nueva
+    // Otro usuario no se ve afectado.
+    raw.exec("INSERT INTO cp_users (id, username, created_at, last_login_at) VALUES ('bea','bea','x','x')");
+    raw.exec("INSERT INTO cp_reviewed_games (user_id, game_id, reviewed_at) VALUES ('bea','bea00001','a')");
+    await s.req('POST', '/api/review/complete', { gameId: 'nuevo002', concepts: [] });
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_reviewed_games WHERE user_id = 'bea'").get()).toEqual({ n: 1 });
+
+    const solved = raw.prepare("INSERT INTO cp_review_positions (id, user_id, game_id, ply, concept_id, fen, best_uci, created_at, solved_at) VALUES (?, 'ana', 'g', ?, 'tactics.fork', 'f', 'e2e4', 1, ?)");
+    for (let i = 0; i < 210; i++) solved.run(`s${i}`, i + 1, 1000 + i);
+    await s.req('POST', '/api/review/complete', { gameId: 'nuevo003', concepts: [], positions: [pos(1)] });
+    expect(raw.prepare('SELECT COUNT(*) AS n FROM cp_review_positions WHERE solved_at IS NOT NULL').get()).toEqual({ n: 200 });
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE id IN ('s0', 's9')").get()).toEqual({ n: 0 }); // las 10 más antiguas
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE id = 's209'").get()).toEqual({ n: 1 });
+
+    // Conceptos fallados inventados: pasada la cota no entran nuevos, pero los existentes siguen contando.
+    const w = raw.prepare("INSERT INTO cp_weak_concepts (user_id, concept_id, count) VALUES ('ana', ?, 1)");
+    for (let i = 0; i < 300; i++) w.run(`inventado${i}`);
+    const done = await s.req('POST', '/api/lessons/a.1/complete', { correct: 2, total: 5, mistakes: ['inventado0', 'otro_nuevo'] });
+    expect(done.status).toBe(200);
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_weak_concepts WHERE user_id = 'ana'").get()).toEqual({ n: 300 });
+    expect(raw.prepare("SELECT count FROM cp_weak_concepts WHERE concept_id = 'inventado0'").get()).toEqual({ count: 2 });
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_weak_concepts WHERE concept_id = 'otro_nuevo'").get()).toEqual({ n: 0 });
+  });
+
+  it('los reclamos de intentos de lección no se acumulan: como mucho 2 filas por lección', async () => {
+    const s = setup(); await s.login();
+    for (let i = 0; i < 8; i++) {
+      advance(60_000);
+      expect((await s.req('POST', '/api/lessons/a.1/complete', { correct: 1 + (i % 2), total: 5, mistakes: [] })).status).toBe(200);
+    }
+    expect(s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_wallet_ledger WHERE reason = 'lesson_attempt'").get()).toEqual({ n: 2 });
+    expect(s.db.raw.prepare("SELECT attempts FROM cp_lesson_progress WHERE lesson_id = 'a.1'").get()).toEqual({ attempts: 8 });
+  });
 });
 
 describe('migraciones D1', () => {

@@ -33,7 +33,7 @@ import {
 } from './progress.js';
 import { completeReview, parseCompleteReview } from './review.js';
 import { answerItem, finishPlan, nextDueAt, sessionStatus, startSession, UCI_RE } from './session.js';
-import { CONCEPT_IDS, touchSchedule } from './srs.js';
+import { CONCEPT_IDS, touchSchedule, weakConceptStmt } from './srs.js';
 import { isAdmin } from '../src/shared/admin.js';
 import { buildShop, buyItem, effectiveStreak, equipItem, equippedFor, isUnique, protectorCount, streakAdvance, streakUpdate } from './shop.js';
 
@@ -434,13 +434,11 @@ export function createApp(deps: AppDeps) {
         params: [userId, lesson.id, completed ? 1 : 0, best, attempts, completed ? t.toISOString() : null, key, t.getTime(), xpGained],
       },
       ...body.mistakes.filter((m) => CONCEPT_IDS.has(m)).map((m) => touchSchedule(userId, m, t.getTime())),
-      ...body.mistakes.map(
-        (m): Stmt => ({
-          sql: `INSERT INTO cp_weak_concepts (user_id, concept_id, count) VALUES (?,?,1)
-                ON CONFLICT(user_id, concept_id) DO UPDATE SET count = count + 1`,
-          params: [userId, m],
-        }),
-      ),
+      ...body.mistakes.map((m) => weakConceptStmt(userId, m)),
+      // Los reclamos de intentos viejos ya no hacen falta (solo choca el siguiente): la tabla guarda ≤2 filas por lección.
+      ...(attempts > 2
+        ? [{ sql: "DELETE FROM cp_wallet_ledger WHERE user_id = ? AND reason = 'lesson_attempt' AND ref = ?", params: [userId, `${lesson.id}:${attempts - 2}`] }]
+        : []),
       {
         sql: `UPDATE cp_profiles SET xp = xp + ?, xp_today = CASE WHEN xp_today_date = ? THEN xp_today + ? ELSE ? END, xp_today_date = ?
               WHERE user_id = ?`,
