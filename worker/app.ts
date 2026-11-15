@@ -9,7 +9,7 @@ import type {
   LessonProgress,
   LevelCard,
   LevelInfo,
-  Profile,
+  ProfileData,
   Subscription,
   SubscriptionStatus,
   User,
@@ -24,8 +24,6 @@ import type { Level } from '../src/types.js';
 import {
   buildMap,
   computeStatuses,
-  computeXp,
-  dayOf,
   findLesson,
   passMarkFor,
   type ContentSource,
@@ -57,7 +55,6 @@ export interface AppDeps {
 }
 
 const MAX_BODY = 16 * 1024;
-const DEFAULT_DAILY_GOAL = 20;
 
 type Env = { Variables: { user: User } };
 type Ctx = Context<Env>;
@@ -85,13 +82,9 @@ async function readJson(c: Context): Promise<Record<string, unknown>> {
 }
 
 interface ProfileRow {
-  xp: number;
   streak_days: number;
   longest_streak: number;
   last_active_date: string | null;
-  daily_goal_xp: number;
-  xp_today: number;
-  xp_today_date: string | null;
 }
 
 export function createApp(deps: AppDeps) {
@@ -130,8 +123,8 @@ export function createApp(deps: AppDeps) {
     },
   };
   const ensureProfileStmt = (userId: string): Stmt => ({
-    sql: 'INSERT OR IGNORE INTO cp_profiles (user_id, daily_goal_xp) VALUES (?, ?)',
-    params: [userId, DEFAULT_DAILY_GOAL],
+    sql: 'INSERT OR IGNORE INTO cp_profiles (user_id) VALUES (?)',
+    params: [userId],
   });
 
   // ---------- cabeceras, CORS, límites ----------
@@ -233,7 +226,7 @@ export function createApp(deps: AppDeps) {
     return row && isLevel(row.level) ? row.level : null;
   }
 
-  async function profileFor(userId: string): Promise<Profile> {
+  async function profileFor(userId: string): Promise<ProfileData> {
     const p = await loadProfile(userId);
     const t = now();
     // Racha efectiva (días UTC): hoy/ayer, o un hueco de exactamente un día cubierto por un protector (sin consumirlo).
@@ -247,12 +240,9 @@ export function createApp(deps: AppDeps) {
       [userId],
     );
     return {
-      xp: p.xp,
       level: (await chosenLevel(userId)) ?? 'initiation',
       streakDays,
       longestStreak: p.longest_streak,
-      dailyGoalXp: p.daily_goal_xp,
-      xpToday: p.xp_today_date === dayOf(t) ? p.xp_today : 0,
       lessonsCompleted: completed?.n ?? 0,
       weakConcepts: Object.fromEntries(weak.map((w) => [w.concept_id, w.count])),
     };
@@ -389,7 +379,6 @@ export function createApp(deps: AppDeps) {
       attempts: number;
       last_key: string | null;
       last_at: number | null;
-      last_xp: number;
     }>('SELECT * FROM cp_lesson_progress WHERE user_id = ? AND lesson_id = ?', [userId, lesson.id]);
     const key = JSON.stringify([body.correct, body.total, [...body.mistakes].sort()]);
     const toProgress = (r: { completed: number; best_score: number; attempts: number }): LessonProgress => ({
@@ -402,7 +391,6 @@ export function createApp(deps: AppDeps) {
     if (prev && prev.last_key === key && prev.last_at !== null && t.getTime() - prev.last_at < 10_000) {
       return c.json({
         progress: toProgress(prev),
-        xpGained: prev.last_xp,
         chedexEarned: 0,
         protectorUsed: false,
         profile: await profileFor(userId),
@@ -411,15 +399,13 @@ export function createApp(deps: AppDeps) {
 
     const passed = body.correct >= passMarkFor(lesson, body.total);
     const alreadyCompleted = prev?.completed === 1;
-    const xpGained = computeXp({ correct: body.correct, total: body.total, alreadyCompleted, passed });
     const score = body.correct / body.total;
     const completed = alreadyCompleted || passed;
     const best = Math.max(prev?.best_score ?? 0, score);
     const attempts = (prev?.attempts ?? 0) + 1;
 
-    // Perfil: XP, XP de hoy y racha (día natural UTC; solo cuenta una lección superada).
+    // Perfil: racha (día natural UTC; solo cuenta una lección superada).
     const p = await loadProfile(userId);
-    const today = dayOf(t);
     // Reglas de días UTC en worker/shop.ts: un hueco de exactamente un día consume un protector.
     const { streak, lastActive, protectorUsed, chedexEarned, rewards } = passed
       ? await streakAdvance(db, userId, p, t)
@@ -432,12 +418,12 @@ export function createApp(deps: AppDeps) {
         params: [userId, `${lesson.id}:${attempts}`, t.toISOString()],
       },
       {
-        sql: `INSERT INTO cp_lesson_progress (user_id, lesson_id, completed, best_score, attempts, completed_at, last_key, last_at, last_xp)
-              VALUES (?,?,?,?,?,?,?,?,?)
+        sql: `INSERT INTO cp_lesson_progress (user_id, lesson_id, completed, best_score, attempts, completed_at, last_key, last_at)
+              VALUES (?,?,?,?,?,?,?,?)
               ON CONFLICT(user_id, lesson_id) DO UPDATE SET completed=excluded.completed, best_score=excluded.best_score,
                 attempts=excluded.attempts, completed_at=COALESCE(cp_lesson_progress.completed_at, excluded.completed_at),
-                last_key=excluded.last_key, last_at=excluded.last_at, last_xp=excluded.last_xp`,
-        params: [userId, lesson.id, completed ? 1 : 0, best, attempts, completed ? t.toISOString() : null, key, t.getTime(), xpGained],
+                last_key=excluded.last_key, last_at=excluded.last_at`,
+        params: [userId, lesson.id, completed ? 1 : 0, best, attempts, completed ? t.toISOString() : null, key, t.getTime()],
       },
       ...body.mistakes.filter((m) => CONCEPT_IDS.has(m)).map((m) => touchSchedule(userId, m, t.getTime())),
       ...body.mistakes.map((m) => weakConceptStmt(userId, m)),
@@ -445,11 +431,6 @@ export function createApp(deps: AppDeps) {
       ...(attempts > 2
         ? [{ sql: "DELETE FROM cp_wallet_ledger WHERE user_id = ? AND reason = 'lesson_attempt' AND ref = ?", params: [userId, `${lesson.id}:${attempts - 2}`] }]
         : []),
-      {
-        sql: `UPDATE cp_profiles SET xp = xp + ?, xp_today = CASE WHEN xp_today_date = ? THEN xp_today + ? ELSE ? END, xp_today_date = ?
-              WHERE user_id = ?`,
-        params: [xpGained, today, xpGained, xpGained, today, userId],
-      },
     ];
     // Racha condicionada a lo leído: si otra actividad ya la avanzó hoy, no se pisa.
     const streakStmts: Stmt[] = passed ? [streakUpdate(userId, p, streak, lastActive), ...rewards] : [];
@@ -464,7 +445,6 @@ export function createApp(deps: AppDeps) {
         await db.batch(stmts);
         return c.json({
           progress: toProgress({ completed: completed ? 1 : 0, best_score: best, attempts }),
-          xpGained,
           chedexEarned: 0,
           protectorUsed: false,
           profile: await profileFor(userId),
@@ -475,7 +455,6 @@ export function createApp(deps: AppDeps) {
         return c.json({
           progress: toProgress((await db.first<{ completed: number; best_score: number; attempts: number }>(
             'SELECT completed, best_score, attempts FROM cp_lesson_progress WHERE user_id = ? AND lesson_id = ?', [userId, lesson.id])) ?? { completed: 0, best_score: 0, attempts: 0 }),
-          xpGained: 0,
           chedexEarned: 0,
           protectorUsed: false,
           profile: await profileFor(userId),
@@ -484,7 +463,6 @@ export function createApp(deps: AppDeps) {
     }
     return c.json({
       progress: toProgress({ completed: completed ? 1 : 0, best_score: best, attempts }),
-      xpGained,
       chedexEarned,
       protectorUsed,
       profile: await profileFor(userId),
@@ -562,15 +540,6 @@ export function createApp(deps: AppDeps) {
 
   // ---------- perfil ----------
   app.get('/api/profile', requireAuth, async (c) => c.json({ profile: await profileFor(c.get('user').id) }));
-
-  app.put('/api/profile/daily-goal', requireAuth, async (c) => {
-    const b = await readJson(c);
-    if (!isInt(b.xp) || b.xp < 5 || b.xp > 1000) throw new HttpError(400, 'xp debe ser un entero entre 5 y 1000');
-    const userId = c.get('user').id;
-    await loadProfile(userId); // asegura fila
-    await db.run('UPDATE cp_profiles SET daily_goal_xp = ? WHERE user_id = ?', [b.xp, userId]);
-    return c.json({ profile: await profileFor(userId) });
-  });
 
   // ---------- tienda ----------
   const shopFor = async (userId: string) => buildShop(db, userId, (await profileFor(userId)).streakDays);

@@ -148,27 +148,23 @@ describe('carreras en D1 local real (20 peticiones a la vez)', () => {
     expect(await q('SELECT box FROM cp_review_schedule WHERE user_id = ? AND concept_id = ?', 'r_rev', 'tactics.fork')).toEqual({ box: 1 });
   });
 
-  it('lesson complete: 20 envíos iguales a la vez dan XP, intento, racha y Chedex una sola vez', async () => {
+  it('lesson complete: 20 envíos iguales a la vez dan intento, racha y Chedex una sola vez', async () => {
     const ana = await user('r_les');
     await streak4('r_les');
     const rs = await all(() => ana('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: ['tactics.fork'] }));
     expect(rs.map((r) => r.status)).toEqual(Array(N).fill(200));
-    const xp = rs.map((r) => r.json.xpGained).filter((x) => x > 0);
-    expect(xp).toHaveLength(1);
-    expect(await q('SELECT xp, xp_today, streak_days FROM cp_profiles WHERE user_id = ?', 'r_les')).toEqual({ xp: xp[0], xp_today: xp[0], streak_days: 5 });
+    expect(await q('SELECT streak_days FROM cp_profiles WHERE user_id = ?', 'r_les')).toEqual({ streak_days: 5 });
     expect(await q('SELECT attempts FROM cp_lesson_progress WHERE user_id = ?', 'r_les')).toEqual({ attempts: 1 });
     expect(await q('SELECT count FROM cp_weak_concepts WHERE user_id = ?', 'r_les')).toEqual({ count: 1 });
     expect(await q("SELECT COUNT(*) AS n FROM cp_wallet_ledger WHERE user_id = ? AND reason = 'streak_milestone'", 'r_les')).toEqual({ n: 1 });
   });
 
-  it('lesson complete sin hito de Chedex: 20 envíos iguales a la vez dan XP e intento una sola vez', async () => {
+  it('lesson complete sin hito de Chedex: 20 envíos iguales a la vez dan intento y racha una sola vez', async () => {
     const ana = await user('r_les2');
     await exec('INSERT INTO cp_profiles (user_id, streak_days, last_active_date) VALUES (?,1,?)', 'r_les2', yesterday);
     const rs = await all(() => ana('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: ['tactics.fork'] }));
     expect(rs.map((r) => r.status)).toEqual(Array(N).fill(200));
-    const xp = rs.map((r) => r.json.xpGained).filter((x) => x > 0);
-    expect(xp).toHaveLength(1);
-    expect(await q('SELECT xp, xp_today, streak_days FROM cp_profiles WHERE user_id = ?', 'r_les2')).toEqual({ xp: xp[0], xp_today: xp[0], streak_days: 2 });
+    expect(await q('SELECT streak_days FROM cp_profiles WHERE user_id = ?', 'r_les2')).toEqual({ streak_days: 2 });
     expect(await q('SELECT attempts FROM cp_lesson_progress WHERE user_id = ?', 'r_les2')).toEqual({ attempts: 1 });
     expect(await q('SELECT count FROM cp_weak_concepts WHERE user_id = ?', 'r_les2')).toEqual({ count: 1 });
   });

@@ -15,9 +15,8 @@
  * GET  /api/level                                              -> LevelInfo   (nivel elegido, sugerido por Lichess y tarjetas de los 6 niveles)
  * PUT  /api/level {level}                                      -> LevelInfo   (guarda la elección; nivel inválido: 400)
  * GET  /api/lessons/:id                                        -> {lesson}   (402 solo en 'dev' si no demo y sin suscripción)
- * POST /api/lessons/:id/complete {correct, total, mistakes}    -> {progress, xpGained, profile}
+ * POST /api/lessons/:id/complete {correct, total, mistakes}    -> {progress, chedexEarned, protectorUsed, profile}
  * GET  /api/profile                                            -> {profile}
- * PUT  /api/profile/daily-goal {xp}                            -> {profile}
  * GET  /api/billing                                            -> {subscription}
  * POST /api/billing/subscribe                                  -> {subscription}  ('dev': activa al instante; 'beta_open': 501)
  * POST /api/billing/cancel                                     -> {subscription}  ('beta_open': 501)
@@ -52,16 +51,25 @@ export interface Subscription {
   currentPeriodEnd?: string; // ISO
 }
 
-export interface Profile {
-  xp: number;
+/** Lo que envía el servidor en `profile`. */
+export interface ProfileData {
   level: Level; // nivel educativo interno (no Elo)
   streakDays: number;
   longestStreak: number;
-  dailyGoalXp: number;
-  xpToday: number;
   lessonsCompleted: number;
   /** conceptId -> errores acumulados, base del repaso futuro (Fase 3). */
   weakConcepts: Record<string, number>;
+}
+
+/**
+ * Forma que aún espera la web (`web/src/api.ts`, simulador `web/src/dev/mock.ts`). El servidor ya no envía XP ni objetivo
+ * diario y la web no los lee: borrar estos tres campos junto con el uso del simulador y entonces `Profile` = `ProfileData`.
+ * @deprecated
+ */
+export interface Profile extends ProfileData {
+  xp: number;
+  dailyGoalXp: number;
+  xpToday: number;
 }
 
 export type LessonStatus = 'locked' | 'available' | 'completed';
@@ -202,7 +210,7 @@ export interface Shop {
 }
 
 // Ampliación (servidor de la tienda): formas de respuesta añadidas, sin cambiar lo anterior.
-/** POST /api/lessons/:id/complete: además de {progress, xpGained, profile}. */
+/** POST /api/lessons/:id/complete: además de {progress, profile}. */
 export interface CompleteLessonShopExtras {
   /** Chedex ganados con esta lección (0 o 1). */
   chedexEarned: number;
