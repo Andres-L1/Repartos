@@ -55,4 +55,4 @@ Las mini lecciones de error (`src/pedagogy/error-lesson.ts`) no entran: no tiene
 - `scripts/audit-content.ts`: recorre el contenido, reparte el trabajo al motor y escribe el informe.
 - `scripts/audit/lib.ts`: funciones puras (legalidad, comparación, afirmaciones, lint, citas SAN).
 - `scripts/audit/engine.ts`: Stockfish con MultiPV; reutiliza `UciSession` de `src/analysis` e implementa `EngineLike`.
-- `scripts/audit/stockfish-proc.cjs`: proceso UCI de Node para `stockfish-nnue-16-single.js` (el build de la web), cuyo modo CLI no funciona en Node. Usa `web/public/engine/` si existe; si no, `node_modules/stockfish/src/`.
+- `scripts/audit/stockfish-proc.cjs`: proceso UCI de Node para `stockfish-nnue-16-single.js` (el build de la web), cuyo modo CLI no funciona en Node. Usa `node_modules/stockfish/src/` (la copia de `web/public/engine/` falla en Node porque el repo es ESM).

@@ -20,9 +20,10 @@ export interface PvLine {
 const FILE = 'stockfish-nnue-16-single.js';
 
 function enginePath(): string {
-  const web = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'web', 'public', 'engine', FILE);
-  if (existsSync(web)) return web;
-  return join(dirname(createRequire(import.meta.url).resolve('stockfish/package.json')), 'src', FILE);
+  // La copia de node_modules va primero: la de web/public/engine la carga Node como módulo ES (package.json "type": "module") y falla.
+  const pkg = join(dirname(createRequire(import.meta.url).resolve('stockfish/package.json')), 'src', FILE);
+  if (existsSync(pkg)) return pkg;
+  return join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'web', 'public', 'engine', FILE);
 }
 
 export class AuditEngine implements EngineLike {
