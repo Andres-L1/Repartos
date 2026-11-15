@@ -12,7 +12,7 @@ import { describeLessons } from './lesson-checks.js';
 const UNITS_D: { unit: Unit; level: Unit['level']; requires: string; order: number }[] = [
   { unit: u10, level: 'intermediate', requires: 'u09', order: 11 },
   { unit: u11, level: 'advanced', requires: 'u10', order: 13 },
-  { unit: u12, level: 'competitive', requires: 'u11', order: 14 },
+  { unit: u12, level: 'competitive', requires: 'u11', order: 15 },
 ];
 
 /** Sacrificios de 5 medias jugadas (atracción a una horquilla): verificados con Stockfish, aquí por balance final. */

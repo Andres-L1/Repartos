@@ -13,7 +13,7 @@ import { LESSONS } from '../src/content/index.ts';
 import { EXERCISES } from '../src/pedagogy/exercises.ts';
 import { mirrorExercise } from '../src/pedagogy/mirror.ts';
 import { CLAIMS, EXPLAIN_RESULT } from './lib/finales-claims.ts';
-import { cacheProbe, checkLine, describeEntry, fetchEntry, lineFens, loadCache, saveCache, tbKey } from './lib/tablebase.ts';
+import { cacheProbe, checkLine, describeEntry, fetchEntry, lineFens, loadCache, modeFor, saveCache, tbKey } from './lib/tablebase.ts';
 
 const args = process.argv.slice(2);
 const cache = loadCache();
@@ -67,7 +67,7 @@ const fetched = await ensure(
 const probe = cacheProbe(cache);
 let failed = 0;
 for (const s of steps) {
-  const errors = checkLine(probe, s.fen, s.line, s.alt);
+  const errors = checkLine(probe, s.fen, s.line, s.alt, modeFor(s.key));
   console.log(`${errors.length ? 'FALLA' : 'ok   '} ${s.key} (${probe(s.fen).category})${s.alt.length ? ` alt ${s.alt.join(',')}` : ''}`);
   for (const e of errors) console.log(`        ${e}`);
   if (errors.length) failed++;

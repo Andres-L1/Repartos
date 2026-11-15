@@ -10,7 +10,7 @@ import { mirrorExercise } from '../../src/pedagogy/mirror.js';
 import { levelPlan } from '../../worker/level.js';
 import type { Lesson, PracticeStep, Unit } from '../../src/content/schema.js';
 import { CLAIMS, EXPLAIN_RESULT } from '../../scripts/lib/finales-claims.js';
-import { cacheProbe, checkLine, loadCache } from '../../scripts/lib/tablebase.js';
+import { cacheProbe, checkLine, loadCache, modeFor } from '../../scripts/lib/tablebase.js';
 import { describeLessons } from './lesson-checks.js';
 
 /**
@@ -19,6 +19,8 @@ import { describeLessons } from './lesson-checks.js';
  */
 const ENDGAME_UNITS: { id: string; level: Unit['level']; order: number; requires: string }[] = [
   { id: 'u13', level: 'basic', order: 10, requires: 'u09' },
+  { id: 'u14', level: 'intermediate', order: 12, requires: 'u10' },
+  { id: 'u15', level: 'advanced', order: 14, requires: 'u14' },
 ];
 const units = ENDGAME_UNITS.map((d) => UNITS.find((u) => u.id === d.id)!);
 const probe = cacheProbe(loadCache());
@@ -138,7 +140,7 @@ describe('contenido E: finales verificados con la tablebase (pendiente de valida
         });
         for (const { key, step } of stepsOf(l)) {
           it(`${key}: se aceptan exactamente las jugadas que conservan el resultado`, () => {
-            expect(checkLine(probe, step.fen, step.solutionUci, step.alt ?? [])).toEqual([]);
+            expect(checkLine(probe, step.fen, step.solutionUci, step.alt ?? [], modeFor(key))).toEqual([]);
           });
           it(`${key}: textos coherentes con la posición`, () => {
             const texts = [step.prompt, step.hint ?? '', step.explanationCorrect, step.explanationWrong, ...Object.values(step.wrongByMove ?? {})];
@@ -156,7 +158,7 @@ describe('contenido E: finales verificados con la tablebase (pendiente de valida
     });
     for (const e of bank) {
       it(`${e.id}: tablebase y textos`, () => {
-        expect(checkLine(probe, e.fen, e.solutionUci, e.alt ?? [])).toEqual([]);
+        expect(checkLine(probe, e.fen, e.solutionUci, e.alt ?? [], modeFor(e.id))).toEqual([]);
         const step = { ...e, explanationCorrect: '', explanationWrong: '' } as PracticeStep;
         expect(textErrors([e.prompt, e.hint ?? ''], linePositions(step), load(e.fen).turn)).toEqual([]);
       });

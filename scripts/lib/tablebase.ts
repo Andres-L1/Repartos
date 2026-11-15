@@ -109,15 +109,35 @@ export function lineFens(fen: string, line: readonly string[]): string[] {
   return out;
 }
 
+/** Modo de criterio: `category` (todas las jugadas que conservan el resultado) u `optimal` (ver `checkLine`). */
+export type Mode = 'category' | 'optimal';
+
+/** Los ejercicios avanzados (u15 en adelante y ex.rook.05+) usan el criterio `optimal`; los anteriores, `category`. */
+export const modeFor = (key: string): Mode => (/^(u1[5-9]\.|ex\.rook\.0[5-9])/.test(key) ? 'optimal' : 'category');
+
+/** Distancia para ordenar jugadas del mismo resultado: DTM si todas la traen (hasta 6 piezas) y, si no, DTZ. */
+const distance = (moves: TbMove[]): ((m: TbMove) => number) =>
+  moves.every((m) => m.dtm !== null) ? (m) => Math.abs(m.dtm!) : (m) => Math.abs(m.dtz ?? 0);
+
 /**
  * Criterio exacto de un ejercicio de finales (lista de errores; vacía si cumple):
  * - En cada jugada del alumno, la posición es ganada o tablas para él (nada de «cursed-win»: la regla de 50 jugadas
  *   cambiaría el resultado) y las jugadas aceptadas (la de la línea y, en la última, `alt`) son EXACTAMENTE las que
- *   conservan ese resultado: toda jugada que lo conserva se acepta y toda la que lo empeora es un error.
+ *   cumplen el criterio. `category`: todas las que conservan el resultado. `optimal`: si la posición está ganada,
+ *   solo las que además ganan lo antes posible (menor DTM; menor DTZ si no hay DTM), de modo que una jugada que gana
+ *   pero alarga el final se trata como una degradación; si son tablas, todas las que conservan las tablas.
+ *   Toda jugada que cumple y no está aceptada es un error, igual que toda aceptada que no cumple.
  * - En cada respuesta del rival, la jugada conserva su mejor resultado y, si pierde, es una de las que más resisten
- *   (máxima distancia a la conversión, DTZ, o al mate, DTM, cuando la hay).
+ *   (`category`: máxima distancia a la conversión, DTZ, o al mate, DTM; `optimal`: máxima distancia por DTM, o por
+ *   DTZ si no hay DTM).
  */
-export function checkLine(probe: Probe, fen: string, line: readonly string[], alt: readonly string[] = []): string[] {
+export function checkLine(
+  probe: Probe,
+  fen: string,
+  line: readonly string[],
+  alt: readonly string[] = [],
+  mode: Mode = 'category',
+): string[] {
   const errors: string[] = [];
   const fens = lineFens(fen, line);
   line.forEach((uci, i) => {
@@ -133,11 +153,17 @@ export function checkLine(probe: Probe, fen: string, line: readonly string[], al
       if (moverResult(mine) !== e.category) errors.push(`${tag}: el rival empeora su resultado (${e.category} -> ${moverResult(mine)})`);
       else if (e.category === 'loss') {
         const keep = e.moves.filter((m) => moverResult(m) === 'loss');
-        const bestDtz = Math.max(...keep.map((m) => m.dtz ?? 0));
-        const withDtm = keep.every((m) => m.dtm !== null);
-        const bestDtm = withDtm ? Math.max(...keep.map((m) => m.dtm!)) : null;
-        if ((mine.dtz ?? 0) < bestDtz && !(bestDtm !== null && mine.dtm === bestDtm))
-          errors.push(`${tag}: el rival tenía una defensa más resistente (DTZ ${mine.dtz} frente a ${bestDtz})`);
+        if (mode === 'optimal') {
+          const d = distance(keep);
+          const best = Math.max(...keep.map(d));
+          if (d(mine) < best) errors.push(`${tag}: el rival tenía una defensa más resistente (${d(mine)} frente a ${best})`);
+        } else {
+          const bestDtz = Math.max(...keep.map((m) => m.dtz ?? 0));
+          const withDtm = keep.every((m) => m.dtm !== null);
+          const bestDtm = withDtm ? Math.max(...keep.map((m) => m.dtm!)) : null;
+          if ((mine.dtz ?? 0) < bestDtz && !(bestDtm !== null && mine.dtm === bestDtm))
+            errors.push(`${tag}: el rival tenía una defensa más resistente (DTZ ${mine.dtz} frente a ${bestDtz})`);
+        }
       }
       return;
     }
@@ -145,10 +171,17 @@ export function checkLine(probe: Probe, fen: string, line: readonly string[], al
       errors.push(`${tag}: posición ${e.category} para el alumno (solo se admiten ganadas o tablas)`);
       return;
     }
-    const keep = new Set(e.moves.filter((m) => moverResult(m) === e.category).map((m) => m.uci));
+    let keepMoves = e.moves.filter((m) => moverResult(m) === e.category);
+    if (mode === 'optimal' && e.category === 'win') {
+      const d = distance(keepMoves);
+      const best = Math.min(...keepMoves.map(d));
+      keepMoves = keepMoves.filter((m) => d(m) === best);
+    }
+    const keep = new Set(keepMoves.map((m) => m.uci));
     const accepted = new Set([uci, ...(i === line.length - 1 ? alt : [])]);
-    for (const a of accepted) if (!keep.has(a)) errors.push(`${tag}: ${san(cur, a)} no conserva el resultado (${e.category})`);
-    for (const k of keep) if (!accepted.has(k)) errors.push(`${tag}: ${san(cur, k)} también conserva el resultado (${e.category}) y no se acepta`);
+    const what = mode === 'optimal' && e.category === 'win' ? 'gana lo antes posible' : `conserva el resultado (${e.category})`;
+    for (const a of accepted) if (!keep.has(a)) errors.push(`${tag}: ${san(cur, a)} no ${what}`);
+    for (const k of keep) if (!accepted.has(k)) errors.push(`${tag}: ${san(cur, k)} también ${what} y no se acepta`);
   });
   return errors;
 }

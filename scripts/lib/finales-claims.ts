@@ -24,6 +24,12 @@ export const EXPLAIN_RESULT: Record<string, Claim['result']> = {
   'u14.l02:1': 'draw',
   'u14.l03:0': 'win',
   'u14.l03:1': 'loss',
+  'u15.l01:0': 'win',
+  'u15.l01:1': 'win',
+  'u15.l02:0': 'draw',
+  'u15.l02:1': 'draw',
+  'u15.l03:0': 'draw',
+  'u15.l03:1': 'win',
 };
 
 export const CLAIMS: Claim[] = [
@@ -50,4 +56,20 @@ export const CLAIMS: Claim[] = [
   // u14.l01
   { where: 'u14.l01 expl. 2: Kc5', fen: '7r/8/8/1k6/4P3/4K3/8/R7 b - - 0 1', moves: ['b5c5'], result: 'draw' },
   { where: 'u14.l01 expl. 2: Kc6', fen: '7r/8/8/1k6/4P3/4K3/8/R7 b - - 0 1', moves: ['b5c6'], result: 'draw' },
+  // u15.l01
+  { where: 'u15.l01 expl. 1: Ra1', fen: '1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 1', moves: ['c1a1'], result: 'draw' },
+  { where: 'u15.l01 expl. 2: Ka4', fen: '8/1P2k3/8/1K6/3R4/8/8/1r6 w - - 0 1', moves: ['b5a4'], result: 'draw' },
+  { where: 'u15.l01 expl. 2: Kc4', fen: '8/1P2k3/8/1K6/3R4/8/8/1r6 w - - 0 1', moves: ['b5c4'], result: 'draw' },
+  { where: 'u15.l01 expl. 2: Ka5', fen: '8/1P2k3/8/1K6/3R4/8/8/1r6 w - - 0 1', moves: ['b5a5'], result: 'draw' },
+  { where: 'u15.l01 expl. 2: Kc5', fen: '8/1P2k3/8/1K6/3R4/8/8/1r6 w - - 0 1', moves: ['b5c5'], result: 'draw' },
+  { where: 'u15.l01 expl. 2: Kc6 gana', fen: '8/1P2k3/8/1K6/3R4/8/8/1r6 w - - 0 1', moves: ['b5c6'], result: 'loss' },
+  { where: 'u15.l01 expl. 2: Ka6 gana', fen: '8/1P2k3/8/1K6/3R4/8/8/1r6 w - - 0 1', moves: ['b5a6'], result: 'loss' },
+  { where: 'u15.l01 práct. 1: Rc2 pierde la torre', fen: '1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 1', moves: ['c1c2'], result: 'win' },
+  { where: 'u15.l01 práct. 2: Rd3 gana', fen: '1K6/1P2k3/8/8/8/8/r7/3R4 w - - 0 1', moves: ['d1d3'], result: 'loss' },
+  { where: 'u15.l01 práct. 2: Rd2 tablas', fen: '1K6/1P2k3/8/8/8/8/r7/3R4 w - - 0 1', moves: ['d1d2'], result: 'draw' },
+  // u15.l03
+  { where: 'u15.l03 expl. 1: Rg8 pierde', fen: '8/4k3/8/P1K4R/8/6r1/8/8 b - - 0 1', moves: ['g3g8'], result: 'win' },
+  { where: 'u15.l03 expl. 2: Kc6 tablas', fen: '7r/8/2k5/8/4P3/4K3/8/R7 w - - 0 1', moves: [], result: 'draw' },
+  { where: 'u15.l03 expl. 2: Kd6 tablas', fen: '7r/8/3k4/8/4P3/4K3/8/R7 w - - 0 1', moves: [], result: 'draw' },
+  { where: 'u15.l03 expl. 2: Kc5 tablas', fen: '7r/8/8/2k5/4P3/4K3/8/R7 w - - 0 1', moves: [], result: 'draw' },
 ];
