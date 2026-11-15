@@ -38,7 +38,7 @@ export default {
   fetch(request: Request, env: Env): Response | Promise<Response> {
     return appFor(env).fetch(request);
   },
-  /** Cron Trigger cada 3 minutos (wrangler.jsonc; D1 gratis lee 5 M filas al día y cada ejecución recorre el depósito): rellena el depósito de puzles y limpia. Nunca lanza. */
+  /** Cron Trigger cada minuto (wrangler.jsonc; cada ejecución lee ~76 filas de cp_puzzle_stats, no el depósito): rellena el depósito de puzles y limpia. Nunca lanza. */
   scheduled(event: { scheduledTime: number }, env: Env, ctx: { waitUntil(p: Promise<unknown>): void }): void {
     ctx.waitUntil(scheduledRun(d1Db(env.PULSE_DB), event.scheduledTime, fetch));
   },

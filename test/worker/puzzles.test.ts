@@ -63,10 +63,10 @@ describe('fillPool (Cron Trigger)', () => {
   });
   it('todo lleno y reciente: ninguna petición; con más de 7 días, rellena esa', async () => {
     const db = openTestDb();
-    fillAllBut(db);
+    fillAllBut(db, ['mate|hardest']);
+    seed(db, 40, { theme: 'mate', difficulty: 'hardest', prefix: 'viejo', fetchedAt: NOW - 8 * DAY });
     const f = fakeFetch({ puzzles });
-    expect(await fillPool(db, NOW + DAY, f)).toBe(false);
-    db.raw.prepare("UPDATE cp_puzzle_pool SET fetched_at = ? WHERE theme = 'mate' AND difficulty = 'hardest'").run(NOW - 8 * DAY);
+    expect(await fillPool(db, NOW - 7 * DAY, f)).toBe(false); // justo 7 días: aún vale
     expect(await fillPool(db, NOW, f)).toBe(true);
     expect(f.urls).toEqual(['https://lichess.org/api/puzzle/batch/mate?nb=50&difficulty=hardest']);
   });

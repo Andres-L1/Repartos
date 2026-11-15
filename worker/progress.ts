@@ -86,19 +86,6 @@ export function buildMap(
   }));
 }
 
-export interface XpInput {
-  correct: number;
-  total: number;
-  alreadyCompleted: boolean;
-  passed: boolean;
-}
-export const REPEAT_XP = 2;
-export function computeXp({ correct, total, alreadyCompleted, passed }: XpInput): number {
-  if (!passed) return 0;
-  if (alreadyCompleted) return REPEAT_XP;
-  return 10 + 5 * correct + (correct === total ? 5 : 0);
-}
-
 export function passMarkFor(lesson: Lesson, total: number): number {
   return lesson.passMark ?? Math.max(1, total - 1);
 }

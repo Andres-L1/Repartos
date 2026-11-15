@@ -25,6 +25,19 @@ const yesterday = new Date(clock - DAY).toISOString().slice(0, 10);
 const lesson: Lesson = { id: 'a.1', unitId: 'a', title: 'T', objective: 'O', intro: 'i', explanation: [], practice: [], evaluation: [] };
 const units: Unit[] = [{ id: 'a', order: 1, title: 'A', description: 'd', level: 'beginner', requires: [], lessons: [lesson] }];
 
+/** Sentencias separadas por «;», sin partir el cuerpo BEGIN ... END de los disparadores. */
+function splitSql(text: string): string[] {
+  const out: string[] = [];
+  let cur = '';
+  for (const part of text.replace(/--.*$/gm, '').split(';')) {
+    cur += (cur ? ';' : '') + part;
+    if (/\bBEGIN\b/i.test(cur) && !/\bEND\s*$/i.test(cur.trim())) continue;
+    if (cur.trim()) out.push(cur.trim() + ';'); // el «;» final cierra el END del disparador
+    cur = '';
+  }
+  return out;
+}
+
 let proxy: Awaited<ReturnType<typeof getPlatformProxy<{ PULSE_DB: D1Like & { prepare(sql: string): any } }>>>;
 let dir: string;
 let d1: D1Like & { prepare(sql: string): any };
@@ -35,8 +48,7 @@ beforeAll(async () => {
   d1 = proxy.env.PULSE_DB;
   const mig = new URL('../../migrations/', import.meta.url);
   for (const f of readdirSync(mig).filter((n) => n.endsWith('.sql')).sort())
-    for (const sql of readFileSync(new URL(f, mig), 'utf8').replace(/--.*$/gm, '').split(';').map((s) => s.trim()).filter(Boolean))
-      await d1.prepare(sql).run();
+    for (const sql of splitSql(readFileSync(new URL(f, mig), 'utf8'))) await d1.prepare(sql).run();
 }, 60_000);
 
 afterAll(async () => {
@@ -87,6 +99,8 @@ describe('carreras en D1 local real (20 peticiones a la vez)', () => {
     const usedInSession = s0.items.filter((i: { kind: string }) => i.kind === 'puzzle').length;
     expect(usedInSession).toBeGreaterThan(0);
     expect(await q('SELECT COUNT(*) AS n FROM cp_puzzle_pool WHERE used_at IS NOT NULL')).toEqual({ n: usedInSession });
+    // Contadores del cron (disparadores 0010) sin deriva tras 30 inserciones, los reclamos y la liberación de los de sesiones perdidas.
+    expect(await q("SELECT unused FROM cp_puzzle_stats WHERE theme = 'fork' AND difficulty = 'easiest'")).toEqual({ unused: 30 - usedInSession });
     await exec('DELETE FROM cp_puzzle_pool'); // las demás pruebas esperan ejercicios del banco
   });
 
@@ -134,27 +148,23 @@ describe('carreras en D1 local real (20 peticiones a la vez)', () => {
     expect(await q('SELECT box FROM cp_review_schedule WHERE user_id = ? AND concept_id = ?', 'r_rev', 'tactics.fork')).toEqual({ box: 1 });
   });
 
-  it('lesson complete: 20 envíos iguales a la vez dan XP, intento, racha y Chedex una sola vez', async () => {
+  it('lesson complete: 20 envíos iguales a la vez dan intento, racha y Chedex una sola vez', async () => {
     const ana = await user('r_les');
     await streak4('r_les');
     const rs = await all(() => ana('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: ['tactics.fork'] }));
     expect(rs.map((r) => r.status)).toEqual(Array(N).fill(200));
-    const xp = rs.map((r) => r.json.xpGained).filter((x) => x > 0);
-    expect(xp).toHaveLength(1);
-    expect(await q('SELECT xp, xp_today, streak_days FROM cp_profiles WHERE user_id = ?', 'r_les')).toEqual({ xp: xp[0], xp_today: xp[0], streak_days: 5 });
+    expect(await q('SELECT streak_days FROM cp_profiles WHERE user_id = ?', 'r_les')).toEqual({ streak_days: 5 });
     expect(await q('SELECT attempts FROM cp_lesson_progress WHERE user_id = ?', 'r_les')).toEqual({ attempts: 1 });
     expect(await q('SELECT count FROM cp_weak_concepts WHERE user_id = ?', 'r_les')).toEqual({ count: 1 });
     expect(await q("SELECT COUNT(*) AS n FROM cp_wallet_ledger WHERE user_id = ? AND reason = 'streak_milestone'", 'r_les')).toEqual({ n: 1 });
   });
 
-  it('lesson complete sin hito de Chedex: 20 envíos iguales a la vez dan XP e intento una sola vez', async () => {
+  it('lesson complete sin hito de Chedex: 20 envíos iguales a la vez dan intento y racha una sola vez', async () => {
     const ana = await user('r_les2');
     await exec('INSERT INTO cp_profiles (user_id, streak_days, last_active_date) VALUES (?,1,?)', 'r_les2', yesterday);
     const rs = await all(() => ana('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: ['tactics.fork'] }));
     expect(rs.map((r) => r.status)).toEqual(Array(N).fill(200));
-    const xp = rs.map((r) => r.json.xpGained).filter((x) => x > 0);
-    expect(xp).toHaveLength(1);
-    expect(await q('SELECT xp, xp_today, streak_days FROM cp_profiles WHERE user_id = ?', 'r_les2')).toEqual({ xp: xp[0], xp_today: xp[0], streak_days: 2 });
+    expect(await q('SELECT streak_days FROM cp_profiles WHERE user_id = ?', 'r_les2')).toEqual({ streak_days: 2 });
     expect(await q('SELECT attempts FROM cp_lesson_progress WHERE user_id = ?', 'r_les2')).toEqual({ attempts: 1 });
     expect(await q('SELECT count FROM cp_weak_concepts WHERE user_id = ?', 'r_les2')).toEqual({ count: 1 });
   });

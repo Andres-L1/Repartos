@@ -1,6 +1,6 @@
 /** Partidas repasadas: registra la partida y suma los conceptos fallados solo la primera vez (idempotente). */
 import type { Db, Stmt } from './db.js';
-import { CONCEPT_IDS, parsePositions, storePositionStmts, touchSchedule } from './srs.js';
+import { CONCEPT_IDS, MAX_REVIEWED_GAMES, parsePositions, storePositionStmts, touchSchedule, weakConceptStmt } from './srs.js';
 import type { ReviewPosition } from './srs.js';
 export const MAX_REVIEW_CONCEPTS = 6;
 
@@ -25,17 +25,18 @@ export async function completeReview(db: Db, userId: string, gameId: string, con
   const nowMs = Date.parse(nowIso);
   const mark = `${nowIso}#${crypto.randomUUID()}`;
   const stmts: Stmt[] = [
-    ...concepts.map(
-      (id): Stmt => ({
-        sql: `INSERT INTO cp_weak_concepts (user_id, concept_id, count)
-              SELECT ?, ?, 1 WHERE NOT EXISTS (SELECT 1 FROM cp_reviewed_games WHERE user_id = ? AND game_id = ?)
-              ON CONFLICT(user_id, concept_id) DO UPDATE SET count = count + 1`,
-        params: [userId, id, userId, gameId],
-      }),
+    ...concepts.map((id) =>
+      weakConceptStmt(userId, id, 'NOT EXISTS (SELECT 1 FROM cp_reviewed_games WHERE user_id = ? AND game_id = ?)', [userId, gameId]),
     ),
     ...concepts.map((id) => touchSchedule(userId, id, nowMs)),
     ...storePositionStmts(userId, gameId, positions, nowMs),
     { sql: 'INSERT OR IGNORE INTO cp_reviewed_games (user_id, game_id, reviewed_at) VALUES (?,?,?)', params: [userId, gameId, mark] },
+    // Tope por usuario: se conservan las MAX_REVIEWED_GAMES más recientes (una partida muy antigua podría volver a contarse).
+    {
+      sql: `DELETE FROM cp_reviewed_games WHERE user_id = ? AND game_id NOT IN (
+              SELECT game_id FROM cp_reviewed_games WHERE user_id = ? ORDER BY reviewed_at DESC, rowid DESC LIMIT ${MAX_REVIEWED_GAMES})`,
+      params: [userId, userId],
+    },
   ];
   await db.batch(stmts);
   const row = await db.first<{ reviewed_at: string }>('SELECT reviewed_at FROM cp_reviewed_games WHERE user_id = ? AND game_id = ?', [userId, gameId]);

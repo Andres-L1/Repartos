@@ -198,7 +198,7 @@ describe('OAuth con Lichess', () => {
     lichess.account = { id: 'ana', username: 'ANA_2' };
     await s.login();
     expect(s.db.raw.prepare('SELECT id, username FROM cp_users').all()).toEqual([{ id: 'ana', username: 'ANA_2' }]);
-    expect((await s.req('GET', '/api/profile')).json.profile.xp).toBeGreaterThan(0);
+    expect((await s.req('GET', '/api/profile')).json.profile.lessonsCompleted).toBe(1);
   });
 
   it('sesión: sin cookie, manipulada, de otra clave o caducada da 401', async () => {
@@ -235,7 +235,6 @@ describe('OAuth con Lichess', () => {
     const s = setup();
     await s.login();
     await s.req('PUT', '/api/level', { level: 'beginner' });
-    await s.req('PUT', '/api/profile/daily-goal', { xp: 30 });
     expect((await s.req('DELETE', '/api/account')).status).toBe(403);
     expect((await s.req('DELETE', '/api/account', undefined, { origin: 'https://evil.example' })).status).toBe(403);
     const n = (t: string) => (s.db.raw.prepare(`SELECT COUNT(*) AS n FROM ${t} WHERE user_id = 'ana'`).get() as { n: number }).n;
@@ -247,6 +246,19 @@ describe('OAuth con Lichess', () => {
     for (const t of ['cp_profiles', 'cp_user_level', 'cp_placement', 'cp_placement_seen']) expect(n(t)).toBe(0);
     expect(s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_users WHERE id = 'ana'").get()).toEqual({ n: 0 });
     expect((await s.req('GET', '/api/me')).status).toBe(401);
+  });
+
+  it('cookie firmada de una cuenta ya borrada (otro dispositivo): 401 y se limpia la cookie, nunca 500', async () => {
+    const s = setup();
+    await s.login();
+    const cookie = [...s.jar].map(([k, v]) => `${k}=${v}`).join('; ');
+    expect((await s.req('GET', '/api/profile', undefined, { cookie })).status).toBe(200);
+    expect((await s.raw('DELETE', '/api/account', undefined, { origin: ORIGIN })).status).toBe(200);
+    for (const [method, path, body] of [['GET', '/api/profile'], ['GET', '/api/session'], ['POST', '/api/review/complete', { gameId: 'abcd1234', concepts: [] }], ['GET', '/api/shop']] as const) {
+      const res = await s.raw(method, path, body, { cookie });
+      expect(res.status, `${method} ${path}`).toBe(401);
+      expect(res.headers.getSetCookie().some((c) => c.startsWith('__Host-chedex_session=;') && c.includes('Max-Age=0'))).toBe(true);
+    }
   });
 
   it('GET /auth/logout no existe; registro/login con contraseña eliminados', async () => {
@@ -279,13 +291,13 @@ describe('cabeceras, CORS y límites', () => {
     expect(r.headers.get('content-security-policy')).toContain("default-src 'none'");
     expect(r.headers.get('cache-control')).toBe('no-store');
     expect(r.headers.get('access-control-allow-origin')).toBeNull();
-    const big = await s.req('PUT', '/api/profile/daily-goal', { xp: 'x'.repeat(40_000) });
+    const big = await s.req('PUT', '/api/level', { level: 'x'.repeat(40_000) });
     expect(big.status).toBe(413);
-    const txt = await s.app.request(`${ORIGIN}/api/profile/daily-goal`, { method: 'PUT', headers: { 'content-type': 'text/plain', cookie: `__Host-chedex_session=${s.jar.get('__Host-chedex_session')}` }, body: '{}' });
+    const txt = await s.app.request(`${ORIGIN}/api/level`, { method: 'PUT', headers: { 'content-type': 'text/plain', cookie: `__Host-chedex_session=${s.jar.get('__Host-chedex_session')}` }, body: '{}' });
     expect(txt.status).toBe(415);
-    const evil = await s.req('PUT', '/api/profile/daily-goal', { xp: 30 }, { origin: 'https://evil.example', cookie: `__Host-chedex_session=${s.jar.get('__Host-chedex_session')}` });
+    const evil = await s.req('PUT', '/api/level', { level: 'beginner' }, { origin: 'https://evil.example', cookie: `__Host-chedex_session=${s.jar.get('__Host-chedex_session')}` });
     expect(evil.status).toBe(403);
-    const same = await s.req('PUT', '/api/profile/daily-goal', { xp: 30 }, { origin: ORIGIN });
+    const same = await s.req('PUT', '/api/level', { level: 'beginner' }, { origin: ORIGIN });
     expect(same.status).toBe(200);
   });
 });
@@ -411,46 +423,41 @@ describe('completar lección', () => {
   let s: ReturnType<typeof setup>;
   beforeEach(async () => { s = setup(); await s.login(); });
 
-  it('calcula XP, no duplica XP al repetir y valida entrada', async () => {
+  it('cuenta intento y errores una vez, no duplica al repetir y valida entrada', async () => {
     expect((await s.req('POST', '/api/lessons/a.1/complete', { correct: 6, total: 5, mistakes: [] })).status).toBe(400);
     expect((await s.req('POST', '/api/lessons/a.1/complete', { correct: 1.5, total: 5, mistakes: [] })).status).toBe(400);
     expect((await s.req('POST', '/api/lessons/a.1/complete', { correct: 1, total: 5, mistakes: 'x' })).status).toBe(400);
 
     const r1 = await s.req('POST', '/api/lessons/a.1/complete', { correct: 4, total: 5, mistakes: ['fork', 'fork'] });
-    expect(r1.json.xpGained).toBe(30);
     expect(r1.json.progress).toMatchObject({ completed: true, attempts: 1 });
-    expect(r1.json.profile).toMatchObject({ xp: 30, xpToday: 30, lessonsCompleted: 1, streakDays: 1, weakConcepts: { fork: 2 } });
+    expect(r1.json.profile).toMatchObject({ lessonsCompleted: 1, streakDays: 1, weakConcepts: { fork: 2 } });
 
     const dup = await s.req('POST', '/api/lessons/a.1/complete', { correct: 4, total: 5, mistakes: ['fork', 'fork'] });
-    expect(dup.json.profile.xp).toBe(30);
     expect(dup.json.progress.attempts).toBe(1);
     expect(dup.json.profile.weakConcepts.fork).toBe(2);
 
     advance(60_000);
     const r2 = await s.req('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: [] });
-    expect(r2.json.xpGained).toBe(2);
     expect(r2.json.progress).toMatchObject({ completed: true, attempts: 2, bestScore: 1 });
-    expect(r2.json.profile.xp).toBe(32);
   });
 
-  it('perfecto en primera vez da bonus; suspenso no da XP ni completa', async () => {
+  it('suspenso no completa ni da racha; con una nota perfecta después sí completa', async () => {
     const fail = await s.req('POST', '/api/lessons/a.1/complete', { correct: 2, total: 5, mistakes: ['pin'] });
-    expect(fail.json.xpGained).toBe(0);
     expect(fail.json.progress.completed).toBe(false);
-    expect(fail.json.profile).toMatchObject({ xp: 0, streakDays: 0, weakConcepts: { pin: 1 } });
+    expect(fail.json.profile).toMatchObject({ streakDays: 0, weakConcepts: { pin: 1 } });
     advance(60_000);
-    expect((await s.req('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: [] })).json.xpGained).toBe(10 + 25 + 5);
+    expect((await s.req('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: [] })).json.progress).toMatchObject({ completed: true, attempts: 2 });
   });
 
   it('racha por días naturales UTC: consecutivos suben, hueco reinicia, longest se conserva', async () => {
     const done = (id: string) => s.req('POST', `/api/lessons/${id}/complete`, { correct: 5, total: 5, mistakes: [] });
     await done('a.1');
     advance(DAY);
-    expect((await done('a.2')).json.profile).toMatchObject({ streakDays: 2, xpToday: 40 });
+    expect((await done('a.2')).json.profile).toMatchObject({ streakDays: 2 });
     advance(DAY);
     expect((await done('a.3')).json.profile).toMatchObject({ streakDays: 3, longestStreak: 3 });
     advance(3 * DAY);
-    expect((await s.req('GET', '/api/profile')).json.profile).toMatchObject({ streakDays: 0, xpToday: 0, longestStreak: 3 });
+    expect((await s.req('GET', '/api/profile')).json.profile).toMatchObject({ streakDays: 0, longestStreak: 3 });
     expect((await done('b.1')).json.profile).toMatchObject({ streakDays: 1, longestStreak: 3 });
   });
 
@@ -461,10 +468,12 @@ describe('completar lección', () => {
     expect(r.json.profile.streakDays).toBe(1);
   });
 
-  it('objetivo diario configurable y validado', async () => {
-    expect((await s.req('PUT', '/api/profile/daily-goal', { xp: 50 })).json.profile.dailyGoalXp).toBe(50);
-    expect((await s.req('PUT', '/api/profile/daily-goal', { xp: 0 })).status).toBe(400);
-    expect((await s.req('PUT', '/api/profile/daily-goal', { xp: 'mucho' })).status).toBe(400);
+  it('sin XP ni objetivo diario: la ruta no existe y ni el perfil ni la respuesta de la lección los envían', async () => {
+    expect((await s.req('PUT', '/api/profile/daily-goal', { xp: 50 })).status).toBe(404);
+    const done = await s.req('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: [] });
+    expect(done.json).not.toHaveProperty('xpGained');
+    for (const k of ['xp', 'dailyGoalXp', 'xpToday']) expect(done.json.profile).not.toHaveProperty(k);
+    expect((await s.req('GET', '/api/profile')).json.profile).not.toHaveProperty('xp');
   });
 
   it('el progreso de un usuario no afecta a otro', async () => {
@@ -473,7 +482,7 @@ describe('completar lección', () => {
     lichess.account = { id: 'Beto', username: 'Beto' };
     await s.login();
     expect((await s.req('GET', '/api/me')).json.user.id).toBe('beto');
-    expect((await s.req('GET', '/api/profile')).json.profile.xp).toBe(0);
+    expect((await s.req('GET', '/api/profile')).json.profile.lessonsCompleted).toBe(0);
     expect((await s.req('GET', '/api/lessons/a.2')).status).toBe(403);
   });
 });
@@ -643,7 +652,7 @@ describe('nivel elegido por el alumno', () => {
     expect(m.p3).toMatchObject({ recommended: true, status: 'available' });
     expect(m.p3.placedOpen).toBeUndefined();
     expect(m.p4.status).toBe('locked');
-    expect((await s.req('GET', '/api/profile')).json.profile).toMatchObject({ xp: 0, lessonsCompleted: 0 });
+    expect((await s.req('GET', '/api/profile')).json.profile).toMatchObject({ lessonsCompleted: 0 });
     expect((await s.req('GET', '/api/lessons/p2.2')).status).toBe(200);
     expect((await s.req('GET', '/api/lessons/p4.1')).status).toBe(403);
     await s.req('PUT', '/api/level', { level: 'beginner' });
@@ -725,6 +734,47 @@ describe('partidas repasadas', () => {
     expect((s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE game_id = 'game0000'").get() as any).n).toBe(1);
     expect((s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE game_id = 'game0033'").get() as any).n).toBe(3);
   });
+
+  it('topes por usuario: 500 partidas repasadas (se borran las más antiguas), 200 posiciones resueltas y 300 conceptos distintos', async () => {
+    const s = setup(); await s.login();
+    const raw = s.db.raw;
+    const ins = raw.prepare("INSERT INTO cp_reviewed_games (user_id, game_id, reviewed_at) VALUES ('ana', ?, ?)");
+    for (let i = 0; i < 500; i++) ins.run(`old${String(i).padStart(5, '0')}`, `2025-01-01T00:00:00.000Z#${String(i).padStart(4, '0')}`);
+    expect((await s.req('POST', '/api/review/complete', { gameId: 'nuevo001', concepts: [] })).json).toEqual({ counted: true });
+    expect(count(s, 'cp_reviewed_games')).toBe(500);
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_reviewed_games WHERE game_id IN ('old00000', 'nuevo001')").get()).toEqual({ n: 1 }); // sale la más antigua, entra la nueva
+    // Otro usuario no se ve afectado.
+    raw.exec("INSERT INTO cp_users (id, username, created_at, last_login_at) VALUES ('bea','bea','x','x')");
+    raw.exec("INSERT INTO cp_reviewed_games (user_id, game_id, reviewed_at) VALUES ('bea','bea00001','a')");
+    await s.req('POST', '/api/review/complete', { gameId: 'nuevo002', concepts: [] });
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_reviewed_games WHERE user_id = 'bea'").get()).toEqual({ n: 1 });
+
+    const solved = raw.prepare("INSERT INTO cp_review_positions (id, user_id, game_id, ply, concept_id, fen, best_uci, created_at, solved_at) VALUES (?, 'ana', 'g', ?, 'tactics.fork', 'f', 'e2e4', 1, ?)");
+    for (let i = 0; i < 210; i++) solved.run(`s${i}`, i + 1, 1000 + i);
+    await s.req('POST', '/api/review/complete', { gameId: 'nuevo003', concepts: [], positions: [pos(1)] });
+    expect(raw.prepare('SELECT COUNT(*) AS n FROM cp_review_positions WHERE solved_at IS NOT NULL').get()).toEqual({ n: 200 });
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE id IN ('s0', 's9')").get()).toEqual({ n: 0 }); // las 10 más antiguas
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_review_positions WHERE id = 's209'").get()).toEqual({ n: 1 });
+
+    // Conceptos fallados inventados: pasada la cota no entran nuevos, pero los existentes siguen contando.
+    const w = raw.prepare("INSERT INTO cp_weak_concepts (user_id, concept_id, count) VALUES ('ana', ?, 1)");
+    for (let i = 0; i < 300; i++) w.run(`inventado${i}`);
+    const done = await s.req('POST', '/api/lessons/a.1/complete', { correct: 2, total: 5, mistakes: ['inventado0', 'otro_nuevo'] });
+    expect(done.status).toBe(200);
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_weak_concepts WHERE user_id = 'ana'").get()).toEqual({ n: 300 });
+    expect(raw.prepare("SELECT count FROM cp_weak_concepts WHERE concept_id = 'inventado0'").get()).toEqual({ count: 2 });
+    expect(raw.prepare("SELECT COUNT(*) AS n FROM cp_weak_concepts WHERE concept_id = 'otro_nuevo'").get()).toEqual({ n: 0 });
+  });
+
+  it('los reclamos de intentos de lección no se acumulan: como mucho 2 filas por lección', async () => {
+    const s = setup(); await s.login();
+    for (let i = 0; i < 8; i++) {
+      advance(60_000);
+      expect((await s.req('POST', '/api/lessons/a.1/complete', { correct: 1 + (i % 2), total: 5, mistakes: [] })).status).toBe(200);
+    }
+    expect(s.db.raw.prepare("SELECT COUNT(*) AS n FROM cp_wallet_ledger WHERE reason = 'lesson_attempt'").get()).toEqual({ n: 2 });
+    expect(s.db.raw.prepare("SELECT attempts FROM cp_lesson_progress WHERE lesson_id = 'a.1'").get()).toEqual({ attempts: 8 });
+  });
 });
 
 describe('migraciones D1', () => {
@@ -734,7 +784,12 @@ describe('migraciones D1', () => {
   it('solo crean tablas e índices cp_ con IF NOT EXISTS: sin DROP, ALTER, DELETE ni UPDATE', () => {
     expect(sqlFiles.length).toBeGreaterThan(0);
     for (const f of sqlFiles) {
-      const sql = readFileSync(new URL(f, dir), 'utf8').replace(/--.*$/gm, '').replace(/ON DELETE CASCADE/gi, '');
+      const sql = readFileSync(new URL(f, dir), 'utf8')
+        .replace(/--.*$/gm, '')
+        .replace(/ON DELETE CASCADE/gi, '')
+        // Únicas excepciones: el cuerpo de los disparadores de contadores cp_puzzle_stats y su relleno idempotente (0010).
+        .replace(/CREATE TRIGGER IF NOT EXISTS trg_cp_puzzle_pool_\w+ AFTER (?:INSERT|UPDATE OF used_at|DELETE) ON cp_puzzle_pool\s+BEGIN[^]*?\bEND;/g, '')
+        .replace(/INSERT OR REPLACE INTO cp_puzzle_stats[^;]*;/g, '');
       expect(sql).not.toMatch(/\b(DROP|ALTER|DELETE|UPDATE|INSERT|REPLACE|TRUNCATE)\b/i);
       const creates = [...sql.matchAll(/CREATE\s+(?:UNIQUE\s+)?(TABLE|INDEX)\s+(IF NOT EXISTS\s+)?(\w+)/gi)];
       expect(creates.length).toBeGreaterThan(0);
@@ -750,7 +805,7 @@ describe('migraciones D1', () => {
     for (const f of sqlFiles) raw.exec(readFileSync(new URL(f, dir), 'utf8')); // segunda aplicación
     const names = (raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((r) => r.name);
     const indexes = (raw.prepare("SELECT name FROM sqlite_master WHERE type='index' AND name LIKE 'idx_cp_%'").all() as { name: string }[]).map((r) => r.name);
-    expect(indexes).toEqual(expect.arrayContaining(['idx_cp_session_items_session', 'idx_cp_session_items_status', 'idx_cp_puzzle_pool_pick', 'idx_cp_review_positions_open', 'idx_cp_review_schedule_due']));
-    expect(names.sort()).toEqual(['cp_cron_state', 'cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_claims', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
+    expect(indexes).toEqual(expect.arrayContaining(['idx_cp_session_items_session', 'idx_cp_session_items_status', 'idx_cp_puzzle_pool_pick', 'idx_cp_puzzle_pool_take', 'idx_cp_puzzle_pool_used', 'idx_cp_session_items_created', 'idx_cp_review_positions_open', 'idx_cp_review_schedule_due']));
+    expect(names.sort()).toEqual(['cp_cron_state', 'cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_puzzle_stats', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_claims', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
   });
 });
