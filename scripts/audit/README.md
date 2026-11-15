@@ -10,6 +10,7 @@ npm run audit:content -- --unit u03,bank    # solo esas unidades ("bank" = banco
 npm run audit:content -- --changed          # solo lo modificado frente a main (git diff + cambios sin confirmar)
 npm run audit:content -- --no-engine        # sin motor: legalidad, mates en 1 y lint (menos de 1 s)
 npm run audit:content -- --depth 20 --multipv 5 --jobs 2 --out /tmp/informe.md
+npm run audit:content -- --unit u12,bank --fase4  # además, la pasada estricta de Fase 4 (ver abajo)
 ```
 
 - Runner: `tsx` (ya está en devDependencies); el script es `scripts/audit-content.ts`.
@@ -42,6 +43,18 @@ Escala: el motor puntúa desde el bando que mueve; mate en N = 20000 − 100·N 
 Jugadas citadas en el texto: solo cuentan las que llevan letra de pieza, captura, enroque, «+»/«#» o número de jugada; las casillas sueltas («la casilla e4») no. Una cita vale si es legal en la posición del paso, en su línea de solución, tras las jugadas citadas antes, con el turno cambiado (amenazas del rival), tras una jugada intermedia no citada o si ya está hecha (relatos de apertura). Por eso no da por ilegal una cita bien hecha, pero puede dejar pasar alguna mal hecha.
 
 Las mini lecciones de error (`src/pedagogy/error-lesson.ts`) no entran: no tienen posiciones fijas, se generan de cada partida.
+
+## Pasada estricta de Fase 4 (`--fase4`)
+
+Después del informe ejecuta `scripts/verify-fase4.mts` sobre las unidades del alcance desde u10 (y `--bank` si el banco entra). Solo mira el motor (sin lint) y es más estricta que el auditor general: profundidad 18 (variable `DEPTH`), MultiPV 8.
+
+- En cada jugada del alumno la solución es la mejor y ninguna otra queda a 30 cp o menos, salvo las de `alt` (última jugada).
+- Los mates son los más cortos y únicos, salvo en la última jugada (allí vale cualquier mate).
+- Sin mate, la primera jugada deja al menos +1,5.
+- Las respuestas del rival están a 30 cp o menos de su mejor defensa.
+- Lecciones y ejercicios de `tactics.defensive_move`: la primera jugada es la mejor y todas las demás quedan al menos 1,5 peones por debajo. No se exige ventaja: salvar puede ser llegar a tablas.
+
+Si algo falla, el código de salida es 1. Se puede correr sola: `npx tsx scripts/verify-fase4.mts u10 u11 u12 --bank`. Para diseñar posiciones: `line "<fen>" "<uci ...>" [defense]` y `probe "<fen>" [n] ["<uci ...>"]`.
 
 ## Límites
 

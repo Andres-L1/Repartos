@@ -413,4 +413,110 @@ export const CONCEPTS: Concept[] = [
       'Calcula el balance final del cambio.',
     ],
   },
+  // Competitivo (u12). Pendiente de validación de profesores.
+  {
+    id: 'tactics.defensive_move',
+    category: 'Táctica',
+    name: 'Defensa precisa',
+    definition:
+      'Una defensa precisa es la única jugada (o casi la única) que evita perder material o la partida ante un jaque o una amenaza; las demás respuestas, aunque parezcan razonables, pierden.',
+    recommendedLevel: 'competitive',
+    learningObjectives: [
+      'Ante un jaque o una amenaza, revisar todas las respuestas y no la primera que parece buena.',
+      'Elegir la casilla del rey donde se acaban los jaques del rival.',
+      'Comprobar qué jaques y amenazas le quedan al rival después de cada candidata.',
+    ],
+    detection:
+      'En una posición con una sola jugada que mantiene el resultado, el alumno juega otra y el motor confirma que pierde material o la ventaja.',
+    explanations: {
+      beginner:
+        '{hecho}\nEn esa posición solo una jugada te salvaba.\nCuando te den jaque, prueba todas las casillas del rey antes de elegir.',
+      initiation:
+        '{hecho}\nHabía una defensa, pero solo una.\nCasillas implicadas: {casillas}.\nAntes de responder a un jaque, mira qué jaques le quedan al rival en cada casilla.',
+      basic:
+        '{hecho}\nDefensa precisa: solo una jugada evitaba la pérdida.\nCasillas implicadas: {casillas}; piezas: {piezas}.\nSe pierde material equivalente a {perdida}.\nCuenta las respuestas del rival a cada defensa, no solo a la primera.',
+      intermediate:
+        '{hecho}\nTras tu jugada, {refutacion} castiga la defensa elegida. Pérdida: {perdida}.\nEn las posiciones críticas, compara todas las defensas: la que parece natural no siempre aguanta.',
+      advanced:
+        '{hecho}\nTras {jugada}, la respuesta {refutacion} demuestra que la defensa no bastaba. Material perdido: {perdida}.\nBusca la casilla o la jugada que deja al rival sin jaques ni amenazas útiles.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Casillas críticas: {casillas}. Material en juego: {perdida}.\nEn defensa, calcula cada candidata hasta que el rival se quede sin jugadas forzantes; la única que aguanta suele ser la menos natural.',
+    },
+    exerciseIds: ['ex.defense.01', 'ex.defense.02', 'ex.defense.03', 'ex.defense.04'],
+    evaluationCriteria: [
+      'Revisa todas las respuestas posibles al jaque o a la amenaza.',
+      'Elige la que deja al rival sin jaques ni amenazas útiles.',
+      'Comprueba que la defensa no pierde material.',
+    ],
+  },
+  {
+    id: 'tactics.interference',
+    category: 'Táctica',
+    name: 'Interferencia',
+    definition:
+      'La interferencia corta la línea por la que una pieza rival defiende a otra pieza o una casilla. Se consigue poniendo una pieza propia en medio o, con un jaque, obligando al rey rival a interponerse él mismo.',
+    recommendedLevel: 'competitive',
+    learningObjectives: [
+      'Ver qué líneas (filas, columnas, diagonales) usan las piezas rivales para defenderse.',
+      'Encontrar la casilla de esa línea donde una pieza propia corta la defensa.',
+      'Usar un jaque para obligar al rey rival a ponerse entre sus propias piezas.',
+    ],
+    detection:
+      'Una pieza rival se coloca entre una pieza del alumno y lo que defendía, o un jaque obliga al rey del alumno a hacerlo, y se pierde material; el motor confirma la pérdida.',
+    explanations: {
+      beginner:
+        '{hecho}\nUna pieza se metió en medio de una defensa y la cortó.\nMira qué piezas tuyas se defienden por una línea y si algo puede taparla.',
+      initiation:
+        '{hecho}\nLa línea por la que defendías una pieza quedó tapada.\nCasillas implicadas: {casillas}.\nUna defensa por una línea larga se puede cortar.',
+      basic:
+        '{hecho}\nInterferencia: una pieza se interpone en la línea de defensa y deja otra pieza sin protección.\nCasillas implicadas: {casillas}; piezas: {piezas}.\nSe pierde material equivalente a {perdida}.\nVigila que un jaque no obligue a tu rey a tapar la defensa de tus piezas.',
+      intermediate:
+        '{hecho}\nLa jugada {refutacion} corta la línea de defensa en {casillas}. Pérdida: {perdida}.\nCuando dos piezas tuyas se defienden por una fila o columna, comprueba si el rival puede meter algo en medio.',
+      advanced:
+        '{hecho}\nTras {jugada}, la interferencia {refutacion} deja sin defensa a una pieza. Material perdido: {perdida}.\nLas defensas a distancia son frágiles: un jaque que obliga al rey a ponerse en medio también las rompe.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Interferencia en {casillas} ({piezas}). Material en juego: {perdida}.\nAl valorar una defensa por línea, cuenta las casillas intermedias que el rival puede ocupar con tempo.',
+    },
+    exerciseIds: ['ex.interference.01', 'ex.interference.02', 'ex.interference.03', 'ex.interference.04'],
+    evaluationCriteria: [
+      'Identifica la línea por la que la pieza rival defiende.',
+      'Encuentra la casilla de esa línea donde cortar la defensa, con tempo si es posible.',
+      'Calcula que lo que queda sin defensa se gana.',
+    ],
+  },
+  {
+    id: 'tactics.clearance',
+    category: 'Táctica',
+    name: 'Despeje',
+    definition:
+      'El despeje aparta una pieza propia que estorba, a menudo con jaque o con una amenaza, para dejar libre una casilla o una línea que otra pieza propia necesita.',
+    recommendedLevel: 'competitive',
+    learningObjectives: [
+      'Ver cuándo una pieza propia ocupa la casilla o la línea que necesita otra.',
+      'Apartarla con tempo (jaque, captura o amenaza) para que el rival no tenga tiempo de reaccionar.',
+      'Calcular la línea completa tras el despeje, incluido el posible sacrificio.',
+    ],
+    detection:
+      'El rival aparta una pieza con tempo, deja paso a otra y gana material o da mate; el motor confirma la pérdida.',
+    explanations: {
+      beginner:
+        '{hecho}\nEl rival apartó una pieza suya para dejar paso a otra.\nCuando el rival mueva con jaque, mira qué línea queda abierta detrás.',
+      initiation:
+        '{hecho}\nUna pieza rival se apartó con jaque y dejó libre una casilla o una línea.\nCasillas implicadas: {casillas}.\nMira qué piezas rivales están tapadas por otras de su mismo color.',
+      basic:
+        '{hecho}\nDespeje: el rival quitó de en medio una pieza propia para abrir paso a otra.\nCasillas implicadas: {casillas}; piezas: {piezas}.\nSe pierde material equivalente a {perdida}.\nCuando una pieza rival estorba a otra, prevé qué pasa si se aparta con tempo.',
+      intermediate:
+        '{hecho}\nLa jugada {refutacion} despeja {casillas} para otra pieza rival. Pérdida: {perdida}.\nUn sacrificio que libera una casilla o una línea puede valer más que la pieza entregada.',
+      advanced:
+        '{hecho}\nTras {jugada}, el despeje {refutacion} abre una línea decisiva. Material perdido: {perdida}.\nEn defensa, revisa las líneas que quedarían abiertas si el rival aparta una pieza con jaque.',
+      competitive:
+        '{hecho}\nSecuencia: {jugada} {refutacion}. Despeje de {casillas} ({piezas}). Material en juego: {perdida}.\nLas piezas que se estorban entre sí son una pista: busca la jugada forzante que las separa.',
+    },
+    exerciseIds: ['ex.clearance.01', 'ex.clearance.02', 'ex.clearance.03', 'ex.clearance.04'],
+    evaluationCriteria: [
+      'Identifica la pieza propia que estorba y la casilla o línea que tapa.',
+      'La aparta con tempo (jaque, captura o amenaza).',
+      'Calcula la línea hasta el mate o la ganancia de material.',
+    ],
+  },
 ];

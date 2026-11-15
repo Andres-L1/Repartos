@@ -167,7 +167,7 @@ const MOCK_ELO: number | null = (() => {
 })();
 
 /** Niveles del mock con contenido: el resto avisa de que llega pronto. */
-const MOCK_AVAILABLE: Level[] = ['beginner', 'initiation', 'basic', 'intermediate', 'advanced'];
+const MOCK_AVAILABLE: Level[] = ['beginner', 'initiation', 'basic', 'intermediate', 'advanced', 'competitive'];
 
 /** Unidades reales de la Fase 4 (u07 en adelante): el mapa simulado las muestra tal cual (el temario ya va en el paquete). */
 const fase4 = async () => UNITS.filter((u) => u.order >= 7);
@@ -435,7 +435,10 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   const body = init.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {};
 
   if (path === '/demo') return json({ lesson: L1 });
-  if (path === '/outline') return json({ units: OUTLINE });
+  if (path === '/outline') {
+    const extra = (await fase4()).map(({ id, order, title, level, description, lessons }) => ({ id, order, title, level, description, lessons: lessons.map((l) => ({ id: l.id, title: l.title })) }));
+    return json({ units: [...OUTLINE, ...extra] });
+  }
   if (path === '/config') return json({ billingMode: MODE });
   if (path === '/auth/login' && method === 'GET') {
     state.user = { id: 'mockuser', username: 'MockUser' };

@@ -13,6 +13,9 @@ const CONCEPT_PHRASE: Record<string, { title: string; short: string }> = {
   'tactics.remove_defender': { title: 'Defensores eliminados', short: 'defensores eliminados' },
   'tactics.attraction': { title: 'Sacrificios de atracción', short: 'sacrificios de atracción' },
   'tactics.intermezzo': { title: 'Jugadas intermedias', short: 'jugadas intermedias' },
+  'tactics.defensive_move': { title: 'Defensas precisas', short: 'defensas precisas' },
+  'tactics.interference': { title: 'Interferencias', short: 'interferencias' },
+  'tactics.clearance': { title: 'Despejes de líneas y casillas', short: 'despejes de líneas y casillas' },
 };
 
 export const conceptTitle = (id: string): string => CONCEPT_PHRASE[id]?.title ?? 'Errores tácticos';

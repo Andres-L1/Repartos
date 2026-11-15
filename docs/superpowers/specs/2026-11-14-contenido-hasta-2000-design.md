@@ -47,11 +47,28 @@ Hecho (los ids de unidad cambian respecto a la tabla de arriba: la tabla reserva
 - Una alternativa aceptada: u10.l01 práctica 3 (Qc8+ o Qa8+, a 7 cp).
 
 Planificado, no hecho:
-- **Competitivo (1700+)**: sigue «En preparación». Propuesta de primera unidad verificable: u12 «Defensa y cálculo largo»: (1) la única jugada que salva (Stockfish: la solución a 30 cp o menos de la mejor y todas las demás al menos 1,5 peores), (2) combinaciones mixtas de 5 a 7 medias jugadas con varios temas a la vez, (3) interferencia y despeje (temas `interference`, `clearance`, comprobados con 200). Las unidades de estrategia (estructuras de peones, profilaxis, conversión) no se pueden verificar con motor de forma fiable: solo con profesores.
+- **Competitivo (1700+)**: hecha la primera unidad (u12, abajo). Las unidades de estrategia (estructuras de peones, profilaxis, conversión) no se pueden verificar con motor de forma fiable: solo con profesores.
 - Intermedio: finales de torre básicos y planes (columnas abiertas, casillas débiles). Avanzado: finales técnicos (Lucena, Philidor). Necesitan criterio de corrección por plan, no por jugada única: con Stockfish casi siempre hay varias jugadas ganadoras equivalentes.
 - Básico: finales de rey y peón (oposición, cuadrado). Siguen fuera: hace falta un verificador exacto (tablas de finales); cuando se haga necesita un id nuevo (p. ej. u20) con `order` entre 9 y 10 o reordenar sin cambiar ids persistidos.
+
+## Tercera tanda (2026-11-15): Competitivo, u12
+
+**Pendiente de validación de profesores.** u12 «Defensa precisa y cálculo largo» (`level: 'competitive'`, `requires: ['u11']`), 3 lecciones y 18 ejercicios:
+| Lección | Conceptos (tema de Lichess) | Ejercicios |
+|---|---|---|
+| l01 La única jugada que salva | nuevo `tactics.defensive_move` (`defensiveMove`) | 6: salir del jaque a la casilla sin más jaques, evitar el perpetuo, cambiar y frenar un peón |
+| l02 Interferencia y despeje | nuevos `tactics.interference` (`interference`) y `tactics.clearance` (`clearance`) | 6: alfil que corta la línea de una torre (Bb8), jaques que obligan al rey a taparse, piezas que se apartan con jaque |
+| l03 Combinaciones de varios temas | `deflection`, `fork`, `mate_threat` (existentes) | 6: de 3 a 7 medias jugadas; dos mates en cuatro |
+
+- Posiciones: puzles de la base de datos de Lichess (CC0), descargados con `GET /api/puzzle/batch/{tema}` el 2026-11-15 y filtrados por pocas piezas; el id va en un comentario junto a cada FEN. Textos propios. Temas comprobados contra la API: 200 y cada puzle devuelto lleva el tema.
+- Banco: 12 ejercicios `competitive` (4 por concepto nuevo), más sus espejos. Dos son posiciones de u12 reflejadas de izquierda a derecha.
+- Verificación (`npx tsx scripts/verify-fase4.mts u10 u11 u12 --bank`, profundidad 18, MultiPV 8): **118/118** (76 anteriores + 18 de u12 + 24 del banco con espejos). Criterio nuevo de defensa: en las posiciones de `tactics.defensive_move`, la primera jugada es la mejor y cualquier otra queda al menos 150 cp por debajo (sin exigir ventaja). Ninguna alternativa a 30 cp o menos: no hizo falta `alt`. Por código (`unitsD`): legalidad, mates en 2 forzados y únicos, balance final de dos peones o más en 7 líneas; 3 posiciones solo tienen motor (dos defensas de rey sin ganancia de material y la carrera del peón con Bb8). Dos remates admiten dos mates en la última jugada (Qh2# o Bh2#; Rgxg8# o Rfxg8#): la app acepta cualquier mate y el texto nombra los dos.
+- Descartados por el verificador: interferencias con ventaja menor de +1,5 (VHazH, 715YM, 08TEy), líneas donde el rival tenía una defensa mejor que la del puzle (lGV8T, dEnDw y ERQqj completos; OlOre se usa solo con la primera jugada) y defensas poco instructivas.
+- Auditor: `npm run audit:content -- --fase4` añade la pasada de `verify-fase4.mts` sobre las unidades desde u10 del alcance (y el banco). Sin `--fase4` no cambia nada.
+- Depósito de puzles: de 10 a 13 temas, de 50 a 65 combinaciones (+15). Las 15 nuevas empiezan vacías y el cron las rellena primero (la de menos puzles sin usar): unos 15 minutos tras desplegar si Lichess no responde 429; desde cero, 65 minutos. La renovación semanal pasa de 50 a 65 peticiones. Sin migración.
+- Web: la tarjeta Competitivo sale «Disponible ahora» (`levelPlan` y `/api/level` miran si hay unidades del nivel). La portada ya no tiene la lista fija de niveles disponibles: la saca del temario (`/api/outline`); antes decía solo los dos primeros aunque Básico-Avanzado ya tenían unidades. El mock muestra u12 en mapa, temario y niveles.
 
 ## Decisiones abiertas para el usuario
 1. (Resuelta 2026-11-15: sí a conceptos nuevos.) Competitivo: ¿se publica u12 con la propuesta de arriba o se espera a profesores para todo el nivel?
 2. (Resuelta: Stockfish sí, como script bajo demanda; los tests de Vitest no lo ejecutan.) ¿Se integra `scripts/verify-fase4.mts` en el auditor `npm run audit:content` que prepara otro agente?
-3. Quién valida: u07-u11 necesitan revisión de profesores antes de presentarlos como validados.
+3. Quién valida: u07-u12 necesitan revisión de profesores antes de presentarlos como validados.

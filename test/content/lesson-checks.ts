@@ -58,6 +58,8 @@ export interface LessonCheckOptions {
    * Stockfish (scripts/verify-fase4.mts); aquí, que el alumno acaba la línea con al menos dos peones más que al empezar.
    */
   calculation?: Set<string>;
+  /** Solo verificables con Stockfish (scripts/verify-fase4.mts): sin ganancia de material que vea esta búsqueda. */
+  engine?: Set<string>;
 }
 
 const VAL: Record<string, number> = { pawn: 100, knight: 300, bishop: 300, rook: 500, queen: 900, king: 0 };
@@ -70,7 +72,7 @@ function materialFor(pos: ReturnType<typeof load>, color: 'white' | 'black'): nu
 /** Esquema, legalidad y solución verificada por código de cada lección de las unidades dadas. */
 export function describeLessons(
   units: Unit[],
-  { principleLessons = new Set(), defend = new Set(), calculation = new Set() }: LessonCheckOptions = {},
+  { principleLessons = new Set(), defend = new Set(), calculation = new Set(), engine = new Set() }: LessonCheckOptions = {},
 ): void {
   it('ids únicos y con el formato uNN.lNN', () => {
     const ids = units.flatMap((u) => u.lessons.map((l) => l.id));
@@ -168,6 +170,7 @@ export function describeLessons(
                 }
                 return;
               }
+              if (engine.has(key)) return;
               if (calculation.has(key)) {
                 const me = load(step.fen).turn;
                 expect(materialFor(end, me) - materialFor(load(step.fen), me), key).toBeGreaterThanOrEqual(200);

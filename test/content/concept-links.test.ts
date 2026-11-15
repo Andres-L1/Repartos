@@ -14,6 +14,9 @@ describe('lessonsForConcept', () => {
     'tactics.remove_defender',
     'tactics.attraction',
     'tactics.intermezzo',
+    'tactics.defensive_move',
+    'tactics.interference',
+    'tactics.clearance',
   ])('%s resolves to at least one lesson', (c) => {
     const r = lessonsForConcept(c);
     expect(r.length).toBeGreaterThan(0);

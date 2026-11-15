@@ -11,6 +11,9 @@ function isPinCreation(fen: string): boolean {
   return pinnedPieces(pos).length === 0;
 }
 
+/** Verificados solo con Stockfish (scripts/verify-fase4.mts --bank): aquí, legalidad, mate y balance final. */
+const ENGINE_ONLY = new Set(['tactics.defensive_move', 'tactics.interference', 'tactics.clearance']);
+
 describe('banco de ejercicios', () => {
   it('ids únicos y al menos 4 ejercicios por concepto', () => {
     expect(new Set(EXERCISES.map((e) => e.id)).size).toBe(EXERCISES.length);
@@ -46,7 +49,12 @@ describe('banco de ejercicios', () => {
         });
       }
 
-      if (e.conceptId !== 'tactics.mate_threat' && !isPinCreation(e.fen) && !longSac) {
+      // Conceptos de Competitivo: defensas y líneas largas que la búsqueda de profundidad 3 no ve; solo Stockfish.
+      if (ENGINE_ONLY.has(e.conceptId) && playLine(e.fen, e.solutionUci).isCheckmate()) {
+        it('la línea termina en jaque mate', () => expect(playLine(e.fen, e.solutionUci).isCheckmate()).toBe(true));
+      }
+
+      if (e.conceptId !== 'tactics.mate_threat' && !isPinCreation(e.fen) && !longSac && !ENGINE_ONLY.has(e.conceptId)) {
         it('la solución es la mejor jugada y es única salvo sus alternativas (búsqueda de material)', () => {
           const ranked = rankMoves(e.fen, 3);
           const accepted = [e.solutionUci[0], ...(e.alt ?? [])];

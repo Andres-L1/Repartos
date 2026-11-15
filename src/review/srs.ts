@@ -31,6 +31,10 @@ const THEME_BY_CONCEPT: Record<string, string> = {
   'tactics.remove_defender': 'capturingDefender',
   'tactics.attraction': 'attraction',
   'tactics.intermezzo': 'intermezzo',
+  // Competitivo: comprobados el 2026-11-15 (200 y cada puzle devuelto lleva el tema).
+  'tactics.defensive_move': 'defensiveMove',
+  'tactics.interference': 'interference',
+  'tactics.clearance': 'clearance',
 };
 
 export function themeForConcept(conceptId: string): string | null {

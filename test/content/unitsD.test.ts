@@ -3,17 +3,35 @@ import { UNITS } from '../../src/content/index.js';
 import { levelPlan } from '../../worker/level.js';
 import { unit as u10 } from '../../src/content/units/u10.js';
 import { unit as u11 } from '../../src/content/units/u11.js';
+import { unit as u12 } from '../../src/content/units/u12.js';
 import type { Unit } from '../../src/content/schema.js';
 import { describeLessons } from './lesson-checks.js';
 
-/** Fase 4 desde Intermedio. Además de estas comprobaciones, Stockfish: `npx tsx scripts/verify-fase4.mts u10 u11 --bank`. */
+/** Fase 4 desde Intermedio. Además de estas comprobaciones, Stockfish: `npx tsx scripts/verify-fase4.mts u10 u11 u12 --bank`. */
 const UNITS_D: { unit: Unit; level: Unit['level']; requires: string }[] = [
   { unit: u10, level: 'intermediate', requires: 'u09' },
   { unit: u11, level: 'advanced', requires: 'u10' },
+  { unit: u12, level: 'competitive', requires: 'u11' },
 ];
 
 /** Sacrificios de 5 medias jugadas (atracción a una horquilla): verificados con Stockfish, aquí por balance final. */
-const CALCULATION = new Set(['u11.l01:practice:0', 'u11.l01:practice:1', 'u11.l01:evaluation:1', 'u11.l01:evaluation:2']);
+const CALCULATION = new Set([
+  'u11.l01:practice:0',
+  'u11.l01:practice:1',
+  'u11.l01:evaluation:1',
+  'u11.l01:evaluation:2',
+  // u12: líneas de 5 medias jugadas que terminan con al menos dos peones más
+  'u12.l01:practice:0',
+  'u12.l01:practice:1',
+  'u12.l01:evaluation:0',
+  'u12.l02:evaluation:1',
+  'u12.l03:practice:0',
+  'u12.l03:practice:2',
+  'u12.l03:evaluation:0',
+]);
+
+/** u12: defensas sin ganancia de material inmediata y la carrera del peón (qQ0EY): solo Stockfish. */
+const ENGINE = new Set(['u12.l01:practice:2', 'u12.l01:evaluation:1', 'u12.l02:practice:0']);
 
 describe('contenido D: Fase 4 desde Intermedio (pendiente de validación de profesores)', () => {
   it('unidades con metadatos correctos, encadenadas en orden', () => {
@@ -32,6 +50,7 @@ describe('contenido D: Fase 4 desde Intermedio (pendiente de validación de prof
     for (const { unit: u } of UNITS_D) expect(UNITS).toContain(u);
     expect(levelPlan('intermediate', { units: UNITS })).toMatchObject({ recommendedUnitId: 'u10', comingSoon: false });
     expect(levelPlan('advanced', { units: UNITS })).toMatchObject({ recommendedUnitId: 'u11', comingSoon: false });
+    expect(levelPlan('competitive', { units: UNITS })).toMatchObject({ recommendedUnitId: 'u12', comingSoon: false });
   });
 
   it('sin emojis en los textos', () => {
@@ -40,6 +59,6 @@ describe('contenido D: Fase 4 desde Intermedio (pendiente de validación de prof
 
   describeLessons(
     UNITS_D.map((d) => d.unit),
-    { calculation: CALCULATION },
+    { calculation: CALCULATION, engine: ENGINE },
   );
 });

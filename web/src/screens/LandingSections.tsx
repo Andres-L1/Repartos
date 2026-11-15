@@ -207,7 +207,8 @@ const LEVELS: LevelInfo[] = [
   { id: 'competitive', name: 'Competitivo', range: '1700 Elo o más', focus: 'Rendimiento y preparación.' },
 ];
 
-const AVAILABLE: Level[] = ['beginner', 'initiation'];
+/** Mientras carga el temario (o si falla) se muestran como disponibles los dos primeros; después decide el temario. */
+const AVAILABLE_FALLBACK: Level[] = ['beginner', 'initiation'];
 
 export function Path() {
   const [units, setUnits] = useState<OutlineUnit[] | null>(null);
@@ -240,14 +241,21 @@ export function Path() {
       <div className="wrap split">
         <header className="split-head">
           <h2 id="path-title">Tu camino hasta los 2000 Elo</h2>
-          <p>Seis niveles, de las reglas a la preparación de competición. Hoy puedes recorrer los dos primeros.</p>
+          <p>
+            Seis niveles, de las reglas a la preparación de competición.{' '}
+            {units
+              ? ((n) => (n === LEVELS.length ? 'Hoy hay lecciones en los seis.' : `Hoy hay lecciones en ${n} de los seis.`))(
+                  LEVELS.filter((lv) => units.some((u) => u.level === lv.id)).length,
+                )
+              : ''}
+          </p>
           <p>
             Los niveles no son compartimentos cerrados, y el Elo es una referencia, no una nota. Empiezas donde te corresponde: usamos tu Elo de Lichess para recomendarte dónde empezar.
           </p>
         </header>
         <ol className="levels">
           {LEVELS.map((lv, i) => {
-            const avail = AVAILABLE.includes(lv.id);
+            const avail = units ? units.some((u) => u.level === lv.id) : AVAILABLE_FALLBACK.includes(lv.id);
             const mine = units?.filter((u) => u.level === lv.id) ?? [];
             const lessons = mine.reduce((n, u) => n + u.lessons.length, 0);
             const isOpen = openLevels.has(lv.id);

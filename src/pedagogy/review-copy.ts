@@ -19,6 +19,9 @@ const RULES: Record<string, string> = {
   'tactics.remove_defender': 'Antes de mover, mira qué piezas tuyas tienen un solo defensor.',
   'tactics.attraction': 'Antes de capturar una pieza ofrecida, mira dónde quedará la tuya después.',
   'tactics.intermezzo': 'Antes de recapturar, mira si hay un jaque o una captura mejor, tuya o del rival.',
+  'tactics.defensive_move': 'Ante un jaque o una amenaza, revisa todas las respuestas antes de elegir.',
+  'tactics.interference': 'Antes de mover, mira si una pieza rival puede meterse en la línea que defiende a otra tuya.',
+  'tactics.clearance': 'Antes de mover, mira qué línea abre el rival si aparta una pieza con jaque.',
 };
 
 const FALLBACK_RULE = 'Antes de mover, mira qué puede hacer tu rival después.';
@@ -40,6 +43,9 @@ const WHY: Record<string, string> = {
   'tactics.remove_defender': 'Sin su único defensor, la pieza que protegía queda a merced del rival.',
   'tactics.attraction': 'Un sacrificio forzado puede llevar tu pieza a la casilla donde la espera el golpe.',
   'tactics.intermezzo': 'Una jugada forzante en medio de un cambio cambia quién sale ganando.',
+  'tactics.defensive_move': 'En las posiciones críticas, a menudo solo una jugada salva la partida.',
+  'tactics.interference': 'Una defensa a distancia deja de funcionar si algo se pone en medio.',
+  'tactics.clearance': 'Al apartarse una pieza, otra que estaba tapada entra en juego.',
 };
 
 const FALLBACK_WHY = 'Esta jugada le dio ventaja a tu rival.';

@@ -1,8 +1,10 @@
 /**
  * Auditor automático de contenido (ver scripts/audit/README.md).
- * npm run audit:content -- [--unit u03,bank] [--changed] [--depth 16] [--multipv 4] [--jobs 4] [--no-engine] [--out ruta.md]
+ * npm run audit:content -- [--unit u03,bank] [--changed] [--depth 16] [--multipv 4] [--jobs 4] [--no-engine] [--out ruta.md] [--fase4]
+ * --fase4: además, la pasada estricta de scripts/verify-fase4.mts (profundidad 18, unicidad, mates, defensas) sobre
+ * las unidades del alcance desde u10 y, si el banco entra, sus ejercicios de Fase 4.
  */
-import { execSync } from 'node:child_process';
+import { execSync, spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { cpus } from 'node:os';
 import { makeFen } from 'chessops/fen';
@@ -271,4 +273,17 @@ for (const t of types) console.log(`  ${t.padEnd(28)} ${SEVERITY[t].padEnd(10)} 
 const graves = hits.filter((h) => h.severity === 'grave');
 for (const g of graves) console.log(`  GRAVE ${g.type} · ${g.where} · ${g.loc} · ${g.detail}`);
 console.log(`\nInforme: ${out}`);
-process.exit(graves.length ? 1 : 0);
+
+// ───────────── Pasada estricta de Fase 4 (opcional) ─────────────
+let fase4Failed = false;
+if (has('fase4')) {
+  const args = [...UNITS.filter((u) => u.order >= 10 && inScope(u.id)).map((u) => u.id), ...(inScope('bank') ? ['--bank'] : [])];
+  if (!useEngine) console.log('\n--fase4 necesita el motor: se omite con --no-engine.');
+  else if (!args.length) console.log('\n--fase4: no hay unidades desde u10 ni banco en el alcance.');
+  else {
+    console.log(`\n--fase4: npx tsx scripts/verify-fase4.mts ${args.join(' ')}`);
+    // solo ids de unidad y --bank en la línea de comandos (shell: true para npx en Windows)
+    fase4Failed = spawnSync('npx', ['tsx', 'scripts/verify-fase4.mts', ...args], { stdio: 'inherit', shell: true }).status !== 0;
+  }
+}
+process.exit(graves.length || fase4Failed ? 1 : 0);

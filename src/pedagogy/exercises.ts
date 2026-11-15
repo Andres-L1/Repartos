@@ -444,4 +444,116 @@ export const EXERCISES: Exercise[] = [
     solutionUci: ['d8d1', 'b1a2', 'e7g6'],
     hint: 'Antes de recapturar, mira si puedes capturar algo con jaque.',
   },
+
+  // ───────────── Competitivo (pendiente de validación de profesores) ─────────────
+  // Posiciones de puzles de Lichess (base de datos CC0) con el tema del concepto, o de u12 reflejadas de izquierda
+  // a derecha; todas verificadas con Stockfish 16 a profundidad 18 (scripts/verify-fase4.mts --bank).
+  {
+    id: 'ex.defense.01',
+    conceptId: 'tactics.defensive_move',
+    level: 'competitive',
+    fen: '8/5pkp/3p2p1/8/3Q4/4n2P/PP2q3/KR6 b - - 0 1', // Lichess dEnDw
+    prompt: 'Juegan negras. La dama blanca da jaque. Solo una casilla del rey conserva tu ventaja.',
+    solutionUci: ['g7g8'],
+    hint: 'Busca la casilla donde la dama blanca ya no puede dar jaques: tu caballo amenaza un jaque en c2 que ataca también a la dama.',
+  },
+  {
+    id: 'ex.defense.02',
+    conceptId: 'tactics.defensive_move',
+    level: 'competitive',
+    fen: '6k1/p1R1R3/1p2p1p1/7p/7P/6P1/3q2K1/8 w - - 0 1', // Lichess 7QDOY
+    prompt: 'Juegan blancas. La dama negra da jaque y busca el jaque perpetuo. Solo una casilla del rey lo evita.',
+    solutionUci: ['g2h3'],
+    hint: 'Busca la casilla donde los peones tapan las líneas de la dama.',
+  },
+  {
+    id: 'ex.defense.03',
+    conceptId: 'tactics.defensive_move',
+    level: 'competitive',
+    fen: 'k4b1r/2Q3p1/1n5p/1P6/8/2B5/2K2qPP/7R w - - 0 1',
+    prompt: 'Juegan blancas. La dama negra da jaque. Solo una casilla del rey gana; las demás dan ventaja a las negras.',
+    solutionUci: ['c2b3', 'f2c5', 'h1a1'],
+    hint: 'Busca la casilla desde la que los jaques que quedan se pueden capturar. Tu torre quiere ir a la columna a.',
+  },
+  {
+    id: 'ex.defense.04',
+    conceptId: 'tactics.defensive_move',
+    level: 'competitive',
+    fen: '8/7k/1p3b2/4q3/7p/1P1Q4/P1P5/1K5B b - - 0 1',
+    prompt: 'Juegan negras. La dama blanca da jaque. Sal del jaque con la única jugada que conserva la ventaja.',
+    solutionUci: ['h7h8', 'c2c3', 'e5e1', 'b1c2', 'e1h1'],
+    hint: 'Elige la casilla donde la dama blanca ya no tiene jaques; después, el alfil de h1 está sin defensa.',
+  },
+  {
+    id: 'ex.interference.01',
+    conceptId: 'tactics.interference',
+    level: 'competitive',
+    fen: 'r4B2/1p3q1k/7P/3bQ3/p7/8/1P6/5RK1 b - - 0 1', // Lichess An105
+    prompt: 'Juegan negras. La torre de f1 ataca tu dama. Gana material con un jaque.',
+    solutionUci: ['f7g6', 'g1f2', 'a8f8'],
+    hint: 'Da jaque con la dama: si el rey va a f2, se pone entre su torre y el alfil de f8.',
+  },
+  {
+    id: 'ex.interference.02',
+    conceptId: 'tactics.interference',
+    level: 'competitive',
+    fen: '8/2q2p2/3kp3/3p1R2/8/p3Q1PP/5P1K/2r5 w - - 0 1', // Lichess uf0UK
+    prompt: 'Juegan blancas. Gana material con un jaque de dama.',
+    solutionUci: ['e3f4', 'd6d7', 'f5f7'],
+    hint: 'Con el rey negro en d7, la dama de c7 ya no defiende el peón de f7.',
+  },
+  {
+    id: 'ex.interference.03',
+    conceptId: 'tactics.interference',
+    level: 'competitive',
+    fen: 'r5kr/pp1b4/1q5B/2bpPp1Q/8/3B4/PP4PP/R3K3 w - - 0 1', // Lichess GNEDq
+    prompt: 'Juegan blancas. Las torres negras se defienden por la octava fila. Gana una de ellas.',
+    solutionUci: ['h5g5', 'g8f7', 'g5g7', 'f7e8', 'g7h8'],
+    hint: 'Persigue al rey con jaques de dama hasta que se meta entre sus dos torres.',
+  },
+  {
+    id: 'ex.interference.04',
+    conceptId: 'tactics.interference',
+    level: 'competitive',
+    fen: '1r5r/1R3pk1/4R3/5P2/2p5/2Pn1K2/7p/7N w - - 0 1', // Lichess 02qoc
+    prompt: 'Juegan blancas. Las torres negras se defienden por la octava fila. Gana una de ellas.',
+    solutionUci: ['e6g6', 'g7f8', 'b7b8'],
+    hint: 'Un jaque de torre puede llevar al rey negro a la octava fila, entre sus torres.',
+  },
+  {
+    id: 'ex.clearance.01',
+    conceptId: 'tactics.clearance',
+    level: 'competitive',
+    fen: '4r1k1/p5pp/4r3/3QpR2/8/2q5/P5PP/3R1K2 w - - 0 1', // Lichess MeZ9d
+    prompt: 'Juegan blancas. Mate en tres jugadas.',
+    solutionUci: ['d5e6', 'e8e6', 'd1d8', 'e6e8', 'd8e8'],
+    hint: 'Tu dama tapa la columna d a tu torre: apártala con jaque.',
+  },
+  {
+    id: 'ex.clearance.02',
+    conceptId: 'tactics.clearance',
+    level: 'competitive',
+    fen: '5rk1/pQ2R1p1/7p/2p5/3p1q2/6PP/PPP4K/8 b - - 0 1', // Lichess Up5en
+    prompt: 'Juegan negras. Gana la dama blanca.',
+    solutionUci: ['f4d2', 'b7g2', 'f8f2', 'g2f2', 'd2f2'],
+    hint: 'Saca la dama de la columna f con jaque y deja paso a tu torre.',
+  },
+  {
+    id: 'ex.clearance.03',
+    conceptId: 'tactics.clearance',
+    level: 'competitive',
+    fen: '2r2r2/5pk1/5Np1/1p2RQ2/3q3P/p5P1/5P1K/1B6 w - - 0 1', // Lichess dZOdE
+    prompt: 'Juegan blancas. Gana material.',
+    solutionUci: ['f6h5', 'g7h7', 'f5f6', 'd4e5', 'f6e5'],
+    hint: 'El caballo de f6 ocupa la casilla que quiere tu dama. Apártalo con jaque.',
+  },
+  {
+    id: 'ex.clearance.04',
+    conceptId: 'tactics.clearance',
+    level: 'competitive',
+    fen: '5Qrk/p1b3rp/1p2p3/4P3/3P2R1/4P3/4q1P1/2B2RK1 w - - 0 1', // Lichess ZSpNc
+    prompt: 'Juegan blancas. Mate en tres jugadas.',
+    solutionUci: ['f8g7', 'g8g7', 'f1f8', 'g7g8', 'g4g8'],
+    hint: 'Tu dama ocupa f8, la casilla que necesita la torre de f1.',
+  },
 ];

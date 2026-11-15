@@ -32,6 +32,9 @@ describe('biblioteca de conceptos', () => {
         'tactics.remove_defender',
         'tactics.attraction',
         'tactics.intermezzo',
+        'tactics.defensive_move',
+        'tactics.interference',
+        'tactics.clearance',
       ].sort(),
     );
   });
