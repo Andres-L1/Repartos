@@ -8,7 +8,7 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u10',
-  order: 10,
+  order: 11,
   title: 'Táctica II: enfilada, desviación y eliminar al defensor',
   description:
     'Tres ideas tácticas nuevas: la enfilada, que ataca una pieza valiosa para ganar la que tiene detrás; la desviación, que aparta a un defensor de su tarea, y eliminar al defensor, que captura la pieza que protege a otra.',

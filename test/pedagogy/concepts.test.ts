@@ -35,6 +35,8 @@ describe('biblioteca de conceptos', () => {
         'tactics.defensive_move',
         'tactics.interference',
         'tactics.clearance',
+        'endgame.king_pawn',
+        'endgame.rook',
       ].sort(),
     );
   });

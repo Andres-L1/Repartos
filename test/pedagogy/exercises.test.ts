@@ -13,6 +13,8 @@ function isPinCreation(fen: string): boolean {
 
 /** Verificados solo con Stockfish (scripts/verify-fase4.mts --bank): aquí, legalidad, mate y balance final. */
 const ENGINE_ONLY = new Set(['tactics.defensive_move', 'tactics.interference', 'tactics.clearance']);
+/** Finales: verificados de forma exacta con la tablebase (test/content/unitsE.test.ts); aquí, solo legalidad. */
+const TABLEBASE = (conceptId: string) => conceptId.startsWith('endgame.');
 
 describe('banco de ejercicios', () => {
   it('ids únicos y al menos 4 ejercicios por concepto', () => {
@@ -54,7 +56,7 @@ describe('banco de ejercicios', () => {
         it('la línea termina en jaque mate', () => expect(playLine(e.fen, e.solutionUci).isCheckmate()).toBe(true));
       }
 
-      if (e.conceptId !== 'tactics.mate_threat' && !isPinCreation(e.fen) && !longSac && !ENGINE_ONLY.has(e.conceptId)) {
+      if (e.conceptId !== 'tactics.mate_threat' && !isPinCreation(e.fen) && !longSac && !ENGINE_ONLY.has(e.conceptId) && !TABLEBASE(e.conceptId)) {
         it('la solución es la mejor jugada y es única salvo sus alternativas (búsqueda de material)', () => {
           const ranked = rankMoves(e.fen, 3);
           const accepted = [e.solutionUci[0], ...(e.alt ?? [])];

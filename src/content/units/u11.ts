@@ -9,7 +9,7 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u11',
-  order: 11,
+  order: 13,
   title: 'Cálculo: atracción, jugada intermedia y mates en tres',
   description:
     'Combinaciones de varias jugadas: atraer al rey o a una pieza a una casilla mala con un sacrificio, intercalar una jugada forzante antes de recapturar y calcular mates en tres jugadas hasta el final.',

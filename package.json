@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "chedex": "tsx src/cli.ts",
     "audit:content": "tsx scripts/audit-content.ts",
+    "verify:finales": "tsx scripts/verify-finales.mts",
     "dev:web": "node scripts/copy-engine.mjs && vite --config web/vite.config.ts",
     "build:web": "node scripts/copy-engine.mjs && vite build --config web/vite.config.ts",
     "build": "npm run build:web && tsc --noEmit",
