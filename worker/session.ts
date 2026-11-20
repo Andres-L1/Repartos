@@ -5,7 +5,7 @@ import { EXERCISES } from '../src/pedagogy/exercises.js';
 import { mirrorExercise } from '../src/pedagogy/mirror.js';
 import { LEVELS } from '../src/shared/levels.js';
 import { difficultyForLevel, dueAfter, maxRatingForLevel, nextBox, themeForConcept } from '../src/review/srs.js';
-import { isExpectedMove } from '../src/shared/moves.js';
+import { followMove, type Variants } from '../src/shared/moves.js';
 import type { Db, Stmt } from './db.js';
 import { CONCEPT_IDS } from './srs.js';
 import { takePuzzle } from './puzzles.js';
@@ -30,9 +30,11 @@ interface ItemRow {
   status: 'open' | 'done' | 'counted' | 'closed'; // done: respondido; counted: contado en finish; closed: cerrado sin responder
 }
 
-/** Soluciones alternativas del ejercicio del banco (nunca salen al cliente). */
-const altFor = (r: Pick<ItemRow, 'kind' | 'source_id'>) => (r.kind === 'bank' ? BANK.get(r.source_id ?? '')?.alt : undefined);
-const isExpected = (r: ItemRow, line: string[], step: number, uci: string) => isExpectedMove(r.fen, line, step, uci, altFor(r));
+/** Alternativas y ramas del ejercicio del banco (nunca salen al cliente); puzles y posiciones propias solo tienen su línea. */
+const variantsOf = (r: ItemRow, line: string[]): Variants => {
+  const ex = r.kind === 'bank' ? BANK.get(r.source_id ?? '') : undefined;
+  return { fen: r.fen, solutionUci: ex?.solutionUci ?? line, alt: ex?.alt, branches: ex?.branches };
+};
 
 const sideToMove = (fen: string) => (fen.split(' ')[1] === 'b' ? 'negras' : 'blancas');
 /** Solo lo que el alumno puede ver: nunca la línea ni la solución. */
@@ -213,11 +215,12 @@ export async function answerItem(
     if (r.status !== 'open') return null;
     if (attempt !== undefined && attempt !== processed + 1) return 'race';
     const res = evaluate(r, line, uci);
-    // Condicionada al estado leído: un doble envío concurrente no avanza dos veces.
+    // Condicionada al estado leído: un doble envío concurrente no avanza dos veces. Si la jugada fue una alternativa
+    // intermedia, la línea del elemento pasa a ser la de su rama (el rival responde según ella).
     const ok = await db.first<{ id: string }>(
-      `UPDATE cp_session_items SET step = ?, attempts = ?, first_try_ok = ?, status = ?
+      `UPDATE cp_session_items SET step = ?, attempts = ?, first_try_ok = ?, status = ?, line_json = ?
        WHERE id = ? AND user_id = ? AND status = 'open' AND step = ? AND attempts = ? RETURNING id`,
-      [res.step, res.attempts, res.firstTryOk, res.out.done ? 'done' : 'open', r.id, userId, r.step, r.attempts],
+      [res.step, res.attempts, res.firstTryOk, res.out.done ? 'done' : 'open', JSON.stringify(res.line), r.id, userId, r.step, r.attempts],
     );
     if (!ok) {
       if (attempt === undefined) return 'race';
@@ -230,12 +233,15 @@ export async function answerItem(
   return 'race';
 }
 
-function evaluate(r: ItemRow, line: string[], uci: string) {
+function evaluate(r: ItemRow, current: string[], uci: string) {
+  let line = current;
   let step = r.step;
   let attempts = r.attempts;
   let firstTryOk = r.first_try_ok;
   let out: AnswerResult;
-  if (isExpected(r, line, r.step, uci)) {
+  const followed = followMove(variantsOf(r, current), current, r.step, uci);
+  if (followed) {
+    line = [...followed];
     const reply = line[r.step + 1];
     step = r.step + 2;
     const done = step >= line.length;
@@ -246,7 +252,7 @@ function evaluate(r: ItemRow, line: string[], uci: string) {
     firstTryOk = 0; // cualquier fallo en el elemento cuenta como no acertado a la primera
     out = attempts >= 2 ? { correct: false, done: true, solution: line.slice(r.step) } : { correct: false, done: false, tryAgain: true };
   }
-  return { step, attempts, firstTryOk, out };
+  return { step, attempts, firstTryOk, out, line };
 }
 
 /**
@@ -255,7 +261,7 @@ function evaluate(r: ItemRow, line: string[], uci: string) {
  */
 function replay(r: ItemRow, line: string[], uci: string): AnswerResult {
   const wasCorrect =
-    r.step >= 2 && (r.attempts === 0 || (r.status === 'done' && r.attempts < 2) || (r.status === 'open' && isExpected(r, line, r.step - 2, uci)));
+    r.step >= 2 && (r.attempts === 0 || (r.status === 'done' && r.attempts < 2) || (r.status === 'open' && followMove(variantsOf(r, line), line, r.step - 2, uci) !== null));
   if (wasCorrect) {
     const reply = line[r.step - 1];
     return { correct: true, ...(reply ? { reply } : {}), done: r.step >= line.length };

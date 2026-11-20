@@ -15,7 +15,7 @@ describe('avisos de fallo: ninguno regala la solución', () => {
       for (const [mode, steps] of [['practice', l.practice], ['evaluation', l.evaluation]] as const)
         steps.forEach((s, i) => {
           it(`${l.id} ${mode} ${i + 1}`, () => {
-            const targets = targetsOf(s.fen, s.solutionUci, s.alt);
+            const targets = targetsOf(s.fen, s.solutionUci, s.alt, s.branches);
             expect(targets.length).toBeGreaterThan(0);
             const texts: [string, string | undefined][] = [
               ['hint', s.hint],
@@ -28,7 +28,7 @@ describe('avisos de fallo: ninguno regala la solución', () => {
 
   for (const e of EXERCISES.flatMap((x) => [x, mirrorExercise(x)]))
     it(`banco ${e.id}`, () => {
-      if (e.hint) expect(leaksIn(e.hint, targetsOf(e.fen, e.solutionUci, e.alt), e.prompt), `hint: «${e.hint}»`).toEqual([]);
+      if (e.hint) expect(leaksIn(e.hint, targetsOf(e.fen, e.solutionUci, e.alt, e.branches), e.prompt), `hint: «${e.hint}»`).toEqual([]);
     });
 
   it('el detector reconoce la solución en SAN, en UCI, con otra forma de captura y por su casilla', () => {

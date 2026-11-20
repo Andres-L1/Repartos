@@ -101,6 +101,8 @@ export interface Exercise {
   solutionUci: string[]; // línea de solución (el jugador mueve primero)
   /** Otras jugadas igual de buenas para la última jugada del alumno (UCI), verificadas con motor. */
   alt?: string[];
+  /** Alternativas intermedias con su continuación (ver `Branch` en src/shared/moves.ts); la sesión diaria las acepta. */
+  branches?: { at: number; line: string[]; alt?: string[] }[];
   hint?: string;
 }
 

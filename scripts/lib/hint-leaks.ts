@@ -7,6 +7,7 @@ import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
 import { makeSan } from 'chessops/san';
 import { makeSquare, parseUci } from 'chessops/util';
+import type { Branch } from '../../src/shared/moves.ts';
 
 const PIECE = 'KQRBN';
 const SAN_TOKEN = /(?<![A-Za-z0-9])(O-O-O|O-O|[KQRBN][a-h]?[1-8]?x?[a-h][1-8]|[a-h]x[a-h][1-8](?:=[QRBN])?|[a-h][1-8](?:=[QRBN])?)(?![a-z0-9])/g;
@@ -32,7 +33,15 @@ function targetOf(pos: Chess, uci: string): Target | null {
 }
 
 /** Todas las jugadas con las que el alumno acierta: una por cada turno suyo de la línea, más las `alt` de la última. */
-export function targetsOf(fen: string, line: readonly string[], alt: readonly string[] = []): Target[] {
+export function targetsOf(fen: string, line: readonly string[], alt: readonly string[] = [], branches: readonly Branch[] = []): Target[] {
+  return [
+    ...targetsOfLine(fen, line, alt),
+    // Las ramas (alternativas intermedias y su continuación) también son soluciones: un aviso no puede nombrarlas.
+    ...branches.flatMap((b) => targetsOfLine(fen, [...line.slice(0, b.at), ...b.line], b.alt ?? []),),
+  ];
+}
+
+function targetsOfLine(fen: string, line: readonly string[], alt: readonly string[]): Target[] {
   const pos = Chess.fromSetup(parseFen(fen).unwrap()).unwrap();
   const out: Target[] = [];
   line.forEach((u, i) => {

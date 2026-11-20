@@ -45,3 +45,47 @@ export function isExpectedMove(fen: string, line: readonly string[], step: numbe
     return false;
   }
 }
+
+/**
+ * Rama: jugada alternativa del alumno en una jugada intermedia (`at`, índice par de `solutionUci`) con su continuación
+ * completa precalculada. `line` empieza por la alternativa y sigue (respuesta del rival, jugada del alumno, ...) hasta el
+ * final del ejercicio; `alt` son las alternativas de su última jugada. El rival responde según la rama, no según la línea
+ * principal. Sin ramas anidadas: dentro de una rama las jugadas intermedias del alumno son únicas.
+ */
+export interface Branch {
+  at: number;
+  line: string[];
+  alt?: string[];
+}
+
+export interface Variants {
+  fen: string;
+  solutionUci: readonly string[];
+  alt?: readonly string[];
+  branches?: readonly Branch[];
+}
+
+const sameStart = (a: readonly string[], b: readonly string[], n: number) => a.slice(0, n).join() === b.slice(0, n).join();
+
+/** `alt` vigente para la línea efectiva `line` (la principal o una rama ya tomada). */
+export function altOf(v: Variants, line: readonly string[]): readonly string[] {
+  if (line.join() === v.solutionUci.join()) return v.alt ?? [];
+  const b = v.branches?.find((x) => sameStart(line, v.solutionUci, x.at) && x.line.join() === line.slice(x.at).join());
+  return b?.alt ?? [];
+}
+
+/**
+ * Juzga la jugada `uci` del alumno en el paso `step` de la línea efectiva `line` (empieza siendo `solutionUci`).
+ * Devuelve la línea efectiva a seguir: la misma si acierta la principal, la de la rama si juega una alternativa
+ * intermedia verificada, o null si falla. Regla única de lecciones (web) y sesión diaria (worker).
+ */
+export function followMove(v: Variants, line: readonly string[], step: number, uci: string): readonly string[] | null {
+  if (isExpectedMove(v.fen, line, step, uci, altOf(v, line))) return line;
+  if (line.join() !== v.solutionUci.join()) return null; // ya en una rama: sin más ramas
+  for (const b of v.branches ?? []) {
+    if (b.at !== step) continue;
+    const next = [...line.slice(0, step), ...b.line];
+    if (isExpectedMove(v.fen, next, step, uci)) return next;
+  }
+  return null;
+}

@@ -46,12 +46,12 @@ const isEndgame = (c: string) => c.startsWith('endgame.');
 const steps = [
   ...LESSONS.filter((l) => l.conceptIds?.some(isEndgame)).flatMap((l) =>
     [...l.practice.map((s, i) => ({ key: `${l.id}:practice:${i}`, s })), ...l.evaluation.map((s, i) => ({ key: `${l.id}:evaluation:${i}`, s }))].map(
-      ({ key, s }) => ({ key, fen: s.fen, line: s.solutionUci, alt: s.alt ?? [] }),
+      ({ key, s }) => ({ key, fen: s.fen, line: s.solutionUci, alt: s.alt ?? [], branches: s.branches ?? [] }),
     ),
   ),
   ...EXERCISES.filter((e) => isEndgame(e.conceptId))
     .flatMap((e) => [e, mirrorExercise(e)])
-    .map((e) => ({ key: e.id, fen: e.fen, line: e.solutionUci, alt: e.alt ?? [] })),
+    .map((e) => ({ key: e.id, fen: e.fen, line: e.solutionUci, alt: e.alt ?? [], branches: e.branches ?? [] })),
 ];
 const explains = LESSONS.filter((l) => l.conceptIds?.some(isEndgame)).flatMap((l) => l.explanation.map((e, i) => ({ key: `${l.id}:${i}`, fen: e.fen })));
 const claimFen = (fen: string, moves: string[]) => {
@@ -61,14 +61,14 @@ const claimFen = (fen: string, moves: string[]) => {
 };
 
 const fetched = await ensure(
-  [...steps.flatMap((s) => lineFens(s.fen, s.line)), ...explains.map((e) => e.fen), ...CLAIMS.map((c) => claimFen(c.fen, c.moves))],
+  [...steps.flatMap((s) => [...lineFens(s.fen, s.line), ...s.branches.flatMap((b) => lineFens(s.fen, [...s.line.slice(0, b.at), ...b.line]))]), ...explains.map((e) => e.fen), ...CLAIMS.map((c) => claimFen(c.fen, c.moves))],
   args.includes('--refresh'),
 );
 const probe = cacheProbe(cache);
 let failed = 0;
 for (const s of steps) {
-  const errors = checkLine(probe, s.fen, s.line, s.alt, modeFor(s.key));
-  console.log(`${errors.length ? 'FALLA' : 'ok   '} ${s.key} (${probe(s.fen).category})${s.alt.length ? ` alt ${s.alt.join(',')}` : ''}`);
+  const errors = checkLine(probe, s.fen, s.line, s.alt, modeFor(s.key), s.branches);
+  console.log(`${errors.length ? 'FALLA' : 'ok   '} ${s.key} (${probe(s.fen).category})${s.alt.length ? ` alt ${s.alt.join(',')}` : ''}${s.branches.length ? ` ramas ${s.branches.length}` : ''}`);
   for (const e of errors) console.log(`        ${e}`);
   if (errors.length) failed++;
 }

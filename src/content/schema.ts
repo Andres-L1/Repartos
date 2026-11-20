@@ -3,6 +3,11 @@
  * Las posiciones se verifican por código en test/content/. Textos en español.
  */
 import type { Level } from '../types.js';
+import type { Branch } from '../shared/moves.js';
+
+export type { Branch };
+/** Tope de ramas por ejercicio: el árbol de variantes es pequeño y acotado (se comprueba en test/content). */
+export const MAX_BRANCHES = 6;
 
 export interface BoardMark {
   /** Casillas a resaltar, ej. ['e4']. */
@@ -28,6 +33,12 @@ export interface PracticeStep extends BoardMark {
    * Si la solución da mate, además vale cualquier mate (src/shared/moves.ts).
    */
   alt?: string[];
+  /**
+   * Alternativas en las jugadas INTERMEDIAS del alumno (`alt` solo vale en la última). Cada rama trae su
+   * continuación completa precalculada y verificada (el rival responde según la posición, no según la línea
+   * principal); ver `Branch` en src/shared/moves.ts. Como mucho MAX_BRANCHES.
+   */
+  branches?: Branch[];
   hint?: string;
   /** Corrección: explicación mostrada tras acertar o fallar. */
   explanationCorrect: string;

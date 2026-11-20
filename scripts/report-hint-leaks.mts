@@ -12,7 +12,7 @@ for (const u of UNITS) {
   for (const l of u.lessons)
     for (const [mode, steps] of [['practice', l.practice], ['evaluation', l.evaluation]] as const)
       steps.forEach((s, i) => {
-        const t = targetsOf(s.fen, s.solutionUci, s.alt);
+        const t = targetsOf(s.fen, s.solutionUci, s.alt, s.branches);
         const texts: [string, string | undefined][] = [
           ['hint', s.hint],
           ['wrong', s.explanationWrong],
@@ -31,7 +31,7 @@ for (const u of UNITS) {
 if (!only || only === 'bank')
   for (const e of EXERCISES.flatMap((x) => [x, mirrorExercise(x)])) {
     if (!e.hint) continue;
-    const lk = leaksIn(e.hint, targetsOf(e.fen, e.solutionUci, e.alt), e.prompt);
+    const lk = leaksIn(e.hint, targetsOf(e.fen, e.solutionUci, e.alt, e.branches), e.prompt);
     if (lk.length) {
       per.bank = (per.bank ?? 0) + 1;
       rows.push(`${e.id} [hint] leak=${lk.join(',')} :: ${e.hint}`);

@@ -37,6 +37,7 @@ export function mirrorExercise(ex: Exercise): Exercise {
     prompt: mirrorText(ex.prompt),
     solutionUci: ex.solutionUci.map(mirrorUci),
     ...(ex.alt ? { alt: ex.alt.map(mirrorUci) } : {}),
+    ...(ex.branches ? { branches: ex.branches.map((b) => ({ at: b.at, line: b.line.map(mirrorUci), ...(b.alt ? { alt: b.alt.map(mirrorUci) } : {}) })) } : {}),
     ...(ex.hint ? { hint: mirrorText(ex.hint) } : {}),
   };
 }

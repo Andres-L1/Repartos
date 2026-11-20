@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PracticeStep } from '../../../src/content/schema';
-import { isExpectedMove } from '../../../src/shared/moves';
+import { followMove } from '../../../src/shared/moves';
 import { Board, marksToShapes } from './Board';
 import { Icon } from './Icon';
 import { playSound } from '../sound';
@@ -30,6 +30,8 @@ interface Props {
 
 export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appearance, showcase = false }: Props) {
   const [fen, setFen] = useState(step.fen);
+  // Línea efectiva: la principal, o la de la rama si el alumno jugó una alternativa intermedia verificada.
+  const [line, setLine] = useState<readonly string[]>(step.solutionUci);
   const [idx, setIdx] = useState(0); // índice en solutionUci del próximo movimiento del alumno
   const [status, setStatus] = useState<Status>('playing');
   const [feedback, setFeedback] = useState('');
@@ -53,11 +55,11 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
   const shapes = useMemo(() => {
     const s = showcase && lastMove ? [] : marksToShapes(step);
     if (hint && status === 'playing') {
-      const next = step.solutionUci[idx];
+      const next = line[idx];
       if (next) s.push({ orig: next.slice(0, 2) as never, brush: 'yellow' });
     }
     return s;
-  }, [step, hint, idx, status, showcase, lastMove]);
+  }, [step, hint, idx, status, showcase, lastMove, line]);
 
   const orientation = turnOf(step.fen);
   const interactive = status === 'playing' && !promo;
@@ -73,7 +75,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
 
   function attempt(rawUci: string) {
     const uci = canonicalUci(fen, rawUci); // enroque como e1g1 (forma del contenido)
-    const expected = step.solutionUci[idx];
+    const expected = line[idx];
     const res = applyUci(fen, uci);
     if (!res) {
       // ilegal (no debería ocurrir con dests): se devuelve la pieza
@@ -81,19 +83,21 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
       return;
     }
     fenBefore.current = fen;
-    if (isExpectedMove(step.fen, step.solutionUci, idx, uci, step.alt)) {
+    const followed = followMove(step, line, idx, uci);
+    if (followed) {
+      setLine(followed);
       setFen(res.fen);
       setLastMove(lastMoveOf(uci));
       setHint(false);
       const next = idx + 1;
-      if (next >= step.solutionUci.length) {
+      if (next >= followed.length) {
         finishCorrect(step.explanationCorrect);
         return;
       }
       setStatus('rival');
       setFeedback('¡Bien! El rival responde…');
       timer.current = window.setTimeout(() => {
-        const reply = step.solutionUci[next] as string;
+        const reply = followed[next] as string;
         const r2 = applyUci(res.fen, reply);
         if (!r2) {
           finishCorrect(step.explanationCorrect);
@@ -101,7 +105,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
         }
         setFen(r2.fen);
         setLastMove(lastMoveOf(reply));
-        if (next + 1 >= step.solutionUci.length) {
+        if (next + 1 >= followed.length) {
           finishCorrect(step.explanationCorrect);
         } else {
           setIdx(next + 1);

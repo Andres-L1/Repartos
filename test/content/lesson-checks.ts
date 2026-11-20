@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { makeUci, parseUci } from 'chessops/util';
 import { CONCEPTS } from '../../src/pedagogy/concepts.js';
-import type { Lesson, PracticeStep, Unit } from '../../src/content/schema.js';
+import { MAX_BRANCHES, type Lesson, type PracticeStep, type Unit } from '../../src/content/schema.js';
 import { legalMoves, load, playLine, playMove, rankMoves } from '../pedagogy/helpers.js';
 
 const CONCEPT_IDS = new Set(CONCEPTS.map((c) => c.id));
@@ -150,6 +150,23 @@ export function describeLessons(
                 expect(legal.has(uci), `${uci} no es legal`).toBe(true);
                 expect(uci, key).not.toBe(step.solutionUci[0]);
                 expect(text.trim().length, uci).toBeGreaterThan(15);
+              }
+            });
+
+            it('ramas: forma, legalidad y tope (la corrección la verifica la tablebase o el motor externo)', () => {
+              const branches = step.branches ?? [];
+              expect(branches.length, key).toBeLessThanOrEqual(MAX_BRANCHES);
+              if (!branches.length) return;
+              expect(engine.has(key), `${key}: las ramas solo se admiten en pasos verificados fuera de esta búsqueda de material`).toBe(true);
+              for (const b of branches) {
+                const full = [...step.solutionUci.slice(0, b.at), ...b.line];
+                expect(b.at % 2, `${key} rama ${b.at}`).toBe(0);
+                expect(b.at, `${key} rama ${b.at}: la última jugada usa alt`).toBeLessThan(step.solutionUci.length - 1);
+                expect(b.line.length % 2, `${key} rama ${b.at}`).toBe(1);
+                expect(full.length, `${key} rama ${b.at}: llega al final de la línea`).toBe(step.solutionUci.length);
+                expect(b.line[0], `${key} rama ${b.at}: distinta de la principal`).not.toBe(step.solutionUci[b.at]);
+                expect(() => playLine(step.fen, full), `${key} rama ${b.at}`).not.toThrow();
+                for (const a of b.alt ?? []) expect(() => playLine(step.fen, [...full.slice(0, -1), a]), `${key} rama ${b.at} alt ${a}`).not.toThrow();
               }
             });
 
