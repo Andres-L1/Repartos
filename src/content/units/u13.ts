@@ -43,11 +43,11 @@ export const unit: Unit = {
           fen: '8/8/8/4K3/p7/8/8/7k w - - 0 1',
           prompt: 'Juegan blancas. El peón negro de a4 corre a coronar en a1. Entra en su cuadrado con el rey para alcanzarlo.',
           solutionUci: ['e5d4'],
-          hint: 'El cuadrado del peón es a4, d4, d1 y a1. ¿Qué casilla de ese cuadrado alcanza tu rey desde e5?',
+          hint: 'Dibuja el cuadrado del peón: parte de su casilla y llega a la última fila. ¿Qué casilla de ese cuadrado alcanza tu rey?',
           explanationCorrect:
             'Correcto: Kd4. El rey ya está dentro del cuadrado: si a3, Kc3, y si a2, Kb2. El peón no llega a coronar y la partida es tablas.',
           explanationWrong:
-            'Con esa jugada el rey se queda fuera del cuadrado (a4, d4, d1, a1) y el peón corona antes de que llegue.',
+            'Con esa jugada el rey se queda fuera del cuadrado del peón y este corona antes de que llegue.',
           wrongByMove: {
             e5d5: 'Kd5 se acerca, pero d5 está fuera del cuadrado: tras a3 el rey ya no alcanza al peón.',
           },
@@ -56,7 +56,7 @@ export const unit: Unit = {
           fen: '8/8/8/7p/2K5/8/8/k7 b - - 0 1',
           prompt: 'Juegan negras. Tu peón de h5 quiere coronar en h1 y el rey blanco está en c4. Gana la partida.',
           solutionUci: ['h5h4'],
-          hint: 'Si el peón avanza ya, su cuadrado es h4, e4, e1 y h1. ¿Puede el rey blanco entrar en él?',
+          hint: 'Si el peón avanza ya, su cuadrado cambia: dibújalo. ¿Puede el rey blanco entrar en él?',
           explanationCorrect:
             'Correcto: h4. Con el peón en h4, el cuadrado es h4, e4, e1 y h1, y el rey de c4 no puede entrar en él en una jugada: el peón corona.',
           explanationWrong:
@@ -66,7 +66,7 @@ export const unit: Unit = {
           fen: '8/8/8/5K2/1p6/8/8/7k w - - 0 1',
           prompt: 'Juegan blancas. El peón negro de b4 corre a coronar en b1. Alcánzalo con el rey: tienes que acertar en cada jugada.',
           solutionUci: ['f5e4', 'b4b3', 'e4d3', 'b3b2', 'd3c2'],
-          hint: 'Primero entra en el cuadrado del peón (b4, e4, e1, b1). Después, síguelo en diagonal hacia b1.',
+          hint: 'Primero entra en el cuadrado del peón. Después, síguelo en diagonal hacia su casilla de coronación.',
           explanationCorrect:
             'Correcto: Ke4, Kd3 y Kc2. El rey entra en el cuadrado y sigue al peón de cerca; si corona, Kxb1. Tablas.',
           explanationWrong:
@@ -78,10 +78,10 @@ export const unit: Unit = {
           fen: '8/8/8/8/7P/2k5/8/K7 b - - 0 1',
           prompt: 'Juegan negras. El peón blanco de h4 corre a coronar en h8. ¿Puede tu rey alcanzarlo?',
           solutionUci: ['c3d4'],
-          hint: 'El cuadrado del peón es h4, d4, d8 y h8.',
+          hint: 'Dibuja el cuadrado del peón: de su casilla hasta la última fila.',
           explanationCorrect:
             'Correcto: Kd4. El rey entra en el cuadrado por su esquina: si h5, Ke5, y el rey alcanza al peón antes de h8. Tablas.',
-          explanationWrong: 'Esa jugada deja al rey fuera del cuadrado (h4, d4, d8, h8): el peón corona antes de que llegue.',
+          explanationWrong: 'Esa jugada deja al rey fuera del cuadrado: el peón corona antes de que llegue.',
           wrongByMove: {
             c3d3: 'Kd3 se acerca, pero d3 está fuera del cuadrado: tras h5 el rey ya no llega.',
           },
@@ -225,10 +225,10 @@ export const unit: Unit = {
           prompt: 'Juegan blancas. Lleva el rey a una casilla clave de tu peón de d4.',
           solutionUci: ['c5d6'],
           alt: ['c5c6'],
-          hint: 'Las casillas clave de un peón en d4 son c6, d6 y e6.',
+          hint: 'Las casillas clave de un peón en la cuarta fila están dos filas por delante: en su columna y en las dos vecinas.',
           explanationCorrect:
             'Correcto. Desde d6 o desde c6 tu rey ocupa una casilla clave y el peón corona. Las dos valen igual.',
-          explanationWrong: 'Esa jugada no lleva el rey a una casilla clave (c6, d6 o e6) y el negro llega a tiempo de defender.',
+          explanationWrong: 'Esa jugada no lleva el rey a una casilla clave y el negro llega a tiempo de defender.',
           wrongByMove: {
             d4d5: 'd5 adelanta el peón antes que el rey: el rey negro se pone delante y son tablas.',
           },
@@ -261,10 +261,10 @@ export const unit: Unit = {
           prompt: 'Juegan blancas. Gana la partida.',
           solutionUci: ['g5f6'],
           alt: ['g5g6'],
-          hint: 'Las casillas clave del peón de f4 son e6, f6 y g6.',
+          hint: 'Las casillas clave de un peón en la cuarta fila están dos filas por delante: en su columna y en las dos vecinas.',
           explanationCorrect:
             'Correcto. Kf6 o Kg6 llevan el rey a una casilla clave del peón de f4, y la coronación ya no se puede impedir.',
-          explanationWrong: 'Esa jugada no lleva el rey a una casilla clave (e6, f6 o g6) y el negro consigue defenderse.',
+          explanationWrong: 'Esa jugada no lleva el rey a una casilla clave y el negro consigue defenderse.',
           wrongByMove: {
             g5f5: 'Kf5 se pone delante del peón, pero no en una casilla clave: tras Kf7 el negro toma la oposición y hace tablas.',
           },

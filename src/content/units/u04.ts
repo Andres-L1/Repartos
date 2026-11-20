@@ -105,7 +105,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Rxd8#. La torre negra cubría la columna, pero la torre blanca la captura con jaque y ninguna pieza negra puede recapturar; los peones siguen tapando al rey.',
           explanationWrong:
-            'No es mate. Fíjate en la torre negra de d8: está sola, y capturarla con jaque deja al rey sin salida.',
+            'No es mate. Fíjate en la torre negra de la columna d: está sola, y capturarla con jaque deja al rey sin salida.',
         },
         {
           fen: '6k1/5ppp/8/8/8/8/5PPP/3Q2K1 w - - 0 1',
@@ -290,9 +290,9 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Nf7#. El caballo ataca h8; el rey no puede ir a g8 (torre), g7 ni h7 (peones) y nadie captura el caballo. Es el mate de la coz.',
           explanationWrong:
-            'No es mate. El rey no tiene casillas libres: lo que falta es un jaque que no pueda capturarse; solo un caballo en f7 ataca h8 sin que nadie pueda recapturarlo.',
+            'No es mate. El rey no tiene casillas libres: lo que falta es un jaque que nadie pueda capturar. Busca un salto de caballo que ataque al rey desde una casilla que solo tú controles.',
           wrongByMove: {
-            g5h7: 'Nxh7 no da jaque y el rey negro simplemente captura el caballo (Kxh7). El caballo debe ir a f7.',
+            g5h7: 'Nxh7 no da jaque y el rey negro simplemente captura el caballo (Kxh7). Busca un salto que dé jaque de verdad.',
           },
         },
         {
@@ -317,7 +317,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto. Con la dama en e7 o en f6 defiendes f7; Qe7 protege además el peón de e5. Lo importante es ver la amenaza de mate antes de seguir con tu plan.',
           explanationWrong:
-            'Esa jugada no resuelve la amenaza de Qxf7# o cuesta material. Las defensas buenas son Qe7 y Qf6; Nh6 pierde el peón de e5 y g6 pierde material por Qxe5+.',
+            'Esa jugada no resuelve la amenaza de mate o cuesta material: fíjate también en el peón central. Hay una defensa con la dama que cubre la casilla amenazada.',
           wrongByMove: {
             g8f6: 'Nf6 parece atacar la dama, pero deja f7 sin defensa suficiente: Qxf7 es mate.',
             g7g6: 'g6 ataca la dama, pero abre la diagonal: Qxe5+ y después Qxh8 ganan material.',
@@ -343,13 +343,13 @@ export const unit: Unit = {
           fen: 'rnb1k1nr/pppp1ppp/8/1Nb1p3/4P2q/3P4/PPP2PPP/R1BQKBNR b KQkq - 1 4',
           prompt: 'Juegan negras. El mate del pastor, pero a favor de las negras. Da mate.',
           solutionUci: ['h4f2'],
-          hint: 'El punto débil blanco es f2, que solo protege el rey.',
+          hint: 'El punto débil blanco es el peón que solo protege el rey.',
           explanationCorrect:
             'Correcto: Qxf2#. El alfil de c5 protege la dama, el rey no puede capturarla ni escapar (d2 y e2 las cubre la dama). El mismo patrón, ahora contra f2.',
           explanationWrong:
-            'No es mate. El peón de f2 solo lo defiende el rey; capturarlo con la dama, protegida por el alfil, termina la partida.',
+            'No es mate. El peón que solo defiende el rey blanco es el objetivo: capturarlo con la dama, protegida por el alfil, termina la partida.',
           wrongByMove: {
-            c5f2: 'Bxf2+ es jaque, pero no es mate: el rey blanco tiene casillas de huida. La dama debe capturar en f2.',
+            c5f2: 'Bxf2+ es jaque, pero no es mate: el rey blanco tiene casillas de huida. Tiene que ser la dama la que capture.',
           },
         },
         {
@@ -360,9 +360,9 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qxf7#. La dama en f3 también ve f7 por la columna f y el alfil la protege. Da igual por dónde llegue la dama.',
           explanationWrong:
-            'No es mate. Dos piezas atacan f7 y solo el rey la defiende: captura con la dama.',
+            'No es mate. Dos piezas atacan el punto débil y solo el rey lo defiende: captura con la dama.',
           wrongByMove: {
-            c4f7: 'Bxf7+ es jaque, pero no es mate: el rey escapa a e7. La dama es la que debe capturar en f7.',
+            c4f7: 'Bxf7+ es jaque, pero no es mate: el rey escapa a e7. Tiene que ser la dama la que capture.',
           },
         },
       ],
@@ -429,7 +429,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qa8+ obliga a la torre a interponerse en c8 (no hay otra respuesta) y Qxc8# es mate: la torre queda sin protección y nada puede recapturar.',
           explanationWrong:
-            'No era la solución. Mira los jaques: Qa8+ obliga a interponer la torre y después puedes capturarla con mate.',
+            'No era la solución. Mira los jaques: uno obliga a la torre a interponerse, y después puedes capturarla con mate.',
         },
         {
           fen: '6k1/3R1ppp/8/4q3/8/8/5PPP/6K1 w - - 0 1',

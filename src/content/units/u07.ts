@@ -263,7 +263,7 @@ export const unit: Unit = {
           explanationWrong:
             'Esa jugada no gana material. El caballo no se puede mover: atácalo con el peón.',
           wrongByMove: {
-            b5c6: 'Bxc6+ bxc6 es solo un cambio de alfil por caballo. Con d5 ganas la pieza entera.',
+            b5c6: 'Bxc6+ bxc6 es solo un cambio de alfil por caballo. Hay una jugada que gana la pieza entera.',
           },
         },
         {

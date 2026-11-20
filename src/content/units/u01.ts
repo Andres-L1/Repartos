@@ -91,9 +91,9 @@ export const unit: Unit = {
           solutionUci: ['d2d6'],
           hint: 'El alfil está en tu misma columna.',
           explanationCorrect: '¡Excelente! La torre subió por la columna d y capturó el alfil. Fíjate: el alfil no podía defenderse porque nada lo protegía.',
-          explanationWrong: 'El alfil negro está en d6, en la misma columna d que tu torre. Sube hasta allí para capturarlo.',
+          explanationWrong: 'Mira si el alfil negro está en una columna o en una fila de tu torre: la torre solo captura en línea recta, y el camino debe estar libre hasta él.',
           wrongByMove: {
-            d2d4: 'Subes por la columna correcta, pero te quedas corto: el alfil está en d6 y para capturarlo debes llegar a su casilla.',
+            d2d4: 'Vas por la columna correcta, pero te quedas corto: para capturar el alfil la torre tiene que llegar hasta su casilla.',
           },
         },
       ],
@@ -112,7 +112,7 @@ export const unit: Unit = {
           solutionUci: ['c1c3'],
           hint: 'El peón está dos casillas por encima de tu torre.',
           explanationCorrect: 'Muy bien, capturaste en vertical: la torre subió por la columna c y se comió el peón.',
-          explanationWrong: 'El peón negro está en c3, en la misma columna que tu torre. Sube hasta allí.',
+          explanationWrong: 'Busca el peón negro en la misma columna que tu torre. La torre captura en línea recta, sin girar.',
         },
         {
           fen: '4k3/8/8/3R4/8/8/8/4K3 w - - 0 1',
@@ -180,7 +180,7 @@ export const unit: Unit = {
           solutionUci: ['c1f4'],
           hint: 'El peón está en la diagonal que sube desde c1.',
           explanationCorrect: '¡Muy bien! El alfil capturó en diagonal sustituyendo al peón. Mira siempre si una pieza rival está en una de tus diagonales.',
-          explanationWrong: 'El peón negro está en f4, en la diagonal del alfil (c1, d2, e3, f4). Muévelo hasta allí.',
+          explanationWrong: 'El alfil solo captura en diagonal. Sigue con la vista las diagonales que salen de tu alfil y busca ahí el peón negro.',
         },
         {
           fen: '4k3/8/8/8/8/8/8/3QK3 w - - 0 1',
@@ -217,7 +217,7 @@ export const unit: Unit = {
           solutionUci: ['d1d5'],
           hint: 'El peón está en la columna d, justo delante de tu dama.',
           explanationCorrect: 'Correcto: la dama capturó en línea recta, subiendo por la columna d.',
-          explanationWrong: 'El peón está en d5, en la misma columna que tu dama. Súbela hasta allí.',
+          explanationWrong: 'Mira la columna de tu dama: el peón está en línea recta con ella, sin nada en medio.',
         },
         {
           fen: '4k3/8/1p6/8/8/8/5B2/4K3 w - - 0 1',
@@ -225,7 +225,7 @@ export const unit: Unit = {
           solutionUci: ['f2b6'],
           hint: 'Sigue la diagonal que sube hacia la izquierda desde f2.',
           explanationCorrect: '¡Perfecto! El alfil recorrió f2, e3, d4, c5 y capturó en b6.',
-          explanationWrong: 'El peón negro está en b6, en la diagonal del alfil. Recuerda que el alfil solo se mueve en diagonal.',
+          explanationWrong: 'Recuerda que el alfil solo se mueve en diagonal. Recorre las diagonales de tu alfil hasta dar con el peón negro.',
         },
       ],
     },
@@ -293,9 +293,9 @@ export const unit: Unit = {
           solutionUci: ['d4e3'],
           hint: 'El peón está justo en diagonal al rey.',
           explanationCorrect: 'Muy bien. El rey puede capturar piezas a su lado cuando están sin protección. Siempre comprueba que no haya otra pieza rival que defienda la casilla.',
-          explanationWrong: 'El peón está en e3, en la casilla diagonal abajo-derecha del rey. El rey se mueve una casilla en cualquier dirección.',
+          explanationWrong: 'El rey se mueve una casilla en cualquier dirección. Mira las ocho casillas que lo rodean: el peón sin protección está en una de ellas.',
           wrongByMove: {
-            d4d3: 'El rey se ha movido una casilla, pero no ha capturado nada. El peón está en e3.',
+            d4d3: 'El rey se ha movido una casilla, pero no ha capturado nada. El peón está en una de las casillas vecinas del rey.',
           },
         },
         {
@@ -326,7 +326,7 @@ export const unit: Unit = {
           solutionUci: ['f3e5'],
           hint: 'Dos casillas arriba y una a la izquierda desde f3.',
           explanationCorrect: 'Muy bien. El caballo captura en la casilla donde aterriza, igual que las demás piezas.',
-          explanationWrong: 'El peón está en e5. Desde f3, el caballo llega a e5 subiendo dos casillas y moviéndose una a la izquierda.',
+          explanationWrong: 'El caballo salta en L: dos casillas en una dirección y una en perpendicular. Cuenta desde su casilla hasta dar con el peón negro.',
         },
         {
           fen: '7k/8/8/8/8/PPP5/PNP5/4K3 w - - 0 1',
@@ -360,7 +360,7 @@ export const unit: Unit = {
           solutionUci: ['e4g5'],
           hint: 'Dos casillas a la derecha y una arriba.',
           explanationCorrect: 'Correcto. Dos casillas a la derecha y una arriba: otra L.',
-          explanationWrong: 'El peón está en g5. Desde e4, el caballo llega a g5 con dos pasos a la derecha y uno arriba.',
+          explanationWrong: 'El caballo salta en L: dos casillas en una dirección y una en perpendicular. Cuenta desde su casilla hasta dar con el peón negro.',
         },
       ],
     },
@@ -421,7 +421,7 @@ export const unit: Unit = {
           solutionUci: ['d2c3'],
           hint: 'Los peones capturan en diagonal.',
           explanationCorrect: '¡Eso es! El peón capturó en diagonal, una casilla hacia delante y a un lado.',
-          explanationWrong: 'Los peones capturan en diagonal. El peón negro está en c3, en la diagonal adelante-izquierda de tu peón.',
+          explanationWrong: 'Los peones capturan en diagonal, una casilla hacia delante y a un lado. Mira las dos casillas diagonales de tu peón.',
           wrongByMove: {
             d2d3: 'Avanzar no captura: los peones solo se comen a las piezas que están en diagonal.',
             d2d4: 'Avanzar no captura: los peones solo se comen a las piezas que están en diagonal.',
@@ -459,7 +459,7 @@ export const unit: Unit = {
           solutionUci: ['e2f3'],
           hint: 'El peón negro está en diagonal.',
           explanationCorrect: 'Muy bien: capturaste en diagonal.',
-          explanationWrong: 'El peón negro está en f3, en la diagonal adelante-derecha de tu peón. Capturar es avanzar en diagonal.',
+          explanationWrong: 'Capturar es avanzar en diagonal. Mira las dos casillas diagonales delante de tu peón de e2.',
           wrongByMove: {
             e2e3: 'Avanzar no captura. El peón negro está en diagonal, no delante.',
             e2e4: 'Avanzar no captura. El peón negro está en diagonal, no delante.',
@@ -471,7 +471,7 @@ export const unit: Unit = {
           solutionUci: ['e4d3'],
           hint: 'El peón blanco está en diagonal, hacia abajo.',
           explanationCorrect: 'Perfecto: los peones negros capturan en diagonal hacia abajo.',
-          explanationWrong: 'Tu peón de e4 puede capturar el de d3, que está en diagonal hacia abajo a la izquierda.',
+          explanationWrong: 'Los peones capturan en diagonal. Con negras, delante es hacia abajo: mira las dos casillas diagonales por delante de tu peón.',
           wrongByMove: {
             e4e3: 'Avanzar no captura. El peón blanco está en diagonal.',
           },

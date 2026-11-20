@@ -51,7 +51,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Rd1+ aleja al rey negro y prepara el puente. Rc4 también gana igual de rápido, así que se acepta.',
           explanationWrong:
-            'Esa jugada no es la más precisa: la partida pasa a tablas o la victoria se alarga. El método de Lucena empieza con Rd1+.',
+            'Esa jugada no es la más precisa: la partida pasa a tablas o la victoria se alarga. El método de Lucena empieza con una jugada de torre que prepara el puente.',
           wrongByMove: {
             c1a1: 'Ra1 deja escapar la victoria: las negras hacen tablas.',
             c1c2: 'Rc2 pierde la torre: Rxc2.',
@@ -61,13 +61,13 @@ export const unit: Unit = {
           fen: '1K6/1P2k3/8/8/8/8/r7/3R4 w - - 0 1',
           prompt: 'Juegan blancas. El rey negro ya salió de la columna d. Construye el puente con la torre y saca al rey hacia el peón.',
           solutionUci: ['d1d4', 'e7e6', 'b8c7', 'a2c2', 'c7b6'],
-          hint: 'La torre va a la cuarta fila. Después el rey sale por c7 y b6.',
+          hint: 'La torre va a la cuarta fila. Después el rey sale del refugio hacia el peón.',
           explanationCorrect:
             'Correcto: Rd4 construye el puente y el rey sale con Kc7 y Kb6. Cuando el rey llegue a b6, la torre de d4 podrá interponerse en los jaques.',
           explanationWrong:
             'Esa jugada no es la más precisa: la victoria se alarga o se escapa. Hace falta el puente en la cuarta fila y la salida del rey.',
           wrongByMove: {
-            d1d3: 'Rd3 todavía gana, pero tarda más que Rd4.',
+            d1d3: 'Esa torre todavía gana, pero tarda más que construir el puente en la cuarta fila.',
             d1d2: 'Rd2 deja escapar la victoria: las negras hacen tablas.',
           },
         },
@@ -81,7 +81,7 @@ export const unit: Unit = {
             'Esa jugada no es la más precisa: la partida pasa a tablas o la victoria se alarga. Hay que tapar el jaque con la torre.',
           wrongByMove: {
             b5a4: 'Ka4 deja al rey sin refugio: las negras hacen tablas.',
-            b5c6: 'Kc6 todavía gana, pero tarda más que Rb4.',
+            b5c6: 'Ese paso del rey todavía gana, pero tarda más que construir el puente con la torre.',
           },
         },
       ],
@@ -115,7 +115,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Re8+ aleja al rey blanco y prepara el puente. Rf5 también gana igual de rápido, así que se acepta.',
           explanationWrong:
-            'Esa jugada no es la más precisa: la partida pasa a tablas o la victoria se alarga. El método empieza con Re8+.',
+            'Esa jugada no es la más precisa: la partida pasa a tablas o la victoria se alarga. El método empieza con una jugada de torre que prepara el puente.',
         },
       ],
     },

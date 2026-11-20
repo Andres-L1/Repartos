@@ -64,17 +64,17 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qd1+ Rxd1 Rxd1#. Al capturar la dama, la torre blanca deja de defender la primera fila.',
           explanationWrong:
-            'No era esa. Entrega la dama en d1: la torre blanca tiene que capturarla y tu torre da mate.',
+            'No era esa. Entrega la dama en una casilla que la torre blanca tenga que capturar: así deja la primera fila y tu torre da mate.',
         },
         {
           fen: '3qr1k1/5ppp/8/8/4R3/8/4QPPP/6K1 w - - 0 1',
           prompt: 'Juegan blancas. Mate en dos jugadas.',
           solutionUci: ['e4e8', 'd8e8', 'e2e8'],
-          hint: 'La torre de e8 solo la defiende la dama de d8.',
+          hint: 'La torre negra de la última fila solo la defiende la dama.',
           explanationCorrect:
             'Correcto: Rxe8+ Qxe8 Qxe8#. Torre y dama atacan e8 dos veces y solo la defendía la dama negra.',
           explanationWrong:
-            'Esa jugada no fuerza nada. Captura en e8 con la pieza de delante y la dama dará mate.',
+            'Esa jugada no fuerza nada. Busca una captura con jaque en la última fila rival que obligue a la dama a recapturar.',
         },
       ],
       evaluation: [
@@ -96,17 +96,17 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qe1+ Rxe1 Rxe1#. La torre blanca tuvo que capturar y la primera fila quedó sin defensa.',
           explanationWrong:
-            'Esa jugada no fuerza el mate. Entrega la dama en e1.',
+            'Esa jugada no fuerza el mate. Piensa en entregar la dama con jaque para desviar a la torre blanca de la primera fila.',
         },
         {
           fen: '1q2r1k1/5ppp/8/8/8/8/4RPPP/4Q1K1 w - - 0 1',
           prompt: 'Juegan blancas. Mate en dos jugadas.',
           solutionUci: ['e2e8', 'b8e8', 'e1e8'],
-          hint: 'Cuenta: dos piezas blancas atacan e8 y solo una negra la defiende.',
+          hint: 'Cuenta: dos piezas blancas atacan la torre negra de la última fila y solo una negra la defiende.',
           explanationCorrect:
             'Correcto: Rxe8+ Qxe8 Qxe8#. La dama negra era la única defensa de e8.',
           explanationWrong:
-            'No era esa. Captura en e8 con la torre: tras Qxe8, tu dama da mate.',
+            'No era esa. Empieza capturando con la torre: tras la recaptura, tu dama da mate.',
         },
       ],
     },
@@ -157,9 +157,9 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qg8+ Rxg8 Nf7#. La torre cerró la última salida del rey al capturar la dama.',
           explanationWrong:
-            'Así no es mate en dos. La casilla g8 tiene que quedar ocupada por una pieza negra.',
+            'Así no es mate en dos. Hay que forzar a una pieza negra a ocupar la última casilla de escape del rey.',
           wrongByMove: {
-            h6f7: 'Nf7+ es jaque, pero la torre de f8 captura el caballo (Rxf7).',
+            h6f7: 'El caballo da jaque, pero la torre negra lo captura.',
           },
         },
         {
@@ -182,9 +182,9 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qg1+ Rxg1 Nf2#. La torre blanca ocupó g1 al capturar y el rey quedó encerrado.',
           explanationWrong:
-            'Así no es mate en dos. La casilla g1 tiene que quedar ocupada por una pieza blanca.',
+            'Así no es mate en dos. Hay que forzar a una pieza blanca a ocupar la última casilla de escape del rey.',
           wrongByMove: {
-            h3f2: 'Nf2+ es jaque, pero la torre de f1 captura el caballo (Rxf2).',
+            h3f2: 'El caballo da jaque, pero la torre blanca lo captura.',
           },
         },
         {
@@ -201,11 +201,11 @@ export const unit: Unit = {
           fen: '4r2k/6pp/7N/8/2Q5/8/8/6K1 w - - 0 1',
           prompt: 'Juegan blancas. Mate en dos jugadas.',
           solutionUci: ['c4g8', 'e8g8', 'h6f7'],
-          hint: 'El caballo de h6 defiende g8.',
+          hint: 'Mira qué casillas defiende tu caballo: allí puedes entregar la dama.',
           explanationCorrect:
             'Correcto: Qg8+ Rxg8 Nf7#. El mismo patrón desde otra casilla: la dama se entrega en g8 y el caballo remata.',
           explanationWrong:
-            'No era esa. Entrega la dama en g8 para que la torre la capture y cierre la salida del rey.',
+            'No era esa. Entrega la dama donde tu caballo la defiende, para que la torre la capture y cierre la salida del rey.',
         },
       ],
     },
@@ -265,11 +265,11 @@ export const unit: Unit = {
           fen: '6k1/1b6/8/6q1/8/8/5PPP/4R1K1 b - - 0 1',
           prompt: 'Juegan negras. Mate en una jugada.',
           solutionUci: ['g5g2'],
-          hint: 'Tu alfil de b7 apunta a g2 por la gran diagonal.',
+          hint: 'Tu alfil apunta a la casilla del rey rival por la gran diagonal.',
           explanationCorrect:
             'Correcto: Qxg2#. El alfil defiende la dama y el rey blanco no tiene casillas.',
           explanationWrong:
-            'No es mate. Captura en g2 con la dama: tu alfil la defiende.',
+            'No es mate. Captura con la dama en una casilla que tu alfil defienda.',
         },
       ],
       evaluation: [
@@ -297,11 +297,11 @@ export const unit: Unit = {
           fen: '6k1/5p1p/6pQ/8/8/8/1B6/6K1 w - - 0 1',
           prompt: 'Juegan blancas. Mate en una jugada.',
           solutionUci: ['h6g7'],
-          hint: 'Tu alfil de b2 apunta a g7 por la gran diagonal.',
+          hint: 'Tu alfil apunta al enroque rival por la gran diagonal.',
           explanationCorrect:
             'Correcto: Qg7#. El alfil defiende la dama y la dama controla f8 y h8.',
           explanationWrong:
-            'No es mate. La casilla g7 está defendida por tu alfil: lleva allí la dama.',
+            'No es mate. Busca la casilla que tu alfil defiende y lleva allí la dama.',
         },
       ],
     },

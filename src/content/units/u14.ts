@@ -160,7 +160,7 @@ export const unit: Unit = {
           hint: 'No es un jaque: acerca el rey al peón para que controle d7 y d8.',
           explanationCorrect:
             'Correcto: Ke8. El rey negro controla d7 y d8 y el peón no puede avanzar. A veces la defensa es el rey, no la torre.',
-          explanationWrong: 'Esa jugada pierde. Aquí lo único que sirve es acercar el rey al peón: Ke8.',
+          explanationWrong: 'Esa jugada pierde. Aquí lo único que sirve es acercar el rey al peón.',
         },
         {
           fen: '2k5/R7/2K1P3/8/8/8/8/1r6 b - - 0 1',
@@ -168,7 +168,7 @@ export const unit: Unit = {
           solutionUci: ['c8d8'],
           hint: 'Acerca el rey al peón: tiene que controlar e7 y e8.',
           explanationCorrect: 'Correcto: Kd8. El rey negro controla e7 y e8 y el peón no puede avanzar. Tablas.',
-          explanationWrong: 'Esa jugada pierde. El rey negro tiene que ir hacia el peón de e6: Kd8.',
+          explanationWrong: 'Esa jugada pierde. El rey negro tiene que ir hacia el peón.',
         },
         {
           fen: '3k4/R7/4PK2/8/8/8/8/6r1 b - - 0 1',

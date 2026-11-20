@@ -267,7 +267,7 @@ export const unit: Unit = {
           explanationWrong:
             'Ese orden no es el bueno. Captura primero con la pieza de menos valor.',
           wrongByMove: {
-            d1d5: 'Rxd5 Bxd5 Bxd5: das una torre (5) por caballo y alfil (6), y te queda mucho menos de lo que podías ganar.',
+            d1d5: 'Si empiezas con la torre, las negras recapturan: das una torre (5) por un caballo y un alfil (6) y te queda mucho menos de lo que podías ganar.',
           },
         },
         {
