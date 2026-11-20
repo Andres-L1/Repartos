@@ -41,11 +41,16 @@ describe('touchSchedule', () => {
 
 describe('parsePositions', () => {
   it('acepta un caso válido', () => expect(parsePositions([ok])).toEqual([ok]));
+  it('acepta engine.analysis (error propio sin concepto) solo en posiciones', () => {
+    const eng = { ...ok, conceptId: 'engine.analysis' };
+    expect(parsePositions([eng])).toEqual([eng]);
+  });
   it('rechaza lo inválido', () => {
     for (const bad of [
       [{ ...ok, fen: 'basura' }],
       [{ ...ok, bestUci: 'e2e5' }],
       [{ ...ok, conceptId: 'nope' }],
+      [{ ...ok, conceptId: 'engine.analysis', bestUci: 'e2e5' }],
       [ok, ok, ok, ok],
       [{ ...ok, ply: 0 }],
       'x',

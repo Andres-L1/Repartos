@@ -686,7 +686,7 @@ describe('partidas repasadas', () => {
     const ids = Array.from({ length: 7 }, () => CONCEPTS[0]!.id);
     for (const body of [
       { gameId: 'abc', concepts: [] }, { gameId: 'abcd123!', concepts: [] }, { concepts: [] },
-      { gameId: 'abcd1234', concepts: ['nope'] }, { gameId: 'abcd1234', concepts: ids },
+      { gameId: 'abcd1234', concepts: ['nope'] }, { gameId: 'abcd1234', concepts: ['engine.analysis'] }, { gameId: 'abcd1234', concepts: ids },
     ]) expect((await s.req('POST', '/api/review/complete', body)).status).toBe(400);
     expect(weak(s)).toEqual({});
   });
@@ -707,6 +707,15 @@ describe('partidas repasadas', () => {
   const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
   const pos = (ply: number) => ({ ply, conceptId: 'tactics.fork', fen: START, bestUci: 'e2e4' });
   const count = (s: ReturnType<typeof setup>, t: string) => (s.db.raw.prepare(`SELECT COUNT(*) AS n FROM ${t}`).get() as any).n;
+
+  it('positions con engine.analysis: se guarda la posición pero no suma a puntos débiles ni al calendario', async () => {
+    const s = setup(); await s.login();
+    const body = { gameId: 'abcd1234', concepts: [], positions: [{ ...pos(3), conceptId: 'engine.analysis' }] };
+    expect((await s.req('POST', '/api/review/complete', body)).json).toEqual({ counted: true });
+    expect(count(s, 'cp_review_positions')).toBe(1);
+    expect(count(s, 'cp_weak_concepts')).toBe(0);
+    expect(count(s, 'cp_review_schedule')).toBe(0);
+  });
 
   it('positions: guarda filas y calendario solo la primera vez; sin positions sigue funcionando', async () => {
     const s = setup(); await s.login();
