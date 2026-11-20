@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Level } from '../../../src/types';
 import type { OutlineUnit } from '../../../src/shared/api';
+import { LEVELS as SHARED_LEVELS, eloRange } from '../../../src/shared/levels';
 import { numberUnits, type Numbered } from '../../../src/shared/unitNumber';
 import { STREAK_DAYS_PER_CHEDEX } from '../../../src/shop/catalog';
 import { api } from '../api';
@@ -199,14 +200,12 @@ interface LevelInfo {
   focus: string;
 }
 
-const LEVELS: LevelInfo[] = [
-  { id: 'beginner', name: 'Principiante', range: '0 a 400 Elo', focus: 'Reglas y fundamentos.' },
-  { id: 'initiation', name: 'Iniciación', range: '400 a 800 Elo', focus: 'Tácticas y principios básicos.' },
-  { id: 'basic', name: 'Básico', range: '800 a 1100 Elo', focus: 'Cálculo y comprensión.' },
-  { id: 'intermediate', name: 'Intermedio', range: '1100 a 1400 Elo', focus: 'Estrategia y planificación.' },
-  { id: 'advanced', name: 'Avanzado', range: '1400 a 1700 Elo', focus: 'Profundización técnica.' },
-  { id: 'competitive', name: 'Competitivo', range: '1700 Elo o más', focus: 'Rendimiento y preparación.' },
-];
+const LEVELS: LevelInfo[] = SHARED_LEVELS.map((l) => ({
+  id: l.id,
+  name: l.label,
+  range: l.id === 'beginner' ? 'Sin Elo todavía' : `${eloRange(l)} de Elo en Lichess (rápidas)`,
+  focus: `${l.blurb}.`,
+}));
 
 /** Mientras carga el temario (o si falla) se muestran como disponibles los dos primeros; después decide el temario. */
 const AVAILABLE_FALLBACK: Level[] = ['beginner', 'initiation'];
@@ -251,7 +250,7 @@ export function Path() {
               : ''}
           </p>
           <p>
-            Los niveles no son compartimentos cerrados, y el Elo es una referencia, no una nota. Empiezas donde te corresponde: usamos tu Elo de Lichess para recomendarte dónde empezar.
+            Los niveles no son compartimentos cerrados, y el Elo es una referencia, no una nota. Empiezas donde te corresponde: usamos tu Elo de Lichess (rápidas, clásicas o blitz) para recomendarte dónde empezar; los rangos son de Lichess, no de FIDE.
           </p>
         </header>
         <ol className="levels">

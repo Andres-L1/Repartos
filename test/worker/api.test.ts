@@ -535,9 +535,14 @@ describe('lo que Lichess envió (cp_placement y cp_placement_seen)', () => {
     expect(stored).not.toContain('3000');
   });
 
-  it('GET /api/level: sugerencia con el mayor Elo fiable y pista con un provisional alto', async () => {
+  it('GET /api/level: un provisional con 30 partidas o más cuenta (caso del jugador mal clasificado)', async () => {
     const s = await loginWith({ rapid: perf(1749, 43, { prov: true }), classical: perf(1500, 6), blitz: perf(1125, 1177) });
-    expect(await seenOf(s)).toMatchObject({ chosen: null, suggested: 'intermediate', hint: { perf: 'rapid', rating: 1749, games: 43, level: 'competitive' } });
+    expect(await seenOf(s)).toMatchObject({ chosen: null, suggested: 'competitive', hint: null });
+  });
+
+  it('GET /api/level: pista con un provisional alto de 10 a 29 partidas', async () => {
+    const s = await loginWith({ rapid: perf(1749, 25, { prov: true }), blitz: perf(1125, 1177) });
+    expect(await seenOf(s)).toMatchObject({ chosen: null, suggested: 'intermediate', hint: { perf: 'rapid', rating: 1749, games: 25, level: 'competitive' } });
   });
 
   it('un registro antiguo de seen sin blitz se sigue leyendo (blitz ausente)', async () => {
@@ -550,9 +555,9 @@ describe('lo que Lichess envió (cp_placement y cp_placement_seen)', () => {
 
   it('sin Elo fiable (provisional, pocas partidas, sin perfs, basura): sin sugerencia y se puede elegir', async () => {
     for (const perfs of [
-      { rapid: perf(1600, 80, { prov: true }), classical: perf(1700, 5) },
+      { rapid: perf(1600, 29, { prov: true }), classical: perf(1700, 5) },
       { rapid: perf(1600, 9) },
-      { blitz: perf(2000, 500, { prov: true }), classical: perf(1000, 3) },
+      { blitz: perf(2000, 12, { prov: true }), classical: perf(1000, 3) },
       { bullet: perf(2000, 500) },
       { rapid: { rating: 'x' } },
       undefined,
