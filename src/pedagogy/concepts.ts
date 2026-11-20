@@ -585,7 +585,7 @@ export const CONCEPTS: Concept[] = [
       competitive:
         '{hecho}\nSecuencia: {jugada} {refutacion}. Casillas críticas: {casillas}.\nEn los finales de torre, la actividad de la torre y del rey decide más que el material.',
     },
-    exerciseIds: ['ex.rook.01', 'ex.rook.02', 'ex.rook.03', 'ex.rook.04', 'ex.rook.05', 'ex.rook.06', 'ex.rook.07', 'ex.rook.08'],
+    exerciseIds: ['ex.rook.01', 'ex.rook.02', 'ex.rook.03', 'ex.rook.04', 'ex.rook.05', 'ex.rook.06', 'ex.rook.07', 'ex.rook.08', 'ex.rook.09'],
     evaluationCriteria: [
       'Corta al rey rival con la torre.',
       'En defensa, coloca la torre activa y da jaques por detrás cuando avanza el peón.',

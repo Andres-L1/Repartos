@@ -672,6 +672,23 @@ export const EXERCISES: Exercise[] = [
     solutionUci: ['d1b1'],
     hint: 'La torre da jaque desde la columna b, lejos del rey blanco.',
   },
+  {
+    // Línea de dos jugadas del alumno: la primera tiene cinco jugadas igual de buenas (tablas) y cada una lleva su rama.
+    id: 'ex.rook.09',
+    conceptId: 'endgame.rook',
+    level: 'advanced',
+    fen: '4k2r/8/8/3KP3/8/R7/8/8 b - - 0 1',
+    prompt: 'Juegan negras. El peón blanco de e5 todavía no pasó de la quinta fila. Defiende y, cuando avance, cambia de plan.',
+    solutionUci: ['h8h6', 'e5e6', 'h6h1'],
+    alt: ['h6h2', 'h6h4'],
+    branches: [
+      { at: 0, line: ['h8h1', 'e5e6', 'h1b1'], alt: ['h1c1', 'h1d1', 'h1e1', 'h1f1', 'h1g1', 'h1h2', 'h1h4', 'e8e7', 'e8d8', 'e8f8'] },
+      { at: 0, line: ['h8h2', 'e5e6', 'h2h1'], alt: ['h2b2', 'h2c2', 'h2d2', 'h2e2', 'h2f2', 'h2g2', 'h2h4', 'e8e7', 'e8d8', 'e8f8'] },
+      { at: 0, line: ['h8h4', 'e5e6', 'h4h1'], alt: ['h4h2', 'h4b4', 'h4f4', 'h4g4', 'e8e7', 'e8d8', 'e8f8'] },
+      { at: 0, line: ['e8f7', 'e5e6', 'f7f6'], alt: ['f7e7'] },
+    ],
+    hint: 'Primero vigila la sexta fila; cuando el peón llegue a ella, lleva la torre lejos del rey blanco.',
+  },
 
   // ───────────── Estrategia verificable (u16; pendiente de validación de profesores) ─────────────
   // Posiciones de u16 reflejadas de izquierda a derecha. Stockfish 16, profundidad 18, MultiPV 8: la solución es la mejor y

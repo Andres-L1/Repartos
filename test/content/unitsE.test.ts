@@ -72,6 +72,14 @@ function linePositions(step: PracticeStep): string[] {
     pos.play(parseUci(u)!);
     out.push(makeFen(pos.toSetup()));
   }
+  for (const b of step.branches ?? []) {
+    const before = load(step.fen);
+    for (const x of [...step.solutionUci.slice(0, b.at), ...b.line]) {
+      out.push(makeFen(before.toSetup()));
+      before.play(parseUci(x)!);
+    }
+    out.push(makeFen(before.toSetup()));
+  }
   for (const u of [...Object.keys(step.wrongByMove ?? {}), ...(step.alt ?? [])]) {
     const before = load(step.fen);
     if (step.alt?.includes(u)) for (const x of step.solutionUci.slice(0, -1)) before.play(parseUci(x)!);
@@ -140,7 +148,7 @@ describe('contenido E: finales verificados con la tablebase (pendiente de valida
         });
         for (const { key, step } of stepsOf(l)) {
           it(`${key}: se aceptan exactamente las jugadas que conservan el resultado`, () => {
-            expect(checkLine(probe, step.fen, step.solutionUci, step.alt ?? [], modeFor(key))).toEqual([]);
+            expect(checkLine(probe, step.fen, step.solutionUci, step.alt ?? [], modeFor(key), step.branches ?? [])).toEqual([]);
           });
           it(`${key}: textos coherentes con la posición`, () => {
             const texts = [step.prompt, step.hint ?? '', step.explanationCorrect, step.explanationWrong, ...Object.values(step.wrongByMove ?? {})];
@@ -158,7 +166,7 @@ describe('contenido E: finales verificados con la tablebase (pendiente de valida
     });
     for (const e of bank) {
       it(`${e.id}: tablebase y textos`, () => {
-        expect(checkLine(probe, e.fen, e.solutionUci, e.alt ?? [], modeFor(e.id))).toEqual([]);
+        expect(checkLine(probe, e.fen, e.solutionUci, e.alt ?? [], modeFor(e.id), e.branches ?? [])).toEqual([]);
         const step = { ...e, explanationCorrect: '', explanationWrong: '' } as PracticeStep;
         expect(textErrors([e.prompt, e.hint ?? ''], linePositions(step), load(e.fen).turn)).toEqual([]);
       });

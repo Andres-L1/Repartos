@@ -367,6 +367,48 @@ describe('sesión diaria', () => {
     }
   });
 
+  it('banco: alternativa intermedia con rama: el rival responde según la rama, idempotente y sin soluciones en GET', async () => {
+    const s = setup();
+    const ex = EXERCISES.find((e) => e.id === 'ex.rook.09')!;
+    const branch = ex.branches!.find((b) => b.line[0] === 'e8f7')!; // Kf7: distinta de la principal (Rh6) pero igual de buena
+    const u = await s.user('ana');
+    s.due('ana', 'endgame.rook');
+    const r = await u('GET', '/api/session');
+    const id = r.json.items[0].itemId;
+    // El elemento pasa a ser el ejercicio de la rama (el elegido por el sorteo no importa para esta prueba).
+    s.db.raw.prepare("UPDATE cp_session_items SET kind = 'bank', source_id = ?, fen = ?, line_json = ? WHERE id = ?").run(ex.id, ex.fen, JSON.stringify(ex.solutionUci), id);
+    const got = await u('GET', '/api/session');
+    expect(got.text).not.toContain(branch.line[0]);
+    expect(got.text).not.toContain(ex.solutionUci[0]);
+    const send = (uci: string, attempt: number) => u('POST', '/api/session/answer', { itemId: id, uci, attempt }).then((x) => x.json);
+    const row = () => s.db.raw.prepare('SELECT step, attempts, status, line_json FROM cp_session_items WHERE id = ?').get(id) as any;
+    // Jugada peor (pierde las tablas): fallo, sin cambiar la línea.
+    expect(await send('h8h7', 1)).toEqual({ correct: false, done: false, tryAgain: true });
+    expect(JSON.parse(row().line_json)).toEqual(ex.solutionUci);
+    // Alternativa intermedia: acierto, y la respuesta del rival es la de la rama; reenvío idempotente.
+    expect(await send('e8f7', 2)).toEqual({ correct: true, reply: branch.line[1], done: false });
+    expect(await send('e8f7', 2)).toEqual({ correct: true, reply: branch.line[1], done: false });
+    expect(row()).toMatchObject({ step: 2, attempts: 1, status: 'open' });
+    expect(JSON.parse(row().line_json)).toEqual(branch.line); // la rama sale en la jugada 0: la línea efectiva es la suya
+    // La última jugada de la línea principal ya no vale (Rh1 no existe en la rama); la de la rama termina el ejercicio.
+    expect(await send(ex.solutionUci[2]!, 3)).toEqual({ correct: false, done: true, solution: [branch.line[2]] });
+  });
+
+  it('banco: línea principal intacta y su alternativa final; en espejo también', async () => {
+    const s = setup();
+    const ex = EXERCISES.find((e) => e.id === 'ex.rook.09')!;
+    for (const [name, v] of [['ana', ex], ['bea', mirrorExercise(ex)]] as const) {
+      const u = await s.user(name);
+      s.due(name, 'endgame.rook');
+      const id = (await u('GET', '/api/session')).json.items[0].itemId;
+      s.db.raw.prepare("UPDATE cp_session_items SET kind = 'bank', source_id = ?, fen = ?, line_json = ? WHERE id = ?").run(v.id, v.fen, JSON.stringify(v.solutionUci), id);
+      const send = (uci: string, attempt: number) => u('POST', '/api/session/answer', { itemId: id, uci, attempt }).then((x) => x.json);
+      const alt = v.branches![0]!;
+      expect(await send(alt.line[0]!, 1)).toEqual({ correct: true, reply: alt.line[1], done: false });
+      expect(await send(alt.alt![0]!, 2)).toEqual({ correct: true, done: true }); // alt de la última jugada de la rama
+    }
+  });
+
   it('mate: si la solución da mate vale otro mate (también coronando); una jugada que no mata, no', async () => {
     const s = setup();
     const ana = await s.user('ana');

@@ -5,8 +5,9 @@ import type { Unit } from '../schema.js';
  * Verificada de forma exacta con la tablebase de Lichess (Syzygy), con el criterio `optimal` de scripts/lib/tablebase.ts:
  * si la posición está ganada, se aceptan solo las jugadas que ganan lo antes posible (menor DTM) y, en la última jugada
  * del alumno, las de `alt` que empatan con ella; una jugada que gana pero alarga el final cuenta como degradación.
- * Si son tablas, se aceptan todas las jugadas que las conservan (las que no son la de la línea, en `alt`). Las jugadas
- * intermedias del alumno son siempre únicas (el esquema solo admite `alt` en la última jugada).
+ * Si son tablas, se aceptan todas las jugadas que las conservan (las que no son la de la línea, en `alt`). En las jugadas
+ * intermedias del alumno, las alternativas igual de buenas van en `branches`, cada una con su continuación precalculada
+ * (scripts/gen-branches.mts); en el resto de líneas largas de la unidad la jugada intermedia es única (comprobado).
  * scripts/verify-finales.mts; test/content/unitsE.test.ts con la caché de test/fixtures/tablebase/.
  */
 export const unit: Unit = {
@@ -169,6 +170,23 @@ export const unit: Unit = {
           solutionUci: ['g1c1'],
           hint: 'Da jaque desde la columna del rey blanco, a distancia.',
           explanationCorrect: 'Correcto: Rc1+. Es la única jugada que salva la partida: jaque por detrás, con la torre lejos del rey blanco.',
+          explanationWrong: 'Esa jugada no basta: las blancas ganan.',
+        },
+        {
+          fen: '4k2r/8/8/3KP3/8/8/R7/8 b - - 0 1',
+          prompt: 'Juegan negras. El peón blanco de e5 todavía no pasó de la quinta fila. Defiende y, cuando avance, cambia de plan.',
+          solutionUci: ['h8h6', 'e5e6', 'h6h1'],
+          alt: ['h6h3', 'h6h4'],
+          // Cinco jugadas igual de buenas en la primera (tablas); cada una lleva su propia continuación verificada.
+          branches: [
+            { at: 0, line: ['h8h1', 'e5e6', 'h1b1'], alt: ['h1c1', 'h1d1', 'h1e1', 'h1f1', 'h1g1', 'h1h3', 'h1h4', 'e8e7', 'e8d8', 'e8f8'] },
+            { at: 0, line: ['h8h3', 'e5e6', 'h3h1'], alt: ['h3b3', 'h3c3', 'h3d3', 'h3e3', 'h3f3', 'h3g3', 'h3h4', 'e8e7', 'e8d8', 'e8f8'] },
+            { at: 0, line: ['h8h4', 'e5e6', 'h4h1'], alt: ['h4h3', 'h4b4', 'h4f4', 'h4g4', 'e8e7', 'e8d8', 'e8f8'] },
+            { at: 0, line: ['e8f7', 'e5e6', 'f7f6'], alt: ['f7e7'] },
+          ],
+          hint: 'Primero vigila la sexta fila; cuando el peón llegue a ella, lleva la torre lejos del rey blanco.',
+          explanationCorrect:
+            'Correcto: las dos fases de Philidor seguidas. Primero la torre vigila la sexta fila y, cuando el peón llega a ella, se aleja del rey para dar jaques por detrás. En la primera jugada valen también Rh1, Rh3, Rh4 y Kf7; la tablebase las acepta todas y el rival responde según la que elijas.',
           explanationWrong: 'Esa jugada no basta: las blancas ganan.',
         },
       ],
