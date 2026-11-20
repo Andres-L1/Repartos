@@ -38,6 +38,7 @@ Academia digital de ajedrez, de principiante a ~2000 Elo: ruta de aprendizaje co
 ## Arreglos de interfaz (2026-11-15)
 
 - Lección en pantallas pequeñas: el tablero ya no queda bajo la cabecera ni la barra inferior al pasar de paso (foco con `preventScroll`, `--header-h` con la altura real de la cabecera y `scroll-padding`/`scroll-margin`; `web/src/headerHeight.ts`). El nombre de usuario ocupa el hueco libre de la cabecera móvil y se abrevia con puntos suspensivos solo si no cabe (nombre completo en `title`).
+- Móvil apaisado (667x375, 640x360, 568x320, 812x375, 896x414): lección, repaso de partidas y visor con maquetación horizontal real: tablero cuadrado a la izquierda (`--land-board`, lo que cabe entre cabecera y barra inferior; 176 a 266 px según el alto) y texto, botones y avisos a la derecha; antes el tablero medía 510 a 531 px y se veía solo su parte alta. Entrenar hoy ya la tenía. Vertical y escritorio sin cambios (medido antes y después). Detalle, tabla y límites en `docs/auditoria-plena/02-...`. Sin verificar en móvil real ni Safari.
 - Portada sin esperar a `/api/me`: contenido al instante, hueco neutro en el botón principal, CLS 0. El LCP medido no mejora (los textos de la portada entran con fundido desde opacidad 0). Detalle y cifras en `docs/auditoria-plena/02-...` y `03-...`.
 
 ## Política de avisos (2026-11-20)

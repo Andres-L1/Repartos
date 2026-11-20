@@ -81,3 +81,34 @@ Medición (navegador integrado, `?mock=1`, u10.l01 completa: explicación, prác
 | 1280x800 | n/a | tablero 186 a 763, sin tapar |
 
 **Nombre de usuario** (Menor). Antes: por debajo de 480 px el nombre estaba oculto del todo (solo lectores de pantalla) y de 480 a 899 px tenía un tope fijo de 6,5 rem. Ahora el nombre ocupa el hueco libre entre el logo y el saldo (`.side-user` pasa a `display: contents` en móvil, `.whoami` con `flex: 1 1 0` y mínimo de 4 rem), el logo basta por debajo de 480 px (el enlace conserva su `aria-label`) y el `title` lleva el nombre completo. Si no cabe se abrevia con puntos suspensivos; el nombre completo se lee en el `title`, en el lector de pantalla y en el `h1` de Perfil. Medido con un nombre de 20 caracteres (162 px de texto): 320 px, 76 px visibles (unos 8 caracteres, abreviado); 375 px, 131 px (unos 16); 600 px, completo. Sin solapes con el saldo ni «Salir», sin desbordes de página, cabecera de 67 px en todos. **Límite:** a 320 px no caben 20 caracteres junto al saldo, el sonido y «Salir»; se abrevia a propósito.
+
+## Arreglo posterior (2026-11-21): maquetación horizontal real en móvil apaisado
+
+**Problema** (Mayor). En 667x375, 640x360, 568x320, 812x375 y 896x414 el tablero de la lección medía 510 a 531 px (298 con 812 y 896) y empezaba en y = 230: con 323 px útiles solo se veía su parte alta (en 812 y 896 el borde inferior caía en 526, tapado por la barra inferior en 324). El tablero del repaso y del visor empezaba en y = 170 a 207 detrás del título y los momentos. Entrenar hoy ya tenía su maquetación horizontal (no se tocó).
+
+**Arreglo** (solo CSS, sin cambiar contenido ni orden del DOM; en vertical y escritorio no cambia nada):
+- `styles.css`: `--land-board` = alto de pantalla menos 83 px (cabecera estática de 67 + 8 + 8 de `.main`) menos `--bottom-nav`, con `dvh` bajo `@supports` y `vh` de reserva; `.main` baja su relleno en lección, repaso y visor.
+- Lección (`.lesson`): rejilla con el tablero cuadrado a la izquierda y cabecera, fases, texto y botones a la derecha; `.lesson-body` y `.step-layout` son subcuadrículas (`subgrid`), sin `display: contents`. Fases compactas (solo se lee la actual). Introducción en dos columnas y resultado con el icono a la izquierda.
+- Repaso (`review-lesson.css`) y visor (`review-viewer.css`): misma idea (`.rg > .rg` y `.gv` como rejilla; `.rl`, `.rl-layout` y `.gv-main` como subcuadrículas). Una subcuadrícula no puede ser contenedor, así que en horizontal se repiten las reglas de `@container` de `.rl` (título solo para lectores, momentos compactos, botones en fila).
+- Si el texto es más largo que el tablero, la página se desplaza y el tablero queda fijo (`sticky`, top 8 px); los botones de la lección y del repaso quedan fijos sobre la barra inferior (`bottom: --bottom-nav + 8px`). Se descartó una columna con desplazamiento propio: a 320 px de alto dejaba una sola línea de texto visible.
+
+**Medición** (navegador integrado, `?mock=1`, u10.l01 resuelta con el flujo real; un iframe por tamaño, con el CSS de antes y el de ahora; lado del tablero en px y borde inferior, frente al borde superior de la barra inferior):
+
+| Viewport (barra inferior en) | Lección, antes | Después | Repaso, antes | Después | Visor, antes | Después |
+|---|---|---|---|---|---|---|
+| 667x375 (324) | 530, bajo 762 | 229, bajo 309 | 214, bajo 421 | 229, bajo 309 | 214, bajo 384 | 213, bajo 303 |
+| 640x360 (309) | 531, bajo 762 | 214, bajo 294 | 200, bajo 406 | 214, bajo 294 | 200, bajo 369 | 199, bajo 288 |
+| 568x320 (269) | 510, bajo 740 | 176, bajo 255 | 190, bajo 396 | 176, bajo 255 | 190, bajo 360 | 161, bajo 249 |
+| 812x375 (324) | 298, bajo 526 | 229, bajo 309 | 214, bajo 421 | 229, bajo 309 | 214, bajo 384 | 213, bajo 303 |
+| 896x414 (364) | 296, bajo 525 | 266, bajo 348 | 252, bajo 459 | 266, bajo 348 | 487, bajo 670 | 251, bajo 341 |
+
+Práctica y evaluación dan las mismas cifras que la explicación. Entrenar hoy no cambia: 229, 214, 176, 229 y 266 (bajo 309, 294, 255, 309 y 348). Altura de la página con 667x375, antes a después: lección 1153 a 535 (explicación), 1120 a 453 (práctica), 1038 a 375 (evaluación, sin desplazar), 698 a 530 (introducción), 634 a 390 (resultado); repaso 573 a 482; visor 519 a 452. El resto es texto largo o los botones secundarios de debajo, que se alcanzan desplazando.
+
+Sin cambios en 320x640 (tablero 274, página 1058 en la explicación), 375x667 (327, 1084), 768x1024 (402, 1024) y 1280x800 (558, 800): idénticos antes y después en lección, práctica, introducción, sesión, repaso y visor. Objetivos táctiles: 0 por debajo de 44 px entre botones y enlaces de `main` en los tamaños medidos; sin desbordes horizontales.
+
+**Límites**
+- A 568x320 el lado del tablero es 176 px: la cabecera estática de 67 px y la barra inferior de 52 px dejan 185. Sale de la cuenta de alto, no de la maquetación.
+- A 667x375 el texto junto al tablero es corto (la explicación mide 311 px y caben unos 150): se lee desplazando la página.
+- Orden de tabulación = orden del DOM (Salir, tablero, texto, botones); visualmente el tablero queda a la izquierda de «Salir». `scroll-padding-bottom` ya descuenta la barra inferior al enfocar; los botones fijos van antes en el DOM que lo que tapan.
+- La alternativa escrita de Entrenar hoy (`.ss-typed`) queda debajo del tablero y añade unos 60 px de desplazamiento; no se reubicó.
+- Solo Chromium (panel integrado, iframes). No medido: resumen de Entrenar hoy (necesita jugadas verificadas por el servidor), móvil real, Safari/iOS (subgrid, `:has()`, `dvh`, `position: sticky` con la barra del navegador).
