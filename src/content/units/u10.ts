@@ -11,7 +11,7 @@ export const unit: Unit = {
   order: 11,
   title: 'Táctica II: enfilada, desviación y eliminar al defensor',
   description:
-    'Tres ideas tácticas nuevas: la enfilada, que ataca una pieza valiosa para ganar la que tiene detrás; la desviación, que aparta a un defensor de su tarea, y eliminar al defensor, que captura la pieza que protege a otra.',
+    'Tres ideas tácticas nuevas. La enfilada ataca una pieza valiosa para ganar la que tiene detrás. La desviación aparta a un defensor de su tarea. Eliminar al defensor captura la pieza que protege a otra.',
   level: 'intermediate',
   requires: ['u09'],
   lessons: [
@@ -24,7 +24,7 @@ export const unit: Unit = {
         'Reconocer dos piezas rivales en la misma línea, la más valiosa delante, y atacarla para ganar la de detrás.',
       conceptIds: ['tactics.skewer'],
       intro:
-        'La enfilada es una clavada al revés. En la clavada, la pieza de delante vale menos y no se atreve a moverse. En la enfilada, la de delante vale más (muchas veces es el rey): está obligada a apartarse y deja sin protección a la pieza que tenía detrás en la misma fila, columna o diagonal. La hacen las piezas de largo alcance: alfil, torre y dama.',
+        'La enfilada es una clavada al revés. En la clavada, la pieza de delante vale menos y no se atreve a moverse. En la enfilada, la pieza de delante vale más (muchas veces es el rey) y está obligada a apartarse. Así deja sin protección a la pieza que tenía detrás en la misma fila, columna o diagonal. La hacen las piezas de largo alcance: alfil, torre y dama.',
       explanation: [
         {
           fen: '4k2r/1p3ppp/8/8/8/8/5PPP/R5K1 w - - 0 1',
@@ -64,14 +64,14 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Bf5+. El rey blanco no puede ir a c2, que sigue en la diagonal, y al apartarse deja la torre de b1 sin protección: Bxb1.',
           explanationWrong:
-            'Esa jugada no aprovecha la diagonal b1-h7. Un jaque del alfil desde f5 obliga al rey a apartarse y deja la torre de b1 a tu alcance.',
+            'Esa jugada no aprovecha que el rey blanco y su torre están en la misma diagonal. Un jaque del alfil obliga al rey a apartarse y deja la torre a tu alcance.',
         },
         {
           fen: '4k2r/p2p1ppp/2Q5/8/8/7b/5PPP/6K1 w - - 0 1',
           prompt: 'Juegan blancas. Gana la torre de h8 con un jaque de la dama en la octava fila.',
           solutionUci: ['c6c8'],
           alt: ['c6a8'],
-          hint: 'La dama puede llegar a la octava fila por la columna c o por la diagonal hacia a8.',
+          hint: 'La dama puede llegar a la octava fila subiendo por una columna o por una diagonal.',
           explanationCorrect:
             'Correcto. Desde c8 o desde a8 la dama da jaque por la octava fila. El rey sale a e7 y la dama captura la torre: Qxh8. Las dos casillas sirven igual.',
           explanationWrong:
@@ -90,7 +90,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Bb4+. El rey no puede quedarse en la diagonal (e7 y c5 siguen atacadas) y, al apartarse, Bxf8 gana la dama.',
           explanationWrong:
-            'Esa jugada no ataca la diagonal del rey y la dama. Con un jaque del alfil desde b4, el rey se aparta y la dama de f8 queda sin protección.',
+            'Esa jugada no ataca la diagonal del rey y la dama. Con un jaque del alfil, el rey se aparta y la dama negra queda sin protección.',
           wrongByMove: {
             a1d1: 'Rd1+ es jaque, pero no hay nada detrás del rey en la columna d: la dama de f8 sigue a salvo.',
           },
@@ -113,7 +113,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Bc5+. Jaque por la diagonal c5-g1. El rey no puede ir a f2, que sigue en la diagonal, y al apartarse Bxg1 gana la torre.',
           explanationWrong:
-            'Esa jugada no ataca al rey en la diagonal de la torre. Desde c5 el alfil da jaque y, cuando el rey se aparta, captura en g1.',
+            'Esa jugada no ataca al rey en la diagonal de la torre. Un jaque del alfil por esa diagonal obliga al rey a apartarse y entonces el alfil captura.',
           wrongByMove: {
             e7g5: 'Bg5+ es jaque, pero en la diagonal g5-c1 no hay nada detrás del rey: la torre de g1 sigue a salvo.',
           },
@@ -156,20 +156,20 @@ export const unit: Unit = {
           fen: '3r2k1/5ppp/8/3q4/8/1Q5P/P4PP1/4R1K1 w - - 0 1',
           prompt: 'Juegan blancas. La torre de d8 defiende dos cosas a la vez. Aprovéchalo.',
           solutionUci: ['b3d5'],
-          hint: '¿Qué pasa con la octava fila si la torre de d8 recaptura en d5?',
+          hint: '¿Qué pasa con la octava fila si la torre negra recaptura la dama?',
           explanationCorrect:
             'Correcto: Qxd5. Si Rxd5, Re8#: la torre ya no cubre la octava fila. Y si las negras no recapturan, se quedan sin dama.',
           explanationWrong:
-            'Esa jugada no aprovecha que la torre de d8 está sobrecargada: defiende la dama de d5 y la octava fila a la vez.',
+            'Esa jugada no aprovecha que la torre negra está sobrecargada: defiende la dama y la octava fila a la vez.',
           wrongByMove: {
-            e1e8: 'Re8+ Rxe8 Qxd5 gana la dama por la torre, pero Qxd5 gana más: si Rxd5, Re8 es mate.',
+            e1e8: 'Esa captura con jaque gana la dama por una torre, pero hay una jugada que gana más: si la torre recaptura, es mate.',
           },
         },
         {
           fen: '6k1/p4p1p/2p2qpP/8/6n1/2Q5/P4PP1/3R2K1 w - - 0 1',
           prompt: 'Juegan blancas. Mate en dos jugadas.',
           solutionUci: ['d1d8', 'f6d8', 'c3g7'],
-          hint: 'La dama de f6 tapa la diagonal hacia g7. Oblígala a moverse con un jaque.',
+          hint: 'La dama negra tapa la diagonal de tu dama hacia el rey. Oblígala a moverse con un jaque.',
           explanationCorrect:
             'Correcto: Rd8+ Qxd8 Qg7#. La dama negra tuvo que dejar f6 y la diagonal hacia g7 quedó libre; el peón de h6 apoya a la dama.',
           explanationWrong:
@@ -179,7 +179,7 @@ export const unit: Unit = {
           fen: '3r2k1/p4pp1/2q5/6N1/8/2P2QPp/P4P1P/6K1 b - - 0 1',
           prompt: 'Juegan negras. Mate en dos jugadas.',
           solutionUci: ['d8d1', 'f3d1', 'c6g2'],
-          hint: 'La dama blanca de f3 tapa la diagonal hacia g2. Oblígala a moverse.',
+          hint: 'La dama blanca tapa la diagonal de tu dama hacia el rey. Oblígala a moverse.',
           explanationCorrect:
             'Correcto: Rd1+ Qxd1 Qg2#. La dama blanca tuvo que capturar en d1 y abrió la diagonal; el peón de h3 apoya a la dama en g2.',
           explanationWrong:
@@ -191,20 +191,20 @@ export const unit: Unit = {
           fen: '4r1k1/p4pp1/1q5p/8/3Q4/8/P4PPP/3R2K1 b - - 0 1',
           prompt: 'Juegan negras. La torre de d1 defiende dos cosas a la vez. Aprovéchalo.',
           solutionUci: ['b6d4'],
-          hint: '¿Qué pasa con la primera fila si la torre de d1 recaptura en d4?',
+          hint: '¿Qué pasa con la primera fila si la torre blanca recaptura la dama?',
           explanationCorrect:
             'Correcto: Qxd4. Si Rxd4, Re1#: la torre ya no cubre la primera fila. Si las blancas no recapturan, se quedan sin dama.',
           explanationWrong:
             'Esa jugada no aprovecha que la torre de d1 defiende la dama y la primera fila a la vez.',
           wrongByMove: {
-            e8e1: 'Re1+ Rxe1 Qxd4 gana la dama por la torre, pero Qxd4 gana más: si Rxd4, Re1 es mate.',
+            e8e1: 'Esa captura con jaque gana la dama por una torre, pero hay una jugada que gana más: si la torre recaptura, es mate.',
           },
         },
         {
           fen: '1r4k1/p4ppp/q7/8/1n6/5N2/P2Q1PPP/4R1K1 w - - 0 1',
           prompt: 'Juegan blancas. Gana material aprovechando a un defensor sobrecargado.',
           solutionUci: ['d2b4'],
-          hint: 'La torre de b8 protege al caballo de b4. ¿Qué más defiende?',
+          hint: 'La torre negra que protege al caballo, ¿qué más defiende?',
           explanationCorrect:
             'Correcto: Qxb4. Si Rxb4, Re8#: la torre deja la octava fila. Si no recapturan, has ganado el caballo.',
           explanationWrong:
@@ -217,11 +217,11 @@ export const unit: Unit = {
           fen: '6k1/p3bppp/q7/3n2n1/8/3P4/PP3PPP/1NQ1R1K1 w - - 0 1',
           prompt: 'Juegan blancas. Gana material. Fíjate en lo que hace el alfil de e7.',
           solutionUci: ['c1g5'],
-          hint: 'El alfil de e7 protege al caballo de g5 y a la vez tapa la columna e.',
+          hint: 'El alfil negro protege al caballo y a la vez tapa una columna.',
           explanationCorrect:
             'Correcto: Qxg5. Si Bxg5, la columna e queda abierta y Re8#. Si las negras no recapturan, has ganado el caballo.',
           explanationWrong:
-            'Esa jugada no aprovecha al alfil de e7, que hace dos cosas: protege al caballo de g5 y tapa la columna e.',
+            'Esa jugada no aprovecha al alfil negro, que hace dos cosas: protege al caballo y tapa una columna.',
           wrongByMove: {
             e1e7: 'Rxe7 Nxe7: cambias la torre por el alfil y pierdes material.',
           },
@@ -268,7 +268,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Bxf6. Si gxf6, Qxd5 gana el alfil. Si las negras salvan el alfil, te quedas con el caballo.',
           explanationWrong:
-            'Esa jugada no gana material. El alfil de d5 solo lo protege el caballo de f6: captura al defensor.',
+            'Esa jugada no gana material. El alfil negro solo lo protege un caballo: captura al defensor.',
         },
         {
           fen: '4r1k1/p1qn1pp1/1p5p/8/1b2B3/8/PP1N1PPP/R2Q2K1 b - - 0 1',
@@ -278,19 +278,19 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Bxd2. Si las blancas recapturan (Qxd2), Rxe4 gana el alfil. Si salvan el alfil, te quedas con el caballo.',
           explanationWrong:
-            'Esa jugada no gana material. El alfil de e4 solo lo protege el caballo de d2: captura al defensor.',
+            'Esa jugada no gana material. El alfil blanco solo lo protege un caballo: captura al defensor.',
         },
         {
           fen: 'r3n1k1/p4ppp/1q5P/8/8/2Q5/P4PP1/4R1K1 w - - 0 1',
           prompt: 'Juegan blancas. Mate en dos jugadas.',
           solutionUci: ['e1e8', 'a8e8', 'c3g7'],
-          hint: 'La casilla del mate es g7. ¿Qué pieza la defiende?',
+          hint: 'Busca la casilla del mate. ¿Qué pieza la defiende?',
           explanationCorrect:
             'Correcto: Rxe8+ Rxe8 Qxg7#. El caballo de e8 defendía g7; sin él, el rey no puede capturar la dama porque el peón de h6 la protege.',
           explanationWrong:
-            'Esa jugada no da mate en dos. El caballo de e8 defiende g7: captúralo con jaque.',
+            'Esa jugada no da mate en dos. Un caballo negro defiende la casilla del mate: captúralo con jaque.',
           wrongByMove: {
-            c3g7: 'Qxg7+ Nxg7: el caballo de e8 defiende g7 y la dama se pierde.',
+            c3g7: 'Capturar directamente con la dama la pierde: un caballo negro defiende esa casilla.',
           },
         },
       ],
@@ -303,7 +303,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Bxf3. Si gxf3, Rxd4 gana el alfil. Si las blancas salvan el alfil, te quedas con el caballo.',
           explanationWrong:
-            'Esa jugada no gana material. El alfil de d4 solo lo protege el caballo de f3: captura al defensor.',
+            'Esa jugada no gana material. El alfil blanco solo lo protege un caballo: captura al defensor.',
         },
         {
           fen: '5rk1/pp3ppp/2n5/1B2b3/7q/1P5P/P4PP1/1N1QR1K1 w - - 0 1',
@@ -313,19 +313,19 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Bxc6. Si bxc6, Rxe5 gana el alfil. Si las negras salvan el alfil, te quedas con el caballo.',
           explanationWrong:
-            'Esa jugada no gana material. El alfil de e5 solo lo protege el caballo de c6: captura al defensor.',
+            'Esa jugada no gana material. El alfil negro solo lo protege un caballo: captura al defensor.',
         },
         {
           fen: '4r1k1/p4pp1/2q5/7Q/8/6Pp/P4P1P/R3N1K1 b - - 0 1',
           prompt: 'Juegan negras. Mate en dos jugadas.',
           solutionUci: ['e8e1', 'a1e1', 'c6g2'],
-          hint: 'La casilla del mate es g2. ¿Qué pieza blanca la defiende?',
+          hint: 'Busca la casilla del mate. ¿Qué pieza blanca la defiende?',
           explanationCorrect:
             'Correcto: Rxe1+ Rxe1 Qg2#. El caballo de e1 defendía g2; sin él, el rey no puede capturar la dama porque el peón de h3 la protege.',
           explanationWrong:
-            'Esa jugada no da mate en dos. El caballo de e1 defiende g2: captúralo con jaque.',
+            'Esa jugada no da mate en dos. Un caballo blanco defiende la casilla del mate: captúralo con jaque.',
           wrongByMove: {
-            c6g2: 'Qxg2+ Nxg2: el caballo de e1 defiende g2 y la dama se pierde.',
+            c6g2: 'Capturar directamente con la dama la pierde: un caballo blanco defiende esa casilla.',
           },
         },
       ],

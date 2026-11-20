@@ -127,7 +127,7 @@ export const unit: Unit = {
         'Encontrar saltos de caballo y avances de peón que atacan dos piezas a la vez, sobre todo con jaque, y ganar material con ellos.',
       conceptIds: ['tactics.fork'],
       intro:
-        'Ya conoces la horquilla. En este nivel aprenderás a buscarla de forma ordenada: mira dónde están el rey, la dama y las torres del rival, y comprueba si tu caballo puede llegar a una casilla que ataque a dos de ellas. El caballo es peligroso porque su ataque no se puede tapar. El peón también hace horquillas, y como vale poco, cualquier pieza que ataque vale más que él.',
+        'Ya conoces la horquilla. En este nivel aprenderás a buscarla de forma ordenada. Mira dónde están el rey, la dama y las torres del rival, y comprueba si tu caballo puede llegar a una casilla que ataque a dos de ellas. El caballo es peligroso porque su ataque no se puede tapar. El peón también hace horquillas, y como vale poco, cualquier pieza que ataque vale más que él.',
       explanation: [
         {
           fen: 'r3k3/8/8/3N4/8/8/8/4K3 w - - 0 1',
@@ -263,7 +263,7 @@ export const unit: Unit = {
           explanationWrong:
             'Esa jugada no gana material. El caballo no se puede mover: atácalo con el peón.',
           wrongByMove: {
-            b5c6: 'Bxc6+ bxc6 es solo un cambio de alfil por caballo. Con d5 ganas la pieza entera.',
+            b5c6: 'Bxc6+ bxc6 es solo un cambio de alfil por caballo. Hay una jugada que gana la pieza entera.',
           },
         },
         {

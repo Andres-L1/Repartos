@@ -54,9 +54,9 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Rxf2 Rxf2 Kxf2 c2 Ra1. El cambio de torres quita el ataque y Ra1 controla c1: el peón no puede coronar.',
           explanationWrong:
-            'Esa jugada no salva la partida. Cambia las torres en f2 y después frena el peón desde la primera fila.',
+            'Esa jugada no salva la partida. Cambia las torres para quitar el ataque y después frena el peón desde la primera fila.',
           wrongByMove: {
-            a7g7: 'Rxg7+ Kxg7 y, tras Rxf2 Rxf2 Kxf2 c2, ya no te queda torre para frenar el peón: corona.',
+            a7g7: 'Esa captura cambia torres, pero después ya no te queda ninguna para frenar el peón y corona.',
             a7a2: 'Raa2 defiende la torre, pero Rf1+ Kh2 Rh1+: las torres negras atacan a tu rey y ganan material.',
           },
         },
@@ -64,11 +64,11 @@ export const unit: Unit = {
           fen: '8/k7/2b3p1/3q4/p7/4Q1P1/5P1P/B5K1 b - - 0 1', // Lichess ASg5e
           prompt: 'Juegan negras. La dama blanca da jaque. Sal del jaque con la única jugada que conserva la ventaja.',
           solutionUci: ['a7a8', 'f2f3', 'd5d1', 'g1f2', 'd1a1'],
-          hint: 'Busca la casilla donde la dama blanca ya no tiene jaques. El alfil de a1 no tiene defensa.',
+          hint: 'Busca la casilla del rey donde la dama blanca ya no tiene jaques. El alfil blanco de la esquina no tiene defensa.',
           explanationCorrect:
             'Correcto: Ka8 f3 Qd1+ Kf2 Qxa1. En a8 la dama blanca no tiene jaques útiles (Qe8+ se captura con el alfil) y amenazas Qg2#. Tras f3, el jaque en d1 te deja capturar el alfil de a1.',
           explanationWrong:
-            'Esa casilla deja a la dama blanca seguir dando jaques o cambiar damas. En a8 los jaques se acaban y te queda tiempo para atacar.',
+            'Esa casilla deja a la dama blanca seguir dando jaques o cambiar damas. Hay una casilla donde los jaques se acaban y te queda tiempo para atacar.',
           wrongByMove: {
             a7b7: 'Kb7 permite Qe7+ y la dama blanca sigue dando jaques: no te queda tiempo para capturar el alfil.',
             a7b8: 'Kb8 permite Qe5+ y el cambio de damas: la ventaja desaparece.',
@@ -83,7 +83,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Kg3 Qf5 Rh1+. En g3 los jaques que quedan se capturan (Qc7+ con tu dama, Qf2+ y Qh2+ con el rey), y la torre entra por la columna h contra el rey negro.',
           explanationWrong:
-            'Esa casilla deja a las negras seguir con jaques o ganar material. En g3 el rey queda a salvo y tu torre ataca por la columna h.',
+            'Esa casilla deja a las negras seguir con jaques o ganar material. Hay una casilla donde el rey queda a salvo y tu torre pasa al ataque.',
           wrongByMove: {
             f2e1: 'Ke1 permite Qxb2, que ataca tu torre de a1: la ventaja pasa a las negras.',
             f2g1: 'Kg1 permite Qc5+ y Qxg5: pierdes el peón y el ataque.',
@@ -95,11 +95,11 @@ export const unit: Unit = {
           fen: '2r3k1/1p1Q4/4pK2/7p/2P2P2/6P1/8/q7 w - - 0 1', // Lichess eurI5
           prompt: 'Juegan blancas. La dama negra da jaque. Solo una jugada gana; todas las demás pierden.',
           solutionUci: ['f6g6', 'a1b1', 'g6h6', 'g8f8', 'd7c8'],
-          hint: 'Acerca tu rey al rey negro: con el rey en g6, la dama amenaza mate en g7.',
+          hint: 'Acerca tu rey al rey negro: desde allí tu dama amenaza mate.',
           explanationCorrect:
             'Correcto: Kg6 Qb1+ Kh6 Kf8 Qxc8+. Con el rey en g6 amenazas Qg7#. En h6 ya no hay jaques: los peones de f4, e6 y h5 tapan las líneas. El rey negro huye y tu dama gana la torre de c8.',
           explanationWrong:
-            'Esa jugada pierde. El rey tiene que ir hacia delante, a g6: desde allí apoya el mate en g7 y se esconde de los jaques.',
+            'Esa jugada pierde. El rey tiene que ir hacia delante: desde allí apoya el mate y se esconde de los jaques.',
         },
         {
           fen: '3Q2k1/p4p2/2p4p/1p4p1/4q3/P1P2pPP/BP5K/8 b - - 0 1', // Lichess 0rDFr
@@ -109,7 +109,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Kh7 Qd1 Qe2+ Qxe2 fxe2. En h7 no hay jaques ni cambio de damas, y amenazabas Qe2+ con mate en g2. Tras el cambio, el peón de e2 corona: el alfil blanco va por casillas claras y no controla e1.',
           explanationWrong:
-            'Esa jugada no conserva el ataque. En h7 la dama blanca no tiene jaques ni puede cambiarse.',
+            'Esa jugada no conserva el ataque. Hay una casilla donde la dama blanca no tiene jaques ni puede cambiarse.',
           wrongByMove: {
             g8g7: 'Kg7 permite Qd4+: las damas se cambian con jaque y tu ataque desaparece.',
             e4e8: 'Qe8 tapa el jaque, pero Qxe8+ Kg7 Qxf7+ Kh8 Qg8# es mate.',
@@ -123,7 +123,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Ke3. El rey se acerca a sus peones de d2 y e2 y se aleja de la red de mate. Tras Kd3, Qb3+ Nc3+ Qxc3+ y el rey negro acaba recibiendo mate.',
           explanationWrong:
-            'Esa jugada pierde: Qb3+ y la dama y la torre cazan al rey. Ke3 lo acerca a sus peones de d2 y e2.',
+            'Esa jugada pierde: la dama y la torre blancas cazan al rey. Hay que acercarlo a sus peones de d2 y e2.',
           wrongByMove: {
             d4d3: 'Kd3 Qb3+ Nc3+ Qxc3+ y el rey queda atrapado en una red de mate.',
           },
@@ -170,7 +170,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Bxe5 Rxc1 a7 Rc8 Bb8. El alfil se interpone entre la torre y a8. Si Rxb8, axb8=Q+.',
           explanationWrong:
-            'Esa jugada no gana. Captura en e5 y, cuando la torre vuelva a c8, interponte en b8 con el alfil.',
+            'Esa jugada no gana. Captura la torre y, cuando la torre rival vuelva a la última fila, interpón el alfil entre ella y la casilla de coronación.',
           wrongByMove: {
             c1g1: 'Rg1 salva tu torre, pero Rxc3+ Kxc3 Ra5 y el peón de a6 cae.',
           },
@@ -183,7 +183,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qh6+ Kg3 Qxg7+. Tu alfil de e3 controla g1, así que el rey solo puede ir a g3, justo entre sus torres: la de g2 ya no defiende g7.',
           explanationWrong:
-            'Esa jugada no gana la torre. Da jaque en h6: el rey tendrá que ir a g3 y tapará la defensa de la torre de g2.',
+            'Esa jugada no gana la torre. Da jaque con la dama: el rey solo tiene una casilla de huida y se queda entre sus torres, tapando la defensa de una de ellas.',
         },
         {
           fen: '6rk/5Qpp/8/4B3/q2P4/8/r5PP/5RK1 w - - 0 1', // Lichess TPxZw
@@ -193,7 +193,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qxg7+ Rxg7 Rf8#. La dama deja libre la columna f con jaque. La torre negra no puede taparse en g8 porque el alfil de e5 la clava contra el rey.',
           explanationWrong:
-            'Esa jugada no da mate en dos. Tu dama estorba en la columna f: entrégala en g7 con jaque y la torre de f1 entra en f8.',
+            'Esa jugada no da mate en dos. Tu dama estorba en la columna f: entrégala con jaque y tu torre entrará por esa columna.',
           wrongByMove: {
             e5g7: 'Bxg7+ Rxg7 y tu dama sigue tapando la columna f: no hay mate.',
           },
@@ -208,7 +208,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qf6+ Ke8 Qxh8+. La torre de g6 protege tu dama, así que el rey solo puede ir a e8, entre sus torres: la de c8 ya no defiende h8.',
           explanationWrong:
-            'Esa jugada no gana la torre. Con Qf6+ el rey tiene que ir a e8 y se interpone entre sus torres.',
+            'Esa jugada no gana la torre. Con un jaque de dama, el rey solo tiene una casilla de huida y se interpone entre sus torres.',
           wrongByMove: {
             g6g7: 'Rg7+ Ke6 y el rey escapa por el centro: la ventaja pasa a las negras.',
           },
@@ -217,21 +217,21 @@ export const unit: Unit = {
           fen: '1k6/ppprb2p/4Qnp1/5p2/5P1P/P3KP2/1P6/6R1 b - - 0 1', // Lichess XOEKq
           prompt: 'Juegan negras. Gana la dama blanca.',
           solutionUci: ['e7c5', 'e3e2', 'd7e7', 'e6e7', 'c5e7'],
-          hint: 'Tu alfil ocupa e7. Apártalo con jaque y la torre podrá atacar por la columna e.',
+          hint: 'Tu alfil ocupa una casilla que necesita tu torre. Apártalo con jaque y la torre podrá atacar por la columna e.',
           explanationCorrect:
             'Correcto: Bc5+ Ke2 Re7 Qxe7 Bxe7. El alfil deja libre e7 con jaque y la torre clava la dama contra el rey: ganas la dama por la torre.',
           explanationWrong:
-            'Esa jugada no gana la dama. Aparta el alfil de e7 con jaque y lleva la torre a e7.',
+            'Esa jugada no gana la dama. Aparta el alfil con jaque y lleva la torre a la casilla que deja libre.',
         },
         {
           fen: '8/5pkp/2B5/5Q2/PP6/4P1b1/1q5r/5RK1 b - - 0 1', // Lichess nwtVD
           prompt: 'Juegan negras. Mate en dos jugadas.',
           solutionUci: ['h2h1', 'c6h1', 'b2h2'],
-          hint: 'La casilla del mate es h2, pero la ocupa tu torre.',
+          hint: 'La casilla del mate la ocupa tu torre. Apártala con jaque.',
           explanationCorrect:
             'Correcto: Rh1+ y mate en h2. La torre deja libre h2 con jaque. Tras Bxh1 valen Qh2# (protegida por el alfil de g3) y Bh2# (protegido por la dama); si Kxh1, Qh2#.',
           explanationWrong:
-            'Esa jugada no da mate en dos. Tu torre estorba en h2: apártala con jaque en h1 y la dama dará mate en h2.',
+            'Esa jugada no da mate en dos. Tu torre estorba a la dama: apártala con jaque y la dama dará mate.',
           wrongByMove: {
             h2f2: 'Rf2 Rxf2 Bxf2+ Qxf2 y el ataque se acaba.',
           },
@@ -278,7 +278,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qa8+ Qf8 Bh7+ Kxh7 Qxf8. Jaque, clavada y desviación: el alfil aleja al rey y la dama de f8 se queda sin defensa.',
           explanationWrong:
-            'Esa jugada no gana la dama. Da jaque en a8 para que la dama negra tape en f8; después el alfil aleja al rey con jaque.',
+            'Esa jugada no gana la dama. Da jaque para que la dama negra tape; después el alfil aleja al rey con jaque.',
           wrongByMove: {
             e4h7: 'Qh7+ Kf8 y el rey escapa por e7.',
           },
@@ -287,21 +287,21 @@ export const unit: Unit = {
           fen: '6k1/5pp1/1R1n1q1p/2pP4/2P4P/3Q2PB/3Nrr2/1R4K1 b - - 0 1', // Lichess ns0Im
           prompt: 'Juegan negras. Mate en tres jugadas.',
           solutionUci: ['f2g2', 'h3g2', 'f6f2', 'g1h2', 'f2g2'],
-          hint: 'Tu torre de f2 ocupa la casilla que necesita tu dama.',
+          hint: 'Tu torre ocupa la casilla que necesita tu dama.',
           explanationCorrect:
             'Correcto: Rg2+ Bxg2 Qf2+ Kh2 Qxg2#. La torre se entrega en g2: deja f2 libre para la dama y atrae al alfil a g2. Allí la dama da mate, protegida por la torre de e2. Si Kh1, Rh2+ Kg1 Qf2#.',
           explanationWrong:
-            'Esa jugada no da mate en tres. Entrega la torre en g2 con jaque: tu dama necesita la casilla f2.',
+            'Esa jugada no da mate en tres. Entrega la torre con jaque: así dejas libre la casilla que necesita tu dama.',
         },
         {
           fen: 'r3r1k1/1Q2R2p/3pP1p1/p1p1qp2/8/8/P5PP/6RK w - - 0 1', // Lichess 6nGwr
           prompt: 'Juegan blancas. Gana material.',
           solutionUci: ['e7e8', 'a8e8', 'b7f7', 'g8h8', 'f7e8'],
-          hint: 'El peón de e6 protege f7. Primero lleva una torre negra a e8.',
+          hint: 'Un peón protege una casilla de entrada para tu dama. Primero lleva una torre negra a la última fila.',
           explanationCorrect:
             'Correcto: Rxe8+ Rxe8 Qf7+ Kh8 Qxe8+. El cambio lleva la torre negra a e8. Qf7+, protegida por el peón de e6, da jaque y ataca e8 a la vez: ganas una torre.',
           explanationWrong:
-            'Esa jugada no gana material. Cambia en e8 y después Qf7+ ataca a la vez al rey y a la torre.',
+            'Esa jugada no gana material. Cambia las torres y después tu dama da jaque atacando a la vez al rey y a una torre.',
           wrongByMove: {
             e7h7: 'Rxh7 Qf6: las negras se defienden y la ventaja desaparece.',
           },
@@ -316,7 +316,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Nf8+ Nxf8 Qf5+ Ng6 Qxc2. El caballo deja libre la diagonal c8-f5 y obliga al caballo negro a dejar g6. Entonces Qf5+ da jaque y ataca la torre de c2.',
           explanationWrong:
-            'Esa jugada no gana material. Nf8+ abre la diagonal de tu dama y desvía al caballo de g6; después Qf5+ ataca rey y torre.',
+            'Esa jugada no gana material. Un jaque de caballo abre la diagonal de tu dama y desvía al caballo negro; después tu dama da jaque y ataca una torre.',
           wrongByMove: {
             c8g8: 'Qg8+ Kxg8 Nxf6+ gxf6: te quedas sin dama y las negras amenazan Rb1#.',
             d7f6: 'Nxf6+ gxf6: la dama sola no basta y las torres negras contraatacan.',
@@ -330,7 +330,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Rf1+ Kg3 h4+ Kh3 Rf3+ g3 Bf1#. La torre se entrega en f3 para desviar el peón de g2, y el alfil da mate por la diagonal f1-h3. Si gxf3, también Bf1#.',
           explanationWrong:
-            'Esa jugada no da mate en cuatro. Empieza con Rf1+: el alfil de d3 protege f1 y quita e2 al rey.',
+            'Esa jugada no da mate en cuatro. Empieza con un jaque de torre: tu alfil protege la casilla y quita una al rey.',
           wrongByMove: {
             b1b6: 'Rxb6 Bxb6 y el peón de b7 corona.',
           },
@@ -339,10 +339,10 @@ export const unit: Unit = {
           fen: '4r1k1/Q4ppp/8/8/3p4/2r1q1P1/P4R1P/5RK1 w - - 0 1', // Lichess jQELo
           prompt: 'Juegan blancas. Mate en cuatro jugadas.',
           solutionUci: ['a7f7', 'g8h8', 'f7e8', 'e3e8', 'f2f8', 'e8f8', 'f1f8'],
-          hint: 'El rey negro no puede capturar en f7: tu torre de f2 la protege.',
+          hint: 'El rey negro no puede capturar en la casilla de entrada de tu dama: tu torre la protege.',
           explanationCorrect:
             'Correcto: Qxf7+ Kh8 Qxe8+ Qxe8 Rf8+ Qxf8 Rxf8#. Capturas con jaque, eliminas la torre de e8 atrayendo a la dama y las torres dobladas dan mate en la última fila.',
-          explanationWrong: 'Esa jugada no da mate en cuatro. Empieza capturando en f7 con jaque.',
+          explanationWrong: 'Esa jugada no da mate en cuatro. Empieza capturando con jaque.',
         },
       ],
     },

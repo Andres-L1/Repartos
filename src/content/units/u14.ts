@@ -12,7 +12,7 @@ export const unit: Unit = {
   order: 12,
   title: 'Finales de torre',
   description:
-    'Los finales de torre y peón contra torre: cortar al rey rival con la torre para ganar, defender con jaques por detrás para hacer tablas y salir del jaque hacia el peón en la posición de Lucena.',
+    'Los finales de torre y peón contra torre: cortar al rey rival con la torre para ganar, y defender con jaques por detrás para hacer tablas. Verás también cómo salir del jaque hacia el peón en la posición de Lucena.',
   level: 'intermediate',
   requires: ['u10'],
   lessons: [
@@ -24,11 +24,11 @@ export const unit: Unit = {
       objective: 'Usar la torre para cortar al rey rival en una columna y ganar un final de torre y peón contra torre.',
       conceptIds: ['endgame.rook'],
       intro:
-        'En los finales de torre, la torre vale más por lo que impide que por lo que captura. Si tu peón avanza y el rey rival está a un lado, colocar la torre en la columna que el rey tiene que cruzar lo deja cortado: no puede acercarse al peón ni a tu rey. Es la primera idea para ganar estos finales: cortar primero y avanzar después.',
+        'En los finales de torre, la torre vale más por lo que impide que por lo que captura. Si tu peón avanza y el rey rival está a un lado, coloca la torre en la columna que ese rey tiene que cruzar. Así queda cortado: no puede acercarse al peón ni a tu rey. Es la primera idea para ganar estos finales: cortar primero y avanzar después.',
       explanation: [
         {
           fen: '7r/8/8/1k6/4P3/4K3/8/R7 w - - 0 1',
-          text: 'Juegan blancas. El rey negro de b5 está al otro lado de la columna c. Con Rc1, la torre blanca de a1 se coloca en esa columna: el rey negro no puede cruzarla y el rey y el peón blancos avanzan sin que nadie los pare. Es la única jugada que gana.',
+          text: 'Juegan blancas. El rey negro de b5 está al otro lado de la columna c. Con Rc1, la torre blanca de a1 se coloca en esa columna. El rey negro no puede cruzarla y el rey y el peón blancos avanzan sin que nadie los pare. Es la única jugada que gana.',
           squares: ['c1', 'c5'],
           arrows: [['a1', 'c1']],
         },
@@ -113,7 +113,7 @@ export const unit: Unit = {
       explanation: [
         {
           fen: '4k3/8/r7/3KP3/8/8/8/6R1 b - - 0 1',
-          text: 'Juegan negras. La torre negra de a6 vigila toda la sexta fila: el rey blanco de d5 no puede entrar en ella y el peón de e5 no tiene el apoyo que necesita. Esta es la defensa de la tercera fila, la posición de Philidor, y las negras hacen tablas.',
+          text: 'Juegan negras. La torre negra de a6 vigila toda la sexta fila. El rey blanco de d5 no puede entrar en ella y el peón de e5 no tiene el apoyo que necesita. Esta es la defensa de la tercera fila, la posición de Philidor, y las negras hacen tablas.',
           squares: ['a6', 'b6', 'c6', 'd6'],
         },
         {
@@ -160,7 +160,7 @@ export const unit: Unit = {
           hint: 'No es un jaque: acerca el rey al peón para que controle d7 y d8.',
           explanationCorrect:
             'Correcto: Ke8. El rey negro controla d7 y d8 y el peón no puede avanzar. A veces la defensa es el rey, no la torre.',
-          explanationWrong: 'Esa jugada pierde. Aquí lo único que sirve es acercar el rey al peón: Ke8.',
+          explanationWrong: 'Esa jugada pierde. Aquí lo único que sirve es acercar el rey al peón.',
         },
         {
           fen: '2k5/R7/2K1P3/8/8/8/8/1r6 b - - 0 1',
@@ -168,7 +168,7 @@ export const unit: Unit = {
           solutionUci: ['c8d8'],
           hint: 'Acerca el rey al peón: tiene que controlar e7 y e8.',
           explanationCorrect: 'Correcto: Kd8. El rey negro controla e7 y e8 y el peón no puede avanzar. Tablas.',
-          explanationWrong: 'Esa jugada pierde. El rey negro tiene que ir hacia el peón de e6: Kd8.',
+          explanationWrong: 'Esa jugada pierde. El rey negro tiene que ir hacia el peón.',
         },
         {
           fen: '3k4/R7/4PK2/8/8/8/8/6r1 b - - 0 1',
@@ -190,7 +190,7 @@ export const unit: Unit = {
       objective: 'Dar los primeros pasos de la posición de Lucena: sacar al rey del jaque pegándolo al peón de la séptima fila.',
       conceptIds: ['endgame.rook'],
       intro:
-        'La posición de Lucena es la gran técnica del bando que gana: un peón en la séptima fila, el rey propio cerca de él y el rey rival cortado. El rival da jaques por detrás con su torre, y la solución es sacar al rey del jaque acercándolo al peón y usar después la torre como puente contra los jaques que vengan. En esta lección practicas el primer paso: salir del jaque hacia el peón.',
+        'La posición de Lucena es la gran técnica del bando que gana: un peón en la séptima fila, el rey propio cerca de él y el rey rival cortado. El rival da jaques por detrás con su torre. La solución es sacar al rey del jaque acercándolo al peón y usar después la torre como puente contra los jaques que vengan. En esta lección practicas el primer paso: salir del jaque hacia el peón.',
       explanation: [
         {
           fen: '8/2P1k3/1K6/8/5R2/8/8/1r6 w - - 0 1',

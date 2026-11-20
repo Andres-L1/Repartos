@@ -51,7 +51,7 @@ export const EXERCISES: Exercise[] = [
     prompt:
       'Juegan blancas. El alfil negro está bien situado, pero ¿lo protege alguna pieza? Aprovecha lo que encuentres.',
     solutionUci: ['d1d4'],
-    hint: 'Ninguna pieza ni peón negro vigila la casilla d4.',
+    hint: 'Ninguna pieza ni peón negro vigila la casilla del alfil.',
   },
 
   // ───────────── Intercambios desfavorables ─────────────
@@ -91,7 +91,7 @@ export const EXERCISES: Exercise[] = [
     level: 'intermediate',
     fen: '4k3/8/2p5/3b2n1/8/8/8/2BR2K1 w - - 0 1',
     prompt:
-      'Juegan blancas. Torre por alfil protegido sería un mal cambio. ¿Qué captura sí gana material limpio?',
+      'Juegan blancas. Torre por alfil protegido sería un cambio desfavorable. ¿Qué captura sí gana material limpio?',
     solutionUci: ['c1g5'],
     hint: 'Hay una pieza negra que nadie protege y que tu alfil ya ve.',
   },
@@ -161,7 +161,7 @@ export const EXERCISES: Exercise[] = [
     fen: '4k3/3n4/8/8/8/8/8/3QK3 w - - 0 1',
     prompt: 'Juegan blancas. Clava el caballo negro con la dama usando una diagonal.',
     solutionUci: ['d1a4'],
-    hint: 'La diagonal a4-e8 pasa por d7.',
+    hint: 'Busca una casilla desde la que tu dama ataque al caballo con el rey negro detrás, en la misma diagonal.',
   },
   {
     id: 'ex.pin.04',
@@ -277,7 +277,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k3b2/ppp4p/6p1/8/8/4K3/PPP4P/6R1 b - - 0 1',
     prompt: 'Juegan negras. El rey blanco y su torre están en la misma diagonal. Gana la torre.',
     solutionUci: ['f8c5'],
-    hint: 'La diagonal que va de c5 a g1 pasa por e3.',
+    hint: 'Busca una casilla desde la que tu alfil dé jaque al rey por la diagonal donde está su torre.',
   },
   {
     id: 'ex.skewer.03',
@@ -304,7 +304,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k2r3/ppp5/8/4q3/8/P5Q1/1PP4P/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. La torre de e8 defiende dos cosas a la vez. Aprovéchalo.',
     solutionUci: ['g3e5'],
-    hint: '¿Qué pasa con la última fila si la torre recaptura en e5?',
+    hint: '¿Qué pasa con la última fila si la torre negra recaptura la dama?',
   },
   {
     id: 'ex.deflection.02',
@@ -313,7 +313,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k6/p1p4p/Ppq2p2/8/1n6/5Q2/1PP4P/1K2R3 w - - 0 1',
     prompt: 'Juegan blancas. Mate en dos jugadas.',
     solutionUci: ['e1e8', 'c6e8', 'f3b7'],
-    hint: 'La dama negra de c6 tapa la diagonal hacia b7. Oblígala a moverse con un jaque.',
+    hint: 'La dama negra tapa la diagonal de tu dama hacia el rey. Oblígala a moverse con un jaque.',
   },
   {
     id: 'ex.deflection.03',
@@ -322,7 +322,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k4r1/ppp4p/7q/8/6n1/2N5/PPP1Q2P/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. Gana material aprovechando a un defensor sobrecargado.',
     solutionUci: ['e2g4'],
-    hint: 'La torre de g8 protege al caballo de g4. ¿Qué más defiende?',
+    hint: 'La torre negra que protege al caballo, ¿qué más defiende?',
   },
   {
     id: 'ex.deflection.04',
@@ -331,7 +331,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k6/pppb3p/7q/1n2n3/8/4P3/PPP3PP/1K1R1QN1 w - - 0 1',
     prompt: 'Juegan blancas. Gana material. Fíjate en lo que hace el alfil de d7.',
     solutionUci: ['f1b5'],
-    hint: 'El alfil de d7 protege al caballo de b5 y a la vez tapa la columna d.',
+    hint: 'El alfil negro protege al caballo y a la vez tapa una columna.',
   },
   {
     id: 'ex.removedef.01',
@@ -367,7 +367,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k1n3r/ppp4p/P5q1/8/8/5Q2/1PP4P/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. Mate en dos jugadas.',
     solutionUci: ['d1d8', 'h8d8', 'f3b7'],
-    hint: 'La casilla del mate es b7. ¿Qué pieza la defiende?',
+    hint: 'Busca la casilla del mate. ¿Qué pieza la defiende?',
   },
 
   // ───────────── Fase 4 · avanzado (pendiente de validación de profesores) ─────────────
@@ -379,7 +379,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k6/pp4p1/5nqp/3N4/8/1B6/PP4PP/K1R5 w - - 0 1',
     prompt: 'Juegan blancas. Gana la dama negra con un sacrificio que atrae al rey.',
     solutionUci: ['c1c8', 'b8c8', 'd5e7', 'c8c7', 'e7g6'],
-    hint: 'Desde e7 el caballo atacaría a la vez c8 y g6.',
+    hint: 'Un caballo bien colocado atacaría a la vez al rey y a la dama: ¿cómo llevas al rey hasta esa casilla?',
   },
   {
     id: 'ex.attraction.02',
@@ -388,7 +388,7 @@ export const EXERCISES: Exercise[] = [
     fen: 'k1r5/pp5p/N7/4Q3/8/8/PPP3qP/1K6 w - - 0 1',
     prompt: 'Juegan blancas. Mate en dos jugadas.',
     solutionUci: ['e5b8', 'c8b8', 'a6c7'],
-    hint: 'Si una torre negra estuviera en b8, el rey no tendría ninguna casilla libre.',
+    hint: 'Si una torre negra cerrara la última casilla libre, el rey no tendría escapatoria.',
   },
   {
     id: 'ex.attraction.03',
@@ -406,7 +406,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k6/pp3qpp/5n2/1N6/8/8/PP4PP/K1R2B2 w - - 0 1',
     prompt: 'Juegan blancas. Gana la dama negra.',
     solutionUci: ['c1c8', 'b8c8', 'b5d6', 'c8d7', 'd6f7'],
-    hint: 'Desde d6 el caballo atacaría a la vez c8 y f7.',
+    hint: 'Un caballo bien colocado atacaría a la vez al rey y a la dama.',
   },
   {
     id: 'ex.intermezzo.01',
@@ -482,7 +482,7 @@ export const EXERCISES: Exercise[] = [
     fen: '8/7k/1p3b2/4q3/7p/1P1Q4/P1P5/1K5B b - - 0 1',
     prompt: 'Juegan negras. La dama blanca da jaque. Sal del jaque con la única jugada que conserva la ventaja.',
     solutionUci: ['h7h8', 'c2c3', 'e5e1', 'b1c2', 'e1h1'],
-    hint: 'Elige la casilla donde la dama blanca ya no tiene jaques; después, el alfil de h1 está sin defensa.',
+    hint: 'Elige la casilla del rey donde la dama blanca ya no tiene jaques; después, el alfil blanco de la esquina queda sin defensa.',
   },
   {
     id: 'ex.interference.01',
@@ -491,7 +491,7 @@ export const EXERCISES: Exercise[] = [
     fen: 'r4B2/1p3q1k/7P/3bQ3/p7/8/1P6/5RK1 b - - 0 1', // Lichess An105
     prompt: 'Juegan negras. La torre de f1 ataca tu dama. Gana material con un jaque.',
     solutionUci: ['f7g6', 'g1f2', 'a8f8'],
-    hint: 'Da jaque con la dama: si el rey va a f2, se pone entre su torre y el alfil de f8.',
+    hint: 'Da jaque con la dama: el rey blanco se pondrá entre su torre y tu alfil, y la torre dejará de atacarlo.',
   },
   {
     id: 'ex.interference.02',
@@ -500,7 +500,7 @@ export const EXERCISES: Exercise[] = [
     fen: '8/2q2p2/3kp3/3p1R2/8/p3Q1PP/5P1K/2r5 w - - 0 1', // Lichess uf0UK
     prompt: 'Juegan blancas. Gana material con un jaque de dama.',
     solutionUci: ['e3f4', 'd6d7', 'f5f7'],
-    hint: 'Con el rey negro en d7, la dama de c7 ya no defiende el peón de f7.',
+    hint: 'Si el rey negro se interpone en una línea de su propia dama, esta deja de defender un peón.',
   },
   {
     id: 'ex.interference.03',
@@ -545,7 +545,7 @@ export const EXERCISES: Exercise[] = [
     fen: '2r2r2/5pk1/5Np1/1p2RQ2/3q3P/p5P1/5P1K/1B6 w - - 0 1', // Lichess dZOdE
     prompt: 'Juegan blancas. Gana material.',
     solutionUci: ['f6h5', 'g7h7', 'f5f6', 'd4e5', 'f6e5'],
-    hint: 'El caballo de f6 ocupa la casilla que quiere tu dama. Apártalo con jaque.',
+    hint: 'Tu caballo ocupa la casilla que quiere tu dama. Apártalo con jaque.',
   },
   {
     id: 'ex.clearance.04',
@@ -554,7 +554,7 @@ export const EXERCISES: Exercise[] = [
     fen: '5Qrk/p1b3rp/1p2p3/4P3/3P2R1/4P3/4q1P1/2B2RK1 w - - 0 1', // Lichess ZSpNc
     prompt: 'Juegan blancas. Mate en tres jugadas.',
     solutionUci: ['f8g7', 'g8g7', 'f1f8', 'g7g8', 'g4g8'],
-    hint: 'Tu dama ocupa f8, la casilla que necesita la torre de f1.',
+    hint: 'Tu dama ocupa la casilla que necesita la torre.',
   },
 
   // ───────────── Finales (pendiente de validación de profesores) ─────────────
@@ -567,7 +567,7 @@ export const EXERCISES: Exercise[] = [
     fen: '8/8/8/3K4/7p/8/8/k7 w - - 0 1',
     prompt: 'Juegan blancas. El peón negro de h4 corre a coronar en h1. Alcánzalo con el rey.',
     solutionUci: ['d5e4'],
-    hint: 'Entra en el cuadrado del peón: h4, e4, e1 y h1.',
+    hint: 'Dibuja el cuadrado del peón: de su casilla hasta la última fila. ¿Qué casilla de ese cuadrado alcanza tu rey?',
   },
   {
     id: 'ex.kp.02',
@@ -683,7 +683,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k2r3/ppp5/4p1pp/3p4/8/4P1P1/PPPP3P/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. La columna f no tiene peones de ningún bando. Elige la mejor jugada.',
     solutionUci: ['d1f1'],
-    hint: 'Una torre rinde más en una columna sin peones.',
+    hint: 'Tu torre está tapada por el peón de d2: en su columna no va a ninguna parte.',
   },
   {
     id: 'ex.openfile.02',
@@ -692,7 +692,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1kr5/ppp3pp/8/4p3/4P3/3P2PP/PPP5/1K5R w - - 0 1',
     prompt: 'Juegan blancas. La columna f no tiene peones de ningún bando. Elige la mejor jugada.',
     solutionUci: ['h1f1'],
-    hint: 'Una torre rinde más en una columna sin peones.',
+    hint: 'Compara lo que ve tu torre en la columna h, con un peón propio delante, con lo que vería en la columna libre.',
   },
   {
     id: 'ex.openfile.03',
@@ -701,7 +701,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k5r/pppp4/4p1pp/8/4P1PP/3P4/PPP5/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. La columna f no tiene peones de ningún bando. Elige la mejor jugada.',
     solutionUci: ['d1f1'],
-    hint: 'Una torre rinde más en una columna sin peones.',
+    hint: 'Un peón propio, el de d3, le cierra el paso a tu torre. Piensa en una columna sin peones por la que sí pueda avanzar.',
   },
   {
     id: 'ex.openfile.04',
@@ -710,7 +710,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k5r/ppp3p1/4p3/3p3p/8/3P4/PPP1P1PP/1KR5 w - - 0 1',
     prompt: 'Juegan blancas. La columna f no tiene peones de ningún bando. Elige la mejor jugada.',
     solutionUci: ['c1f1'],
-    hint: 'Una torre rinde más en una columna sin peones.',
+    hint: 'Desde c1 la torre solo ve hasta su peón de c2. ¿Qué columna le daría una vista completa?',
   },
   {
     id: 'ex.seventh.01',
@@ -719,7 +719,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k4r1/ppp2p2/5bp1/8/5B2/4P2P/PPP2P2/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. El rey negro está en la octava fila y hay peones negros en la séptima. Elige la mejor jugada.',
     solutionUci: ['d1d7'],
-    hint: 'Mira a qué fila de peones rivales puede llegar la torre.',
+    hint: 'Entre los peones negros de la séptima fila hay uno que ninguna pieza defiende. Busca cómo llega tu torre a esa fila.',
   },
   {
     id: 'ex.seventh.02',
@@ -728,7 +728,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k1r4/ppp3p1/2b2p2/3p4/5B2/3P1P1P/PPP3P1/1K2R3 w - - 0 1',
     prompt: 'Juegan blancas. El rey negro está en la octava fila y hay peones negros en la séptima. Elige la mejor jugada.',
     solutionUci: ['e1e7'],
-    hint: 'Mira a qué fila de peones rivales puede llegar la torre.',
+    hint: 'El peón negro de g7 no tiene defensa. Tu torre puede atacarlo desde la séptima fila.',
   },
   {
     id: 'ex.seventh.03',
@@ -737,7 +737,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1kr5/pppn2pp/8/4p3/3PP1PP/8/PPPN4/1K3R2 w - - 0 1',
     prompt: 'Juegan blancas. El rey negro está en la octava fila y hay peones negros en la séptima. Elige la mejor jugada.',
     solutionUci: ['f1f7'],
-    hint: 'Mira a qué fila de peones rivales puede llegar la torre.',
+    hint: 'La séptima fila tiene un caballo y un peón negros sin defensa. Una torre allí los ataca a la vez.',
   },
   {
     id: 'ex.seventh.04',
@@ -746,7 +746,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k1r4/ppp3b1/6pp/3p4/5B2/3P1P2/PPP3PP/1K2R3 w - - 0 1',
     prompt: 'Juegan blancas. El rey negro está en la octava fila y hay peones negros en la séptima. Elige la mejor jugada.',
     solutionUci: ['e1e7'],
-    hint: 'Mira a qué fila de peones rivales puede llegar la torre.',
+    hint: 'El alfil de g7 no tiene defensa. Atácalo con la torre desde la séptima fila.',
   },
   {
     id: 'ex.outpost.01',
@@ -755,7 +755,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k2r3/ppp1b1p1/8/7p/3P1PN1/8/PPP4P/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. Ningún peón negro puede atacar la casilla e5. Elige la mejor jugada.',
     solutionUci: ['g4e5'],
-    hint: 'Busca una casilla protegida por un peón propio.',
+    hint: 'Los peones de d4 y f4 protegen la casilla e5. Busca cómo llega allí tu caballo.',
   },
   {
     id: 'ex.outpost.02',
@@ -764,7 +764,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k1r4/pppb4/6pp/8/5P2/3N2P1/PPP4P/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. Ningún peón negro puede atacar la casilla e5. Elige la mejor jugada.',
     solutionUci: ['d3e5'],
-    hint: 'Busca una casilla protegida por un peón propio.',
+    hint: 'Desde esa casilla el caballo atacaría el alfil de d7 y el peón de g6, con el peón de f4 de apoyo.',
   },
   {
     id: 'ex.outpost.03',
@@ -773,7 +773,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k3r2/pppb4/6pp/8/3P2N1/5P2/PPP3P1/1K5R w - - 0 1',
     prompt: 'Juegan blancas. Ningún peón negro puede atacar la casilla e5. Elige la mejor jugada.',
     solutionUci: ['g4e5'],
-    hint: 'Busca una casilla protegida por un peón propio.',
+    hint: 'El peón de d4 protege la casilla de avanzada y tu caballo llega a ella con un solo salto.',
   },
   {
     id: 'ex.outpost.04',
@@ -782,6 +782,6 @@ export const EXERCISES: Exercise[] = [
     fen: '1kr5/pppb4/6pp/8/2N2PP1/3P4/PPP5/1K5R w - - 0 1',
     prompt: 'Juegan blancas. Ningún peón negro puede atacar la casilla e5. Elige la mejor jugada.',
     solutionUci: ['c4e5'],
-    hint: 'Busca una casilla protegida por un peón propio.',
+    hint: 'El caballo de c4 llega con un salto a una casilla protegida por el peón de f4.',
   },
 ];

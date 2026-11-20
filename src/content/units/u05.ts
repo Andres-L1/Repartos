@@ -81,7 +81,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qxd5. El caballo blanco estaba colgado. Rxc3 sería un error: el peón de b2 defiende el alfil y cambiarías torre por alfil.',
           explanationWrong:
-            'No era la mejor captura. Compara: el alfil de c3 lo defiende un peón; el caballo de d5, nadie.',
+            'No era la mejor captura. Compara: uno de los dos objetivos lo defiende un peón; el otro, nadie.',
           wrongByMove: {
             c8c3: 'Rxc3 bxc3: pierdes una torre (5) por un alfil (3). El peón de b2 lo defendía.',
           },
@@ -214,7 +214,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: d5. El peón ataca los dos caballos y ninguno puede capturarlo; ganas una pieza por nada.',
           explanationWrong:
-            'Fíjate en que los dos caballos están a ambos lados de d5: un peón allí los ataca a la vez.',
+            'Fíjate en los dos caballos negros: busca una casilla desde la que un peón tuyo los ataque a la vez, con un caballo a cada lado.',
           wrongByMove: {
             a1b2: 'Un movimiento del rey no hace nada; la oportunidad está en el peón.',
           },
@@ -258,11 +258,11 @@ export const unit: Unit = {
           fen: '4k3/8/8/8/1n1n4/8/2P5/7K w - - 0 1',
           prompt: 'Juegan blancas. Un peón puede atacar a los dos caballos.',
           solutionUci: ['c2c3'],
-          hint: 'Los caballos están a ambos lados de c3.',
+          hint: 'Los caballos están a ambos lados de una misma casilla.',
           explanationCorrect:
             'Correcto: c3. El peón ataca los dos caballos a la vez y ninguno lo puede capturar. Una pieza gratis a cambio de un peón.',
           explanationWrong:
-            'Mira las casillas: c3 está justo en medio de los dos caballos. Un peón allí los ataca a la vez.',
+            'Busca la casilla que queda justo en medio de los dos caballos: un peón allí los ataca a la vez.',
           wrongByMove: {
             c2c4: 'c4 no ataca ninguna pieza; la horquilla está una casilla más cerca.',
           },
@@ -327,7 +327,7 @@ export const unit: Unit = {
           explanationWrong:
             'El peón de e5 parece defendido, pero su defensor está clavado. Capturar el peón sale gratis.',
           wrongByMove: {
-            b5c6: 'Bxc6+ bxc6 Nxe5: ganas un peón, pero Nxe5 de entrada gana el peón y mantiene la clavada.',
+            b5c6: 'Cambiar primero alfil por caballo gana un peón, pero hay una captura directa que gana el peón y mantiene la clavada.',
           },
         },
         {
@@ -353,7 +353,7 @@ export const unit: Unit = {
           explanationWrong:
             'Ganas más atacando la torre clavada con una pieza de menos valor que capturándola directamente.',
           wrongByMove: {
-            b5d7: 'Bxd7+ Kxd7 te deja solo con un caballo contra el rey: no se puede dar mate y la partida es tablas. Con Ne5 ganas la torre y conservas las dos piezas.',
+            b5d7: 'Esa captura con jaque y la recaptura del rey te dejan solo con un caballo contra el rey: no se puede dar mate y la partida es tablas. Hay una jugada que gana la torre y conserva las dos piezas.',
           },
         },
       ],
@@ -368,7 +368,7 @@ export const unit: Unit = {
           explanationWrong:
             'El caballo está clavado y no puede huir; un peón puede capturarlo.',
           wrongByMove: {
-            g5f6: 'Bxf6+ gxf6 exf6: cambias alfil por caballo y ganas menos. Mejor capturar con el peón.',
+            g5f6: 'Cambiar alfil por caballo con jaque y recapturar con el peón gana menos. Es mejor capturar con el peón desde el principio.',
           },
         },
         {
@@ -381,7 +381,7 @@ export const unit: Unit = {
           explanationWrong:
             'Ataca la torre clavada con el caballo, una pieza de menos valor.',
           wrongByMove: {
-            b4d2: 'Bxd2+ Kxd2 te deja solo con un caballo contra el rey: no se puede dar mate y la partida es tablas. Con Ne4 ganas la torre y conservas las dos piezas.',
+            b4d2: 'Esa captura con jaque y la recaptura del rey te dejan solo con un caballo contra el rey: no se puede dar mate y la partida es tablas. Hay una jugada que gana la torre y conserva las dos piezas.',
           },
         },
         {
@@ -457,7 +457,7 @@ export const unit: Unit = {
           explanationWrong:
             'El alfil captura la dama y descubre el jaque en la misma jugada. Busca la diagonal.',
           wrongByMove: {
-            e4f5: 'Bf5+ descubre el jaque, pero no captura la dama directamente; Bxg6+ la gana ya.',
+            e4f5: 'Esa jugada descubre el jaque, pero no captura la dama directamente; hay otra que la gana ya.',
           },
         },
         {
@@ -470,7 +470,7 @@ export const unit: Unit = {
           explanationWrong:
             'La dama de e2 ve al rey negro, y tu caballo está en medio. Muévelo atacando algo valioso.',
           wrongByMove: {
-            e5g6: 'Ng6+ también descubre jaque, pero gana menos que Nc6+, que ataca directamente la dama.',
+            e5g6: 'Ese salto también descubre jaque, pero gana menos que el que ataca directamente la dama.',
           },
         },
       ],

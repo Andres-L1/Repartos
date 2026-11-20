@@ -10,7 +10,7 @@ export const unit: Unit = {
   order: 4,
   title: 'Mates básicos',
   description:
-    'Aprende a terminar la partida: mate de escalera y del pasillo, mate con dama o torre apoyadas por el rey, mate de la coz, mate del pastor (y cómo evitarlo) y los primeros mates en dos jugadas.',
+    'Aprende a terminar la partida: mate de escalera y del pasillo, mate con dama o torre apoyadas por el rey, y mate de la coz. Aprenderás también el mate del pastor (y cómo evitarlo) y los primeros mates en dos jugadas.',
   level: 'initiation',
   requires: ['u03'],
   lessons: [
@@ -23,11 +23,11 @@ export const unit: Unit = {
         'Dar mate en una jugada con las torres: la escalera (dos torres) y el mate del pasillo (el rey encerrado por sus propios peones).',
       conceptIds: ['tactics.mate_threat'],
       intro:
-        'Ganar material está bien, pero la partida se gana dando jaque mate. Los dos mates más frecuentes en las partidas de principiantes se dan con torres: la escalera, donde dos torres se turnan para empujar al rey hacia el borde, y el mate del pasillo, donde el rey no puede escapar porque sus propios peones le tapan las casillas. Aprender a verlos te permite ganar y, sobre todo, no sufrirlos.',
+        'Ganar material está bien, pero la partida se gana dando jaque mate. Los dos mates más frecuentes en las partidas de principiantes se dan con torres. Uno es la escalera, donde dos torres se turnan para empujar al rey hacia el borde. El otro es el mate del pasillo, donde el rey no puede escapar porque sus propios peones le tapan las casillas. Aprender a verlos te permite ganar y, sobre todo, no sufrirlos.',
       explanation: [
         {
           fen: '7k/1R6/8/8/8/8/8/R5K1 w - - 0 1',
-          text: 'Mate de escalera. La torre de b7 corta la fila 7: el rey negro no puede pisar g7 ni h7. Ahora la otra torre da jaque en la fila 8 con Ra8# (en notación, + indica jaque y # indica mate) y el rey no tiene escapatoria: g7 y h7 las cubre la primera torre, g8 la cubre la segunda. Dos torres, una por fila, empujan al rey hasta el borde.',
+          text: 'Mate de escalera. La torre de b7 corta la fila 7: el rey negro no puede pisar g7 ni h7. Ahora la otra torre da jaque en la fila 8 con Ra8# (en notación, + indica jaque y # indica mate). El rey no tiene escapatoria: g7 y h7 las cubre la primera torre, g8 la cubre la segunda. Dos torres, una por fila, empujan al rey hasta el borde.',
           squares: ['g7', 'h7'],
           arrows: [
             ['b7', 'h7'],
@@ -56,7 +56,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Rb8#. La torre de a7 impide g7 y h7, y la de b8 da jaque y cubre g8. Es la escalera completa.',
           explanationWrong:
-            'No es mate. Para mate necesitas jaque y que el rey no pueda huir: la torre de a7 ya cubre la fila 7, así que el jaque debe darse en la fila 8 con la otra torre.',
+            'No es mate. Para mate necesitas jaque y que el rey no pueda huir. La torre de a7 ya cubre la fila 7, así que el jaque debe darse en la fila 8 con la otra torre.',
           wrongByMove: {
             a7a8: 'Ra8+ es jaque, pero al dejar la fila 7 libre el rey escapa a g7. Mantén esa torre cortando la fila 7.',
             b6g6: 'Rg6 no da jaque; además deja al rey negro sin jugadas legales y eso sería tablas por ahogado, no victoria.',
@@ -105,7 +105,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Rxd8#. La torre negra cubría la columna, pero la torre blanca la captura con jaque y ninguna pieza negra puede recapturar; los peones siguen tapando al rey.',
           explanationWrong:
-            'No es mate. Fíjate en la torre negra de d8: está sola, y capturarla con jaque deja al rey sin salida.',
+            'No es mate. Fíjate en la torre negra de la columna d: está sola, y capturarla con jaque deja al rey sin salida.',
         },
         {
           fen: '6k1/5ppp/8/8/8/8/5PPP/3Q2K1 w - - 0 1',
@@ -129,7 +129,7 @@ export const unit: Unit = {
         'Dar mate en una jugada con dama o torre ayudadas por tu rey, y evitar el ahogado.',
       conceptIds: ['tactics.mate_threat'],
       intro:
-        'En los finales, el rey es una pieza de ataque. Un jaque de dama o torre solo es mate si todas las casillas de escape están cubiertas, y el rey propio puede cubrir muchas de ellas. En esta lección verás el patrón básico (rey junto al rey rival y pieza que da jaque a distancia) y el gran peligro de esos finales: dejar al rival sin jugadas legales y regalar tablas.',
+        'En los finales, el rey es una pieza de ataque. Un jaque de dama o torre solo es mate si todas las casillas de escape están cubiertas, y el rey propio puede cubrir muchas de ellas. En esta lección verás el patrón básico (rey junto al rey rival y pieza que da jaque a distancia). Verás también el gran peligro de esos finales: dejar al rival sin jugadas legales y regalar tablas.',
       explanation: [
         {
           fen: 'k7/8/1K6/8/8/8/8/6Q1 w - - 0 1',
@@ -290,9 +290,9 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Nf7#. El caballo ataca h8; el rey no puede ir a g8 (torre), g7 ni h7 (peones) y nadie captura el caballo. Es el mate de la coz.',
           explanationWrong:
-            'No es mate. El rey no tiene casillas libres: lo que falta es un jaque que no pueda capturarse; solo un caballo en f7 ataca h8 sin que nadie pueda recapturarlo.',
+            'No es mate. El rey no tiene casillas libres: lo que falta es un jaque que nadie pueda capturar. Busca un salto de caballo que ataque al rey desde una casilla que solo tú controles.',
           wrongByMove: {
-            g5h7: 'Nxh7 no da jaque y el rey negro simplemente captura el caballo (Kxh7). El caballo debe ir a f7.',
+            g5h7: 'Nxh7 no da jaque y el rey negro simplemente captura el caballo (Kxh7). Busca un salto que dé jaque de verdad.',
           },
         },
         {
@@ -301,7 +301,7 @@ export const unit: Unit = {
           solutionUci: ['h5f7'],
           hint: 'Dos de tus piezas atacan f7; la que captura está protegida por la otra.',
           explanationCorrect:
-            'Correcto: Qxf7#. El alfil de c4 protege la dama, el rey no puede capturarla ni escapar (e7 la cubre la dama; d8 y f8 están ocupadas por sus propias piezas) y el caballo de f6 no llega a f7. Es el mate del pastor.',
+            'Correcto: Qxf7#. El alfil de c4 protege la dama y el rey no puede capturarla ni escapar (e7 la cubre la dama; d8 y f8 están ocupadas por sus propias piezas). Además, el caballo de f6 no llega a f7. Es el mate del pastor.',
           explanationWrong:
             'No es mate. Fíjate en el punto débil f7: la dama capturando allí, protegida por el alfil, termina la partida.',
           wrongByMove: {
@@ -317,7 +317,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto. Con la dama en e7 o en f6 defiendes f7; Qe7 protege además el peón de e5. Lo importante es ver la amenaza de mate antes de seguir con tu plan.',
           explanationWrong:
-            'Esa jugada no resuelve la amenaza de Qxf7# o cuesta material. Las defensas buenas son Qe7 y Qf6; Nh6 pierde el peón de e5 y g6 pierde material por Qxe5+.',
+            'Esa jugada no resuelve la amenaza de mate o cuesta material: fíjate también en el peón central. Hay una defensa con la dama que cubre la casilla amenazada.',
           wrongByMove: {
             g8f6: 'Nf6 parece atacar la dama, pero deja f7 sin defensa suficiente: Qxf7 es mate.',
             g7g6: 'g6 ataca la dama, pero abre la diagonal: Qxe5+ y después Qxh8 ganan material.',
@@ -343,13 +343,13 @@ export const unit: Unit = {
           fen: 'rnb1k1nr/pppp1ppp/8/1Nb1p3/4P2q/3P4/PPP2PPP/R1BQKBNR b KQkq - 1 4',
           prompt: 'Juegan negras. El mate del pastor, pero a favor de las negras. Da mate.',
           solutionUci: ['h4f2'],
-          hint: 'El punto débil blanco es f2, que solo protege el rey.',
+          hint: 'El punto débil blanco es el peón que solo protege el rey.',
           explanationCorrect:
             'Correcto: Qxf2#. El alfil de c5 protege la dama, el rey no puede capturarla ni escapar (d2 y e2 las cubre la dama). El mismo patrón, ahora contra f2.',
           explanationWrong:
-            'No es mate. El peón de f2 solo lo defiende el rey; capturarlo con la dama, protegida por el alfil, termina la partida.',
+            'No es mate. El peón que solo defiende el rey blanco es el objetivo: capturarlo con la dama, protegida por el alfil, termina la partida.',
           wrongByMove: {
-            c5f2: 'Bxf2+ es jaque, pero no es mate: el rey blanco tiene casillas de huida. La dama debe capturar en f2.',
+            c5f2: 'Bxf2+ es jaque, pero no es mate: el rey blanco tiene casillas de huida. Tiene que ser la dama la que capture.',
           },
         },
         {
@@ -360,9 +360,9 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qxf7#. La dama en f3 también ve f7 por la columna f y el alfil la protege. Da igual por dónde llegue la dama.',
           explanationWrong:
-            'No es mate. Dos piezas atacan f7 y solo el rey la defiende: captura con la dama.',
+            'No es mate. Dos piezas atacan el punto débil y solo el rey lo defiende: captura con la dama.',
           wrongByMove: {
-            c4f7: 'Bxf7+ es jaque, pero no es mate: el rey escapa a e7. La dama es la que debe capturar en f7.',
+            c4f7: 'Bxf7+ es jaque, pero no es mate: el rey escapa a e7. Tiene que ser la dama la que capture.',
           },
         },
       ],
@@ -399,7 +399,7 @@ export const unit: Unit = {
         },
         {
           fen: 'k2K4/8/8/8/5Q2/8/8/8 w - - 0 1',
-          text: 'Jugada tranquila con el rey. Con el rey blanco en d8 y el negro en a8, el rey blanco sube a c7 y lo encierra: el rey negro solo puede ir a a7, y entonces Qa4 es mate. Atención: la jugada tentadora Qc7 (dama a c7) deja al rey sin movimientos y sin estar en jaque (ahogado, tablas). Mira siempre si el rival conserva al menos una jugada legal.',
+          text: 'Jugada tranquila con el rey. Con el rey blanco en d8 y el negro en a8, el rey blanco sube a c7 y lo encierra. El rey negro solo puede ir a a7, y entonces Qa4 es mate. Atención: la jugada tentadora Qc7 (dama a c7) deja al rey sin movimientos y sin estar en jaque (ahogado, tablas). Mira siempre si el rival conserva al menos una jugada legal.',
           squares: ['a7', 'b7', 'b8'],
           arrows: [
             ['d8', 'c7'],
@@ -429,7 +429,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Qa8+ obliga a la torre a interponerse en c8 (no hay otra respuesta) y Qxc8# es mate: la torre queda sin protección y nada puede recapturar.',
           explanationWrong:
-            'No era la solución. Mira los jaques: Qa8+ obliga a interponer la torre y después puedes capturarla con mate.',
+            'No era la solución. Mira los jaques: uno obliga a la torre a interponerse, y después puedes capturarla con mate.',
         },
         {
           fen: '6k1/3R1ppp/8/4q3/8/8/5PPP/6K1 w - - 0 1',

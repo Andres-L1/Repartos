@@ -47,7 +47,7 @@ export const unit: Unit = {
           solutionUci: ['b1b2'],
           hint: 'Está justo delante de tu torre.',
           explanationCorrect: 'Muy bien: un alfil gratis. Si una pieza rival no está protegida, puedes capturarla sin que te la devuelvan.',
-          explanationWrong: 'El alfil de b2 está sin protección y justo delante de tu torre. Captúralo.',
+          explanationWrong: 'Fíjate en el alfil negro: nadie lo protege y está en línea recta con tu torre. Busca la columna o la fila que las une.',
         },
         {
           fen: '4k3/8/2p1r3/8/3N4/8/8/6K1 w - - 0 1',
@@ -55,9 +55,9 @@ export const unit: Unit = {
           solutionUci: ['d4e6'],
           hint: 'Una pieza vale mucho más que un peón. Pero comprueba también si te pueden recapturar.',
           explanationCorrect: 'Eso es: el caballo se come una torre (5 puntos) y nadie puede recapturar. El peón valía solo 1.',
-          explanationWrong: 'Hay una captura mucho mejor. La torre de e6 vale 5 y no está protegida; el peón vale solo 1.',
+          explanationWrong: 'Hay una captura mucho mejor. Compara el valor de las dos piezas que puedes tomar y mira si alguna está protegida.',
           wrongByMove: {
-            d4c6: 'Ganas un peón, pero la torre negra recaptura tu caballo: pierdes 3 y ganas 1. La torre de e6 era mucho mejor.',
+            d4c6: 'Ganas un peón, pero la torre negra recaptura tu caballo: pierdes 3 y ganas 1. Mira qué otra pieza puede tomar tu caballo y qué vale más.',
           },
         },
         {
@@ -66,7 +66,7 @@ export const unit: Unit = {
           solutionUci: ['f1c4'],
           hint: 'El caballo está en la diagonal del alfil.',
           explanationCorrect: 'Perfecto: el alfil recorrió la diagonal y capturó un caballo sin protección.',
-          explanationWrong: 'El caballo negro está en c4, en la diagonal que sale de tu alfil de f1 (e2, d3, c4).',
+          explanationWrong: 'Mira las diagonales de tu alfil: el caballo negro está en una de ellas, a pocas casillas, y nadie lo protege.',
         },
         {
           fen: '4k3/8/8/4b3/3P4/8/8/4K3 w - - 0 1',
@@ -74,9 +74,9 @@ export const unit: Unit = {
           solutionUci: ['d4e5'],
           hint: 'El peón captura en diagonal.',
           explanationCorrect: '¡Genial! Un peón (1 punto) captura un alfil (3 puntos). A veces la mejor defensa es capturar a la pieza que ataca.',
-          explanationWrong: 'El alfil de e5 ataca tu peón, pero tu peón también lo ataca a él, en diagonal. Captúralo.',
+          explanationWrong: 'El alfil ataca tu peón, pero tu peón también lo ataca a él, porque los peones capturan en diagonal. Mira si el alfil está en una de tus dos diagonales.',
           wrongByMove: {
-            d4d5: 'Si avanzas, el alfil sigue en juego. Tu peón captura en diagonal: el alfil está en e5.',
+            d4d5: 'Si avanzas, el alfil sigue en juego. Tu peón captura en diagonal: busca el alfil en una de sus dos diagonales.',
           },
         },
       ],
@@ -87,7 +87,7 @@ export const unit: Unit = {
           solutionUci: ['g1g3'],
           hint: 'Está en tu misma columna.',
           explanationCorrect: 'Correcto: ¡una dama gratis! Mira cómo ella también atacaba a tu torre: quien mueve primero gana.',
-          explanationWrong: 'La dama negra de g3 está en tu columna g y no está protegida. Captúrala con la torre.',
+          explanationWrong: 'La dama negra no está protegida y está en línea recta con tu torre. Busca la columna o la fila que las une.',
         },
         {
           fen: '4k3/8/8/2r5/5p2/3N4/8/6K1 w - - 0 1',
@@ -95,7 +95,7 @@ export const unit: Unit = {
           solutionUci: ['d3c5'],
           hint: 'Compara el valor de la torre y del peón.',
           explanationCorrect: 'Muy bien: capturaste la torre, que vale 5, en lugar del peón, que vale 1.',
-          explanationWrong: 'Las dos capturas son posibles, pero la torre de c5 vale cinco veces más que el peón de f4 y nadie la protege.',
+          explanationWrong: 'Las dos capturas son posibles, pero una de las piezas vale cinco veces más que la otra y nadie la protege. Compara los valores.',
           wrongByMove: {
             d3f4: 'Ganas un peón, pero dejas escapar una torre. Fíjate siempre en el valor de lo que capturas.',
           },
@@ -106,7 +106,7 @@ export const unit: Unit = {
           solutionUci: ['d3e4'],
           hint: 'Una de las piezas vale 5, la otra 3. Y si capturas el caballo, la torre recaptura.',
           explanationCorrect: '¡Excelente! El peón captura una torre y ya nadie puede recapturar. Cambiar un peón por una torre es una ganancia enorme.',
-          explanationWrong: 'La torre de e4 vale más que el caballo de c4. Además, si capturas el caballo, la torre lo recaptura.',
+          explanationWrong: 'Compara el valor de las dos piezas que puedes tomar y piensa quién podría recapturar tu peón después.',
           wrongByMove: {
             d3c4: 'Ganas un caballo, pero la torre negra recaptura tu peón. La captura de la torre era mejor.',
           },
@@ -154,7 +154,7 @@ export const unit: Unit = {
           solutionUci: ['d2d3'],
           hint: 'Los peones protegen las casillas en diagonal delante de ellos.',
           explanationCorrect: 'Muy bien. El peón de d3 protege el caballo: si el alfil lo captura, recapturas el alfil.',
-          explanationWrong: 'Para proteger el caballo de e4, un peón debe poder capturar en esa casilla. El peón de d2 debe ir a d3.',
+          explanationWrong: 'Para proteger el caballo, un peón tuyo debe poder capturar en la casilla donde está. Los peones capturan en diagonal hacia delante: mira de dónde.',
           wrongByMove: {
             d2d4: 'En d4 el peón no protege a e4: los peones protegen en diagonal, no hacia delante.',
           },
@@ -165,7 +165,7 @@ export const unit: Unit = {
           solutionUci: ['e4f6'],
           hint: 'Mira qué pieza está defendida por un peón.',
           explanationCorrect: 'Eso es: la torre de f6 no estaba protegida, así que la ganas gratis, y encima das jaque. El alfil sí tenía protector.',
-          explanationWrong: 'El alfil de d6 está protegido por el peón de c7; la torre de f6 no tiene protección. Captura la torre.',
+          explanationWrong: 'Una de las dos piezas está protegida por un peón y la otra no tiene protección. Comprueba pieza por pieza quién la defiende.',
           wrongByMove: {
             e4d6: 'El alfil estaba protegido por el peón de c7: ganas un alfil, pero pierdes tu caballo. La torre sin protección era mejor.',
           },
@@ -176,7 +176,7 @@ export const unit: Unit = {
           solutionUci: ['d2c3'],
           hint: 'Tu alfil también ve esa casilla.',
           explanationCorrect: 'Perfecto: capturaste al atacante y ganaste un peón. Si alguien te ataca, mira si puedes capturarlo.',
-          explanationWrong: 'El peón de c3 ataca tu alfil, pero tu alfil también puede capturarlo, porque está en su diagonal.',
+          explanationWrong: 'El peón ataca tu alfil, pero tu alfil también puede capturarlo, porque está en una de sus diagonales.',
         },
         {
           fen: '4k3/8/1n6/8/2B5/8/8/R3K3 w - - 0 1',
@@ -198,7 +198,7 @@ export const unit: Unit = {
           solutionUci: ['d1h5'],
           hint: 'Una de las dos piezas está protegida por un peón.',
           explanationCorrect: 'Muy bien: el alfil de h5 estaba sin protección y además diste jaque. El caballo lo protegía el peón de e6.',
-          explanationWrong: 'El caballo de d5 está protegido por el peón de e6; el alfil de h5 no tiene protección. Captura el alfil.',
+          explanationWrong: 'Una de las dos piezas está protegida por un peón y la otra no tiene protección. Comprueba quién defiende a cada una.',
           wrongByMove: {
             d1d5: 'Si capturas el caballo, el peón de e6 recaptura tu dama: pierdes 9 por 3. Siempre mira si la pieza está protegida.',
           },
@@ -217,7 +217,7 @@ export const unit: Unit = {
           solutionUci: ['c3c4'],
           hint: 'La torre está protegida por un peón. ¿Y el alfil?',
           explanationCorrect: 'Muy bien: el alfil estaba solo. La torre tenía al peón de b6 como protector y la dama habría caído.',
-          explanationWrong: 'La torre de a5 está protegida por el peón de b6; el alfil de c4 no tiene ningún protector.',
+          explanationWrong: 'Una de las dos piezas está protegida por un peón y la otra no tiene ningún protector. Comprueba quién defiende a cada una.',
           wrongByMove: {
             c3a5: 'Capturas la torre, pero el peón de b6 recaptura tu dama: pierdes 9 por 5.',
           },
@@ -251,7 +251,7 @@ export const unit: Unit = {
             ['d1', 'd5'],
             ['e6', 'd5'],
           ],
-          text: 'Cuidado con lo contrario: capturar con una pieza muy valiosa algo protegido. La dama puede comerse el peón de d5, pero el peón de e6 recaptura y habrías dado 9 puntos por 1. Un mal cambio como este se llama «perder material».',
+          text: 'Cuidado con lo contrario: capturar con una pieza muy valiosa algo protegido. La dama puede comerse el peón de d5, pero el peón de e6 recaptura y habrías dado 9 puntos por 1. Un cambio tan desfavorable se llama «perder material».',
         },
         {
           fen: 'r7/1k6/8/8/8/8/1K6/R7 w - - 0 1',
@@ -280,7 +280,7 @@ export const unit: Unit = {
           solutionUci: ['d1a4'],
           hint: 'El peón de d5 está protegido por el peón de e6.',
           explanationCorrect: 'Correcto: el alfil estaba sin protección y, además, atacaba a tu dama. Capturarlo es gratis y da jaque.',
-          explanationWrong: 'El peón de d5 está protegido: si lo capturas con la dama, la pierdes por un peón. Captura el alfil de a4.',
+          explanationWrong: 'Uno de los dos objetivos está protegido: si tomas esa pieza con la dama, la pierdes por casi nada. Mira cuál no tiene defensor.',
           wrongByMove: {
             d1d5: 'El peón de e6 recaptura tu dama: pierdes 9 puntos y ganas 1. Nunca cambies una pieza valiosa por un peón.',
           },
@@ -291,7 +291,7 @@ export const unit: Unit = {
           solutionUci: ['d1d5'],
           hint: 'La dama negra ataca tu torre, pero es tu turno.',
           explanationCorrect: 'Excelente. Aunque el peón recaptura tu torre, has dado 5 puntos y recibido 9: ganas 4 puntos netos.',
-          explanationWrong: 'La dama negra de d5 está en tu columna y vale 9. Aunque el peón la proteja, cambiar una torre (5) por una dama (9) es muy buen negocio.',
+          explanationWrong: 'Aunque el peón proteja a la dama negra, cambiar una torre (5) por una dama (9) es muy buen negocio. Busca la dama en la línea de tu torre.',
         },
         {
           fen: '4k3/8/8/8/3p4/2N5/8/4K3 b - - 0 1',
@@ -299,7 +299,7 @@ export const unit: Unit = {
           solutionUci: ['d4c3'],
           hint: 'Los peones negros capturan en diagonal hacia abajo.',
           explanationCorrect: 'Muy bien: un peón (1) por un caballo (3) es una gran ganancia.',
-          explanationWrong: 'Tu peón de d4 ataca el caballo de c3, en diagonal hacia abajo a la izquierda. Captúralo.',
+          explanationWrong: 'Tu peón negro ataca una pieza blanca, porque los peones capturan en diagonal. Con negras, delante es hacia abajo: mira sus dos diagonales.',
         },
       ],
       evaluation: [
@@ -309,7 +309,7 @@ export const unit: Unit = {
           solutionUci: ['c4d5'],
           hint: 'La dama vale 9.',
           explanationCorrect: '¡Una dama por nada! Un peón que captura una dama es la mejor relación posible.',
-          explanationWrong: 'Tu peón de c4 ataca la dama de d5 (9 puntos) y también un peón (1 punto). Captura la dama.',
+          explanationWrong: 'Tu peón puede capturar dos piezas, y una vale muchísimo más que la otra. Compara sus valores.',
           wrongByMove: {
             c4b5: 'Ganas un peón, pero la dama negra seguía a tu alcance. Mira siempre cuánto vale lo que capturas.',
           },
@@ -331,7 +331,7 @@ export const unit: Unit = {
           solutionUci: ['d3c4'],
           hint: 'Capturas en diagonal.',
           explanationCorrect: 'Correcto: un peón (1) ha capturado un alfil (3). Tu peón atacaba a su alfil igual que él al tuyo, pero te tocaba mover.',
-          explanationWrong: 'Tu peón de d3 y el alfil de c4 se atacan mutuamente. Como te toca a ti, captura primero.',
+          explanationWrong: 'Tu peón y el alfil rival se atacan mutuamente. Como te toca a ti, puedes capturar primero.',
         },
       ],
     },
@@ -431,7 +431,7 @@ export const unit: Unit = {
           solutionUci: ['f2c5', 'b6c5', 'c1c5'],
           hint: 'El alfil vale 3 y la torre 5: empieza por el alfil.',
           explanationCorrect: 'Excelente: ganas dos piezas (torre y peón) por un alfil. Cuenta siempre quién ataca y quién defiende.',
-          explanationWrong: 'La torre de c5 está protegida por un peón. Empieza con el alfil: si el peón recaptura, tu torre captura el peón.',
+          explanationWrong: 'La torre está protegida por un peón. Empieza con la pieza de menos valor: si el peón recaptura, tu torre captura el peón.',
           wrongByMove: {
             c1c5: 'Si empiezas con la torre, el peón la recaptura (pierdes 5 por 5) y tu ganancia total baja a 1 punto, frente a 3 si empiezas con el alfil.',
           },

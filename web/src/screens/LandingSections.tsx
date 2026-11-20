@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Level } from '../../../src/types';
 import type { OutlineUnit } from '../../../src/shared/api';
+import { numberUnits, type Numbered } from '../../../src/shared/unitNumber';
 import { STREAK_DAYS_PER_CHEDEX } from '../../../src/shop/catalog';
 import { api } from '../api';
 import { Board, marksToShapes } from '../components/Board';
@@ -211,7 +212,7 @@ const LEVELS: LevelInfo[] = [
 const AVAILABLE_FALLBACK: Level[] = ['beginner', 'initiation'];
 
 export function Path() {
-  const [units, setUnits] = useState<OutlineUnit[] | null>(null);
+  const [units, setUnits] = useState<Numbered<OutlineUnit>[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [openLevels, setOpenLevels] = useState<Set<Level>>(new Set(['beginner']));
@@ -221,7 +222,7 @@ export function Path() {
     api
       .outline()
       .then((r) => {
-        if (live) setUnits([...r.units].sort((a, b) => a.order - b.order));
+        if (live) setUnits(numberUnits(r.units));
       })
       .catch(() => {
         if (live) setFailed(true);
@@ -304,19 +305,19 @@ export function Path() {
                             return (
                               <li key={u.id} className="unit">
                                 <h4>
-                                  <span className="unit-n">Unidad {u.order}</span> {u.title}
+                                  <span className="unit-n">Unidad {u.n}</span> {u.title}
                                 </h4>
                                 <p>{u.description}</p>
                                 <button className="route-toggle route-toggle-sm" aria-expanded={uOpen} aria-controls={lid} onClick={() => setOpenUnits((s) => flip(s, u.id))}>
                                   <span className="route-chev" aria-hidden="true" />
                                   {uOpen ? 'Ocultar' : 'Ver'} las {u.lessons.length} lecciones
-                                  <span className="sr-only"> de la unidad {u.order}</span>
+                                  <span className="sr-only"> de la unidad {u.n}</span>
                                 </button>
                                 <ol id={lid} className="route-lessons" hidden={!uOpen}>
                                   {u.lessons.map((l, j) => (
                                     <li key={l.id}>
                                       <span className="route-ln" aria-hidden="true">
-                                        {u.order}.{j + 1}
+                                        {u.n}.{j + 1}
                                       </span>
                                       {l.title}
                                     </li>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { MapUnit, Profile } from '../../../src/shared/api';
+import { numberUnits, type Numbered } from '../../../src/shared/unitNumber';
 import { api, ApiError } from '../api';
 import { useSession } from '../session';
 import { LEVELS } from '../../../src/shared/levels';
@@ -20,7 +21,7 @@ export function ProfileScreen() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [units, setUnits] = useState<MapUnit[] | null>(null);
+  const [units, setUnits] = useState<Numbered<MapUnit>[] | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export function ProfileScreen() {
       });
     api
       .map()
-      .then((r) => setUnits([...r.units].sort((a, b) => a.order - b.order)))
+      .then((r) => setUnits(numberUnits(r.units)))
       .catch(() => {});
   }, []);
 
@@ -120,7 +121,7 @@ export function ProfileScreen() {
             {learned.map(({ unit, lessons }) => (
               <section key={unit.id} aria-labelledby={`l-${unit.id}`} className="learned-unit">
                 <h3 id={`l-${unit.id}`}>
-                  Unidad {unit.order} · {unit.title}
+                  Unidad {unit.n} · {unit.title}
                 </h3>
                 <ul className="learned-list">
                   {lessons.map((l) => (
