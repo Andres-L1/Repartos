@@ -683,7 +683,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k2r3/ppp5/4p1pp/3p4/8/4P1P1/PPPP3P/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. La columna f no tiene peones de ningún bando. Elige la mejor jugada.',
     solutionUci: ['d1f1'],
-    hint: 'Una torre rinde más en una columna sin peones.',
+    hint: 'Tu torre está tapada por el peón de d2: en su columna no va a ninguna parte.',
   },
   {
     id: 'ex.openfile.02',
@@ -692,7 +692,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1kr5/ppp3pp/8/4p3/4P3/3P2PP/PPP5/1K5R w - - 0 1',
     prompt: 'Juegan blancas. La columna f no tiene peones de ningún bando. Elige la mejor jugada.',
     solutionUci: ['h1f1'],
-    hint: 'Una torre rinde más en una columna sin peones.',
+    hint: 'Compara lo que ve tu torre en la columna h, con un peón propio delante, con lo que vería en la columna libre.',
   },
   {
     id: 'ex.openfile.03',
@@ -701,7 +701,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k5r/pppp4/4p1pp/8/4P1PP/3P4/PPP5/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. La columna f no tiene peones de ningún bando. Elige la mejor jugada.',
     solutionUci: ['d1f1'],
-    hint: 'Una torre rinde más en una columna sin peones.',
+    hint: 'Un peón propio, el de d3, le cierra el paso a tu torre. Piensa en una columna sin peones por la que sí pueda avanzar.',
   },
   {
     id: 'ex.openfile.04',
@@ -710,7 +710,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k5r/ppp3p1/4p3/3p3p/8/3P4/PPP1P1PP/1KR5 w - - 0 1',
     prompt: 'Juegan blancas. La columna f no tiene peones de ningún bando. Elige la mejor jugada.',
     solutionUci: ['c1f1'],
-    hint: 'Una torre rinde más en una columna sin peones.',
+    hint: 'Desde c1 la torre solo ve hasta su peón de c2. ¿Qué columna le daría una vista completa?',
   },
   {
     id: 'ex.seventh.01',
@@ -719,7 +719,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k4r1/ppp2p2/5bp1/8/5B2/4P2P/PPP2P2/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. El rey negro está en la octava fila y hay peones negros en la séptima. Elige la mejor jugada.',
     solutionUci: ['d1d7'],
-    hint: 'Mira a qué fila de peones rivales puede llegar la torre.',
+    hint: 'Entre los peones negros de la séptima fila hay uno que ninguna pieza defiende. Busca cómo llega tu torre a esa fila.',
   },
   {
     id: 'ex.seventh.02',
@@ -728,7 +728,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k1r4/ppp3p1/2b2p2/3p4/5B2/3P1P1P/PPP3P1/1K2R3 w - - 0 1',
     prompt: 'Juegan blancas. El rey negro está en la octava fila y hay peones negros en la séptima. Elige la mejor jugada.',
     solutionUci: ['e1e7'],
-    hint: 'Mira a qué fila de peones rivales puede llegar la torre.',
+    hint: 'El peón negro de g7 no tiene defensa. Tu torre puede atacarlo desde la séptima fila.',
   },
   {
     id: 'ex.seventh.03',
@@ -737,7 +737,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1kr5/pppn2pp/8/4p3/3PP1PP/8/PPPN4/1K3R2 w - - 0 1',
     prompt: 'Juegan blancas. El rey negro está en la octava fila y hay peones negros en la séptima. Elige la mejor jugada.',
     solutionUci: ['f1f7'],
-    hint: 'Mira a qué fila de peones rivales puede llegar la torre.',
+    hint: 'La séptima fila tiene un caballo y un peón negros sin defensa. Una torre allí los ataca a la vez.',
   },
   {
     id: 'ex.seventh.04',
@@ -746,7 +746,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k1r4/ppp3b1/6pp/3p4/5B2/3P1P2/PPP3PP/1K2R3 w - - 0 1',
     prompt: 'Juegan blancas. El rey negro está en la octava fila y hay peones negros en la séptima. Elige la mejor jugada.',
     solutionUci: ['e1e7'],
-    hint: 'Mira a qué fila de peones rivales puede llegar la torre.',
+    hint: 'El alfil de g7 no tiene defensa. Atácalo con la torre desde la séptima fila.',
   },
   {
     id: 'ex.outpost.01',
@@ -755,7 +755,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k2r3/ppp1b1p1/8/7p/3P1PN1/8/PPP4P/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. Ningún peón negro puede atacar la casilla e5. Elige la mejor jugada.',
     solutionUci: ['g4e5'],
-    hint: 'Busca una casilla protegida por un peón propio.',
+    hint: 'Los peones de d4 y f4 protegen la casilla e5. Busca cómo llega allí tu caballo.',
   },
   {
     id: 'ex.outpost.02',
@@ -764,7 +764,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k1r4/pppb4/6pp/8/5P2/3N2P1/PPP4P/1K1R4 w - - 0 1',
     prompt: 'Juegan blancas. Ningún peón negro puede atacar la casilla e5. Elige la mejor jugada.',
     solutionUci: ['d3e5'],
-    hint: 'Busca una casilla protegida por un peón propio.',
+    hint: 'Desde esa casilla el caballo atacaría el alfil de d7 y el peón de g6, con el peón de f4 de apoyo.',
   },
   {
     id: 'ex.outpost.03',
@@ -773,7 +773,7 @@ export const EXERCISES: Exercise[] = [
     fen: '1k3r2/pppb4/6pp/8/3P2N1/5P2/PPP3P1/1K5R w - - 0 1',
     prompt: 'Juegan blancas. Ningún peón negro puede atacar la casilla e5. Elige la mejor jugada.',
     solutionUci: ['g4e5'],
-    hint: 'Busca una casilla protegida por un peón propio.',
+    hint: 'El peón de d4 protege la casilla de avanzada y tu caballo llega a ella con un solo salto.',
   },
   {
     id: 'ex.outpost.04',
@@ -782,6 +782,6 @@ export const EXERCISES: Exercise[] = [
     fen: '1kr5/pppb4/6pp/8/2N2PP1/3P4/PPP5/1K5R w - - 0 1',
     prompt: 'Juegan blancas. Ningún peón negro puede atacar la casilla e5. Elige la mejor jugada.',
     solutionUci: ['c4e5'],
-    hint: 'Busca una casilla protegida por un peón propio.',
+    hint: 'El caballo de c4 llega con un salto a una casilla protegida por el peón de f4.',
   },
 ];

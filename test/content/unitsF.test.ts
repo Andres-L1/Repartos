@@ -7,6 +7,8 @@ import { EXERCISES } from '../../src/pedagogy/exercises.js';
 import { mirrorExercise } from '../../src/pedagogy/mirror.js';
 import { levelPlan } from '../../worker/level.js';
 import { EXPLAIN_MOVE, checkFact, factFor, type Fact } from '../../scripts/lib/strategy-facts.js';
+import { checkClaim, describeStrategy, type Claim } from '../../scripts/lib/strategy-describe.js';
+import { U16_TEXTS } from '../../src/content/units/u16.js';
 import { describeLessons } from './lesson-checks.js';
 
 /**
@@ -58,11 +60,81 @@ describe('contenido F: estrategia verificable (pendiente de validación de profe
     });
   }
 
+  describe('textos: cada afirmación sobre la posición se comprueba con chessops', () => {
+    const SQUARE = /(?<![A-Za-z0-9])[a-h][1-8](?![a-z0-9])/g;
+    const rank = (txt: string) => txt.replace(/\s+/g, ' ');
+    for (const [key, { uci, texts }] of Object.entries(U16_TEXTS)) {
+      const fen = key.includes(':explanation:')
+        ? u16.lessons.find((l) => key.startsWith(l.id))!.explanation[Number(key.split(':')[2])]!.fen
+        : stepsOf(u16.lessons.find((l) => key.startsWith(l.id))!).find((s) => s.key === key)!.step.fen;
+      it(`${key}: afirmaciones verdaderas y toda casilla citada respaldada`, () => {
+        const facts = describeStrategy(fen, uci);
+        const allowed = new Set([uci.slice(0, 2), uci.slice(2, 4)]);
+        for (const { s, claims } of texts) {
+          expect(s.length, rank(s)).toBeGreaterThan(0);
+          for (const cl of claims as Claim[]) {
+            expect(checkClaim(fen, uci, cl, facts), `${key}: ${JSON.stringify(cl)}`).toBe(true);
+            if (cl.sq) allowed.add(cl.sq);
+            if (cl.by) allowed.add(cl.by);
+          }
+          for (const [sq] of s.matchAll(SQUARE)) expect(allowed.has(sq), `${key}: casilla ${sq} sin afirmación en «${rank(s)}»`).toBe(true);
+        }
+      });
+    }
+    it('toda posición de la unidad tiene sus textos registrados', () => {
+      const n = u16.lessons.reduce((acc, l) => acc + l.explanation.length + l.practice.length + l.evaluation.length, 0);
+      expect(Object.keys(U16_TEXTS).length).toBe(n);
+    });
+    it('los textos del alumno no citan al motor ni cifras en peones (solo la nota de la introducción)', () => {
+      const bad = /stockfish|centipe|\d,\d peones|\bmotor\b/i;
+      for (const l of u16.lessons) {
+        expect(l.intro).toContain('comprobadas con un motor de ajedrez');
+        expect(l.intro.replace('comprobadas con un motor de ajedrez', '')).not.toMatch(bad);
+        for (const e of l.explanation) expect(e.text).not.toMatch(bad);
+        for (const { step } of stepsOf(l)) for (const x of [step.prompt, step.hint ?? '', step.explanationCorrect, step.explanationWrong]) expect(x).not.toMatch(bad);
+      }
+      expect(u16.description).not.toMatch(bad);
+    });
+    it('los textos de un mismo ejercicio no se repiten entre ejercicios de la lección', () => {
+      for (const l of u16.lessons) {
+        const good = stepsOf(l).map((s) => s.step.explanationCorrect);
+        expect(new Set(good).size).toBe(good.length);
+        const hints = stepsOf(l).map((s) => s.step.hint);
+        expect(new Set(hints).size).toBe(hints.length);
+      }
+    });
+  });
+
   describe('banco de estrategia y sus espejos', () => {
     const bank = EXERCISES.filter((e) => e.conceptId.startsWith('strategy.'));
     it('4 ejercicios por concepto', () => {
       for (const c of ['strategy.open_file', 'strategy.seventh_rank', 'strategy.outpost']) expect(bank.filter((e) => e.conceptId === c).length).toBe(4);
     });
+    const HINT_CLAIMS: Record<string, Claim[]> = {
+      'ex.openfile.01': [{ k: 'blocked', sq: 'd2' }],
+      'ex.openfile.02': [{ k: 'blocked', sq: 'h3' }],
+      'ex.openfile.03': [{ k: 'blocked', sq: 'd3' }],
+      'ex.openfile.04': [{ k: 'blocked', sq: 'c2' }],
+      'ex.seventh.01': [{ k: 'loose', sq: 'f7' }],
+      'ex.seventh.02': [{ k: 'loose', sq: 'g7' }],
+      'ex.seventh.03': [{ k: 'rookHitsLoose', sq: 'd7' }, { k: 'rookHitsLoose', sq: 'g7' }],
+      'ex.seventh.04': [{ k: 'rookHitsLoose', sq: 'g7' }],
+      'ex.outpost.01': [{ k: 'protector', sq: 'd4' }, { k: 'protector', sq: 'f4' }],
+      'ex.outpost.02': [{ k: 'protector', sq: 'f4' }, { k: 'knightHit', sq: 'd7' }, { k: 'knightHit', sq: 'g6' }],
+      'ex.outpost.03': [{ k: 'protector', sq: 'd4' }],
+      'ex.outpost.04': [{ k: 'protector', sq: 'f4' }],
+    };
+    for (const e of bank) {
+      it(`${e.id}: el aviso es propio del ejercicio y sus afirmaciones son verdaderas`, () => {
+        const uci = e.solutionUci[0]!;
+        const claims = HINT_CLAIMS[e.id]!;
+        const facts = describeStrategy(e.fen, uci);
+        for (const cl of claims) expect(checkClaim(e.fen, uci, cl, facts), JSON.stringify(cl)).toBe(true);
+        const ok = new Set([uci.slice(0, 2), ...claims.map((x) => x.sq), ...(e.prompt.match(/[a-h][1-8]/g) ?? [])]);
+        for (const sq of e.hint!.match(/(?<![A-Za-z0-9])[a-h][1-8](?![a-z0-9])/g) ?? []) expect(ok.has(sq), `${e.id}: ${sq} en «${e.hint}»`).toBe(true);
+      });
+    }
+    it('los avisos del banco de estrategia son todos distintos', () => expect(new Set(bank.map((e) => e.hint)).size).toBe(bank.length));
     for (const e of bank.flatMap((x) => [x, mirrorExercise(x)])) {
       it(`${e.id}: legal y hecho del concepto`, () => {
         const uci = e.solutionUci[0]!;
@@ -72,6 +144,15 @@ describe('contenido F: estrategia verificable (pendiente de validación de profe
         if (e.conceptId === 'strategy.open_file') expect(e.prompt).toContain(`columna ${uci[2]}`);
       });
     }
+  });
+
+  it('el comprobador de afirmaciones distingue casos falsos', () => {
+    const fen = 'r5k1/1p3ppp/8/8/8/8/2P2PPP/4R1K1 w - - 0 1';
+    expect(checkClaim(fen, 'e1e7', { k: 'loose', sq: 'b7' })).toBe(true);
+    expect(checkClaim(fen, 'e1e7', { k: 'loose', sq: 'f7' })).toBe(false); // el rey de g8 y la torre de a8 no… f7 la defiende el rey
+    expect(checkClaim(fen, 'e1e7', { k: 'defendedBy', sq: 'f7', by: 'g8' })).toBe(true);
+    expect(checkClaim(fen, 'e1e7', { k: 'blocked', sq: 'e2' })).toBe(false);
+    expect(checkClaim(fen, 'e1e7', { k: 'openFile', sq: 'c' })).toBe(false); // el peón de c2
   });
 
   it('el comprobador de hechos distingue casos falsos', () => {
