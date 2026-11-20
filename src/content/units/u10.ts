@@ -11,7 +11,7 @@ export const unit: Unit = {
   order: 11,
   title: 'Táctica II: enfilada, desviación y eliminar al defensor',
   description:
-    'Tres ideas tácticas nuevas: la enfilada, que ataca una pieza valiosa para ganar la que tiene detrás; la desviación, que aparta a un defensor de su tarea, y eliminar al defensor, que captura la pieza que protege a otra.',
+    'Tres ideas tácticas nuevas. La enfilada ataca una pieza valiosa para ganar la que tiene detrás. La desviación aparta a un defensor de su tarea. Eliminar al defensor captura la pieza que protege a otra.',
   level: 'intermediate',
   requires: ['u09'],
   lessons: [
@@ -24,7 +24,7 @@ export const unit: Unit = {
         'Reconocer dos piezas rivales en la misma línea, la más valiosa delante, y atacarla para ganar la de detrás.',
       conceptIds: ['tactics.skewer'],
       intro:
-        'La enfilada es una clavada al revés. En la clavada, la pieza de delante vale menos y no se atreve a moverse. En la enfilada, la de delante vale más (muchas veces es el rey): está obligada a apartarse y deja sin protección a la pieza que tenía detrás en la misma fila, columna o diagonal. La hacen las piezas de largo alcance: alfil, torre y dama.',
+        'La enfilada es una clavada al revés. En la clavada, la pieza de delante vale menos y no se atreve a moverse. En la enfilada, la pieza de delante vale más (muchas veces es el rey) y está obligada a apartarse. Así deja sin protección a la pieza que tenía detrás en la misma fila, columna o diagonal. La hacen las piezas de largo alcance: alfil, torre y dama.',
       explanation: [
         {
           fen: '4k2r/1p3ppp/8/8/8/8/5PPP/R5K1 w - - 0 1',

@@ -12,7 +12,7 @@ export const unit: Unit = {
   order: 13,
   title: 'Cálculo: atracción, jugada intermedia y mates en tres',
   description:
-    'Combinaciones de varias jugadas: atraer al rey o a una pieza a una casilla mala con un sacrificio, intercalar una jugada forzante antes de recapturar y calcular mates en tres jugadas hasta el final.',
+    'Combinaciones de varias jugadas: atraer al rey o a una pieza a una casilla mala con un sacrificio, e intercalar una jugada forzante antes de recapturar. También calcularás mates en tres jugadas hasta el final.',
   level: 'advanced',
   requires: ['u10'],
   lessons: [
@@ -25,7 +25,7 @@ export const unit: Unit = {
         'Sacrificar material para obligar al rey o a una pieza a ocupar una casilla donde sufre una horquilla o un mate.',
       conceptIds: ['tactics.attraction'],
       intro:
-        'En la atracción ofreces una pieza que el rival está obligado a capturar, normalmente porque es jaque y no hay otra respuesta. La pieza que captura queda en una casilla mala: el rey en el radio de una horquilla de caballo, o una torre que tapa la última salida de su propio rey. Antes de sacrificar, calcula la línea completa: cada jugada del rival debe ser forzada y al final tienes que recuperar más de lo que entregaste.',
+        'En la atracción ofreces una pieza que el rival está obligado a capturar, normalmente porque es jaque y no hay otra respuesta. La pieza que captura queda en una casilla mala. Puede ser el rey en el radio de una horquilla de caballo, o una torre que tapa la última salida de su propio rey. Antes de sacrificar, calcula la línea completa: cada jugada del rival debe ser forzada y al final tienes que recuperar más de lo que entregaste.',
       explanation: [
         {
           fen: '6k1/1p4pp/pqn5/4N3/8/6B1/PP4PP/5R1K w - - 0 1',

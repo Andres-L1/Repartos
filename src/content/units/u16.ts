@@ -91,7 +91,7 @@ export const unit: Unit = {
   order: 16,
   title: 'Estrategia verificable: actividad de las piezas',
   description:
-    'Tres ideas de plan que se pueden comprobar en el tablero: la torre a una columna abierta, la torre a la séptima fila y el caballo en una casilla de avanzada.',
+    'Tres ideas de plan que se pueden comprobar en el tablero. Son la torre a una columna abierta, la torre a la séptima fila y el caballo en una casilla de avanzada.',
   level: 'competitive',
   requires: ['u12'],
   lessons: [
@@ -255,7 +255,7 @@ export const unit: Unit = {
           '5rk1/1p1n1ppp/3p4/8/P1B5/3P4/1P3PPP/4R1K1 w - - 0 1',
           'e1e7',
           t(
-            'Juegan blancas. Con Re7 la torre llega a la séptima fila y ataca el caballo de d7, que ninguna pieza negra defiende, y el peón de f7, que defienden la torre de f8 y el rey. Además el rey de g8 queda sin casillas en su fila y ninguna pieza negra puede capturar la torre.',
+            'Juegan blancas. Con Re7 la torre llega a la séptima fila. Ataca el caballo de d7, que ninguna pieza negra defiende, y el peón de f7, que defienden la torre de f8 y el rey. Además el rey de g8 queda sin casillas en su fila y ninguna pieza negra puede capturar la torre.',
             c('rookHitsLoose', 'd7'),
             c('defendedBy', 'f7', 'f8'),
             c('defendedBy', 'f7', 'g8'),

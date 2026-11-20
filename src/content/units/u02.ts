@@ -251,7 +251,7 @@ export const unit: Unit = {
             ['d1', 'd5'],
             ['e6', 'd5'],
           ],
-          text: 'Cuidado con lo contrario: capturar con una pieza muy valiosa algo protegido. La dama puede comerse el peón de d5, pero el peón de e6 recaptura y habrías dado 9 puntos por 1. Un mal cambio como este se llama «perder material».',
+          text: 'Cuidado con lo contrario: capturar con una pieza muy valiosa algo protegido. La dama puede comerse el peón de d5, pero el peón de e6 recaptura y habrías dado 9 puntos por 1. Un cambio tan desfavorable se llama «perder material».',
         },
         {
           fen: 'r7/1k6/8/8/8/8/1K6/R7 w - - 0 1',

@@ -16,12 +16,12 @@ export const unit: Unit = {
       objective: 'Leer las coordenadas del tablero y mover y capturar con la torre.',
       demo: true,
       intro:
-        'Todos los grandes jugadores empezaron un día sin saber qué hacía cada pieza. Hoy empiezas tú, y en pocos minutos ya estarás moviendo piezas con seguridad. Primero aprenderás a «leer» el tablero, como un mapa con direcciones, y después conocerás a la torre, la pieza más fácil de entender: va en línea recta, como si fuera por una calle.',
+        'Todos los grandes jugadores empezaron un día sin saber qué hacía cada pieza. Hoy empiezas tú, y en pocos minutos ya estarás moviendo piezas con seguridad. Primero aprenderás a «leer» el tablero, como un mapa con direcciones. Después conocerás a la torre, la pieza más fácil de entender: va en línea recta, como si fuera por una calle.',
       explanation: [
         {
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
           squares: ['a1', 'h8', 'e4'],
-          text: 'El tablero tiene 8 columnas y 8 filas, es decir, 64 casillas que alternan entre claras y oscuras. Las columnas se nombran con letras, de la a (izquierda) a la h (derecha), y las filas con números, del 1 (donde empiezan las blancas) al 8. Cada casilla es una letra más un número: la de abajo a la izquierda es a1, la de arriba a la derecha es h8 y las del centro, como e4, son las más importantes. Un truco: la casilla de la esquina inferior derecha de cada jugador siempre es clara. Las jugadas se escriben como en Lichess: la letra en inglés de la pieza (R torre, B alfil, Q dama, K rey, N caballo; el peón no lleva letra) y la casilla de llegada. Así, Ra5 es «torre a a5».',
+          text: 'El tablero tiene 8 columnas y 8 filas, es decir, 64 casillas que alternan entre claras y oscuras. Las columnas se nombran con letras, de la a (izquierda) a la h (derecha), y las filas con números, del 1 (donde empiezan las blancas) al 8. Cada casilla es una letra más un número. La de abajo a la izquierda es a1, la de arriba a la derecha es h8 y las del centro, como e4, son las más importantes. Un truco: la casilla de la esquina inferior derecha de cada jugador siempre es clara. Las jugadas se escriben como en Lichess: la letra en inglés de la pieza y la casilla de llegada. Las letras son R torre, B alfil, Q dama, K rey y N caballo; el peón no lleva letra. Así, Ra5 es «torre a a5».',
         },
         {
           fen: '4k3/8/8/8/3R4/8/8/4K3 w - - 0 1',
@@ -31,7 +31,7 @@ export const unit: Unit = {
             ['d4', 'a4'],
             ['d4', 'h4'],
           ],
-          text: 'La torre (la pieza con forma de castillo) se mueve en línea recta: hacia delante, hacia atrás y hacia los lados, todas las casillas que quieras mientras no tenga nada en medio. Desde d4 puede llegar a cualquier casilla de la columna d o de la fila 4. Piensa en una cruz que se abre en cuatro direcciones.',
+          text: 'La torre (la pieza con forma de castillo) se mueve en línea recta: hacia delante, hacia atrás y hacia los lados. Puede recorrer todas las casillas que quieras mientras no tenga nada en medio. Desde d4 puede llegar a cualquier casilla de la columna d o de la fila 4. Piensa en una cruz que se abre en cuatro direcciones.',
         },
         {
           fen: '4k3/8/8/3p4/3R4/8/8/4K3 w - - 0 1',
@@ -91,7 +91,7 @@ export const unit: Unit = {
           solutionUci: ['d2d6'],
           hint: 'El alfil está en tu misma columna.',
           explanationCorrect: '¡Excelente! La torre subió por la columna d y capturó el alfil. Fíjate: el alfil no podía defenderse porque nada lo protegía.',
-          explanationWrong: 'Mira si el alfil negro está en una columna o en una fila de tu torre: la torre solo captura en línea recta, y el camino debe estar libre hasta él.',
+          explanationWrong: 'Mira si el alfil negro está en una columna o en una fila de tu torre. La torre solo captura en línea recta, y el camino debe estar libre hasta él.',
           wrongByMove: {
             d2d4: 'Vas por la columna correcta, pero te quedas corto: para capturar el alfil la torre tiene que llegar hasta su casilla.',
           },
@@ -159,7 +159,7 @@ export const unit: Unit = {
             ['d4', 'a1'],
             ['d4', 'g1'],
           ],
-          text: 'La dama (o reina) es la pieza más poderosa: se mueve como una torre y como un alfil a la vez, es decir, en línea recta y en diagonal, en ocho direcciones. Captura igual que ellas. Eso sí, es tan valiosa que conviene no arriesgarla sin motivo.',
+          text: 'La dama (o reina) es la pieza más poderosa: se mueve como una torre y como un alfil a la vez. Es decir, en línea recta y en diagonal, en ocho direcciones. Captura igual que ellas. Eso sí, es tan valiosa que conviene no arriesgarla sin motivo.',
         },
       ],
       practice: [
@@ -370,7 +370,7 @@ export const unit: Unit = {
       title: 'El peón',
       objective: 'Avanzar con el peón (una o dos casillas) y capturar en diagonal.',
       intro:
-        'Los peones parecen las piezas más humildes, pero son el alma de la partida: hay ocho por bando y cada uno puede llegar muy lejos. Son los únicos que se mueven de una forma y capturan de otra, así que presta atención a esa diferencia: es lo que más confunde al principio, y en cinco minutos la tendrás clara.',
+        'Los peones parecen las piezas más humildes, pero son el alma de la partida: hay ocho por bando y cada uno puede llegar muy lejos. Son los únicos que se mueven de una forma y capturan de otra. Presta atención a esa diferencia: es lo que más confunde al principio, y en cinco minutos la tendrás clara.',
       explanation: [
         {
           fen: '4k3/8/8/8/8/8/4P3/4K3 w - - 0 1',

@@ -91,7 +91,7 @@ export const EXERCISES: Exercise[] = [
     level: 'intermediate',
     fen: '4k3/8/2p5/3b2n1/8/8/8/2BR2K1 w - - 0 1',
     prompt:
-      'Juegan blancas. Torre por alfil protegido sería un mal cambio. ¿Qué captura sí gana material limpio?',
+      'Juegan blancas. Torre por alfil protegido sería un cambio desfavorable. ¿Qué captura sí gana material limpio?',
     solutionUci: ['c1g5'],
     hint: 'Hay una pieza negra que nadie protege y que tu alfil ya ve.',
   },

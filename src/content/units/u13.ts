@@ -11,7 +11,7 @@ export const unit: Unit = {
   order: 10,
   title: 'Finales de rey y peón',
   description:
-    'Los finales con reyes y peones: la regla del cuadrado para saber si un rey alcanza a un peón, la oposición entre los reyes, las casillas clave, el rey delante del peón y el peón de torre.',
+    'Los finales con reyes y peones: la regla del cuadrado para saber si un rey alcanza a un peón, la oposición entre los reyes y las casillas clave. Verás también el rey delante del peón y el peón de torre.',
   level: 'basic',
   requires: ['u09'],
   lessons: [
@@ -23,7 +23,7 @@ export const unit: Unit = {
       objective: 'Saber, sin calcular jugada a jugada, si un rey alcanza a un peón pasado que corre a coronar.',
       conceptIds: ['endgame.king_pawn'],
       intro:
-        'Un peón pasado es el que no tiene peones rivales delante ni en las columnas de al lado: solo el rey puede pararlo. Para saber si llega a tiempo, imagina un cuadrado: un lado va desde el peón hasta su casilla de coronación y el cuadrado se dibuja hacia el lado del rey rival. Si el rey puede entrar en el cuadrado con su jugada, alcanza al peón; si no, el peón corona. Ojo: si le toca mover al bando del peón, cuenta el cuadrado desde la casilla a la que va a avanzar.',
+        'Un peón pasado es el que no tiene peones rivales delante ni en las columnas de al lado: solo el rey puede pararlo. Para saber si llega a tiempo, imagina un cuadrado. Un lado va desde el peón hasta su casilla de coronación y el cuadrado se dibuja hacia el lado del rey rival. Si el rey puede entrar en el cuadrado con su jugada, alcanza al peón; si no, el peón corona. Ojo: si le toca mover al bando del peón, cuenta el cuadrado desde la casilla a la que va a avanzar.',
       explanation: [
         {
           fen: '8/8/8/5k2/P7/8/8/7K w - - 0 1',
@@ -102,9 +102,9 @@ export const unit: Unit = {
           solutionUci: ['h8g7'],
           hint: 'Busca una jugada que acerque el rey a la vez al peón de h5 y a tu peón de c6.',
           explanationCorrect:
-            'Correcto: Kg7. El rey se acerca a la vez a los dos peones. Si las negras corren con el peón (h4, h3...), el rey blanco llega a e7 a tiempo de apoyar a c6 y corona también; si van a por tu peón, ganas el tiempo que necesitas para entrar en el cuadrado de h5. Tablas: es el famoso estudio de Réti.',
+            'Correcto: Kg7. El rey se acerca a la vez a los dos peones. Si las negras corren con el peón (h4, h3...), el rey blanco llega a e7 a tiempo de apoyar a c6 y corona también. Si van a por tu peón, ganas el tiempo que necesitas para entrar en el cuadrado de h5. Tablas: es el famoso estudio de Réti.',
           explanationWrong:
-            'Esa jugada no sirve a la vez para los dos peones: el rey no llega a tiempo de parar el peón de h5 ni de apoyar el de c6, y las negras ganan.',
+            'Esa jugada no sirve a la vez para los dos peones. El rey no llega a tiempo de parar el peón de h5 ni de apoyar el de c6, y las negras ganan.',
           wrongByMove: {
             h8h7: 'Kh7 se acerca al peón de h5, pero ya no puede ayudar a tu peón de c6: las negras ganan.',
           },
@@ -120,7 +120,7 @@ export const unit: Unit = {
       objective: 'Usar la oposición entre los reyes para defender un final de rey y peón contra rey, o para ganarlo.',
       conceptIds: ['endgame.king_pawn'],
       intro:
-        'Los reyes nunca pueden estar en casillas vecinas. Cuando están en la misma columna con una sola casilla entre ellos, se dice que están en oposición, y la tiene el bando al que NO le toca mover: el otro está obligado a ceder paso. En los finales de rey y peón contra rey, el defensor hace tablas si mantiene la oposición frente al rey rival; el atacante gana si consigue que el defensor tenga que mover y ceder.',
+        'Los reyes nunca pueden estar en casillas vecinas. Cuando están en la misma columna con una sola casilla entre ellos, se dice que están en oposición. La tiene el bando al que NO le toca mover: el otro está obligado a ceder paso. En los finales de rey y peón contra rey, el defensor hace tablas si mantiene la oposición frente al rey rival. El atacante gana si consigue que el defensor tenga que mover y ceder.',
       explanation: [
         {
           fen: '8/4k3/8/4K3/4P3/8/8/8 w - - 0 1',
@@ -215,7 +215,7 @@ export const unit: Unit = {
         },
         {
           fen: '7k/8/6K1/7P/8/8/8/8 w - - 0 1',
-          text: 'Con el peón de torre no basta con llegar delante: el rey negro ya está en h8, la casilla de coronación. Si el peón avanza, el negro va y viene entre g8 y h8; cuando el peón llegue a h7, el negro queda ahogado o el rey blanco tiene que soltar el peón. Tablas.',
+          text: 'Con el peón de torre no basta con llegar delante: el rey negro ya está en h8, la casilla de coronación. Si el peón avanza, el negro va y viene entre g8 y h8. Cuando el peón llegue a h7, el negro queda ahogado o el rey blanco tiene que soltar el peón. Tablas.',
           squares: ['h8', 'g8'],
         },
       ],

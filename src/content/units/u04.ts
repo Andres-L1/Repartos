@@ -10,7 +10,7 @@ export const unit: Unit = {
   order: 4,
   title: 'Mates básicos',
   description:
-    'Aprende a terminar la partida: mate de escalera y del pasillo, mate con dama o torre apoyadas por el rey, mate de la coz, mate del pastor (y cómo evitarlo) y los primeros mates en dos jugadas.',
+    'Aprende a terminar la partida: mate de escalera y del pasillo, mate con dama o torre apoyadas por el rey, y mate de la coz. Aprenderás también el mate del pastor (y cómo evitarlo) y los primeros mates en dos jugadas.',
   level: 'initiation',
   requires: ['u03'],
   lessons: [
@@ -23,11 +23,11 @@ export const unit: Unit = {
         'Dar mate en una jugada con las torres: la escalera (dos torres) y el mate del pasillo (el rey encerrado por sus propios peones).',
       conceptIds: ['tactics.mate_threat'],
       intro:
-        'Ganar material está bien, pero la partida se gana dando jaque mate. Los dos mates más frecuentes en las partidas de principiantes se dan con torres: la escalera, donde dos torres se turnan para empujar al rey hacia el borde, y el mate del pasillo, donde el rey no puede escapar porque sus propios peones le tapan las casillas. Aprender a verlos te permite ganar y, sobre todo, no sufrirlos.',
+        'Ganar material está bien, pero la partida se gana dando jaque mate. Los dos mates más frecuentes en las partidas de principiantes se dan con torres. Uno es la escalera, donde dos torres se turnan para empujar al rey hacia el borde. El otro es el mate del pasillo, donde el rey no puede escapar porque sus propios peones le tapan las casillas. Aprender a verlos te permite ganar y, sobre todo, no sufrirlos.',
       explanation: [
         {
           fen: '7k/1R6/8/8/8/8/8/R5K1 w - - 0 1',
-          text: 'Mate de escalera. La torre de b7 corta la fila 7: el rey negro no puede pisar g7 ni h7. Ahora la otra torre da jaque en la fila 8 con Ra8# (en notación, + indica jaque y # indica mate) y el rey no tiene escapatoria: g7 y h7 las cubre la primera torre, g8 la cubre la segunda. Dos torres, una por fila, empujan al rey hasta el borde.',
+          text: 'Mate de escalera. La torre de b7 corta la fila 7: el rey negro no puede pisar g7 ni h7. Ahora la otra torre da jaque en la fila 8 con Ra8# (en notación, + indica jaque y # indica mate). El rey no tiene escapatoria: g7 y h7 las cubre la primera torre, g8 la cubre la segunda. Dos torres, una por fila, empujan al rey hasta el borde.',
           squares: ['g7', 'h7'],
           arrows: [
             ['b7', 'h7'],
@@ -56,7 +56,7 @@ export const unit: Unit = {
           explanationCorrect:
             'Correcto: Rb8#. La torre de a7 impide g7 y h7, y la de b8 da jaque y cubre g8. Es la escalera completa.',
           explanationWrong:
-            'No es mate. Para mate necesitas jaque y que el rey no pueda huir: la torre de a7 ya cubre la fila 7, así que el jaque debe darse en la fila 8 con la otra torre.',
+            'No es mate. Para mate necesitas jaque y que el rey no pueda huir. La torre de a7 ya cubre la fila 7, así que el jaque debe darse en la fila 8 con la otra torre.',
           wrongByMove: {
             a7a8: 'Ra8+ es jaque, pero al dejar la fila 7 libre el rey escapa a g7. Mantén esa torre cortando la fila 7.',
             b6g6: 'Rg6 no da jaque; además deja al rey negro sin jugadas legales y eso sería tablas por ahogado, no victoria.',
@@ -129,7 +129,7 @@ export const unit: Unit = {
         'Dar mate en una jugada con dama o torre ayudadas por tu rey, y evitar el ahogado.',
       conceptIds: ['tactics.mate_threat'],
       intro:
-        'En los finales, el rey es una pieza de ataque. Un jaque de dama o torre solo es mate si todas las casillas de escape están cubiertas, y el rey propio puede cubrir muchas de ellas. En esta lección verás el patrón básico (rey junto al rey rival y pieza que da jaque a distancia) y el gran peligro de esos finales: dejar al rival sin jugadas legales y regalar tablas.',
+        'En los finales, el rey es una pieza de ataque. Un jaque de dama o torre solo es mate si todas las casillas de escape están cubiertas, y el rey propio puede cubrir muchas de ellas. En esta lección verás el patrón básico (rey junto al rey rival y pieza que da jaque a distancia). Verás también el gran peligro de esos finales: dejar al rival sin jugadas legales y regalar tablas.',
       explanation: [
         {
           fen: 'k7/8/1K6/8/8/8/8/6Q1 w - - 0 1',
@@ -301,7 +301,7 @@ export const unit: Unit = {
           solutionUci: ['h5f7'],
           hint: 'Dos de tus piezas atacan f7; la que captura está protegida por la otra.',
           explanationCorrect:
-            'Correcto: Qxf7#. El alfil de c4 protege la dama, el rey no puede capturarla ni escapar (e7 la cubre la dama; d8 y f8 están ocupadas por sus propias piezas) y el caballo de f6 no llega a f7. Es el mate del pastor.',
+            'Correcto: Qxf7#. El alfil de c4 protege la dama y el rey no puede capturarla ni escapar (e7 la cubre la dama; d8 y f8 están ocupadas por sus propias piezas). Además, el caballo de f6 no llega a f7. Es el mate del pastor.',
           explanationWrong:
             'No es mate. Fíjate en el punto débil f7: la dama capturando allí, protegida por el alfil, termina la partida.',
           wrongByMove: {
@@ -399,7 +399,7 @@ export const unit: Unit = {
         },
         {
           fen: 'k2K4/8/8/8/5Q2/8/8/8 w - - 0 1',
-          text: 'Jugada tranquila con el rey. Con el rey blanco en d8 y el negro en a8, el rey blanco sube a c7 y lo encierra: el rey negro solo puede ir a a7, y entonces Qa4 es mate. Atención: la jugada tentadora Qc7 (dama a c7) deja al rey sin movimientos y sin estar en jaque (ahogado, tablas). Mira siempre si el rival conserva al menos una jugada legal.',
+          text: 'Jugada tranquila con el rey. Con el rey blanco en d8 y el negro en a8, el rey blanco sube a c7 y lo encierra. El rey negro solo puede ir a a7, y entonces Qa4 es mate. Atención: la jugada tentadora Qc7 (dama a c7) deja al rey sin movimientos y sin estar en jaque (ahogado, tablas). Mira siempre si el rival conserva al menos una jugada legal.',
           squares: ['a7', 'b7', 'b8'],
           arrows: [
             ['d8', 'c7'],

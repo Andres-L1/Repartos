@@ -11,7 +11,7 @@ export const unit: Unit = {
   order: 6,
   title: 'Principios de apertura',
   description:
-    'Los principios que te hacen jugar bien las primeras jugadas: controla el centro, desarrolla tus piezas, enroca pronto, no muevas la misma pieza dos veces ni saques la dama demasiado pronto, y conoce las trampas que castigan romper estas ideas.',
+    'Los principios que te hacen jugar bien las primeras jugadas: controla el centro, desarrolla tus piezas y enroca pronto. No muevas la misma pieza dos veces ni saques la dama demasiado pronto. Conocerás también las trampas que castigan romper estas ideas.',
   level: 'initiation',
   requires: ['u05'],
   lessons: [
@@ -181,7 +181,7 @@ export const unit: Unit = {
         },
         {
           fen: 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 b kq - 3 5',
-          text: 'Así queda el rey blanco tras O-O: en g1, protegido por los peones de f2, g2 y h2. La torre de f1 ya participa. Pon como regla enrocar en las primeras 10 jugadas. Para poder hacerlo no deben haberse movido ni el rey ni esa torre, no debe haber piezas entre ellos y el rey no puede estar en jaque ni cruzar casillas atacadas.',
+          text: 'Así queda el rey blanco tras O-O: en g1, protegido por los peones de f2, g2 y h2. La torre de f1 ya participa. Pon como regla enrocar en las primeras 10 jugadas. Para poder hacerlo no deben haberse movido ni el rey ni esa torre, y no debe haber piezas entre ellos. Además, el rey no puede estar en jaque ni cruzar casillas atacadas.',
           squares: ['g1', 'f1'],
         },
       ],

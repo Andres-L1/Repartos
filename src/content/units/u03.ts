@@ -219,7 +219,7 @@ export const unit: Unit = {
           prompt: 'Mate en 1: encuentra el mate con el caballo.',
           solutionUci: ['g5f7'],
           hint: 'El rey negro está encerrado por sus propias piezas. Busca un salto que dé jaque.',
-          explanationCorrect: '¡Jaque mate! Es el «mate de la coz» (también llamado mate ahogado, aunque no tiene nada que ver con el ahogado, que es tablas): el rey está rodeado de sus propias piezas y el caballo, que no se puede capturar ni bloquear, da jaque.',
+          explanationCorrect: '¡Jaque mate! Es el «mate de la coz» (también llamado mate ahogado, aunque no tiene nada que ver con el ahogado, que es tablas). El rey está rodeado de sus propias piezas y el caballo, que no se puede capturar ni bloquear, da jaque.',
           explanationWrong: 'El rey negro no tiene casillas libres porque sus piezas se las tapan. Un salto del caballo da jaque y no se puede evitar: cuenta las casillas desde el caballo hasta su rey.',
         },
       ],
@@ -230,7 +230,7 @@ export const unit: Unit = {
       title: 'Enroque, promoción y captura al paso',
       objective: 'Aplicar las tres jugadas especiales: enrocar, promocionar el peón y capturar al paso.',
       intro:
-        'Hay tres jugadas especiales que no se parecen a ninguna otra y que a casi todos los principiantes les sorprenden: el enroque, que protege al rey; la promoción, que convierte un peón en una pieza poderosa; y la captura al paso, una forma especial de capturar un peón. Conocerlas te hará jugar con mucha más seguridad.',
+        'Hay tres jugadas especiales que no se parecen a ninguna otra y que sorprenden a casi todos los principiantes. Son el enroque, que protege al rey; la promoción, que convierte un peón en una pieza poderosa; y la captura al paso, una forma especial de capturar un peón. Conocerlas te hará jugar con mucha más seguridad.',
       explanation: [
         {
           fen: '4k3/8/8/8/8/8/8/R3K2R w KQ - 0 1',
@@ -240,13 +240,13 @@ export const unit: Unit = {
             ['e1', 'c1'],
             ['a1', 'd1'],
           ],
-          text: 'El enroque es la única jugada en la que mueves dos piezas a la vez: el rey se desplaza dos casillas hacia una torre y esa torre salta por encima y se coloca a su lado. Hacia la torre del lado del rey se llama enroque corto (e1-g1) y hacia la otra, enroque largo (e1-c1). Sirve para poner al rey a salvo y activar la torre. Se juega moviendo el rey dos casillas.',
+          text: 'El enroque es la única jugada en la que mueves dos piezas a la vez. El rey se desplaza dos casillas hacia una torre y esa torre salta por encima y se coloca a su lado. Hacia la torre del lado del rey se llama enroque corto (e1-g1) y hacia la otra, enroque largo (e1-c1). Sirve para poner al rey a salvo y activar la torre. Se juega moviendo el rey dos casillas.',
         },
         {
           fen: '4kr2/8/8/8/8/8/8/R3K2R w KQ - 0 1',
           squares: ['f1'],
           arrows: [['f8', 'f1']],
-          text: 'Condiciones del enroque: ni el rey ni la torre se han movido antes; no hay piezas entre ellos; el rey no está en jaque y no pasa por casillas atacadas ni termina en una. Aquí la torre negra ataca f1, por donde pasaría el rey: el enroque corto no es legal, pero el largo sí.',
+          text: 'Condiciones del enroque: ni el rey ni la torre se han movido antes y no hay piezas entre ellos. Además, el rey no está en jaque y no pasa por casillas atacadas ni termina en una. Aquí la torre negra ataca f1, por donde pasaría el rey: el enroque corto no es legal, pero el largo sí.',
         },
         {
           fen: '4k3/P7/8/8/8/8/8/4K3 w - - 0 1',
@@ -375,7 +375,7 @@ export const unit: Unit = {
         },
         {
           fen: '4k3/8/8/8/8/8/8/R3K3 w - - 90 100',
-          text: 'La regla de las 50 jugadas: si en 50 jugadas de cada bando (100 medias jugadas en total) no se ha movido ningún peón ni se ha capturado ninguna pieza, cualquiera de los dos puede reclamar tablas. Impide que una partida sin progreso se alargue eternamente. Por eso, cuando ganas con torre contra rey, tienes tiempo de sobra para dar mate, pero no para jugar al azar.',
+          text: 'La regla de las 50 jugadas permite a cualquiera de los dos reclamar tablas. Ocurre si en 50 jugadas de cada bando (100 medias jugadas en total) no se ha movido ningún peón ni se ha capturado ninguna pieza. Impide que una partida sin progreso se alargue eternamente. Por eso, cuando ganas con torre contra rey, tienes tiempo de sobra para dar mate, pero no para jugar al azar.',
         },
       ],
       practice: [
