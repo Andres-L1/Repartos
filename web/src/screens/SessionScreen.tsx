@@ -13,7 +13,7 @@ import { TypedMove } from '../components/TypedMove';
 import '../review-lesson.css';
 import '../session.css';
 
-const conceptName = (id: string) => CONCEPTS.find((c) => c.id === id)?.name ?? 'Ajedrez táctico';
+const conceptName = (id: string) => (id === 'engine.analysis' ? 'Errores de tus partidas' : (CONCEPTS.find((c) => c.id === id)?.name ?? 'Ajedrez táctico'));
 const formatDay = (iso: string) => new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
 const dueText = (n: number) => `Hoy toca repasar ${n} ${n === 1 ? 'concepto' : 'conceptos'}`;
 const GONE = 'Esta sesión ya no está disponible. Vuelve a empezar.';

@@ -9,6 +9,7 @@ import { Board } from './Board';
 import { Icon } from './Icon';
 import { TypedMove, TypedSquare } from './TypedMove';
 import '../review-lesson.css';
+import '../review-lesson-line.css';
 
 interface Props {
   lesson: ErrorLesson;
@@ -125,6 +126,11 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
 
   const afterBest = useMemo(() => applyUci(lesson.fenBefore, lesson.best.uci)?.fen ?? null, [lesson]);
   const orientation = turnOf(lesson.fenBefore);
+  // Lecciones sin causa tipificada: tras ver la mejor jugada se puede recorrer la línea del motor, media jugada a la vez.
+  const line = lesson.line && lesson.line.sans.length > 1 ? lesson.line : null;
+  const [lineIdx, setLineIdx] = useState(0);
+  useEffect(() => setLineIdx(0), [step]);
+  const lineUci = line ? line.ucis[lineIdx]! : lesson.best.uci;
 
   const shapes: DrawShape[] = useMemo(() => {
     if (step === 'happened') {
@@ -133,17 +139,23 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
         ...lesson.happened.arrows.map((a): DrawShape => ({ orig: a.from as Key, dest: a.to as Key, brush: TONE_BRUSH[a.tone] })),
       ];
     }
-    if (step === 'best' && bestShown) return [{ orig: lesson.best.uci.slice(0, 2) as Key, dest: lesson.best.uci.slice(2, 4) as Key, brush: 'green' }];
+    if (step === 'best' && bestShown) {
+      // Las jugadas de índice par son las tuyas (verde); las impares, las del rival (rojo).
+      return [{ orig: lineUci.slice(0, 2) as Key, dest: lineUci.slice(2, 4) as Key, brush: lineIdx % 2 === 0 ? 'green' : 'red' }];
+    }
     return [];
-  }, [step, bestShown, lesson]);
+  }, [step, bestShown, lesson, lineUci, lineIdx]);
 
   const showAfter = step === 'best' && bestShown && afterBest;
   const showWrong = step === 'best' && !bestShown && wrongMove;
-  const fen = showAfter ? afterBest : showWrong ? wrongMove.fen : lesson.fenBefore;
-  const lastMove = showAfter ? lastMoveOf(lesson.best.uci) : showWrong ? wrongMove.last : undefined;
+  const afterFen = line ? line.fens[lineIdx]! : afterBest;
+  const fen = showAfter ? afterFen! : showWrong ? wrongMove.fen : lesson.fenBefore;
+  const lastMove = showAfter ? lastMoveOf(lineUci) : showWrong ? wrongMove.last : undefined;
   const bestPlayable = step === 'best' && !bestShown && !wrongMove && !!afterBest;
 
-  const moments = pauseOnly ? MOMENTS.filter((m) => m.step === 'pause') : MOMENTS.filter((m) => m.step !== 'pause' || state.hasPause);
+  const moments = pauseOnly
+    ? MOMENTS.filter((m) => m.step === 'pause')
+    : MOMENTS.filter((m) => (m.step !== 'pause' || state.hasPause) && (m.step !== 'why' || state.hasWhy));
   const finished = pauseOnly && step === 'happened';
   const current = step === 'done' || finished ? moments.length : moments.findIndex((m) => m.step === step);
 
@@ -209,7 +221,7 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
                 <p className="rl-hint">Arrastra la pieza, o tócala y toca la casilla a la que va.</p>
                 {bestPhase === 'wrong' && (
                   <p className="rl-feedback is-kind" role="status">
-                    <Icon name="bulb" size={18} /> Esa no es. Prueba otra vez o pulsa «Muéstramelo».
+                    <Icon name="bulb" size={18} /> Esa no es. {lesson.best.hint ? `${lesson.best.hint} ` : ''}Prueba otra vez o pulsa «Muéstramelo».
                   </p>
                 )}
               </>
@@ -222,6 +234,19 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
                   </p>
                 )}
                 <p>{lesson.best.text}</p>
+                {line && (
+                  <div className="rl-line">
+                    <button type="button" className="t-btn t-btn-secondary t-btn-sm" disabled={lineIdx === 0} onClick={() => setLineIdx(lineIdx - 1)}>
+                      Jugada anterior
+                    </button>
+                    <button type="button" className="t-btn t-btn-secondary t-btn-sm" disabled={lineIdx === line.sans.length - 1} onClick={() => setLineIdx(lineIdx + 1)}>
+                      Jugada siguiente
+                    </button>
+                    <p className="rl-line-now" aria-live="polite">
+                      Línea del motor, jugada {lineIdx + 1} de {line.sans.length}: {line.sans[lineIdx]}
+                    </p>
+                  </div>
+                )}
                 <p className="rl-rule">
                   <span className="rl-rule-tag">La regla</span>
                   {lesson.rule}

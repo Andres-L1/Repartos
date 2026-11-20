@@ -1,0 +1,4 @@
+/* Línea principal del motor en las mini lecciones sin causa tipificada: botones para recorrerla en el tablero. */
+.rl-line { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; }
+.rl-line .t-btn { margin-bottom: 0; max-width: 100%; white-space: normal; }
+.rl-line-now { flex: 1 1 100%; margin: 0; font-weight: 600; overflow-wrap: anywhere; }

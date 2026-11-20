@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GameAnalysis, ReviewGame } from '../../../src/review/types';
-import { keyErrors } from '../../../src/review/select';
+import { countInaccuracies, keyErrors, positionConcept, seriousMoves } from '../../../src/review/select';
 import { buildErrorLesson } from '../../../src/pedagogy/error-lesson';
 import { navigate } from '../router';
 import { Link } from '../components/Link';
@@ -10,7 +10,7 @@ import { GameViewer } from '../components/GameViewer';
 import { indexBeforePly } from '../review/gameViewer';
 import { useSession } from '../session';
 import { reportReviewed } from '../review/completion';
-import { RESULT_WORD } from '../review/summary';
+import { RESULT_WORD, emptyMessage } from '../review/summary';
 
 interface Props {
   index: number;
@@ -54,12 +54,12 @@ export function ReviewGameScreen({ index, game, analysis, onReviewed }: Props) {
     finished.current = true;
     reportReviewed(
       game.id,
-      [...new Set(errors.flatMap((e) => e.diagnosis.conceptIds))],
-      errors.flatMap((e) =>
-        e.diagnosis.conceptIds[0]
-          ? [{ ply: e.move.ply, conceptId: e.diagnosis.conceptIds[0], fen: e.move.fenBefore, bestUci: e.move.bestUci }]
-          : [],
-      ),
+      // Táctica perdida y análisis del motor no tienen concepto: no suman a puntos débiles ni a repasos.
+      [...new Set(errors.flatMap((e) => e.diagnosis?.conceptIds ?? []))],
+      errors.flatMap((e) => {
+        const conceptId = positionConcept(e);
+        return conceptId ? [{ ply: e.move.ply, conceptId, fen: e.move.fenBefore, bestUci: e.move.bestUci }] : [];
+      }),
     );
     onReviewed?.(index);
     navigate('/partidas');
@@ -109,7 +109,7 @@ export function ReviewGameScreen({ index, game, analysis, onReviewed }: Props) {
     return (
       <section className="t-card rv-card" aria-labelledby="rg-title">
         {heading}
-        <p>No encontré errores graves que enseñarte en esta partida. Buen trabajo.</p>
+        <p>{emptyMessage(seriousMoves(analysis).length, countInaccuracies(analysis))}</p>
         <div className="rv-actions">
           <button type="button" className="t-btn t-btn-primary" onClick={finish}>
             Continuar
