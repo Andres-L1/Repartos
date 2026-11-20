@@ -40,6 +40,30 @@ Academia digital de ajedrez, de principiante a ~2000 Elo: ruta de aprendizaje co
 - Lección en pantallas pequeñas: el tablero ya no queda bajo la cabecera ni la barra inferior al pasar de paso (foco con `preventScroll`, `--header-h` con la altura real de la cabecera y `scroll-padding`/`scroll-margin`; `web/src/headerHeight.ts`). El nombre de usuario ocupa el hueco libre de la cabecera móvil y se abrevia con puntos suspensivos solo si no cabe (nombre completo en `title`).
 - Portada sin esperar a `/api/me`: contenido al instante, hueco neutro en el botón principal, CLS 0. El LCP medido no mejora (los textos de la portada entran con fundido desde opacidad 0). Detalle y cifras en `docs/auditoria-plena/02-...` y `03-...`.
 
+## Política de avisos (2026-11-20)
+
+**Qué hace hoy el reproductor** (revisado en `web/src/components/PracticeBoard.tsx`, `ErrorLessonPlayer.tsx`, `TypedMove.tsx` y `web/src/screens/SessionScreen.tsx`):
+
+| Momento | Dónde | Qué ve el alumno |
+|---|---|---|
+| Antes de mover | Práctica de lección | Botón «Pista»: `hint` y la casilla de origen de la jugada resaltada en amarillo. En la evaluación no hay pista. |
+| Primer fallo | Práctica de lección | «Incorrecto» y `wrongByMove[jugada]`, o `explanationWrong` si esa jugada no tiene aviso propio, y «Reintentar». |
+| Segundo fallo y siguientes | Práctica de lección | Lo mismo y, desde 2026-11-20, «La jugada correcta era X» (antes no se decía nunca: quien se atascaba reintentaba sin salida). |
+| Fallo | Evaluación de lección | Un solo intento: el aviso y «La jugada correcta era X» a la vez; después, «Continuar». |
+| Acierto | Práctica y evaluación | `explanationCorrect` (la solución completa y el porqué). |
+| Fallo | «Entrenar hoy» (`SessionScreen`) | Textos fijos («Esa no es. Mira la posición con calma.»), un reintento; al segundo fallo el servidor devuelve la solución y el tablero la juega sola. No usa `hint` ni `explanationWrong`. |
+| Fallo | Mini lección del error (`ErrorLessonPlayer`) | Texto fijo; el botón «Muéstramelo» enseña la mejor jugada. |
+
+Los `hint` del banco (`src/pedagogy/exercises.ts`) hoy no se muestran en la web; tienen la misma regla por si se usan.
+
+**Política.** Un aviso de primer fallo (`hint`, `explanationWrong`, `wrongByMove`) es una pista que orienta el pensamiento (qué buscar, qué idea aplicar, qué fila, columna o casilla estratégica mirar) y nunca nombra la jugada solución ni su casilla de destino. Un `wrongByMove` puede nombrar la jugada del alumno y explicar por qué falla, sin revelar la correcta. Se puede repetir lo que ya dice el enunciado (si pide «mover la torre de h1 a h6», el aviso puede decir h6). La solución completa solo aparece en `explanationCorrect`, en la evaluación tras fallar, tras el segundo fallo de la práctica y con los botones «Muéstramelo» de la mini lección y de «Entrenar hoy».
+
+**Cómo se aplicó.** Por cada ejercicio de u01-u16 y del banco, `scripts/lib/hint-leaks.ts` calcula con chessops las jugadas que dan por buenas (la línea del alumno y sus `alt`), las escribe en SAN y UCI y busca en cada aviso la jugada, «Re8» cuando la solución es «Rxe8» y la casilla de destino. `npx tsx scripts/report-hint-leaks.mts [uXX|bank]` lista los que fallan, y `test/content/hints.test.ts` hace fallar el test si alguno nombra la solución (510 comprobaciones). Se reescribieron 219 avisos en u01-u15 (u01 13, u02 20, u03 26, u04 10, u05 10, u06 19, u07 1, u08 1, u09 16, u10 24, u11 36, u12 26, u13 10, u14 2, u15 5), 18 en u16 y 29 ejercicios del banco (17 de tácticas y 12 de estrategia). Limitaciones: el detector mira jugadas y casillas, no un aviso que diga «captura la torre» sin casilla (eso se dejó, porque suele coincidir con el enunciado); y en jugadas intermedias de una línea larga no distingue a qué turno corresponde cada aviso, así que es más estricto de lo necesario.
+
+**u16 (2026-11-20).** Los textos del alumno ya no citan al motor ni cifras en peones; cada lección lo dice en una nota breve de la introducción. Cada posición tiene su texto propio (qué peón propio tapa la torre, qué columna está abierta y qué casilla de entrada da, qué peones ataca la torre desde la séptima y cuáles no defiende nadie, qué peón protege al caballo, qué piezas rivales ataca y cuáles podrían cambiarlo). Cada hecho va con una afirmación (`Claim`) que comprueba `scripts/lib/strategy-describe.ts`, y el test exige que toda casilla citada en un texto esté respaldada por una afirmación verdadera (`test/content/unitsF.test.ts`). Posiciones y soluciones no cambiaron. **No validado por código:** que la explicación sea buena pedagogía; eso sigue pendiente de profesores.
+
+**Numeración del mapa.** «Unidad N» es la posición en la ruta ordenada (`src/shared/unitNumber.ts`), no el campo `order`, en el mapa, el perfil y la portada. Ids y `order` no cambian.
+
 ## Pendiente, por orden recomendado
 00. **Aplicar la migración 0010 en remoto antes de desplegar** (`npx wrangler d1 migrations apply PULSE_DB --remote`): crea `cp_puzzle_stats` con sus tres disparadores y los índices, y rellena los contadores desde `cp_puzzle_pool`. Sin ella el cron falla (se registra, no tumba nada) y el relleno del depósito se para. Es idempotente. Primera vez que una migración lleva disparadores (`CREATE TRIGGER ... BEGIN ... END`): se probó con D1 local real (workerd) y node:sqlite, **no** con `wrangler d1 migrations apply --remote`; si el comando rechazara el `BEGIN ... END`, avisa antes de tocar nada más. Con ella aplicada el cron queda cada minuto (ya en `wrangler.jsonc`).
 0. **Aplicar la migración 0009 en remoto antes de desplegar** (`npx wrangler d1 migrations apply PULSE_DB --remote`): sin `cp_session_claims` ni `cp_cron_state` fallan la creación de sesiones y el relleno del depósito. Solo se ha aplicado en las bases de los tests (node:sqlite y D1 local temporal).
