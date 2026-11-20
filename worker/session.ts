@@ -7,6 +7,7 @@ import { LEVELS } from '../src/shared/levels.js';
 import { difficultyForLevel, dueAfter, maxRatingForLevel, nextBox, themeForConcept } from '../src/review/srs.js';
 import { isExpectedMove } from '../src/shared/moves.js';
 import type { Db, Stmt } from './db.js';
+import { ENGINE_ONLY_CONCEPT_ID } from '../src/pedagogy/explain.js';
 import { CONCEPT_IDS } from './srs.js';
 import { takePuzzle } from './puzzles.js';
 
@@ -62,7 +63,13 @@ async function dueConcepts(db: Db, userId: string, nowMs: number): Promise<strin
      ORDER BY COALESCE(w.count, 0) DESC, c.concept_id`,
     [userId, nowMs, userId, userId, userId],
   );
-  return rows.map((r) => r.concept_id).filter((c) => CONCEPT_IDS.has(c));
+  const due = rows.map((r) => r.concept_id).filter((c) => CONCEPT_IDS.has(c));
+  // Errores propios sin concepto (táctica perdida, solo motor): se repasan mientras queden sin resolver, sin calendario ni puntos débiles.
+  const own = await db.first<{ x: number }>(
+    'SELECT 1 AS x FROM cp_review_positions WHERE user_id = ? AND concept_id = ? AND solved_at IS NULL LIMIT 1',
+    [userId, ENGINE_ONLY_CONCEPT_ID],
+  );
+  return own ? [...due, ENGINE_ONLY_CONCEPT_ID] : due;
 }
 
 export async function nextDueAt(db: Db, userId: string, nowMs: number): Promise<string | null> {
@@ -294,7 +301,7 @@ export async function finishPlan(
   const boxes = new Map(
     (await db.all<{ concept_id: string; box: number }>('SELECT concept_id, box FROM cp_review_schedule WHERE user_id = ?', [userId])).map((b) => [b.concept_id, b.box]),
   );
-  const stmts: Stmt[] = reviewed.map(({ conceptId, correct }): Stmt => {
+  const stmts: Stmt[] = reviewed.filter((r) => r.conceptId !== ENGINE_ONLY_CONCEPT_ID).map(({ conceptId, correct }): Stmt => {
     const box = nextBox(boxes.get(conceptId) ?? 1, correct);
     return {
       sql: `INSERT INTO cp_review_schedule (user_id, concept_id, box, due_at, last_at) VALUES (?,?,?,?,?)

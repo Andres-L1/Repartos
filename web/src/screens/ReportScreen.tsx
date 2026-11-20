@@ -123,7 +123,7 @@ export function ReportScreen({ games, analyses }: { games: ReviewGame[]; analyse
     if (!report || !rule) return [];
     const star = report.starError;
     const same = (e: KeyError) => !!star && e.gameId === star.gameId && e.move.ply === star.move.ply;
-    const rest = analyses.flatMap((a) => keyErrors(a)).filter((e) => e.diagnosis.conceptIds.includes(rule) && !same(e));
+    const rest = analyses.flatMap((a) => keyErrors(a)).filter((e) => !!e.diagnosis?.conceptIds.includes(rule) && !same(e));
     return [...(star ? [star] : []), ...rest].slice(0, MAX_PRACTICE);
   }, [report, analyses]);
 
@@ -157,7 +157,13 @@ export function ReportScreen({ games, analyses }: { games: ReviewGame[]; analyse
         <section className="t-card rp-card" aria-labelledby="rp-bad">
           <h2 id="rp-bad" className="rp-sec rp-sec-bad">Lo que más te cuesta</h2>
           {top.length === 0 ? (
-            <p className="rp-lead">No encontré errores graves con una causa clara en estas partidas.</p>
+            <>
+              <p className="rp-lead">
+                {report.serious === 0
+                  ? 'No encontré errores graves en estas partidas.'
+                  : `Hubo ${report.serious} ${report.serious === 1 ? 'error grave' : 'errores graves'} sin una causa que pueda comprobar con seguridad. Los verás, con la mejor jugada, en el repaso de cada partida.`}
+              </p>
+            </>
           ) : (
             <ul className="rp-list">
               {top.map((w) => (

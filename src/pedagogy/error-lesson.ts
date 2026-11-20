@@ -1,12 +1,31 @@
 import { attacks, between } from 'chessops/attacks';
 import type { Chess } from 'chessops/chess';
 import type { Move, Role, Square } from 'chessops/types';
+import { makeFen } from 'chessops/fen';
 import { makeSquare, parseSquare } from 'chessops/util';
 import { VALUE, canCaptureOn, findPins, loadPosition, playLine, replayAsThreat, type Step } from '../diagnosis/chess-utils.js';
 import type { KeyError } from '../review/types.js';
-import type { Level } from '../types.js';
-import { sanIn, withArticle } from './explain.js';
-import { BEST, HAPPENED, PAUSE, lossInPieces, ruleFor, whyFor, type MoveWords } from './review-copy.js';
+import type { Diagnosis, Level } from '../types.js';
+import { ENGINE_ONLY_CONCEPT_ID, sanIn, withArticle } from './explain.js';
+import {
+  BEST,
+  ENGINE_COPY,
+  HAPPENED,
+  MISSED,
+  PAUSE,
+  evalChange,
+  evalState,
+  lossInPieces,
+  ruleFor,
+  whyFor,
+  type MoveWords,
+} from './review-copy.js';
+
+/** Error con causa tipificada (las seis reglas de diagnose): el flujo de la lección con pausa. */
+type CauseError = KeyError & { diagnosis: Diagnosis };
+
+/** Máximo de medias jugadas de la línea del motor que se muestran en el tablero. */
+const LINE_PLIES = 5;
 
 export interface LessonArrow {
   from: string;
@@ -23,13 +42,19 @@ export interface ErrorLesson {
   gameId: string;
   ply: number;
   conceptId: string;
+  /** Ausente: error con causa verificada. 'missed': táctica perdida. 'engine': solo análisis del motor (sin causa). */
+  kind?: 'missed' | 'engine';
+  /** Línea principal corta del motor desde fenBefore (kind missed/engine): `fens[i]` es la posición tras la media jugada i. */
+  line?: { sans: string[]; ucis: string[]; fens: string[] };
   fenBefore: string;
   yourMoveSan: string;
   /** Solo existe si de la evidencia sale una casilla comprobable y única; si no, la interfaz se la salta. */
   pause?: { question: string; correctSquares: string[] };
   happened: { text: string; arrows: LessonArrow[]; circles: string[] };
+  /** Vacío: el momento «Por qué importa» se salta (no hay un porqué comprobado que contar). */
   why: string;
-  best: { uci: string; san: string; text: string };
+  /** `hint`: pista del primer fallo al buscar la jugada mejor (solo kind missed/engine; no nombra la jugada ni su casilla). */
+  best: { uci: string; san: string; text: string; hint?: string };
   rule: string;
 }
 
@@ -204,7 +229,7 @@ const onlyIn = (set: Set<string> | string[], square: string): boolean => {
 };
 
 /** ¿La refutación del diagnóstico es una jugada del alumno desde fenBefore? (mate propio desaprovechado) */
-const isOwnMove = (err: KeyError): boolean => {
+const isOwnMove = (err: CauseError): boolean => {
   const ref = err.diagnosis.evidence.refutationUci;
   return !!ref && sanIn(err.move.fenBefore, ref) !== undefined;
 };
@@ -213,7 +238,7 @@ const isOwnMove = (err: KeyError): boolean => {
  * Pregunta de la pausa según el tipo de error. La respuesta siempre es una casilla de evidence.squares y
  * se comprueba en el tablero que sea la única respuesta correcta a la pregunta; si no, no hay pausa.
  */
-function buildPause(err: KeyError, pos0: Chess | null, pos1: Chess | null): Pause {
+function buildPause(err: CauseError, pos0: Chess | null, pos1: Chess | null): Pause {
   const { move, diagnosis: d } = err;
   const sq = d.evidence.squares;
   const pc = d.evidence.pieces;
@@ -300,7 +325,7 @@ function buildPause(err: KeyError, pos0: Chess | null, pos1: Chess | null): Paus
 }
 
 /** Cadena de capturas sobre `square` (tu captura inicial, si la hay, y las de la línea del motor). */
-function exchangeChain(pos0: Chess, pos1: Chess, err: KeyError, square: Square): Step[] {
+function exchangeChain(pos0: Chess, pos1: Chess, err: CauseError, square: Square): Step[] {
   const chain: Step[] = [];
   const played = playLine(pos0, [err.move.uci], 1)[0];
   if (played?.captured && played.to === square) chain.push(played);
@@ -312,7 +337,7 @@ function exchangeChain(pos0: Chess, pos1: Chess, err: KeyError, square: Square):
 }
 
 /** «Qué pasó»: frase para principiantes construida con la evidencia (nunca la frase técnica del diagnóstico). */
-function happenedText(err: KeyError, pos0: Chess | null, pos1: Chess | null): string {
+function happenedText(err: CauseError, pos0: Chess | null, pos1: Chess | null): string {
   const { move, diagnosis: d } = err;
   const sq = d.evidence.squares;
   const pc = d.evidence.pieces;
@@ -380,7 +405,7 @@ function happenedText(err: KeyError, pos0: Chess | null, pos1: Chess | null): st
 }
 
 /** Casillas que se marcan con un círculo en «qué pasó» (siempre de evidence.squares). */
-function circlesFor(err: KeyError): string[] {
+function circlesFor(err: CauseError): string[] {
   const sq = err.diagnosis.evidence.squares;
   switch (err.diagnosis.type) {
     case 'hanging_piece':
@@ -404,6 +429,79 @@ function circlesFor(err: KeyError): string[] {
  * material en piezas); `level` se mantiene en la firma para poder adaptar el tono más adelante.
  */
 export function buildErrorLesson(err: KeyError, _level: Level): ErrorLesson {
+  if (!err.diagnosis) return buildGenericLesson(err, 'engine');
+  if (err.diagnosis.type === 'missed_tactic') return buildGenericLesson(err, 'missed');
+  return buildCauseLesson(err as CauseError);
+}
+
+/** Línea principal del motor desde fenBefore (prefijo legal, `LINE_PLIES` medias jugadas como máximo); siempre empieza por la mejor jugada. */
+function engineLine(move: KeyError['move'], pos0: Chess | null): ErrorLesson['line'] {
+  if (!pos0) return undefined;
+  const ucis = move.pv[0] === move.bestUci ? move.pv : [move.bestUci];
+  const steps = playLine(pos0, ucis, LINE_PLIES);
+  if (steps.length === 0) return undefined;
+  return { sans: steps.map((s) => s.san), ucis: steps.map((s) => s.uci), fens: steps.map((s) => makeFen(s.pos.toSetup())) };
+}
+
+/**
+ * Lección sin causa tipificada. 'missed': el hecho es una captura o un jaque ganador comprobado con la línea del motor.
+ * 'engine': solo lo que el motor verificó (tu jugada, la mejor, cuánto cambia la evaluación y la línea); sin pausa
+ * y sin «por qué», porque no se puede comprobar y no se inventa.
+ */
+function buildGenericLesson(err: KeyError, kind: 'missed' | 'engine'): ErrorLesson {
+  const { move, diagnosis: d } = err;
+  const pos0 = loadPosition(move.fenBefore);
+  const bestSan = sanIn(move.fenBefore, move.bestUci) ?? move.bestSan;
+  const bw = describeMove(move.fenBefore, move.bestUci, bestSan);
+  const w = describeMove(move.fenBefore, move.uci, move.san);
+  const line = engineLine(move, pos0);
+  const bestRole = pos0?.board.get(parseSquare(move.bestUci.slice(0, 2))!)?.role ?? '';
+  const arrows: LessonArrow[] = [arrow(move.uci, 'bad'), arrow(move.bestUci, 'good')];
+  const lineText = line && line.sans.length > 1 ? ` ${ENGINE_COPY.line(line.sans)}` : '';
+  const base = { gameId: err.gameId, ply: move.ply, conceptId: ENGINE_ONLY_CONCEPT_ID, fenBefore: move.fenBefore, yourMoveSan: move.san };
+
+  if (kind === 'missed' && d) {
+    const ev = d.evidence;
+    const [piece = '', target = ''] = ev.pieces;
+    const square = ev.squares[1] ?? '';
+    const text =
+      ev.tactic === 'free_capture'
+        ? MISSED.freeCapture(target, square, piece, w)
+        : ev.tactic === 'winning_exchange'
+          ? MISSED.winningExchange(target, square, piece, ev.gainCp ?? 0, w)
+          : ev.tactic === 'check_mate'
+            ? MISSED.checkMate(piece, w)
+            : MISSED.checkWins(piece, ev.gainCp ?? 0, w);
+    const capture = ev.tactic === 'free_capture' || ev.tactic === 'winning_exchange';
+    return {
+      ...base,
+      kind,
+      ...(line ? { line } : {}),
+      happened: { text, arrows, circles: ev.squares.slice(1, 2) },
+      why: MISSED.why[ev.tactic ?? 'check_wins'],
+      best: { uci: move.bestUci, san: bestSan, text: `${bestSan.endsWith('#') ? BEST.mate1(bw) : BEST.plain(bw)}${lineText}`, hint: capture ? MISSED.hintCapture : MISSED.hintCheck },
+      rule: MISSED.rule,
+    };
+  }
+
+  const change = evalChange(evalState(move.scoreBefore, move.color), evalState(move.scoreAfter, move.color), w);
+  return {
+    ...base,
+    kind,
+    ...(line ? { line } : {}),
+    happened: { text: `${change} ${ENGINE_COPY.noCause}`, arrows, circles: [] },
+    why: '',
+    best: {
+      uci: move.bestUci,
+      san: bestSan,
+      text: `${bestSan.endsWith('#') ? ENGINE_COPY.bestMate(bw) : ENGINE_COPY.best(bw)}${lineText}`,
+      ...(bestRole ? { hint: ENGINE_COPY.hint(bestRole) } : {}),
+    },
+    rule: ruleFor(ENGINE_ONLY_CONCEPT_ID),
+  };
+}
+
+function buildCauseLesson(err: CauseError): ErrorLesson {
   const { move, diagnosis: d } = err;
   const conceptId = d.conceptIds[0] ?? `tactics.${d.type}`;
   const pos0 = loadPosition(move.fenBefore);

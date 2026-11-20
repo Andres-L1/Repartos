@@ -7,7 +7,7 @@ import { diagnose } from '../../src/diagnosis/index.js';
 import { buildErrorLesson, describeMove, type ErrorLesson } from '../../src/pedagogy/error-lesson.js';
 import { HAPPENED, lossInPieces, ruleFor, youMove, youMoved } from '../../src/pedagogy/review-copy.js';
 import type { KeyError } from '../../src/review/types.js';
-import type { AnalyzedMove, Level, Score } from '../../src/types.js';
+import type { AnalyzedMove, Diagnosis, Level, Score } from '../../src/types.js';
 
 const JARGON = /evaluaci[oó]n|centipe[oó]n|peones? de/i;
 const CONCEPT_IDS = [
@@ -56,7 +56,8 @@ function mk(c: Case): AnalyzedMove {
 }
 
 /** Cadena completa y real: AnalyzedMove -> diagnose -> KeyError. */
-function keyError(c: Case): KeyError {
+type CauseKE = KeyError & { diagnosis: Diagnosis };
+function keyError(c: Case): CauseKE {
   const move = mk(c);
   const diagnosis = diagnose(move);
   expect(diagnosis, `${c.name}: diagnóstico verificado`).not.toBeNull();
@@ -601,7 +602,7 @@ describe('pausa: la respuesta es la única correcta', () => {
     return [...new Set(moves(p).filter((m) => play(p, m).isCheckmate()).map((m) => makeSquare(m.from)))];
   }
 
-  const check = (c: Case, answers: (err: KeyError) => string[]) => {
+  const check = (c: Case, answers: (err: CauseKE) => string[]) => {
     const err = keyError(c);
     const l = buildErrorLesson(err, 'beginner');
     expect(l.pause, `${c.name}: hay pausa`).toBeDefined();
@@ -632,7 +633,7 @@ describe('pausa: la respuesta es la única correcta', () => {
   });
 
   it('con una segunda respuesta legítima, la pausa se omite', () => {
-    const cases: [Case, (e: KeyError) => string[]][] = [
+    const cases: [Case, (e: CauseKE) => string[]][] = [
       [C.forkTwoSquares, (e) => forkAnswers(e.move.fenAfter, e.diagnosis.evidence.pieces[0]!)],
       [C.discoveredTwoBlockers, (e) => discoveryAnswers(e.move.fenAfter, e.diagnosis.evidence.squares[3]!)],
       [C.exchangeTwoWinning, (e) => exchangeAnswers(e.move.fenAfter)],

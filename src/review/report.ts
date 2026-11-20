@@ -1,4 +1,4 @@
-import { keyErrors } from './select.js';
+import { countInaccuracies, keyErrors, seriousMoves } from './select.js';
 import type { AnalyzedMove } from '../types.js';
 import type { GameAnalysis, KeyError, Phase, Report, ReviewGame, Strength } from './types.js';
 
@@ -75,7 +75,8 @@ export function buildReport(analyses: GameAnalysis[], games: ReviewGame[]): Repo
   const byConcept = new Map<string, KeyError[]>();
   for (const a of analyses) {
     for (const ke of keyErrors(a)) {
-      for (const conceptId of ke.diagnosis.conceptIds) {
+      // Táctica perdida y análisis del motor no tienen concepto: no suman a puntos débiles ni a repasos.
+      for (const conceptId of ke.diagnosis?.conceptIds ?? []) {
         const s = stats.get(conceptId) ?? { games: new Set<string>(), occurrences: 0 };
         s.games.add(a.gameId);
         s.occurrences++;
@@ -93,6 +94,8 @@ export function buildReport(analyses: GameAnalysis[], games: ReviewGame[]): Repo
     counts,
     strengths: computeStrengths(analyses, games),
     weaknesses,
+    inaccuracies: analyses.reduce((n, a) => n + countInaccuracies(a), 0),
+    serious: analyses.reduce((n, a) => n + seriousMoves(a).length, 0),
   };
   if (weaknesses.length > 0) {
     const top = weaknesses[0]!.conceptId;

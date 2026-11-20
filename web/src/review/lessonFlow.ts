@@ -10,6 +10,8 @@ export interface LessonState {
   pauseResult: PauseResult | null;
   /** La lección tiene pausa comprobable; si no, el paso `pause` se salta. */
   hasPause: boolean;
+  /** Hay un «por qué» que contar; si no (lección solo con análisis del motor), el momento se salta. */
+  hasWhy: boolean;
   correctSquares: readonly string[];
   /** Casilla marcada en la pausa; elegirla no responde, solo `confirm` lo hace. */
   selected: string | null;
@@ -17,8 +19,8 @@ export interface LessonState {
 
 export type LessonAction = { type: 'next' } | { type: 'select'; square: string } | { type: 'confirm' } | { type: 'skip' };
 
-export function initLessonState(lesson: Pick<ErrorLesson, 'pause'>): LessonState {
-  return { step: 'look', pauseResult: null, hasPause: !!lesson.pause, correctSquares: lesson.pause?.correctSquares ?? [], selected: null };
+export function initLessonState(lesson: Pick<ErrorLesson, 'pause'> & Partial<Pick<ErrorLesson, 'why'>>): LessonState {
+  return { step: 'look', pauseResult: null, hasPause: !!lesson.pause, hasWhy: lesson.why !== '', correctSquares: lesson.pause?.correctSquares ?? [], selected: null };
 }
 
 const AFTER: Record<Exclude<LessonStep, 'done' | 'pause'>, LessonStep> = { look: 'pause', happened: 'why', why: 'best', best: 'done' };
@@ -28,7 +30,9 @@ export function lessonReducer(state: LessonState, action: LessonAction): LessonS
   if (action.type === 'next') {
     if (state.step === 'done' || state.step === 'pause') return state;
     const step = AFTER[state.step];
-    return step === 'pause' && !state.hasPause ? { ...state, step: 'happened' } : { ...state, step };
+    if (step === 'pause' && !state.hasPause) return { ...state, step: 'happened' };
+    if (step === 'why' && !state.hasWhy) return { ...state, step: 'best' };
+    return { ...state, step };
   }
   if (state.step !== 'pause') return state;
   if (action.type === 'skip') return { ...state, step: 'happened', pauseResult: 'skipped' };

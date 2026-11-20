@@ -33,13 +33,34 @@ export function inGames(n: number, total: number): string {
   return `en ${n} de ${total} ${total === 1 ? 'partida' : 'partidas'}`;
 }
 
+/** « 4 imprecisiones, que no se repasan.» (vacío si no hay) */
+export function inaccuracySentence(n: number): string {
+  return n > 0 ? ` Además, ${n} ${n === 1 ? 'imprecisión' : 'imprecisiones'}: jugadas algo peores que la mejor, que no hace falta repasar.` : '';
+}
+
+/**
+ * Mensaje de una partida sin nada que repasar. `serious`: errores graves del alumno (sin mejor jugada que enseñar
+ * si se llega aquí con serious > 0); `inaccuracies`: jugadas algo peores que la mejor.
+ */
+export function emptyMessage(serious: number, inaccuracies: number): string {
+  const inacc = inaccuracies === 0 ? 'ninguna imprecisión' : `${inaccuracies} ${inaccuracies === 1 ? 'imprecisión' : 'imprecisiones'}`;
+  if (serious === 0) return `Partida limpia: ${inacc}, ninguna grave. No hay nada que repasar. Buen trabajo.`;
+  return `Hubo ${serious} ${serious === 1 ? 'error grave' : 'errores graves'}, pero no pude comprobar una jugada mejor que enseñarte. Puedes verlos en la partida.`;
+}
+
 export function headline(r: Report): string {
   const { wins, draws, losses } = r.counts;
   const total = r.games.length;
   const main = r.weaknesses[0];
   const results = `${wins} ${wins === 1 ? 'ganada' : 'ganadas'}, ${draws} ${draws === 1 ? 'empatada' : 'empatadas'} y ${losses} ${losses === 1 ? 'perdida' : 'perdidas'}`;
-  if (!main) return `En tus últimas ${total} partidas: ${results}. No encontré errores graves con una causa clara.`;
-  return `En tus últimas ${total} partidas: ${results}. Lo que más puntos te ha costado: ${conceptShort(main.conceptId)}.`;
+  if (!main) {
+    const noCause =
+      r.serious === 0
+        ? 'No encontré errores graves.'
+        : `Hubo ${r.serious} ${r.serious === 1 ? 'error grave' : 'errores graves'} sin una causa que pueda comprobar; los verás en el repaso de cada partida.`;
+    return `En tus últimas ${total} partidas: ${results}. ${noCause}${inaccuracySentence(r.inaccuracies)}`;
+  }
+  return `En tus últimas ${total} partidas: ${results}. Lo que más puntos te ha costado: ${conceptShort(main.conceptId)}.${inaccuracySentence(r.inaccuracies)}`;
 }
 
 export function strengthSentence(s: Strength): string {

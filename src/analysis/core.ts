@@ -2,7 +2,7 @@ import { Chess } from 'chessops/chess';
 import { parseFen } from 'chessops/fen';
 import type { AnalyzedMove, MoveClass, Score } from '../types.js';
 import type { EngineLike, EngineResult } from './engine-like.js';
-import { parseGame, uciToSan } from './pgn.js';
+import { parseGame, uciToSan, type ParsedMove } from './pgn.js';
 
 const MATE_CP = 1000;
 
@@ -59,7 +59,12 @@ export async function analyzeWith(engine: EngineLike, pgn: string, opts: Analyze
     opts.onProgress?.(i + 1, fens.length);
   }
 
-  return game.moves.map((m, i) => {
+  return assembleMoves(game.moves, results);
+}
+
+/** Une las jugadas de la partida con los resultados del motor (uno por posición: n+1) y calcula pérdida y clase. Puro: sirve también para reconstruir análisis guardados. */
+export function assembleMoves(moves: ParsedMove[], results: EngineResult[]): AnalyzedMove[] {
+  return moves.map((m, i) => {
     const before = results[i]!;
     const after = results[i + 1]!;
     let cpLoss: number;

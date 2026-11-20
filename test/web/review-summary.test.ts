@@ -7,6 +7,8 @@ const report = (over: Partial<Report> = {}): Report => ({
   counts: { wins: 6, draws: 1, losses: 3 },
   strengths: [],
   weaknesses: [{ conceptId: 'tactics.hanging_piece', games: 4, occurrences: 5 }],
+  inaccuracies: 0,
+  serious: 0,
   ...over,
 });
 

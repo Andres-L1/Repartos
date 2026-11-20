@@ -4,10 +4,13 @@ import { parseFen } from 'chessops/fen';
 import { parseUci } from 'chessops/util';
 import type { SqlValue, Stmt } from './db.js';
 import { CONCEPTS } from '../src/pedagogy/concepts.js';
+import { ENGINE_ONLY_CONCEPT_ID } from '../src/pedagogy/explain.js';
 import { dueAfter, type ReviewPosition } from '../src/review/srs.js';
 
 export type { ReviewPosition };
 export const CONCEPT_IDS = new Set(CONCEPTS.map((c) => c.id));
+/** Posiciones propias sin concepto (táctica perdida o solo motor): se guardan, pero no cuentan como concepto fallado ni se repasan por calendario. */
+export const POSITION_CONCEPT_IDS = new Set([...CONCEPT_IDS, ENGINE_ONLY_CONCEPT_ID]);
 export const MAX_POSITIONS = 3;
 export const MAX_UNSOLVED = 100;
 /** Topes por usuario de lo que crece sin límite si el cliente inventa ids: se conservan los más recientes. */
@@ -58,7 +61,7 @@ export function parsePositions(raw: unknown): ReviewPosition[] | string {
     if (!p || typeof p !== 'object') return 'positions no válido';
     const { ply, conceptId, fen, bestUci } = p;
     if (typeof ply !== 'number' || !Number.isInteger(ply) || ply < 1 || ply > 1000) return 'ply no válido';
-    if (typeof conceptId !== 'string' || !CONCEPT_IDS.has(conceptId)) return 'concepto desconocido';
+    if (typeof conceptId !== 'string' || !POSITION_CONCEPT_IDS.has(conceptId)) return 'concepto desconocido';
     if (typeof fen !== 'string' || fen.length > 100 || typeof bestUci !== 'string' || !legalMove(fen, bestUci)) return 'posición no válida';
     out.push({ ply, conceptId, fen, bestUci });
   }

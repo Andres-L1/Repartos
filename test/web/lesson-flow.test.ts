@@ -19,6 +19,15 @@ describe('lessonReducer', () => {
     }
     expect(seen).toEqual(['look', 'pause', 'happened', 'why', 'best', 'done']);
   });
+  it('sin «por qué» (solo motor) se salta ese paso: look, happened, best, done', () => {
+    let s = initLessonState({ ...lesson(false), why: '' });
+    const seen = [s.step];
+    for (let i = 0; i < 3; i++) {
+      s = lessonReducer(s, { type: 'next' });
+      seen.push(s.step);
+    }
+    expect(seen).toEqual(['look', 'happened', 'best', 'done']);
+  });
   it('sin pause se salta ese paso', () => {
     const s = run(initLessonState(lesson(false)), { type: 'next' });
     expect(s.step).toBe('happened');

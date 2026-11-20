@@ -35,11 +35,14 @@ export interface GameAnalysis {
   moves: AnalyzedMove[];
 }
 
-/** Error clave de una partida con su causa verificada. */
+/**
+ * Error clave de una partida. `diagnosis`: causa verificada, táctica perdida (type 'missed_tactic', sin concepto)
+ * o null cuando solo hay análisis del motor (`engine.analysis`).
+ */
 export interface KeyError {
   gameId: string;
   move: AnalyzedMove;
-  diagnosis: Diagnosis;
+  diagnosis: Diagnosis | null;
 }
 
 export type Phase = 'opening' | 'middlegame' | 'endgame';
@@ -57,6 +60,10 @@ export interface Report {
   counts: { wins: number; draws: number; losses: number };
   strengths: Strength[];
   weaknesses: { conceptId: string; games: number; occurrences: number }[];
+  /** Imprecisiones del alumno (50 a 100 cp) en las partidas del informe: no se repasan, solo se cuentan. */
+  inaccuracies: number;
+  /** Jugadas con error grave (mistake o blunder) del alumno en las partidas del informe, tengan causa o no. */
+  serious: number;
   starError?: KeyError;
   ruleConceptId?: string;
 }

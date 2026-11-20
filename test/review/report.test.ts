@@ -3,6 +3,7 @@ import type { AnalyzedMove, Diagnosis } from '../../src/types.js';
 
 // El concepto va en san como 'c:<concepto>' (varios separados por coma): así se controla sin posiciones reales.
 vi.mock('../../src/diagnosis/index.js', () => ({
+  diagnoseMissedTactic: () => null,
   diagnose: (m: AnalyzedMove): Diagnosis | null =>
     m.san.startsWith('c:')
       ? { type: 'fork', ply: m.ply, color: m.color, fact: 'f', evidence: { squares: [], pieces: [] }, conceptIds: m.san.slice(2).split(',') }

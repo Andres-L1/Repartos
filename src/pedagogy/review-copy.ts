@@ -233,3 +233,84 @@ export const BEST = {
   mate1: (w: MoveWords) => `Una jugada mejor era ${w.inf}, que daba jaque mate y ganaba la partida${paren(w)}.`,
   mateN: (w: MoveWords) => `Una jugada mejor era ${w.inf}${paren(w)}, que empezaba una serie de jaques que terminaba en jaque mate.`,
 };
+
+// --- Lecciones sin causa tipificada: táctica perdida y análisis del motor. ---
+
+/** Cómo está la partida para quien mueve, en palabras (nunca cifras del motor). */
+export type EvalState = 'winning' | 'better' | 'slightly_better' | 'equal' | 'slightly_worse' | 'worse' | 'lost' | 'mate_for' | 'mate_against';
+
+/** Estado para quien mueve a partir de la puntuación (centipeones desde blancas, o mate). */
+export function evalState(score: { cp?: number; mate?: number }, color: 'white' | 'black'): EvalState {
+  if (score.mate !== undefined) return (score.mate > 0) === (color === 'white') ? 'mate_for' : 'mate_against';
+  const cp = (score.cp ?? 0) * (color === 'white' ? 1 : -1);
+  if (cp >= 300) return 'winning';
+  if (cp >= 120) return 'better';
+  if (cp >= 50) return 'slightly_better';
+  if (cp > -50) return 'equal';
+  if (cp > -120) return 'slightly_worse';
+  if (cp > -300) return 'worse';
+  return 'lost';
+}
+
+const BEFORE: Record<EvalState, string> = {
+  winning: 'tenías la partida ganada con claridad',
+  better: 'tenías ventaja clara',
+  slightly_better: 'tenías algo de ventaja',
+  equal: 'la partida estaba igualada',
+  slightly_worse: 'estabas algo peor',
+  worse: 'estabas peor',
+  lost: 'la posición ya era muy mala',
+  mate_for: 'tenías un mate forzado',
+  mate_against: 'el rival tenía un mate forzado',
+};
+const AFTER: Record<EvalState, string> = {
+  winning: 'sigues ganando con claridad',
+  better: 'sigues con ventaja clara',
+  slightly_better: 'te queda algo de ventaja',
+  equal: 'la partida pasa a estar igualada',
+  slightly_worse: 'pasas a estar algo peor',
+  worse: 'pasas a estar peor',
+  lost: 'la posición pasa a estar perdida',
+  mate_for: 'sigues teniendo un mate forzado',
+  mate_against: 'el rival pasa a tener un mate forzado',
+};
+
+const POSITIVE = new Set<EvalState>(['winning', 'better', 'slightly_better', 'mate_for']);
+
+/** Cuánto cambia la evaluación, en lenguaje claro. Con el mismo estado antes y después se dice solo que baja el margen. */
+export function evalChange(before: EvalState, after: EvalState, w: MoveWords): string {
+  if (before === after) {
+    return `Antes de tu jugada ${BEFORE[before]}. Con ${w.inf}${paren(w)} ${POSITIVE.has(before) ? 'se reduce mucho tu ventaja' : 'tu situación empeora todavía más'}.`;
+  }
+  return `Antes de tu jugada ${BEFORE[before]}; después de ${w.inf}${paren(w)}, ${AFTER[after]}.`;
+}
+
+export const ENGINE_COPY = {
+  /** No hay causa que se pueda comprobar: se dice y no se inventa. */
+  noCause: 'No he podido comprobar una causa concreta (una pieza sin defensa, un cambio malo, un ataque doble...), así que no te la voy a suponer.',
+  best: (w: MoveWords) => `El motor prefería ${w.inf}${paren(w)}.`,
+  bestMate: (w: MoveWords) => `El motor prefería ${w.inf}${paren(w)}, que daba jaque mate.`,
+  line: (sans: string[]) => `Línea principal del motor: ${sans.join(' ')}.`,
+  hint: (role: string) => `Pista: la jugada mejor la hace ${withArticle(role)}.`,
+};
+
+/** Textos de la táctica perdida: qué se ganaba, solo con hechos comprobados reproduciendo la línea del motor. */
+export const MISSED = {
+  freeCapture: (target: string, square: string, piece: string, w: MoveWords) =>
+    `Podías capturar ${withArticle(target)} de ${square} con ${withArticle(piece)} y el rival no podía recapturar. En su lugar, ${w.past}${paren(w)}.`,
+  winningExchange: (target: string, square: string, piece: string, gainCp: number, w: MoveWords) =>
+    `Podías capturar ${withArticle(target)} de ${square} con ${withArticle(piece)}. Aunque el rival recaptura, al final de la serie ganas el valor de ${lossInPieces(gainCp)}. En su lugar, ${w.past}${paren(w)}.`,
+  checkMate: (piece: string, w: MoveWords) =>
+    `Podías dar jaque con ${withArticle(piece)} y la línea del motor termina en jaque mate. En su lugar, ${w.past}${paren(w)}.`,
+  checkWins: (piece: string, gainCp: number, w: MoveWords) =>
+    `Podías dar jaque con ${withArticle(piece)} y, siguiendo la línea del motor, ganar el valor de ${lossInPieces(gainCp)}. En su lugar, ${w.past}${paren(w)}.`,
+  why: {
+    free_capture: 'Capturar una pieza que nadie protege gana material sin dar nada a cambio.',
+    winning_exchange: 'Una serie de capturas que te deja con más material te da ventaja.',
+    check_mate: 'Un jaque que lleva a mate termina la partida.',
+    check_wins: 'Un jaque obliga a responder, y aquí esa respuesta forzada te dejaba ganar material.',
+  },
+  rule: 'Antes de mover, mira todas las capturas y todos los jaques, tuyos y del rival.',
+  hintCapture: 'Pista: mira primero las capturas que puedes hacer.',
+  hintCheck: 'Pista: mira primero los jaques que puedes dar.',
+};

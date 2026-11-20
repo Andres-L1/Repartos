@@ -4,6 +4,7 @@ import { badExchange } from './rules/bad_exchange.js';
 import { discoveredAttack } from './rules/discovered_attack.js';
 import { fork } from './rules/fork.js';
 import { hangingPiece } from './rules/hanging_piece.js';
+import { missedTactic } from './rules/missed_tactic.js';
 import { mateThreat } from './rules/mate_threat.js';
 import { pin } from './rules/pin.js';
 import type { Rule } from './rules/types.js';
@@ -32,4 +33,18 @@ export function diagnose(move: AnalyzedMove): Diagnosis | null {
     return null;
   }
   return null;
+}
+
+/**
+ * Táctica perdida (captura o jaque ganador que el alumno no jugó). Va aparte de diagnose(): no explica la jugada hecha
+ * y no tiene concepto que repasar; el selector la prueba después de las causas tipificadas.
+ */
+export function diagnoseMissedTactic(move: AnalyzedMove): Diagnosis | null {
+  if (move.classification === 'best' || move.classification === 'good') return null;
+  try {
+    const ctx = buildCtx(move);
+    return ctx ? missedTactic(ctx) : null;
+  } catch {
+    return null;
+  }
 }

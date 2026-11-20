@@ -49,7 +49,8 @@ export type ErrorType =
   | 'fork' // ataque doble
   | 'pin' // clavada
   | 'mate_threat' // amenaza de mate / mate desaprovechado
-  | 'discovered_attack'; // jaque / ataque a la descubierta (añadido en la corrección de la validación Fase 1)
+  | 'discovered_attack' // jaque / ataque a la descubierta (añadido en la corrección de la validación Fase 1)
+  | 'missed_tactic'; // táctica perdida: una captura o un jaque ganador que había y no se jugó (no tiene concepto propio)
 
 /** Salida de la Capa 2: causa VERIFICADA de un error. Si no hay certeza, no se emite. */
 export interface Diagnosis {
@@ -64,6 +65,10 @@ export interface Diagnosis {
     pieces: string[]; // ej. ['knight','queen']
     refutationUci?: string; // jugada que castiga el error
     materialLostCp?: number;
+    /** Solo en missed_tactic: qué se ganaba con la mejor jugada del motor, comprobado reproduciendo su línea. */
+    tactic?: 'free_capture' | 'winning_exchange' | 'check_mate' | 'check_wins';
+    /** Solo en missed_tactic: material neto que ganaba la línea (en centipeones de pieza: 100 por peón). */
+    gainCp?: number;
   };
   /** ids de la biblioteca de conceptos. */
   conceptIds: string[];
