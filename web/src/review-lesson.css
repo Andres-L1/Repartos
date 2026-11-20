@@ -54,11 +54,29 @@
   .rl-board .board-frame { max-width: 520px; }
   .rl-actions { grid-column: 2; align-self: start; }
 }
-/* Móvil en horizontal: tablero y explicación lado a lado, sin barras pegadas que tapen la poca altura. */
+/* Móvil en horizontal: sin barras pegadas que tapen la poca altura (la sesión diaria, .ss-play, lleva su propia maquetación en session.css). */
 @media (orientation: landscape) and (max-height: 500px) {
-  .rl-layout { grid-template-columns: minmax(0, max(200px, 100svh - 150px)) minmax(0, 1fr); grid-template-rows: auto 1fr; }
-  .rl-board { grid-column: 1; grid-row: 1 / span 2; }
-  .rl-board .board-frame { max-width: 100%; }
-  .rl-panel { grid-column: 2; grid-row: 1; }
-  .rl-actions { grid-column: 2; grid-row: 2; align-self: start; position: static; padding: 0; background: none; box-shadow: none; }
+  .rl-actions { position: static; padding: 0; background: none; box-shadow: none; }
+}
+/*
+ * Repaso de partidas en horizontal con poca altura (p. ej. 667x375): tablero cuadrado a la izquierda (--land-board, ver styles.css);
+ * título del repaso, momentos, texto, botones y acciones secundarias en la columna derecha. El div .rg interior es la rejilla;
+ * .rl y .rl-layout son subcuadrículas reales (sin display: contents, que puede quitar el rol de la sección). Una subcuadrícula no puede
+ * ser contenedor (container-type), así que aquí se repiten las reglas de @container que dejan de aplicarse. Si el texto es más largo
+ * que el tablero, la página se desplaza: el tablero queda fijo arriba y los botones sobre la barra inferior.
+ */
+@media (orientation: landscape) and (max-height: 500px) {
+  .rg > .rg:not([hidden]) { max-width: none; grid-template-columns: var(--land-board) minmax(0, 1fr); grid-template-rows: auto auto auto auto auto 1fr; gap: 8px 16px; align-items: start; }
+  .rg > .rg > .rg-card { grid-column: 2; grid-row: 1; position: relative; z-index: 1; padding: 6px 12px; }
+  .rg .rl, .rg .rl-layout { grid-column: 1 / -1; grid-row: 1 / -1; display: grid; grid-template-columns: subgrid; grid-template-rows: subgrid; gap: inherit; align-items: start; container-type: normal; }
+  .rg .rl-progress { grid-column: 2; grid-row: 2; position: relative; z-index: 1; gap: 6px; flex-wrap: nowrap; }
+  .rg .rl-dot { padding: 2px 9px; }
+  .rg .rl-dot:not(.is-current) .rl-dot-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .rg .rl-board { grid-column: 1; grid-row: 1 / -1; position: sticky; top: 8px; }
+  .rg .rl-board .board-frame { width: var(--land-board); max-width: none; }
+  .rg .rl-panel { grid-column: 2; grid-row: 3; order: 0; padding: 8px 12px; gap: 6px; }
+  .rg .rl-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .rg .rl-actions { grid-column: 2; grid-row: 4; position: sticky; bottom: calc(var(--bottom-nav, 0px) + 8px); z-index: 5; flex-wrap: nowrap; gap: 8px; padding: 6px; border-radius: var(--t-r-card-sm); background: var(--t-graphite); box-shadow: var(--t-sh-raise), 0 -8px 20px rgb(0 0 0 / 0.35); }
+  .rg .rl-actions .t-btn { flex: 1 1 0; min-width: 0; padding: 0.4rem 0.6rem; white-space: normal; text-align: center; margin-bottom: 0; }
+  .rg .rg-more { grid-column: 2; grid-row: 5; }
 }

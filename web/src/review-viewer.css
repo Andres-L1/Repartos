@@ -43,11 +43,19 @@
 @media (hover: none) and (pointer: coarse) {
   .gv-hint { display: none; }
 }
-@media (orientation: landscape) and (max-height: 500px) {
-  .gv-main { grid-template-columns: minmax(0, max(200px, 100svh - 150px)) minmax(0, 1fr); align-items: start; }
-  .gv-board { max-width: none; }
-}
 @container (width >= 50rem) {
   .gv-main { grid-template-columns: minmax(0, 32rem) minmax(0, 1fr); align-items: start; }
   .gv-list { max-height: 22rem; }
+}
+/*
+ * Horizontal con poca altura (p. ej. 667x375): tablero cuadrado a la izquierda (--land-board menos el relleno de la tarjeta, ver styles.css);
+ * «Volver», jugada actual, botones y lista de jugadas a la derecha. .gv es la rejilla y .gv-main una subcuadrícula real. El tablero queda fijo
+ * (sticky) si la columna derecha es más larga y la página se desplaza.
+ */
+@media (orientation: landscape) and (max-height: 500px) {
+  .gv { --gv-board: calc(var(--land-board) - 16px); padding: 8px; grid-template-columns: var(--gv-board) minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 8px 16px; align-items: start; }
+  .gv-top { grid-column: 2; grid-row: 1; position: relative; z-index: 1; }
+  .gv-main { grid-column: 1 / -1; grid-row: 1 / -1; grid-template-columns: subgrid; grid-template-rows: subgrid; gap: inherit; align-items: start; }
+  .gv-board { grid-column: 1; grid-row: 1 / -1; width: var(--gv-board); max-width: none; margin: 0; position: sticky; top: 8px; }
+  .gv-side { grid-column: 2; grid-row: 2; }
 }
