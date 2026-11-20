@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { LessonStatus, MapLesson, MapUnit, Profile } from '../../../src/shared/api';
+import { numberUnits, type Numbered } from '../../../src/shared/unitNumber';
 import type { Level } from '../../../src/types';
 import { api, ApiError } from '../api';
 import { useSession } from '../session';
@@ -23,7 +24,7 @@ const STATUS_ICON: Record<LessonStatus, IconName> = { locked: 'lock', available:
 const dayWord = (n: number) => `${n} ${n === 1 ? 'día' : 'días'}`;
 
 /** Siguiente lección sugerida: la unidad recomendada por la colocación, si no la primera con algo pendiente. */
-function pickNext(units: MapUnit[]): { unit: MapUnit; lesson: MapLesson } | null {
+function pickNext(units: Numbered<MapUnit>[]): { unit: Numbered<MapUnit>; lesson: MapLesson } | null {
   const pending = (u: MapUnit) => (u.status === 'locked' ? undefined : u.lessons.find((l) => l.status === 'available'));
   const rec = units.find((u) => u.recommended && pending(u));
   const normal = units.find((u) => !(u.placedOpen && !u.recommended) && pending(u));
@@ -34,7 +35,7 @@ function pickNext(units: MapUnit[]): { unit: MapUnit; lesson: MapLesson } | null
 }
 
 export function MapScreen() {
-  const [units, setUnits] = useState<MapUnit[] | null>(null);
+  const [units, setUnits] = useState<Numbered<MapUnit>[] | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [comingSoon, setComingSoon] = useState(false);
   const [error, setError] = useState('');
@@ -47,7 +48,7 @@ export function MapScreen() {
       .catch(() => {});
     api
       .map()
-      .then((r) => setUnits([...r.units].sort((a, b) => a.order - b.order)))
+      .then((r) => setUnits(numberUnits(r.units)))
       .catch((e) => {
         if (!(e instanceof ApiError && e.status === 401)) setError(e instanceof ApiError ? e.message : 'Error al cargar la ruta.');
       });
@@ -88,7 +89,7 @@ export function MapScreen() {
               <p className="kicker">{done === 0 ? 'Para empezar' : 'Continuar'}</p>
               <h2 id="continue-title">{next.lesson.title}</h2>
               <p className="muted continue-meta">
-                Unidad {next.unit.order} · {next.unit.title}
+                Unidad {next.unit.n} · {next.unit.title}
               </p>
               <p className="continue-obj">{next.lesson.objective}</p>
               <Link className="t-btn t-btn-primary" href={`/leccion/${encodeURIComponent(next.lesson.id)}`}>
@@ -130,7 +131,7 @@ export function MapScreen() {
   );
 }
 
-function UnitView({ unit, nextId }: { unit: MapUnit; nextId: string | undefined }) {
+function UnitView({ unit, nextId }: { unit: Numbered<MapUnit>; nextId: string | undefined }) {
   const done = unit.lessons.filter((l) => l.status === 'completed').length;
   return (
     <section
@@ -139,11 +140,11 @@ function UnitView({ unit, nextId }: { unit: MapUnit; nextId: string | undefined 
     >
       <div className="unit-head">
         <span className="unit-badge" aria-hidden="true">
-          {unit.status === 'locked' ? <Icon name="lock" size={20} /> : unit.status === 'completed' ? <Icon name="check" size={22} /> : unit.order}
+          {unit.status === 'locked' ? <Icon name="lock" size={20} /> : unit.status === 'completed' ? <Icon name="check" size={22} /> : unit.n}
         </span>
         <div className="unit-head-main">
           <p className="kicker">
-            Unidad {unit.order} · {LEVEL_LABEL[unit.level]}
+            Unidad {unit.n} · {LEVEL_LABEL[unit.level]}
           </p>
           <h2 id={`u-${unit.id}`}>{unit.title}</h2>
         </div>

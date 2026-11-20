@@ -216,7 +216,8 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
                 </strong>{' '}
                 {feedback}
               </p>
-              {mode === 'evaluation' && solutionSan && (
+              {/* Política de avisos: la jugada solo se dice en la evaluación o tras el segundo fallo de la práctica. */}
+              {(mode === 'evaluation' || mistakes >= 2) && solutionSan && (
                 <p>
                   La jugada correcta era <strong>{solutionSan}</strong>.
                 </p>
