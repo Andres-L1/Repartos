@@ -145,6 +145,27 @@ const u27Facts: Record<string, Fact> = {
 };
 Object.assign(FACTS, u27Facts);
 
+const destCountWith = (pos: Chess, from: string, letter: string): number => {
+  const fen = makeFenOf(pos).replace('Q', letter);
+  return (load(fen).dests(parseSquare(from)!) ?? new Set()).size();
+};
+const u28Facts: Record<string, Fact> = {
+  'u28.l01:0': bishopFacts.destsCount('d4', 27),
+  'u28.l01:1': bishopFacts.destsCount('d4', 21),
+  'u28.l02:0': bishopFacts.captures('d4', ['d4a7', 'd4d7']),
+  'u28.l02:1': bishopFacts.captures('d4', ['d4d6']),
+  'u28.l03:0': (pos) => {
+    // la dama llega a tantas casillas como la torre y el alfil juntos (en d4, con solo los reyes)
+    expect([destCountWith(pos, 'd4', 'Q'), destCountWith(pos, 'd4', 'R'), destCountWith(pos, 'd4', 'B')]).toEqual([27, 14, 13]);
+  },
+  'u28.l03:1': (pos, e) => {
+    bishopFacts.captures('d4', ['d4c5', 'd4h4'])(pos, e);
+    expect(recapturable(pos, 'd4c5')).toBe(true); // el peón está protegido por otro peón
+    expect(recapturable(pos, 'd4h4')).toBe(false); // la torre está colgada
+  },
+};
+Object.assign(FACTS, u28Facts);
+
 /** Pasos de barrera: tras la solución los alfiles del jugador quedan en diagonales vecinas. */
 export const BARRIER_STEPS = new Set(['u27.l02:practice:0', 'u27.l02:practice:1', 'u27.l02:evaluation:1', 'u27.l02:evaluation:2']);
 /** Pasos del rey: los alfiles ya forman la barrera y el rey se acerca al rey rival sin quedar a su lado. */
@@ -175,6 +196,7 @@ export const SAFE_CAPTURE = new Set<string>([
   'u26.l03:evaluation:0',
   'u26.l03:evaluation:1',
   'u26.l03:evaluation:2',
+  ...['practice', 'evaluation'].flatMap((m) => [0, 1, 2].flatMap((i) => [`u28.l02:${m}:${i}`, `u28.l03:${m}:${i}`])),
 ]);
 export const safeCaptureErrors = (pos: Chess, solution: string): string[] => {
   const errors: string[] = [];
