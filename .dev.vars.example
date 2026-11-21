@@ -2,3 +2,9 @@
 # Generar el secreto: node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 SESSION_SECRET=
 PUBLIC_ORIGIN=http://localhost:8787
+
+# DeepSeek en el Worker local (wrangler dev lee .dev.vars, no .env: copia aquí los mismos valores del .env).
+# En producción: `npx wrangler secret put DEEPSEEK_API_KEY` (la clave nunca va en wrangler.jsonc ni en el repo).
+DEEPSEEK_API_KEY=
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-chat
