@@ -54,8 +54,11 @@ export function conceptForThemes(themes: string[]): string | null {
 
 export type PuzzleDifficulty = 'easiest' | 'easier' | 'normal' | 'harder' | 'hardest';
 
-// Calibración PROVISIONAL: ajustar con datos reales de aciertos por nivel. Valoraciones medidas el 2026-11-14:
-// easiest 687-1082, easier 964-1173, normal 1297-1667, hardest 1801-2327 (harder sin medir).
+// Valoraciones reales de Lichess (sin sesión): easiest 680-1082, easier 964-1173, normal 1297-1667, harder 1527-1878
+// (mediana 1738, 50 puzles de fork el 2026-11-21), hardest 1801-2327. Lichess las reparte alrededor de 1500 con saltos de
+// unos 300 puntos, no por nivel de alumno. Se mantienen: no hay fuente que relacione valoración de puzle y Elo de partida,
+// y los topes siguen el patrón máximo del nivel + 100. Detalle en docs/calibracion-niveles-2026-11.md.
+// Pendiente: aciertos reales por nivel (PROVISIONAL hasta tener uso).
 const DIFFICULTY_BY_LEVEL: Record<Level, PuzzleDifficulty> = {
   beginner: 'easiest',
   initiation: 'easiest',
