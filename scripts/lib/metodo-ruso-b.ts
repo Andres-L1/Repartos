@@ -5,8 +5,9 @@
  */
 import type { Lesson, PracticeStep, Unit } from '../../src/content/schema.ts';
 import { unit as u25 } from '../../src/content/units/u25.ts';
+import { unit as u26 } from '../../src/content/units/u26.ts';
 
-export const RUSO_B: Unit[] = [u25];
+export const RUSO_B: Unit[] = [u25, u26];
 
 export const CACHE_RUSO_B = 'test/fixtures/tablebase/metodo-ruso-b.json';
 

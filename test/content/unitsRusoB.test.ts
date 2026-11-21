@@ -9,7 +9,7 @@ import { leaksIn, targetsOf } from '../../scripts/lib/hint-leaks.js';
 import { cacheProbe, checkLine, loadCache } from '../../scripts/lib/tablebase.js';
 import { CACHE_RUSO_B, RUSO_B, TB_CLAIMS, isTb, stepsOf } from '../../scripts/lib/metodo-ruso-b.js';
 import { legalMoves, load, playLine, playMove } from '../pedagogy/helpers.js';
-import { FACTS } from './unitsRusoB.facts.js';
+import { FACTS, SAFE_CAPTURE, SQUARE_COLORS, colorOfSq, safeCaptureErrors } from './unitsRusoB.facts.js';
 
 /**
  * Método ruso, parte B (u25 a u29), pendiente de validación de profesores. Las unidades no están en el registro todavía:
@@ -157,13 +157,14 @@ describe('método ruso B: u25 a u29 (pendiente de validación de profesores)', (
                 const mv = parseUci(uci)!;
                 for (const [prefix, ok] of WRONG_RULES) if (text.startsWith(prefix)) expect(ok(after, mv), `${uci}: «${text}»`).toBe(true);
               }
-              expect(end.isCheckmate() || end.isStalemate() || !end.isEnd() || true).toBe(true);
             });
 
             it('la solución es correcta', () => {
               const pos = load(step.fen);
               const end = playLine(step.fen, step.solutionUci);
               const accepted = new Set([step.solutionUci[0]!, ...(step.solutionUci.length === 1 ? (step.alt ?? []) : [])]);
+              if (SAFE_CAPTURE.has(key)) expect(safeCaptureErrors(pos, step.solutionUci[0]!), key).toEqual([]);
+              for (const [sq, color] of SQUARE_COLORS[key] ?? []) expect(colorOfSq(sq), `${key}: ${sq}`).toBe(color);
               if (isTb(key, step)) return; // lo comprueba la tablebase (abajo); aquí, que si acaba en mate lo sea de verdad
               if (end.isCheckmate()) {
                 // mate en 1: la solución da mate (el resto de mates los acepta `isExpectedMove`)
