@@ -1,0 +1,255 @@
+import type { PracticeStep, Unit } from '../schema.js';
+
+/** Ejercicio de una jugada; `alt` son otras jugadas igual de válidas (el test comprueba que son TODAS las que cumplen el enunciado). */
+const ex = (fen: string, prompt: string, sol: string, hint: string, ok: string, wrong: string, alt?: string[]): PracticeStep => ({
+  fen,
+  prompt,
+  solutionUci: [sol],
+  ...(alt ? { alt } : {}),
+  hint,
+  explanationCorrect: ok,
+  explanationWrong: wrong,
+});
+
+export const unit: Unit = {
+  id: 'u33',
+  order: 14,
+  title: 'Al paso, coronación y regla del cuadrado',
+  description:
+    'Tres ideas especiales del peón: la captura al paso, la coronación y la regla del cuadrado, que te dice si el rey llega a tiempo para detener a un peón.',
+  level: 'initiation',
+  requires: ['u32'],
+  lessons: [
+    {
+      id: 'u33.l01',
+      unitId: 'u33',
+      title: 'El peón al paso',
+      objective: 'Reconocer cuándo se puede capturar al paso y hacerlo.',
+      intro:
+        'Al paso es una captura especial de peón. Solo se puede hacer en un momento muy concreto, así que conviene conocerla bien.',
+      explanation: [
+        {
+          fen: '4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1',
+          squares: ['d5', 'e5'],
+          arrows: [['e5', 'd6']],
+          text: 'El peón negro acaba de avanzar dos casillas y quedó junto a tu peón de e5. Puedes capturarlo como si hubiera dado un solo paso: tu peón va a d6 y el peón negro desaparece.',
+        },
+        {
+          fen: '4k3/8/8/3pP3/8/8/8/4K3 w - - 0 1',
+          squares: ['d5', 'e5'],
+          text: 'Solo vale en la jugada inmediata. Si juegas otra cosa y el peón negro sigue en d5, ya no puedes capturarlo al paso. Tu peón debe estar en su quinta fila.',
+        },
+      ],
+      practice: [
+        ex(
+          '4k3/8/8/6Pp/8/8/8/4K3 w - h6 0 1',
+          'El peón negro acaba de avanzar dos casillas. Captúralo al paso.',
+          'g5h6',
+          'El peón captura la casilla por la que pasó el peón rival.',
+          'Muy bien. Tu peón capturó al paso y el peón negro desapareció del tablero.',
+          'La captura al paso se hace en diagonal, a la casilla que el peón rival acaba de atravesar.',
+        ),
+        ex(
+          '4k3/8/8/8/3pP3/8/8/4K3 b - e3 0 1',
+          'Juegan negras. El peón blanco acaba de avanzar dos casillas. Captúralo al paso.',
+          'd4e3',
+          'Captura en diagonal hacia abajo, a la casilla por la que pasó el peón blanco.',
+          'Correcto. Las negras también pueden capturar al paso, hacia abajo.',
+          'La captura al paso se hace en diagonal, a la casilla que el peón rival acaba de atravesar.',
+        ),
+        ex(
+          '4k3/8/5p2/3pP3/8/8/8/4K3 w - d6 0 1',
+          'Hay dos capturas posibles. Haz la captura al paso.',
+          'e5d6',
+          'Una de las capturas es normal. La otra va a la casilla por la que pasó el peón rival.',
+          'Excelente. Elegiste la captura al paso entre dos capturas posibles.',
+          'Una de las capturas es normal y la otra es al paso. Esta última va a la casilla que atravesó el peón rival.',
+        ),
+      ],
+      evaluation: [
+        ex(
+          '4k3/8/8/1pP5/8/8/8/4K3 w - b6 0 1',
+          'El peón negro acaba de avanzar dos casillas. Captúralo al paso.',
+          'c5b6',
+          'El peón captura la casilla por la que pasó el peón rival.',
+          'Bien. Capturaste al paso: el peón negro desapareció y tu peón quedó en la casilla que había atravesado.',
+          'La captura al paso se hace en diagonal, a la casilla que el peón rival acaba de atravesar.',
+        ),
+        ex(
+          '4k3/8/8/8/5pP1/8/8/4K3 b - g3 0 1',
+          'Juegan negras. El peón blanco acaba de avanzar dos casillas. Captúralo al paso.',
+          'f4g3',
+          'Captura en diagonal hacia abajo, a la casilla por la que pasó el peón blanco.',
+          'Muy bien. El peón negro capturó al paso hacia abajo.',
+          'La captura al paso se hace en diagonal, a la casilla que el peón rival acaba de atravesar.',
+        ),
+        ex(
+          '4k3/8/7p/5pP1/8/8/8/4K3 w - - 0 1',
+          'Esta vez no hay captura al paso. Captura el peón de h6.',
+          'g5h6',
+          'Mira qué capturas permite el tablero en este momento.',
+          'Correcto. Sin captura al paso disponible, solo queda la captura normal en diagonal.',
+          'Ahora no se puede capturar al paso porque el peón rival no acaba de avanzar dos casillas.',
+        ),
+      ],
+    },
+    {
+      id: 'u33.l02',
+      unitId: 'u33',
+      title: 'La coronación',
+      objective: 'Coronar un peón y elegir bien la pieza.',
+      intro:
+        'Cuando un peón llega a la última fila, se convierte en otra pieza. Es el sueño de todo peón. Tú eliges en cuál: dama, torre, alfil o caballo.',
+      explanation: [
+        {
+          fen: '4k3/P7/8/8/8/8/8/4K3 w - - 0 1',
+          squares: ['a7', 'a8'],
+          arrows: [['a7', 'a8']],
+          text: 'Cuando el peón llega a la octava fila, se convierte en la pieza que elijas, menos rey. Aquí el peón de a7 corona al llegar a a8.',
+        },
+        {
+          fen: '8/6P1/7k/8/6K1/8/8/8 w - - 0 1',
+          squares: ['g7', 'g8', 'h6'],
+          arrows: [['g7', 'g8']],
+          text: 'Casi siempre se elige dama, la pieza más fuerte. Pero hay casos raros: aquí la dama dejaría al rey negro sin jugadas y sin jaque. Eso es ahogado y es tablas. Una torre evita el ahogado.',
+        },
+      ],
+      practice: [
+        ex(
+          '8/7P/8/8/8/8/2k5/4K3 w - - 0 1',
+          'Lleva el peón a la última fila y conviértelo en dama.',
+          'h7h8q',
+          'El peón solo puede avanzar una casilla hacia delante.',
+          'Muy bien. El peón corona y se convierte en dama, la pieza más poderosa.',
+          'El peón avanza a la última fila. Al llegar, elige la dama.',
+        ),
+        ex(
+          'r1r1k3/1P6/8/8/8/8/8/4K3 w - - 0 1',
+          'Corona el peón capturando una torre y elige dama.',
+          'b7a8q',
+          'El peón captura en diagonal, igual que siempre, y corona al llegar.',
+          'Excelente. Capturaste una torre y coronaste a la vez. Podías hacerlo con cualquiera de las dos.',
+          'Hay que capturar una torre en diagonal y elegir dama al coronar.',
+          ['b7c8q'],
+        ),
+        ex(
+          '8/k1P5/8/K7/8/8/8/8 w - - 0 1',
+          'Corona el peón sin dejar ahogado al rey negro y sin perder la victoria.',
+          'c7c8r',
+          'La dama es la más fuerte, pero mira si el rey rival tendría jugadas.',
+          'Muy bien. Con dama el rey negro no tendría jugadas ni jaque: tablas. Con torre sigue habiendo juego y ganas.',
+          'Si el rey negro se queda sin jugadas y sin jaque, es ahogado: tablas. Elige la pieza que lo evita y conserva la victoria.',
+        ),
+      ],
+      evaluation: [
+        ex(
+          '4k3/8/8/8/8/8/6p1/K7 b - - 0 1',
+          'Juegan negras. Lleva el peón a la última fila y conviértelo en dama.',
+          'g2g1q',
+          'Las negras coronan en la primera fila.',
+          'Bien. Las negras coronan en la fila 1 y el peón se convierte en dama.',
+          'El peón negro avanza hacia abajo. Al llegar a la última fila, elige la dama.',
+        ),
+        ex(
+          '4k3/8/8/8/8/8/6p1/K4RN1 b - - 0 1',
+          'Juegan negras. Corona el peón capturando una torre y elige dama.',
+          'g2f1q',
+          'El peón negro captura en diagonal hacia abajo.',
+          'Muy bien. Capturaste la torre y coronaste en el mismo movimiento.',
+          'El peón no puede avanzar recto porque tiene una pieza delante. Captura en diagonal.',
+        ),
+        ex(
+          '3k4/6P1/8/8/8/8/8/K7 w - - 0 1',
+          'Corona el peón en dama y da jaque al rey negro.',
+          'g7g8q',
+          'La dama queda en la misma fila que el rey rival.',
+          'Correcto. La dama corona dando jaque: la dama de g8 ataca al rey de d8.',
+          'Elige la dama y mira que tras coronar ataque directamente al rey negro.',
+        ),
+      ],
+    },
+    {
+      id: 'u33.l03',
+      unitId: 'u33',
+      title: 'La regla del cuadrado',
+      objective: 'Saber si el rey alcanza a un peón que corre hacia la coronación, dibujando el cuadrado.',
+      intro:
+        'Un peón sin ayuda corre hacia la coronación. ¿Llega el rey rival a tiempo? Hay un truco para saberlo sin contar jugadas: dibujar un cuadrado.',
+      explanation: [
+        {
+          fen: '8/6k1/8/4P3/8/8/8/K7 b - - 0 1',
+          squares: ['e5', 'e6', 'e7', 'e8', 'f5', 'f6', 'f7', 'f8', 'g5', 'g6', 'g7', 'g8', 'h5', 'h6', 'h7', 'h8'],
+          text: 'Al peón de e5 le faltan tres pasos para coronar. Dibuja un cuadrado de lado cuatro: desde el peón hasta la octava fila. El rey negro de g7 está dentro y le toca mover: alcanza al peón.',
+        },
+        {
+          fen: '8/8/8/4P3/8/8/6k1/K7 b - - 0 1',
+          squares: ['e5', 'e6', 'e7', 'e8', 'f5', 'f6', 'f7', 'f8', 'g5', 'g6', 'g7', 'g8', 'h5', 'h6', 'h7', 'h8'],
+          text: 'Mismo peón y mismo cuadrado. Ahora el rey negro está en g2, fuera del cuadrado. Aunque corra con todas sus fuerzas, no llega: el peón corona.',
+        },
+        {
+          fen: '8/8/6k1/2P5/8/8/8/K7 w - - 0 1',
+          squares: ['c6', 'c7', 'c8', 'd6', 'd7', 'd8', 'e6', 'e7', 'e8'],
+          text: 'Si te toca mover a ti, que llevas el peón, dibuja el cuadrado con el peón una casilla más adelante. Con el peón en c6, el rey de g6 queda fuera: no llega.',
+        },
+      ],
+      practice: [
+        ex(
+          '8/8/8/8/2P2k2/8/8/K7 b - - 0 1',
+          'Juegan negras. El peón blanco quiere coronar. Mueve tu rey para alcanzarlo.',
+          'f4e5',
+          'Acércate al peón: tu rey debe quedar dentro del cuadrado.',
+          'Muy bien. El rey se mantiene dentro del cuadrado y alcanzará al peón: tablas.',
+          'Con esa jugada el rey sale del cuadrado y el peón corona. Acércate al peón.',
+          ['f4e4', 'f4f5'],
+        ),
+        ex(
+          '8/8/8/2P5/8/8/6k1/K7 w - - 0 1',
+          'El rey negro está lejos del cuadrado y no alcanza el peón. Avanza el peón.',
+          'c5c6',
+          'Sin rival que lo detenga, el peón puede seguir avanzando.',
+          'Correcto. El rey negro no llega a tiempo: la victoria está asegurada.',
+          'El rey negro no puede alcanzar el peón. Aprovecha y haz que avance.',
+          ['a1b1', 'a1b2', 'a1a2'],
+        ),
+        ex(
+          'k7/8/8/2p2K2/8/8/8/8 w - - 0 1',
+          'Juegan blancas. El peón negro quiere coronar. Mueve tu rey para alcanzarlo.',
+          'f5e4',
+          'Acércate al peón: tu rey debe quedar dentro del cuadrado.',
+          'Excelente. Con el peón negro el cuadrado se dibuja hacia abajo, y tu rey queda dentro.',
+          'Con esa jugada el rey sale del cuadrado y el peón corona. Acércate al peón.',
+          ['f5f4', 'f5e5'],
+        ),
+      ],
+      evaluation: [
+        ex(
+          '8/4k3/8/1P6/8/8/8/K7 b - - 0 1',
+          'Juegan negras. El peón blanco quiere coronar. Mueve tu rey para alcanzarlo.',
+          'e7d6',
+          'Tu rey debe quedar dentro del cuadrado del peón.',
+          'Bien. El rey sigue dentro del cuadrado: el peón no corona.',
+          'Con esa jugada el rey sale del cuadrado. Debe quedar dentro.',
+          ['e7e6', 'e7d7', 'e7d8', 'e7e8'],
+        ),
+        ex(
+          '8/8/8/8/6P1/8/k7/7K w - - 0 1',
+          'El rey negro está lejos del cuadrado y no alcanza el peón. Avanza el peón.',
+          'g4g5',
+          'Sin rival que lo detenga, el peón puede seguir avanzando.',
+          'Muy bien. El rey negro está demasiado lejos y el peón corona sin problemas.',
+          'El rey negro no puede alcanzar el peón. Aprovecha y haz que avance.',
+          ['h1g1', 'h1g2', 'h1h2'],
+        ),
+        ex(
+          '7k/8/8/8/5p2/8/8/2K5 w - - 0 1',
+          'Juegan blancas. El peón negro quiere coronar. Mueve tu rey para alcanzarlo.',
+          'c1d2',
+          'Tu rey debe quedar dentro del cuadrado del peón.',
+          'Correcto. Tu rey entra en el cuadrado y alcanzará al peón: tablas.',
+          'Con esa jugada el rey sale del cuadrado y el peón corona. Acércate al peón.',
+          ['c1d1', 'c1c2'],
+        ),
+      ],
+    },
+  ],
+};
