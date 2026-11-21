@@ -1,0 +1,6566 @@
+{
+ "1R3k2/R7/8/8/8/8/8/4K3 b - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "1k1R4/8/1K6/8/8/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "1k6/8/1K6/8/8/8/8/3R4 w - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "d1d8",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "d1c1",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "d1a1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1b1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1e1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1f1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1g1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1h1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1d2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1d3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1d4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1d5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1d6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1d7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b6c6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b6a5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "b6b5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "b6c5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "b6a6",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   }
+  ]
+ },
+ "1k6/8/2K5/8/8/8/8/5R2 w - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "f1a1",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "f1d1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1e1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1g1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1h1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1f2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1f3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1f4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1f5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1f6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1f7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1f8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c6b6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f1b1",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "f1c1",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "c6d7",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "c6b5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "c6d6",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "c6c5",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c6d5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   }
+  ]
+ },
+ "1k6/8/2K5/8/8/8/8/R7 b - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "b8c8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "1r2k3/8/8/8/8/r7/7K/8 b - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "b8b2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3c3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a3d3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b8b1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b8b3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b8b4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b8b5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b8b6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b8b7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b8c8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b8d8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e8d7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e8e7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e8f7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e8d8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e8f8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a3e3",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "a3f3",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "a3b3",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a3a4",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b8a8",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a3a2",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a3a5",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a3a1",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a3a6",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a3a7",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a3a8",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a3h3",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -24
+   },
+   {
+    "uci": "a3g3",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -26
+   }
+  ]
+ },
+ "2R1k3/8/4K3/8/8/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "2k5/8/2K5/8/8/8/8/R7 w - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "a1a8",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "a1b1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a1c1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a1d1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a1e1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a1f1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a1g1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a1h1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a1a2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a1a3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a1a4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a1a5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c6d6",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "a1a6",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "a1a7",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c6c5",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "c6d5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c6b5",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "c6b6",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   }
+  ]
+ },
+ "3k4/1R6/R7/8/8/8/8/4K3 w - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "a6a8",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "b7h7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a6c6",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b7g7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a6a1",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a6a2",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a6a3",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a6d6",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a6f6",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a6g6",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a6h6",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a6a7",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a6a4",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "b7f7",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a6a5",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "e1f1",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "e1d2",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "e1f2",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "b7a7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a6b6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a6e6",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -6
+   },
+   {
+    "uci": "b7b1",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "b7b2",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "b7b3",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "b7b4",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "b7b5",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "b7b6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "b7b8",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "b7e7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -24
+   },
+   {
+    "uci": "b7d7",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -24
+   },
+   {
+    "uci": "b7c7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -26
+   }
+  ]
+ },
+ "3k4/8/4B3/4K3/5B2/8/8/8 w - -": {
+  "category": "win",
+  "dtz": 13,
+  "dtm": 13,
+  "moves": [
+   {
+    "uci": "e5f6",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "e5f5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e5d4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e5e4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e5d5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e5d6",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f4h2",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "f4g3",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "f4c1",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4d2",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4e3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4g5",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4h6",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6a2",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6b3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6h3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6c4",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6g4",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6d5",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6f5",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6f7",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6g8",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6d7",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "e6c8",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "3k4/8/4BK2/8/5B2/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -12,
+  "dtm": -12,
+  "moves": [
+   {
+    "uci": "d8e8",
+    "category": "win",
+    "dtz": 11,
+    "dtm": 11
+   }
+  ]
+ },
+ "3k4/8/4K3/8/2R5/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "d8e8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "3k4/8/8/4K3/2R5/8/8/8 w - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "e5e6",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e5d6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4c1",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c4c2",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c4c3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c4b4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c4d4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c4c5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c4c6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e5d5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e5f5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e5f6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c4a4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c4e4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c4f4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c4g4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c4h4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e5d4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e5e4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e5f4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c4c7",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "c4c8",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "3r4/8/8/8/8/1k6/8/1K6 b - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "d8d1",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "d8c8",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "d8d2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8d3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8d4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8d5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8d6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8d7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8a8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8b8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8e8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8f8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8g8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8h8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b3c3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b3a3",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "b3a4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "b3b4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "b3c4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   }
+  ]
+ },
+ "3r4/8/8/8/8/1k6/8/K7 w - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "a1b1",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "3r4/8/8/8/k7/8/8/K7 b - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "a4b3",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a4a3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d8d2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d8b8",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "d8c8",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a4b4",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "d8d4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d8d5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d8d6",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d8d7",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d8a8",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d8e8",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d8f8",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d8g8",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d8h8",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d8d1",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "d8d3",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "a4a5",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "a4b5",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   }
+  ]
+ },
+ "4k3/2B5/4BK2/8/8/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -10,
+  "dtm": -10,
+  "moves": [
+   {
+    "uci": "e8f8",
+    "category": "win",
+    "dtz": 9,
+    "dtm": 9
+   }
+  ]
+ },
+ "4k3/8/4BK2/8/5B2/8/8/8 w - -": {
+  "category": "win",
+  "dtz": 11,
+  "dtm": 11,
+  "moves": [
+   {
+    "uci": "f4c7",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "f4c1",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f4d2",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f4h2",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f4e3",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f4g3",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f4e5",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f4g5",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f4d6",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f4h6",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f4b8",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "e6h3",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "e6g4",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "e6f5",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "e6c8",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f6e5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f6f5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f6g5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f6g6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f6g7",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e6d5",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "e6a2",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6b3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6c4",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6f7",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6g8",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e6d7",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "4k3/8/4K3/8/2R5/8/8/8 w - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "c4c8",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "c4c1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4c2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4c3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4a4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4b4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4d4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4e4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4f4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4g4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4h4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4c5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c4c6",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "c4c7",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "e6e5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e6f5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e6d6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e6f6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e6d5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   }
+  ]
+ },
+ "4k3/8/8/8/8/7B/8/2B1K3 b - -": {
+  "category": "loss",
+  "dtz": -28,
+  "dtm": -28,
+  "moves": [
+   {
+    "uci": "e8e7",
+    "category": "win",
+    "dtz": 27,
+    "dtm": 27
+   },
+   {
+    "uci": "e8f7",
+    "category": "win",
+    "dtz": 27,
+    "dtm": 27
+   },
+   {
+    "uci": "e8d8",
+    "category": "win",
+    "dtz": 27,
+    "dtm": 27
+   },
+   {
+    "uci": "e8f8",
+    "category": "win",
+    "dtz": 23,
+    "dtm": 23
+   }
+  ]
+ },
+ "4k3/8/8/8/8/8/1r6/r5K1 w - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "4k3/8/8/8/8/8/8/2B1KB2 w - -": {
+  "category": "win",
+  "dtz": 29,
+  "dtm": 29,
+  "moves": [
+   {
+    "uci": "f1h3",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "c1f4",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "f1c4",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "e1d2",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "e1f2",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "c1b2",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "c1d2",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "c1a3",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "c1e3",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "c1g5",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "c1h6",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "f1e2",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "f1g2",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "f1d3",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "f1b5",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "f1a6",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   }
+  ]
+ },
+ "4k3/8/8/8/8/r7/1r5K/8 w - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "h2g1",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   },
+   {
+    "uci": "h2h1",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "4k3/8/8/8/8/r7/1r6/6K1 b - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "a3a1",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "e8f8",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b2c2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b2d2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3a2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3c3",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3d3",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3f3",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3h3",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3a4",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3a5",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3a6",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3a7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a3a8",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e8d7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e8e7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e8f7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e8d8",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b2e2",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a3e3",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a3g3",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a3b3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b2a2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b2b8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b2b1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b2b3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b2b4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b2b5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b2b6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b2b7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b2h2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -22
+   },
+   {
+    "uci": "b2f2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -24
+   },
+   {
+    "uci": "b2g2",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -24
+   }
+  ]
+ },
+ "5k2/2B5/4BK2/8/8/8/8/8 w - -": {
+  "category": "win",
+  "dtz": 9,
+  "dtm": 9,
+  "moves": [
+   {
+    "uci": "e6d7",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "e6a2",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "e6b3",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "e6h3",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "e6c4",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "e6g4",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "e6d5",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "e6f5",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "e6c8",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c7h2",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c7g3",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c7f4",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c7a5",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c7e5",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c7b6",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c7d6",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c7b8",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "c7d8",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "f6g6",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f6e5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f6f5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f6g5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e6f7",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "e6g8",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "5k2/2BB4/5K2/8/8/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -8,
+  "dtm": -8,
+  "moves": [
+   {
+    "uci": "f8g8",
+    "category": "win",
+    "dtz": 7,
+    "dtm": 7
+   }
+  ]
+ },
+ "5k2/2BB4/6K1/8/8/8/8/8 w - -": {
+  "category": "win",
+  "dtz": 5,
+  "dtm": 5,
+  "moves": [
+   {
+    "uci": "c7d6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c7d8",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "g6f6",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "d7h3",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "d7g4",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "d7f5",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "d7e6",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "d7c8",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "c7g3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c7f4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c7e5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "g6f5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c7h2",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c7b8",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "d7a4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "d7b5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "d7c6",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "g6g5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "g6h5",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "g6h6",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "g6h7",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "c7b6",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "c7a5",
+    "category": "loss",
+    "dtz": -34,
+    "dtm": -34
+   },
+   {
+    "uci": "d7e8",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "5k2/3B4/3B2K1/8/8/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -4,
+  "dtm": -4,
+  "moves": [
+   {
+    "uci": "f8g8",
+    "category": "win",
+    "dtz": 3,
+    "dtm": 3
+   }
+  ]
+ },
+ "5k2/8/8/K7/8/8/5R2/4R3 b - -": {
+  "category": "loss",
+  "dtz": -4,
+  "dtm": -4,
+  "moves": [
+   {
+    "uci": "f8g7",
+    "category": "win",
+    "dtz": 3,
+    "dtm": 3
+   },
+   {
+    "uci": "f8g8",
+    "category": "win",
+    "dtz": 3,
+    "dtm": 3
+   }
+  ]
+ },
+ "5k2/8/8/K7/8/8/R7/4R3 w - -": {
+  "category": "win",
+  "dtz": 5,
+  "dtm": 5,
+  "moves": [
+   {
+    "uci": "a2f2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a2g2",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1e3",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a2b2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a2c2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a2d2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a2e2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a2h2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a2a3",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a5a4",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a5b4",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a5b5",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a5a6",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a5b6",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "e1e6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "e1f1",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "e1e4",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "e1e5",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a2a1",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a2a4",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "e1a1",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "e1b1",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "e1c1",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "e1g1",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "e1h1",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "e1e8",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -24
+   },
+   {
+    "uci": "e1e7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -26
+   }
+  ]
+ },
+ "5k2/R7/1R6/8/8/8/8/4K3 w - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "b6b8",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "b6b1",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b6b2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b6b4",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b6b5",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b6c6",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b6e6",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b6g6",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b6b7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b6b3",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a7c7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e1f1",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e1d2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e1f2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b6d6",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "b6f6",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "b6h6",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a7d7",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "a7h7",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "b6a6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a7a1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a7a2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a7a3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a7a4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a7a5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a7a6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a7b7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a7a8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a7g7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -24
+   },
+   {
+    "uci": "a7e7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -26
+   },
+   {
+    "uci": "a7f7",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -26
+   }
+  ]
+ },
+ "6k1/2BB4/5K2/8/8/8/8/8 w - -": {
+  "category": "win",
+  "dtz": 7,
+  "dtm": 7,
+  "moves": [
+   {
+    "uci": "f6g6",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "c7f4",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "c7h2",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "c7g3",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "c7a5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "c7e5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "c7b6",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "c7d6",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "c7b8",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d7a4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d7g4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d7b5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d7f5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d7c6",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d7e6",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "c7d8",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "d7h3",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "d7c8",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "d7e8",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "f6g5",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f6f5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f6e6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f6e7",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f6e5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   }
+  ]
+ },
+ "6k1/2BB4/6K1/8/8/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -6,
+  "dtm": -6,
+  "moves": [
+   {
+    "uci": "g8f8",
+    "category": "win",
+    "dtz": 5,
+    "dtm": 5
+   },
+   {
+    "uci": "g8h8",
+    "category": "win",
+    "dtz": 5,
+    "dtm": 5
+   }
+  ]
+ },
+ "6k1/3B4/3B2K1/8/8/8/8/8 w - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "d7e6",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "d6h2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d6a3",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d6g3",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d6b4",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d6f4",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d6c5",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d6e5",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d6c7",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d6e7",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d6b8",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d7h3",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d7a4",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d7g4",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d7b5",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d7f5",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d7c6",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d7c8",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d7e8",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "g6f6",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "g6g5",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "g6h6",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "g6f5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "g6h5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "d6f8",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "6k1/8/3BB1K1/8/8/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "g8h8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "7k/8/3BB1K1/8/8/8/8/8 w - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "d6e5",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "e6h3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e6g4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e6f5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e6d7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e6c8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "g6f7",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "g6f6",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "g6f5",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "g6g5",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "g6h5",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "d6h2",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "d6a3",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "d6g3",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "d6b4",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "d6f4",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "d6c5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "d6c7",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "d6e7",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "d6b8",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "d6f8",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "e6a2",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "e6b3",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "e6c4",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "e6d5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "e6f7",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "g6h6",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "e6g8",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "7k/8/4B1K1/4B3/8/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "8/1R2k3/R7/8/8/8/8/4K3 b - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "e7d8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   },
+   {
+    "uci": "e7e8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   },
+   {
+    "uci": "e7f8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "8/4k3/4B3/4K3/5B2/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -14,
+  "dtm": -14,
+  "moves": [
+   {
+    "uci": "e7d8",
+    "category": "win",
+    "dtz": 13,
+    "dtm": 13
+   },
+   {
+    "uci": "e7e8",
+    "category": "win",
+    "dtz": 13,
+    "dtm": 13
+   },
+   {
+    "uci": "e7f8",
+    "category": "win",
+    "dtz": 13,
+    "dtm": 13
+   }
+  ]
+ },
+ "8/4k3/8/4KB2/5B2/8/8/8 w - -": {
+  "category": "win",
+  "dtz": 15,
+  "dtm": 15,
+  "moves": [
+   {
+    "uci": "f5e6",
+    "category": "loss",
+    "dtz": -14,
+    "dtm": -14
+   },
+   {
+    "uci": "f4h6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f4c1",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f4d2",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f4h2",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f4e3",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f4g3",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f4g5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f5h3",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f5g4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f5g6",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "e5d4",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "e5d5",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "f5c2",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f5d3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f5e4",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f5c8",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e5e4",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f5b1",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "f5h7",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "f5d7",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "8/4k3/8/8/5B2/7B/8/4K3 b - -": {
+  "category": "loss",
+  "dtz": -26,
+  "dtm": -26,
+  "moves": [
+   {
+    "uci": "e7f6",
+    "category": "win",
+    "dtz": 25,
+    "dtm": 25
+   },
+   {
+    "uci": "e7f7",
+    "category": "win",
+    "dtz": 25,
+    "dtm": 25
+   },
+   {
+    "uci": "e7d8",
+    "category": "win",
+    "dtz": 25,
+    "dtm": 25
+   },
+   {
+    "uci": "e7e8",
+    "category": "win",
+    "dtz": 23,
+    "dtm": 23
+   },
+   {
+    "uci": "e7f8",
+    "category": "win",
+    "dtz": 23,
+    "dtm": 23
+   }
+  ]
+ },
+ "8/4k3/8/8/8/7B/8/2B1K3 w - -": {
+  "category": "win",
+  "dtz": 27,
+  "dtm": 27,
+  "moves": [
+   {
+    "uci": "c1f4",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "c1a3",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "e1d2",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "e1f2",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "c1b2",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "c1d2",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "c1e3",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "c1g5",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "c1h6",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "h3f1",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "h3g2",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "h3g4",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "e1f1",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "h3f5",
+    "category": "loss",
+    "dtz": -34,
+    "dtm": -34
+   },
+   {
+    "uci": "h3c8",
+    "category": "loss",
+    "dtz": -34,
+    "dtm": -34
+   },
+   {
+    "uci": "h3e6",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "h3d7",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "8/4k3/R7/8/8/8/8/1R2K3 w - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "b1b7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "b1d1",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b2",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b3",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b4",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b5",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b8",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "a6g6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "a6h6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1f1",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1d2",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1f2",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b1c1",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "a6c6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "b1a1",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a6b6",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a6a5",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -10
+   },
+   {
+    "uci": "a6a4",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -12
+   },
+   {
+    "uci": "a6a7",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -12
+   },
+   {
+    "uci": "a6a1",
+    "category": "loss",
+    "dtz": -9,
+    "dtm": -12
+   },
+   {
+    "uci": "a6a2",
+    "category": "loss",
+    "dtz": -9,
+    "dtm": -12
+   },
+   {
+    "uci": "a6a3",
+    "category": "loss",
+    "dtz": -9,
+    "dtm": -12
+   },
+   {
+    "uci": "a6a8",
+    "category": "loss",
+    "dtz": -9,
+    "dtm": -12
+   },
+   {
+    "uci": "a6d6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -28
+   },
+   {
+    "uci": "a6e6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -28
+   },
+   {
+    "uci": "a6f6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -28
+   }
+  ]
+ },
+ "8/5k2/8/4K3/5B2/7B/8/8 w - -": {
+  "category": "win",
+  "dtz": 17,
+  "dtm": 17,
+  "moves": [
+   {
+    "uci": "h3f5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e5f5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "h3g4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "h3e6",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "h3d7",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "h3c8",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f4d2",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f4e3",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "f4g5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "h3f1",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "h3g2",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "f4c1",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "f4h2",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "f4g3",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "f4h6",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "e5e4",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "e5d6",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "e5d4",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "e5d5",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   }
+  ]
+ },
+ "8/5k2/8/4KB2/5B2/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -16,
+  "dtm": -16,
+  "moves": [
+   {
+    "uci": "f7e7",
+    "category": "win",
+    "dtz": 15,
+    "dtm": 15
+   },
+   {
+    "uci": "f7g7",
+    "category": "win",
+    "dtz": 15,
+    "dtm": 15
+   },
+   {
+    "uci": "f7e8",
+    "category": "win",
+    "dtz": 15,
+    "dtm": 15
+   },
+   {
+    "uci": "f7f8",
+    "category": "win",
+    "dtz": 13,
+    "dtm": 13
+   },
+   {
+    "uci": "f7g8",
+    "category": "win",
+    "dtz": 11,
+    "dtm": 11
+   }
+  ]
+ },
+ "8/6k1/1R6/R7/8/8/8/4K3 w - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "a5a7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a5a1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5a2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5a4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5c5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5a6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5a3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5a8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b6c6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1f1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1d2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1f2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5d5",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "a5e5",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "a5f5",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "a5g5",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "a5h5",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b6d6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b6e6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b6b7",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "a5b5",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b6b1",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b6b2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b6b3",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b6b4",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b6b5",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b6a6",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b6b8",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b6h6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -24
+   },
+   {
+    "uci": "b6f6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -26
+   },
+   {
+    "uci": "b6g6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -26
+   }
+  ]
+ },
+ "8/6k1/8/K7/8/8/5R2/4R3 w - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "e1g1",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e1a1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1b1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1f1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1c1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1h1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1e3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f2f3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5a4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5b4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5b5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5a6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a5b6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "e1e4",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1e5",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1e6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1e7",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1e8",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "f2g2",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "f2f4",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "f2f5",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "f2f1",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "f2a2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "f2b2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "f2c2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "f2d2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "f2e2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "f2h2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "f2f8",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -24
+   },
+   {
+    "uci": "f2f6",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -26
+   },
+   {
+    "uci": "f2f7",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -26
+   }
+  ]
+ },
+ "8/6k1/8/K7/8/8/5R2/6R1 b - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "g7h6",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   },
+   {
+    "uci": "g7h7",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   },
+   {
+    "uci": "g7h8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "8/8/1R5k/R7/8/8/8/4K3 b - -": {
+  "category": "loss",
+  "dtz": -4,
+  "dtm": -4,
+  "moves": [
+   {
+    "uci": "h6g7",
+    "category": "win",
+    "dtz": 3,
+    "dtm": 3
+   },
+   {
+    "uci": "h6h7",
+    "category": "win",
+    "dtz": 3,
+    "dtm": 3
+   }
+  ]
+ },
+ "8/8/5k2/8/3K1B2/7B/8/8 b - -": {
+  "category": "loss",
+  "dtz": -20,
+  "dtm": -20,
+  "moves": [
+   {
+    "uci": "f6g6",
+    "category": "win",
+    "dtz": 19,
+    "dtm": 19
+   },
+   {
+    "uci": "f6e7",
+    "category": "win",
+    "dtz": 19,
+    "dtm": 19
+   },
+   {
+    "uci": "f6f7",
+    "category": "win",
+    "dtz": 19,
+    "dtm": 19
+   },
+   {
+    "uci": "f6g7",
+    "category": "win",
+    "dtz": 19,
+    "dtm": 19
+   }
+  ]
+ },
+ "8/8/5k2/8/5B2/3K3B/8/8 w - -": {
+  "category": "win",
+  "dtz": 21,
+  "dtm": 21,
+  "moves": [
+   {
+    "uci": "d3d4",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "d3e4",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "h3g4",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "h3c8",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "d3e3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "h3d7",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "f4h2",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "f4g3",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "f4d6",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "f4c7",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "f4b8",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "d3c2",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "d3d2",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "d3e2",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "d3c3",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "d3c4",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "h3f1",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "h3g2",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "f4c1",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "f4d2",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "f4e3",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "f4h6",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "h3f5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "h3e6",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "f4e5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "f4g5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "8/8/5k2/8/5B2/7B/3K4/8 b - -": {
+  "category": "loss",
+  "dtz": -24,
+  "dtm": -24,
+  "moves": [
+   {
+    "uci": "f6g6",
+    "category": "win",
+    "dtz": 23,
+    "dtm": 23
+   },
+   {
+    "uci": "f6e7",
+    "category": "win",
+    "dtz": 23,
+    "dtm": 23
+   },
+   {
+    "uci": "f6f7",
+    "category": "win",
+    "dtz": 23,
+    "dtm": 23
+   },
+   {
+    "uci": "f6g7",
+    "category": "win",
+    "dtz": 23,
+    "dtm": 23
+   }
+  ]
+ },
+ "8/8/5k2/8/5B2/7B/8/4K3 w - -": {
+  "category": "win",
+  "dtz": 25,
+  "dtm": 25,
+  "moves": [
+   {
+    "uci": "e1d2",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "e1f2",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "h3g4",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "h3c8",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "e1f1",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "h3d7",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "f4g3",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "f4d6",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "f4c7",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "f4h2",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "f4b8",
+    "category": "loss",
+    "dtz": -30,
+    "dtm": -30
+   },
+   {
+    "uci": "h3f1",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "h3g2",
+    "category": "loss",
+    "dtz": -32,
+    "dtm": -32
+   },
+   {
+    "uci": "f4c1",
+    "category": "loss",
+    "dtz": -34,
+    "dtm": -34
+   },
+   {
+    "uci": "f4d2",
+    "category": "loss",
+    "dtz": -34,
+    "dtm": -34
+   },
+   {
+    "uci": "f4e3",
+    "category": "loss",
+    "dtz": -34,
+    "dtm": -34
+   },
+   {
+    "uci": "f4h6",
+    "category": "loss",
+    "dtz": -34,
+    "dtm": -34
+   },
+   {
+    "uci": "h3f5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "h3e6",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "f4e5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "f4g5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "8/8/6k1/4K3/5B2/7B/8/8 b - -": {
+  "category": "loss",
+  "dtz": -18,
+  "dtm": -18,
+  "moves": [
+   {
+    "uci": "g6f7",
+    "category": "win",
+    "dtz": 17,
+    "dtm": 17
+   },
+   {
+    "uci": "g6g7",
+    "category": "win",
+    "dtz": 17,
+    "dtm": 17
+   },
+   {
+    "uci": "g6h5",
+    "category": "win",
+    "dtz": 15,
+    "dtm": 15
+   },
+   {
+    "uci": "g6h7",
+    "category": "win",
+    "dtz": 11,
+    "dtm": 11
+   }
+  ]
+ },
+ "8/8/6k1/8/3K1B2/7B/8/8 w - -": {
+  "category": "win",
+  "dtz": 19,
+  "dtm": 19,
+  "moves": [
+   {
+    "uci": "d4e5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "d4e4",
+    "category": "loss",
+    "dtz": -20,
+    "dtm": -20
+   },
+   {
+    "uci": "h3g4",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "h3e6",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "h3d7",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "h3c8",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4c1",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4d2",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4h2",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4e3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4g3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4e5",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4d6",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "d4d3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "d4e3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "d4c5",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "d4d5",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "f4c7",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "f4b8",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "d4c3",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "d4c4",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "h3f1",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "h3g2",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "h3f5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "f4g5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "f4h6",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "8/8/6k1/8/5B2/3K3B/8/8 b - -": {
+  "category": "loss",
+  "dtz": -22,
+  "dtm": -22,
+  "moves": [
+   {
+    "uci": "g6f6",
+    "category": "win",
+    "dtz": 21,
+    "dtm": 21
+   },
+   {
+    "uci": "g6f7",
+    "category": "win",
+    "dtz": 21,
+    "dtm": 21
+   },
+   {
+    "uci": "g6g7",
+    "category": "win",
+    "dtz": 21,
+    "dtm": 21
+   },
+   {
+    "uci": "g6h7",
+    "category": "win",
+    "dtz": 21,
+    "dtm": 21
+   },
+   {
+    "uci": "g6h5",
+    "category": "win",
+    "dtz": 17,
+    "dtm": 17
+   }
+  ]
+ },
+ "8/8/6k1/8/5B2/7B/3K4/8 w - -": {
+  "category": "win",
+  "dtz": 23,
+  "dtm": 23,
+  "moves": [
+   {
+    "uci": "d2d3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "d2e3",
+    "category": "loss",
+    "dtz": -22,
+    "dtm": -22
+   },
+   {
+    "uci": "h3g4",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "h3c8",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "f4e5",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "f4d6",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "d2c2",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "d2e2",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "d2c3",
+    "category": "loss",
+    "dtz": -24,
+    "dtm": -24
+   },
+   {
+    "uci": "h3e6",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "h3d7",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "f4h2",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "f4e3",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "f4g3",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "f4c7",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "f4b8",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "d2c1",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "d2d1",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "d2e1",
+    "category": "loss",
+    "dtz": -26,
+    "dtm": -26
+   },
+   {
+    "uci": "h3f1",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "h3g2",
+    "category": "loss",
+    "dtz": -28,
+    "dtm": -28
+   },
+   {
+    "uci": "h3f5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "f4g5",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "f4h6",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "8/8/7k/K7/8/8/5R2/6R1 w - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "f2h2",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "f2b2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "g1g3",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "f2a2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "f2c2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "f2d2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "f2e2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "f2g2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "f2f3",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "f2f5",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "f2f7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a5a4",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a5b4",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a5b5",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a5a6",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a5b6",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "g1g4",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "g1g8",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "f2f4",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "f2f6",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "f2f8",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -4
+   },
+   {
+    "uci": "g1b1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "g1d1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "g1e1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "g1f1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "g1h1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "g1g2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f2f1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "g1a1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "g1c1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "g1g7",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -24
+   },
+   {
+    "uci": "g1g5",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -26
+   },
+   {
+    "uci": "g1g6",
+    "category": "loss",
+    "dtz": -3,
+    "dtm": -26
+   }
+  ]
+ },
+ "8/8/7k/K7/8/8/7R/6R1 b - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "8/8/7k/R7/8/8/8/1R2K3 w - -": {
+  "category": "win",
+  "dtz": 5,
+  "dtm": 5,
+  "moves": [
+   {
+    "uci": "b1b6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "b1b7",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -6
+   },
+   {
+    "uci": "b1c1",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b3",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b4",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b5",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "b1b8",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a5c5",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "e1f1",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "e1d2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "e1f2",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a5f5",
+    "category": "loss",
+    "dtz": -5,
+    "dtm": -8
+   },
+   {
+    "uci": "b1a1",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "b1d1",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a5a4",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a5b5",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a5d5",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a5e5",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a5a6",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -8
+   },
+   {
+    "uci": "a5a1",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a5a2",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a5a3",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a5a7",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a5a8",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a5h5",
+    "category": "loss",
+    "dtz": -7,
+    "dtm": -24
+   },
+   {
+    "uci": "a5g5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -26
+   }
+  ]
+ },
+ "8/8/8/2r5/4k3/8/8/3K4 b - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "e4e3",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e4d3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5c3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c5c4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c5b5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c5d5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c5c6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c5c7",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c5c8",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e4f3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e4d4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e4f4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "c5a5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c5e5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c5f5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c5g5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c5h5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e4d5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e4e5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e4f5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "c5c1",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "c5c2",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "8/8/8/2r5/8/4k3/8/3K4 w - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "d1e1",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "8/8/8/2r5/8/4k3/8/4K3 b - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "c5c1",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "c5c4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5a5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5b5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5d5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5e5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5f5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5g5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5h5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5c6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5c7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5c8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "c5c2",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "c5c3",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "e3d3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e3f3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e3e4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e3f4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e3d4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   }
+  ]
+ },
+ "8/8/8/4K3/7k/3R4/8/8 w - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "e5f5",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e5f4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3d2",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "d3a3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "d3b3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "d3c3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "d3e3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "d3f3",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "d3d4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e5e4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e5e6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "e5f6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "d3d1",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "d3d5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "d3d6",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "d3d7",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "d3d8",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e5d4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e5d5",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "e5d6",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   },
+   {
+    "uci": "d3g3",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   },
+   {
+    "uci": "d3h3",
+    "category": "draw",
+    "dtz": 0,
+    "dtm": 0
+   }
+  ]
+ },
+ "8/8/8/5K1k/8/3R4/8/8 w - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "d3h3",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "d3d1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3d2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3a3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3b3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3c3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3e3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3d4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3d5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3d6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3d7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3d8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d3f3",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "d3g3",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "f5f4",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f5e5",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f5e6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f5f6",
+    "category": "loss",
+    "dtz": -16,
+    "dtm": -16
+   },
+   {
+    "uci": "f5e4",
+    "category": "loss",
+    "dtz": -18,
+    "dtm": -18
+   }
+  ]
+ },
+ "8/8/8/5K1k/8/7R/8/8 b - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "8/8/8/5K2/7k/3R4/8/8 b - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "h4h5",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "8/8/8/8/7R/8/5K1k/8 b - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "8/8/8/8/8/1k6/8/1K1r4 w - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "8/8/8/8/8/4k3/8/2r1K3 w - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "8/8/8/8/R7/8/5K1k/8 w - -": {
+  "category": "win",
+  "dtz": 1,
+  "dtm": 1,
+  "moves": [
+   {
+    "uci": "a4h4",
+    "category": "loss",
+    "dtz": -1,
+    "dtm": null
+   },
+   {
+    "uci": "a4a3",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a4a1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4a2",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4b4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4c4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4d4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4e4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4f4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4g4",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4a5",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4a6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4a7",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4a8",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f2f3",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "f2e1",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "f2f1",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "f2e2",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "f2e3",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   }
+  ]
+ },
+ "8/8/8/8/R7/8/5K2/7k b - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "h1h2",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "8/8/8/8/R7/8/8/4K2k w - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "e1f2",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "e1f1",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "a4g4",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "a4a2",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a4a3",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "e1e2",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a4a1",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "a4b4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "a4c4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "a4d4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "a4e4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "a4a5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "a4a6",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "a4a7",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "a4a8",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "a4f4",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "a4h4",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "e1d1",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "e1d2",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   }
+  ]
+ },
+ "8/R5k1/1R6/8/8/8/8/4K3 b - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "g7f8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   },
+   {
+    "uci": "g7g8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   },
+   {
+    "uci": "g7h8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "R1k5/8/2K5/8/8/8/8/8 b - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "R2k4/1R6/8/8/8/8/8/4K3 b - -": {
+  "category": "loss",
+  "dtz": -1,
+  "dtm": null,
+  "moves": []
+ },
+ "k7/8/1K6/8/8/8/8/3R4 b - -": {
+  "category": "loss",
+  "dtz": -2,
+  "dtm": -2,
+  "moves": [
+   {
+    "uci": "a8b8",
+    "category": "win",
+    "dtz": 1,
+    "dtm": 1
+   }
+  ]
+ },
+ "k7/8/8/K7/8/8/8/3R4 w - -": {
+  "category": "win",
+  "dtz": 3,
+  "dtm": 3,
+  "moves": [
+   {
+    "uci": "a5b6",
+    "category": "loss",
+    "dtz": -2,
+    "dtm": -2
+   },
+   {
+    "uci": "a5a6",
+    "category": "loss",
+    "dtz": -4,
+    "dtm": -4
+   },
+   {
+    "uci": "d1d7",
+    "category": "loss",
+    "dtz": -6,
+    "dtm": -6
+   },
+   {
+    "uci": "d1b1",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "d1c1",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "a5b5",
+    "category": "loss",
+    "dtz": -8,
+    "dtm": -8
+   },
+   {
+    "uci": "d1a1",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d1e1",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d1f1",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d1g1",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d1h1",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d1d2",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d1d3",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d1d4",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d1d5",
+    "category": "loss",
+    "dtz": -10,
+    "dtm": -10
+   },
+   {
+    "uci": "d1d6",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "d1d8",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "a5a4",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   },
+   {
+    "uci": "a5b4",
+    "category": "loss",
+    "dtz": -12,
+    "dtm": -12
+   }
+  ]
+ }
+}
