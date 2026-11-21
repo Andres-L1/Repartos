@@ -13,7 +13,7 @@ const lesson = (id: string, unitId: string, extra: Partial<Lesson> = {}): Lesson
   id, unitId, title: id, objective: id, intro: 'i', explanation: [], practice: [], evaluation: [], ...extra,
 });
 const units: Unit[] = [
-  { id: 'a', order: 1, title: 'A', description: 'd', level: 'beginner', requires: [], lessons: [lesson('a.1', 'a', { demo: true })] },
+  { id: 'a', order: 1, title: 'A', description: 'd', level: 'beginner', requires: [], lessons: [lesson('a.1', 'a')] },
   { id: 'b', order: 2, title: 'B', description: 'd', level: 'intermediate', requires: ['a'], lessons: [lesson('b.1', 'b'), lesson('b.2', 'b')] },
 ];
 

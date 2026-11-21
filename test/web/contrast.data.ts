@@ -31,7 +31,7 @@ export const PAIRS: Pair[] = [
   { name: 'Enlace / naranja de texto sobre tinta', fg: ORANGE_TEXT, bg: INK, min: 4.5 },
   { name: 'Naranja de texto sobre tarjeta grafito (kicker, enlaces)', fg: ORANGE_TEXT, bg: GRAPHITE, min: 4.5 },
   { name: 'Naranja de texto sobre grafito 2 (nav activo, nodo)', fg: ORANGE_TEXT, bg: GRAPHITE2, min: 4.5 },
-  { name: 'Naranja de texto sobre naranja suave (chip recomendado, beta)', fg: ORANGE_TEXT, bg: '#2b1e14', min: 4.5 },
+  { name: 'Naranja de texto sobre naranja suave (chip recomendado)', fg: ORANGE_TEXT, bg: '#2b1e14', min: 4.5 },
   { name: 'Botón primario: tinta sobre naranja', fg: INK, bg: ORANGE, min: 4.5 },
   { name: 'Botón primario (hover)', fg: INK, bg: '#f79a58', min: 4.5 },
   { name: 'Botón secundario', fg: BTN_TEXT, bg: GRAPHITE2, min: 4.5 },

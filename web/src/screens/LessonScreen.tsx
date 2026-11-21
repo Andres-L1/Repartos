@@ -15,8 +15,8 @@ export function LessonScreen({ id }: { id: string }) {
       .lesson(id)
       .then((r) => setLesson(r.lesson))
       .catch((e) => {
-        // 401 y 402 los gestiona la capa de API (redirección)
-        if (e instanceof ApiError && (e.status === 401 || e.status === 402)) return;
+        // 401 lo gestiona la capa de API (redirección)
+        if (e instanceof ApiError && e.status === 401) return;
         setError(e instanceof ApiError ? e.message : 'No se pudo cargar la lección.');
       });
   }, [id]);

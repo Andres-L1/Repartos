@@ -1,8 +1,8 @@
-/** API simulada para desarrollar sin servidor (activar con ?mock=1; ?mock=1&billing=dev simula pagos). */
+/** API simulada para desarrollar sin servidor (activar con ?mock=1; &admin=1 entra como administración y habilita /admin). */
 import { CATALOG, DEFAULT_BOARD, DEFAULT_PIECES, PROTECTOR_ID, PROTECTOR_MAX, STREAK_DAYS_PER_CHEDEX } from '../../../src/shop/catalog';
 import type { Level } from '../../../src/types';
 import { LEVELS, suggestLevel } from '../../../src/shared/levels';
-import type { BillingMode, Equipped, MapUnit, LevelInfo, OutlineUnit, Profile, Shop, Subscription, User } from '../../../src/shared/api';
+import type { AccessOverview, Equipped, MapUnit, LevelInfo, OutlineUnit, Profile, Shop, User } from '../../../src/shared/api';
 import type { Lesson } from '../../../src/content/schema';
 import { UNITS } from '../../../src/content/index';
 
@@ -11,7 +11,6 @@ const L1: Lesson = {
   unitId: 'u01',
   title: 'El peón y la torre',
   objective: 'Mover el peón, coronar y dar un mate de torre.',
-  demo: true,
   conceptIds: ['tactics.hanging_piece'],
   intro:
     'Antes de planear nada hay que saber cómo se mueven las piezas. Hoy verás el peón (avanza y captura en diagonal) y la torre (líneas rectas). ¡Al final darás tu primer mate!',
@@ -115,19 +114,19 @@ const L3: Lesson = {
   unitId: 'u02',
   title: 'Mate con dos torres',
   objective: 'Dar mate con la escalera de torres.',
-  demo: false,
 };
 
 const LESSONS: Record<string, Lesson> = { [L1.id]: L1, [L2.id]: L2, [L3.id]: L3 };
 
 interface MockState {
   user: User | null;
-  sub: Subscription;
   completed: Record<string, number>;
   profile: Profile;
   /** Nivel elegido por el alumno (null = sin elegir todavía). */
   chosenLevel?: Level | null;
   /** Tienda simulada: saldo, objetos poseídos, protectores y lo equipado. */
+  /** Lista de autorizados y solicitudes simuladas (panel /admin). */
+  access?: AccessOverview;
   wallet?: { balance: number; earnedTotal: number; owned: string[]; protectors: number; equipped: Equipped };
 }
 
@@ -186,7 +185,6 @@ async function fase4Map(chosen: Level | null): Promise<MapUnit[]> {
       id: l.id,
       title: l.title,
       objective: l.objective,
-      demo: false,
       status: state.completed[l.id] !== undefined ? 'completed' : 'available',
       ...(state.completed[l.id] !== undefined ? { bestScore: state.completed[l.id] ?? 0 } : {}),
     })),
@@ -214,15 +212,28 @@ function levelInfo(): LevelInfo {
   };
 }
 
-const MODE: BillingMode = (() => {
+/** ?admin=1 (se recuerda en la sesión del navegador): el usuario simulado es administración. */
+const ADMIN = (() => {
   try {
-    const q = new URLSearchParams(window.location.search).get('billing');
-    if (q) sessionStorage.setItem('chedex-mock-billing', q);
-    return sessionStorage.getItem('chedex-mock-billing') === 'dev' ? 'dev' : 'beta_open';
+    const q = new URLSearchParams(window.location.search).get('admin');
+    if (q) sessionStorage.setItem('chedex-mock-admin', q);
+    return sessionStorage.getItem('chedex-mock-admin') === '1';
   } catch {
-    return 'beta_open';
+    return false;
   }
 })();
+
+const T0 = Date.now();
+function seedAccess(): AccessOverview {
+  return {
+    allowed: [
+      { id: 'ana_ajedrez', username: 'Ana_Ajedrez', addedAt: T0 - 9 * 864e5 },
+      { id: 'luis', username: 'Luis', addedAt: T0 - 3 * 864e5 },
+    ],
+    requests: [{ id: 'marta_92', username: 'Marta_92', firstAt: T0 - 2 * 864e5, lastAt: T0 - 36e5, attempts: 3 }],
+    maxAllowed: 500,
+  };
+}
 
 function load(): MockState {
   try {
@@ -233,7 +244,6 @@ function load(): MockState {
   }
   return {
     user: null,
-    sub: { status: 'none', priceEurPerMonth: 10, provider: MODE === 'dev' ? 'dev' : 'none', beta: MODE !== 'dev' },
     completed: {},
     chosenLevel: null,
     profile: {
@@ -388,7 +398,6 @@ function buildMap(): MapUnit[] {
           id: L1.id,
           title: L1.title,
           objective: L1.objective,
-          demo: true,
           status: done1 ? 'completed' : 'available',
           ...(done1 ? { bestScore: state.completed[L1.id] ?? 0 } : {}),
         },
@@ -396,7 +405,6 @@ function buildMap(): MapUnit[] {
           id: L2.id,
           title: L2.title,
           objective: L2.objective,
-          demo: false,
           status: done2 ? 'completed' : done1 || u1Open ? 'available' : 'locked',
           ...(done2 ? { bestScore: state.completed[L2.id] ?? 0 } : {}),
         },
@@ -415,7 +423,6 @@ function buildMap(): MapUnit[] {
           id: L3.id,
           title: L3.title,
           objective: L3.objective,
-          demo: false,
           status: done3 ? 'completed' : u1Done || u1Open ? 'available' : 'locked',
           ...(done3 ? { bestScore: state.completed[L3.id] ?? 0 } : {}),
         },
@@ -431,14 +438,12 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   const path = url.replace(/^\/api/, '');
   const body = init.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {};
 
-  if (path === '/demo') return json({ lesson: L1 });
   if (path === '/outline') {
     const extra = (await fase4()).map(({ id, order, title, level, description, lessons }) => ({ id, order, title, level, description, lessons: lessons.map((l) => ({ id: l.id, title: l.title })) }));
     return json({ units: [...OUTLINE, ...extra] });
   }
-  if (path === '/config') return json({ billingMode: MODE });
   if (path === '/auth/login' && method === 'GET') {
-    state.user = { id: 'mockuser', username: 'MockUser' };
+    state.user = ADMIN ? { id: 'andresli', username: 'AndresLi' } : { id: 'mockuser', username: 'MockUser' };
     save();
     return json({ user: state.user });
   }
@@ -454,7 +459,7 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   }
   if (!state.user) return err(401, 'Necesitas iniciar sesión.');
 
-  if (path === '/me') return json({ user: state.user, subscription: state.sub, billingMode: MODE, equipped: wallet().equipped, level: state.chosenLevel ?? 'initiation', levelChosen: !!state.chosenLevel });
+  if (path === '/me') return json({ user: state.user, isAdmin: ADMIN, equipped: wallet().equipped, level: state.chosenLevel ?? 'initiation', levelChosen: !!state.chosenLevel });
   if (path === '/shop') return json(buildShop());
   if (path === '/shop/buy' && method === 'POST') {
     const w = wallet();
@@ -494,7 +499,6 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     const lesson = LESSONS[id] ?? (await fase4()).flatMap((u) => u.lessons).find((l) => l.id === id);
     if (!lesson) return err(404, 'Lección no encontrada.');
     if (!lm[2]) {
-      if (MODE === 'dev' && !lesson.demo && state.sub.status !== 'active') return err(402, 'Esta lección requiere suscripción.');
       return json({ lesson });
     }
     const correct = Number(body.correct ?? 0);
@@ -532,17 +536,34 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     });
   }
   if (path === '/profile') return json({ profile: state.profile });
-  if (path === '/billing') return json({ subscription: state.sub });
-  if (MODE === 'beta_open' && path.startsWith('/billing/')) return err(501, 'Los pagos llegarán próximamente.');
-  if (path === '/billing/subscribe') {
-    state.sub = { ...state.sub, status: 'active', currentPeriodEnd: new Date(Date.now() + 30 * 864e5).toISOString() };
+  // Administración del acceso (solo con ?admin=1).
+  const am = path.match(/^\/admin\/(access|allowed|requests)(?:\/([^/]+))?(\/approve)?$/);
+  if (am) {
+    if (!ADMIN) return err(403, 'Solo para la administración');
+    const acc = (state.access ??= seedAccess());
+    const id = decodeURIComponent(am[2] ?? '').toLowerCase();
+    if (am[1] === 'access' && method === 'GET') return json(acc);
+    if (am[1] === 'allowed' && method === 'POST') {
+      const name = String(body.username ?? '').trim();
+      if (!/^[A-Za-z0-9_-]{2,30}$/.test(name)) return err(400, 'Escribe el nombre de usuario de Lichess (2 a 30 letras, números, guion o guion bajo)');
+      if (name.toLowerCase() === 'andresli') return err(409, 'Esa cuenta es de administración y ya tiene acceso');
+      if (acc.allowed.some((a) => a.id === name.toLowerCase())) return err(409, 'Ese usuario ya está autorizado');
+      acc.allowed.push({ id: name.toLowerCase(), username: name, addedAt: Date.now() });
+      acc.requests = acc.requests.filter((r) => r.id !== name.toLowerCase());
+    } else if (am[1] === 'allowed' && method === 'DELETE') {
+      if (!acc.allowed.some((a) => a.id === id)) return err(404, 'Ese usuario no está en la lista');
+      acc.allowed = acc.allowed.filter((a) => a.id !== id);
+    } else if (am[1] === 'requests' && am[3] && method === 'POST') {
+      const r = acc.requests.find((x) => x.id === id);
+      if (!r) return err(404, 'No hay solicitud de ese usuario');
+      acc.allowed.push({ id: r.id, username: r.username, addedAt: Date.now() });
+      acc.requests = acc.requests.filter((x) => x.id !== id);
+    } else if (am[1] === 'requests' && method === 'DELETE') {
+      acc.requests = acc.requests.filter((x) => x.id !== id);
+    } else return err(404, 'Ruta no encontrada.');
+    acc.allowed.sort((a, b) => a.id.localeCompare(b.id));
     save();
-    return json({ subscription: state.sub });
-  }
-  if (path === '/billing/cancel') {
-    state.sub = { ...state.sub, status: 'canceled' };
-    save();
-    return json({ subscription: state.sub });
+    return json(acc);
   }
   // «Entrenar hoy» simulado: ?due=0 para el estado vacío.
   if (path === '/session/status') return json({ due: new URLSearchParams(window.location.search).get('due') === '0' ? 0 : 3, nextDueAt: new Date(Date.now() + 864e5).toISOString() });

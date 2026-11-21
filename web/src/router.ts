@@ -8,7 +8,7 @@ import { useSyncExternalStore } from 'react';
 /** Rutas antiguas que ahora se llaman distinto (también dentro del hash antiguo). */
 const RENAMED: Record<string, string> = { '/mapa': '/aprender', '/registro': '/entrar' };
 
-export const PRIVATE_PREFIXES = ['/aprender', '/leccion', '/perfil', '/suscripcion', '/bienvenida', '/tienda', '/partidas', '/entrenar'];
+export const PRIVATE_PREFIXES = ['/aprender', '/leccion', '/perfil', '/admin', '/bienvenida', '/tienda', '/partidas', '/entrenar'];
 
 /** Quita query/hash y la barra final; '' pasa a '/'. */
 export function normalizePath(raw: string): string {
@@ -27,17 +27,16 @@ const TITLES: [string, string][] = [
   ['/partidas', 'Repaso de partidas'],
   ['/tienda', 'Tienda'],
   ['/perfil', 'Perfil'],
-  ['/suscripcion', 'Suscripción'],
+  ['/admin', 'Administración'],
   ['/bienvenida', 'Elige tu nivel'],
   ['/entrar', 'Entrar'],
-  ['/demo', 'Prueba una lección'],
   ['/privacidad', 'Privacidad'],
   ['/creditos', 'Créditos'],
 ];
 
 /** Título del documento para una ruta limpia (WCAG 2.4.2): «Tienda · Chedex Pulse». La portada conserva el título largo. */
 export function titleFor(path: string): string {
-  if (path === '/') return `${SITE} · Aprende ajedrez`;
+  if (path === '/') return `${SITE} · Entrenamiento de ajedrez para alumnos de TopChess`;
   const hit = TITLES.find(([p]) => path === p || path.startsWith(p + '/'));
   return `${hit ? hit[1] : 'Página no encontrada'} · ${SITE}`;
 }

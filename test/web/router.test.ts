@@ -12,10 +12,10 @@ describe('router: normalizePath', () => {
 });
 
 describe('router: rutas privadas', () => {
-  it('aprender, leccion, perfil, suscripcion, bienvenida y tienda son privadas', () => {
-    for (const p of ['/aprender', '/leccion/u01.l01', '/perfil', '/suscripcion', '/bienvenida', '/tienda'])
+  it('aprender, leccion, perfil, admin, bienvenida y tienda son privadas', () => {
+    for (const p of ['/aprender', '/leccion/u01.l01', '/perfil', '/admin', '/bienvenida', '/tienda'])
       expect(isPrivatePath(p)).toBe(true);
-    for (const p of ['/', '/demo', '/entrar', '/privacidad', '/creditos', '/nada', '/aprenderx', '/perfiles', '/tiendas', '/tienda-vieja'])
+    for (const p of ['/', '/entrar', '/privacidad', '/creditos', '/nada', '/aprenderx', '/perfiles', '/tiendas', '/tienda-vieja'])
       expect(isPrivatePath(p)).toBe(false);
   });
 });
@@ -41,7 +41,7 @@ describe('router: redirección de URLs antiguas', () => {
     expect(legacyRedirect('/', '', '#/perfil')).toBe('/perfil');
     expect(legacyRedirect('/', '', '#/registro')).toBe('/entrar');
     expect(legacyRedirect('/', '', '#/')).toBe('/');
-    expect(legacyRedirect('/', '', '#/demo/')).toBe('/demo');
+    expect(legacyRedirect('/', '', '#/entrar/')).toBe('/entrar');
   });
   it('conserva el query de la URL y el del hash', () => {
     expect(legacyRedirect('/', '?mock=1', '#/mapa')).toBe('/aprender?mock=1');
@@ -86,7 +86,7 @@ describe('router: clics de enlace', () => {
 
 describe('router: titleFor', () => {
   it('da un título distinto a cada pantalla y conserva el de la portada', () => {
-    expect(titleFor('/')).toBe('Chedex Pulse · Aprende ajedrez');
+    expect(titleFor('/')).toBe('Chedex Pulse · Entrenamiento de ajedrez para alumnos de TopChess');
     expect(titleFor('/tienda')).toBe('Tienda · Chedex Pulse');
     expect(titleFor('/leccion/u01.l01')).toBe('Lección · Chedex Pulse');
     expect(titleFor('/partidas/informe')).toBe('Informe de tus partidas · Chedex Pulse');

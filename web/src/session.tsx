@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { BillingMode, Equipped, Shop, Subscription, User } from '../../src/shared/api';
+import type { Equipped, Shop, User } from '../../src/shared/api';
 import type { Level } from '../../src/types';
 import { api, ApiError, setApiHandlers } from './api';
 import { navigate } from './router';
@@ -12,27 +12,22 @@ interface SessionValue {
   connectionError: boolean;
   retryConnection(): void;
   user: User | null;
+  /** La administración lo decide en el servidor; la web solo lo usa para mostrar el enlace a /admin. */
+  isAdmin: boolean;
   /** Nivel interno para adaptar los textos (nunca se muestra); 'initiation' hasta que /api/me lo devuelva. */
   level: Level;
   /** El alumno ya eligió su nivel (si no, se le lleva a /bienvenida). */
   levelChosen: boolean;
   /** Actualiza el nivel tras elegirlo en la pantalla de nivel. */
   setLevel(l: Level): void;
-  subscription: Subscription | null;
-  /** Modo de facturación del servidor. Hasta saberlo se asume beta abierta (no se muestra precio). */
-  billingMode: BillingMode;
-  /** id de la lección que devolvió 402 (para mostrar el aviso en Suscripción) */
-  paywallLesson: string | null;
   /** Tablero y piezas equipados (los de por defecto hasta saber otra cosa). */
   equipped: Equipped;
   /** Tienda (saldo, protectores, objetos); null hasta que carga o si falla. */
   shop: Shop | null;
   setShop(s: Shop): void;
   refreshShop(): Promise<void>;
-  /** Fija la sesión; sin suscripción dada, espera a /api/me para saber el nivel antes de exponer el usuario. */
-  setSession(user: User | null, subscription?: Subscription | null): Promise<void>;
-  setSubscription(s: Subscription): void;
-  clearPaywall(): void;
+  /** Fija la sesión y espera a /api/me para saber el nivel antes de exponer el usuario. */
+  setSession(user: User | null): Promise<void>;
   logout(): Promise<void>;
   /** Borra la cuenta en el servidor y limpia la sesión local; lanza si el servidor no la borró. */
   deleteAccount(): Promise<void>;
@@ -52,9 +47,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [level, setLevelState] = useState<Level>('initiation');
   const [levelChosen, setLevelChosen] = useState(false);
-  const [subscription, setSub] = useState<Subscription | null>(null);
-  const [billingMode, setBillingMode] = useState<BillingMode>('beta_open');
-  const [paywallLesson, setPaywall] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [equipped, setEquipped] = useState<Equipped>(DEFAULT_EQUIPPED);
   const [shop, setShopState] = useState<Shop | null>(null);
 
@@ -78,8 +71,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         setUser(r.user);
         if (r.level) setLevelState(r.level);
         setLevelChosen(r.levelChosen === true);
-        setSub(r.subscription);
-        setBillingMode(r.billingMode);
+        setIsAdmin(r.isAdmin === true);
         if (r.equipped) setEquipped(sanitizeEquipped(r.equipped));
       })
       .catch((e: unknown) => {
@@ -97,18 +89,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setApiHandlers({
       unauthorized: () => {
         setUser(null);
-        setSub(null);
+        setIsAdmin(false);
         navigate('/entrar');
       },
-      payment: (lessonId) => {
-        setPaywall(lessonId ?? 'paywall');
-        navigate('/suscripcion');
+      noAccess: () => {
+        setUser(null);
+        setIsAdmin(false);
+        navigate('/entrar?acceso=denegado');
       },
     });
-    api
-      .config()
-      .then((r) => setBillingMode(r.billingMode))
-      .catch(() => {});
     loadMe();
   }, [loadMe]);
 
@@ -131,25 +120,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setLevelChosen(true);
   }, []);
 
-  const setSession = useCallback(async (u: User | null, s?: Subscription | null) => {
-    if (s !== undefined) setSub(s);
-    if (u && s === undefined) {
-      api
-        .billing()
-        .then((r) => setSub(r.subscription))
-        .catch(() => {});
+  const setSession = useCallback(async (u: User | null) => {
+    if (u) {
       // El nivel se conoce antes de exponer el usuario: si no, la redirección de primer acceso
       // llevaría a /bienvenida a quien ya eligió nivel.
       try {
         const r = await api.me();
         setLevelState(r.level ?? 'initiation');
         setLevelChosen(r.levelChosen === true);
+        setIsAdmin(r.isAdmin === true);
       } catch {
         /* sin /api/me se conserva lo anterior */
       }
     } else if (!u) {
       setLevelState('initiation');
       setLevelChosen(false);
+      setIsAdmin(false);
     }
     setUser(u);
   }, []);
@@ -160,19 +146,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       connectionError,
       retryConnection,
       user,
+      isAdmin,
       level,
       levelChosen,
       setLevel,
-      subscription,
-      billingMode,
-      paywallLesson,
       equipped,
       shop,
       setShop,
       refreshShop,
       setSession,
-      setSubscription: setSub,
-      clearPaywall: () => setPaywall(null),
       logout: async () => {
         try {
           await api.logout();
@@ -180,7 +162,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           /* da igual: se limpia el estado local */
         }
         setUser(null);
-        setSub(null);
+        setIsAdmin(false);
         setLevelState('initiation');
         setLevelChosen(false);
         navigate('/');
@@ -188,13 +170,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       deleteAccount: async () => {
         await api.deleteAccount(); // si falla no se limpia nada: la cuenta sigue existiendo
         setUser(null);
-        setSub(null);
+        setIsAdmin(false);
         setLevelState('initiation');
         setLevelChosen(false);
         navigate('/');
       },
     }),
-    [loading, connectionError, retryConnection, user, level, levelChosen, setLevel, subscription, billingMode, paywallLesson, equipped, shop, setShop, refreshShop, setSession],
+    [loading, connectionError, retryConnection, user, isAdmin, level, levelChosen, setLevel, equipped, shop, setShop, refreshShop, setSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

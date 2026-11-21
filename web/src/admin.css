@@ -1,0 +1,17 @@
+/* Panel de administración del acceso (/admin) y aviso de acceso denegado. */
+.admin { display: grid; gap: var(--s-4); max-width: 720px; margin-inline: auto; width: 100%; }
+.admin h1, .admin h2 { margin: 0 0 var(--s-2); }
+.admin .t-card { overflow-wrap: anywhere; }
+.admin-status { min-height: 0; }
+.admin-status .t-alert { margin: 0; }
+.admin-list { list-style: none; margin: var(--s-3) 0 0; padding: 0; display: grid; gap: var(--s-2); }
+.admin-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-3); padding: var(--s-3) 0; border-top: 1px solid var(--line); }
+.admin-who { display: grid; gap: 0.1rem; min-width: 0; flex: 1 1 12rem; }
+.admin-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.admin-confirm { flex: 1 1 100%; }
+.admin-empty { margin: var(--s-3) 0 0; color: var(--muted); }
+.admin form .t-btn { min-width: 44px; }
+.lichess-name { overflow-wrap: anywhere; }
+@media (max-width: 479px) {
+  .admin-actions .t-btn { flex: 1 1 auto; }
+}

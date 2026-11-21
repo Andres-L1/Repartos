@@ -75,7 +75,7 @@ export function createApp(deps: AppDeps) {
   const k = createContext(deps);
   registerAccountRoutes(app, k); // /auth/*, /api/config, /api/outline, /api/me, /api/account, /api/profile
   registerMapRoutes(app, k); // /api/map, /api/level
-  registerLessonRoutes(app, k); // /api/lessons/*, /api/demo
+  registerLessonRoutes(app, k); // /api/lessons/*
   registerReviewRoutes(app, k); // /api/review/complete, /api/session/*
   registerShopRoutes(app, k); // /api/shop/*
   registerAdminRoutes(app, k); // /api/admin/*

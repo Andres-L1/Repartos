@@ -9,7 +9,7 @@ export function CreditsScreen() {
   return (
     <article className="prose credits t-card">
       <h1>Créditos y licencias</h1>
-      <p className="lead">Quién ha hecho cada cosa y bajo qué licencia se puede usar.</p>
+      <p className="lead">Chedex Pulse es la plataforma de entrenamiento de ajedrez de los alumnos de TopChess. Aquí, quién ha hecho cada cosa y bajo qué licencia se puede usar.</p>
 
       <h2>El código de Chedex Pulse</h2>
       <p>

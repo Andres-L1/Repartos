@@ -30,7 +30,7 @@ interface Props {
   /** cambia para forzar el redibujado de la misma posición (reintentos) */
   nonce?: number;
   label: string;
-  /** Usa el tablero y las piezas por defecto (landing y demostración pública), no lo equipado. */
+  /** Usa el tablero y las piezas por defecto (portada), no lo equipado. */
   plain?: boolean;
   /** Clases de tablero y piezas a aplicar en lugar de lo equipado (p. ej. `theme-noche pieces-contorno` en la landing). */
   appearance?: string;

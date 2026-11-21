@@ -47,7 +47,6 @@ export function computeStatuses(
     u.lessons.forEach((l, i) => {
       let s: LessonStatus;
       if (done(l.id)) s = 'completed';
-      else if (l.demo) s = 'available'; // la demo es siempre accesible
       else if (placement.openUnitIds.has(u.id)) s = 'available';
       else if (open && (i === 0 || done(u.lessons[i - 1]!.id))) s = 'available';
       else s = 'locked';
@@ -78,7 +77,6 @@ export function buildMap(
         id: l.id,
         title: l.title,
         objective: l.objective,
-        demo: l.demo === true,
         status: lessonStatus.get(l.id)!,
         ...(p ? { bestScore: p.bestScore } : {}),
       };

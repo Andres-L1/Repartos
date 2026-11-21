@@ -1,4 +1,4 @@
-/** Lecciones: contenido, demo y finalización (progreso, racha, Chedex, conceptos fallados). */
+/** Lecciones: contenido y finalización (progreso, racha, Chedex, conceptos fallados). */
 import type { Hono } from 'hono';
 import type { AppContext } from '../context.js';
 import { HttpError, isInt, readJson, type Env } from '../http.js';
@@ -23,10 +23,6 @@ export function registerLessonRoutes(app: Hono<Env>, k: AppContext): void {
     c.json({ lesson: await lessonAccess(c.get('user').id, c.req.param('id') ?? '') }),
   );
 
-  app.get('/api/demo', (c) => {
-    for (const u of content.units) for (const l of u.lessons) if (l.demo) return c.json({ lesson: l });
-    throw new HttpError(404, 'No hay lección demo');
-  });
 
   app.post('/api/lessons/:id/complete', requireAuth, async (c) => {
     const userId = c.get('user').id;

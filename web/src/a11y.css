@@ -4,7 +4,7 @@
 /* Modo de alto contraste de Windows (forced-colors). Allí no se dibujan las sombras ni los colores de fondo propios:
    las piezas «físicas» (botones, fichas, pestañas) sin borde serían texto suelto y los estados solo de color desaparecerían. */
 @media (forced-colors: active) {
-  .t-btn, .t-chip, .t-tab, .t-pill, .chip, .chip-beta, .nav-link, .balance, .whoami-avatar, .gv-move, .lvl-card, .rv-row, .rv-icon, .empty-icon, .lvl-badge, .rp-cell, .rp-chip, .t-input {
+  .t-btn, .t-chip, .t-tab, .t-pill, .chip, .nav-link, .balance, .whoami-avatar, .gv-move, .lvl-card, .rv-row, .rv-icon, .empty-icon, .lvl-badge, .rp-cell, .rp-chip, .t-input {
     border: 2px solid ButtonText;
   }
   .t-btn-ghost { border-color: transparent; text-decoration: underline; }

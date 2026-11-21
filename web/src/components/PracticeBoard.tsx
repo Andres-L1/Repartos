@@ -20,7 +20,7 @@ interface Props {
   mode: 'practice' | 'evaluation';
   onDone(r: StepResult): void;
   isLast: boolean;
-  /** Tablero y piezas por defecto (demostración pública). */
+  /** Tablero y piezas por defecto (portada). */
   plain?: boolean;
   /** Clases de tablero y piezas propias (landing). */
   appearance?: string;

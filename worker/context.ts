@@ -147,7 +147,7 @@ export function createContext(deps: AppDeps) {
     const denied = row && restricted && !isAdmin(s.id) && !row.allowed;
     if (!row || denied) {
       const res = denied
-        ? c.json({ error: 'Tu cuenta ya no tiene acceso a Chedex Pulse. Pide a tu profesor de TopChess que te autorice.' }, 403)
+        ? c.json({ error: 'Tu cuenta ya no tiene acceso a Chedex Pulse. Pide a tu profesor de TopChess que te autorice.', code: 'no_access' }, 403)
         : c.json({ error: 'Sesión requerida' }, 401);
       for (const ck of clearedCookies(deps.publicOrigin!)) res.headers.append('Set-Cookie', ck);
       return res;

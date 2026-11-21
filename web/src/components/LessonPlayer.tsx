@@ -36,7 +36,7 @@ const STAGES = ['Introducción', 'Explicación', 'Práctica', 'Evaluación'] as 
 /** Foco al montar sin desplazar la página (autoFocus de React sí desplaza y dejaba el tablero bajo la cabecera). */
 const focusNoScroll = (el: HTMLElement | null) => el?.focus({ preventScroll: true });
 
-export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: boolean }) {
+export function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const { refreshShop } = useSession();
   const [phase, setPhase] = useState<Phase>({ kind: 'intro' });
   const [evalResults, setEvalResults] = useState<boolean[]>([]);
@@ -116,11 +116,6 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
     const correct = results.filter(Boolean).length;
     const passed = correct >= passMark;
     setPhase({ kind: 'result' });
-    if (demo) {
-      setOutcome({ correct, total, passed });
-      inFlight.current = false;
-      return;
-    }
     setSaving(true);
     const mistakes = correct < total ? [...new Set(lesson.conceptIds ?? [])] : [];
     try {
@@ -136,7 +131,7 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
       });
       if (r.chedexEarned || r.protectorUsed) void refreshShop();
     } catch (e) {
-      if (e instanceof ApiError && (e.status === 401 || e.status === 402)) return;
+      if (e instanceof ApiError && e.status === 401) return;
       setOutcome({
         correct,
         total,
@@ -159,7 +154,7 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
   return (
     <article className="lesson" aria-labelledby="lesson-title">
       <header className="lesson-head">
-        <button className="t-btn t-btn-ghost t-btn-sm" aria-label={demo ? 'Salir de la demostración' : 'Salir de la lección'} onClick={() => navigate(demo ? '/' : '/aprender')}>
+        <button className="t-btn t-btn-ghost t-btn-sm" aria-label="Salir de la lección" onClick={() => navigate('/aprender')}>
           <Icon name="back" size={18} />
           Salir
         </button>
@@ -218,13 +213,12 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
           </section>
         )}
 
-        {phase.kind === 'explain' && <ExplainStepView lesson={lesson} i={phase.i} plain={demo} onNext={() => (phase.i + 1 < lesson.explanation.length ? setPhase({ kind: 'explain', i: phase.i + 1 }) : toPractice())} onPrev={phase.i > 0 ? () => setPhase({ kind: 'explain', i: phase.i - 1 }) : undefined} />}
+        {phase.kind === 'explain' && <ExplainStepView lesson={lesson} i={phase.i} onNext={() => (phase.i + 1 < lesson.explanation.length ? setPhase({ kind: 'explain', i: phase.i + 1 }) : toPractice())} onPrev={phase.i > 0 ? () => setPhase({ kind: 'explain', i: phase.i - 1 }) : undefined} />}
 
         {phase.kind === 'practice' && (
           <PracticeBoard
             step={lesson.practice[phase.i]!}
             mode="practice"
-            plain={demo}
             isLast={phase.i + 1 >= lesson.practice.length}
             onDone={() => (phase.i + 1 < lesson.practice.length ? setPhase({ kind: 'practice', i: phase.i + 1 }) : toEval())}
           />
@@ -234,7 +228,6 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
           <PracticeBoard
             step={lesson.evaluation[phase.i]!}
             mode="evaluation"
-            plain={demo}
             isLast={phase.i + 1 >= lesson.evaluation.length}
             onDone={(r: StepResult) => {
               const next = [...evalResults, r.ok];
@@ -246,21 +239,21 @@ export function LessonPlayer({ lesson, demo = false }: { lesson: Lesson; demo?: 
         )}
 
         {phase.kind === 'result' && (
-          <ResultView lesson={lesson} demo={demo} saving={saving} outcome={outcome} passMark={passMark} onRestart={restart} onRetrySave={() => void finish(lastResults.current)} />
+          <ResultView lesson={lesson} saving={saving} outcome={outcome} passMark={passMark} onRestart={restart} onRetrySave={() => void finish(lastResults.current)} />
         )}
       </div>
     </article>
   );
 }
 
-function ExplainStepView({ lesson, i, plain, onNext, onPrev }: { lesson: Lesson; i: number; plain: boolean; onNext(): void; onPrev: (() => void) | undefined }) {
+function ExplainStepView({ lesson, i, onNext, onPrev }: { lesson: Lesson; i: number; onNext(): void; onPrev: (() => void) | undefined }) {
   const step = lesson.explanation[i]!;
   const shapes = useMemo(() => marksToShapes(step), [step]);
   const last = i + 1 >= lesson.explanation.length;
   return (
     <div className="step-layout">
       <div className="step-board">
-        <Board fen={step.fen} orientation={turnOf(step.fen)} shapes={shapes} plain={plain} label="Tablero de la explicación" />
+        <Board fen={step.fen} orientation={turnOf(step.fen)} shapes={shapes} label="Tablero de la explicación" />
       </div>
       <div className="step-side">
         <p className="step-kicker">
@@ -287,7 +280,6 @@ function ExplainStepView({ lesson, i, plain, onNext, onPrev }: { lesson: Lesson;
 
 function ResultView({
   lesson,
-  demo,
   saving,
   outcome,
   passMark,
@@ -295,7 +287,6 @@ function ResultView({
   onRetrySave,
 }: {
   lesson: Lesson;
-  demo: boolean;
   saving: boolean;
   outcome: Outcome | null;
   passMark: number;
@@ -309,7 +300,7 @@ function ResultView({
     if (!saving && passed && !outcome?.error) playSound('victory');
   }, [saving, passed, outcome?.error]);
   useEffect(() => {
-    if (demo || saving || !passed) return;
+    if (saving || !passed) return;
     let live = true;
     api
       .map()
@@ -324,7 +315,7 @@ function ResultView({
     return () => {
       live = false;
     };
-  }, [demo, saving, passed, lesson.id]);
+  }, [saving, passed, lesson.id]);
 
   if (saving || !outcome) {
     return (
@@ -373,37 +364,24 @@ function ResultView({
         </>
       )}
       <div className="actions">
-        {demo ? (
-          <>
-            <a className="t-btn t-btn-primary" href="/auth/login">
-              Entrar con Lichess para seguir
-            </a>
-            <button className="t-btn" onClick={onRestart}>
-              Repetir la demostración
-            </button>
-          </>
+        {passed && nextId ? (
+          <button className="t-btn t-btn-primary" onClick={() => navigate(`/leccion/${encodeURIComponent(nextId)}`)} ref={outcome.error ? undefined : focusNoScroll}>
+            Siguiente lección
+            <Icon name="chevron" size={18} />
+          </button>
         ) : (
-          <>
-            {passed && nextId ? (
-              <button className="t-btn t-btn-primary" onClick={() => navigate(`/leccion/${encodeURIComponent(nextId)}`)} ref={outcome.error ? undefined : focusNoScroll}>
-                Siguiente lección
-                <Icon name="chevron" size={18} />
-              </button>
-            ) : (
-              <button className="t-btn t-btn-primary" onClick={() => navigate('/aprender')} ref={outcome.error ? undefined : focusNoScroll}>
-                Volver a la ruta
-              </button>
-            )}
-            {passed && nextId && (
-              <button className="t-btn" onClick={() => navigate('/aprender')}>
-                Volver a la ruta
-              </button>
-            )}
-            <button className={passed && nextId ? 't-btn t-btn-ghost' : 't-btn'} onClick={onRestart}>
-              {passed ? 'Repasar' : 'Intentarlo de nuevo'}
-            </button>
-          </>
+          <button className="t-btn t-btn-primary" onClick={() => navigate('/aprender')} ref={outcome.error ? undefined : focusNoScroll}>
+            Volver a la ruta
+          </button>
         )}
+        {passed && nextId && (
+          <button className="t-btn" onClick={() => navigate('/aprender')}>
+            Volver a la ruta
+          </button>
+        )}
+        <button className={passed && nextId ? 't-btn t-btn-ghost' : 't-btn'} onClick={onRestart}>
+          {passed ? 'Repasar' : 'Intentarlo de nuevo'}
+        </button>
       </div>
       <p className="sr-only">{lesson.title}</p>
     </section>

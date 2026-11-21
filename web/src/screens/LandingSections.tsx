@@ -379,26 +379,76 @@ export function Quality() {
   );
 }
 
-/* ---------- Precio ---------- */
+/* ---------- Cómo funciona ---------- */
 
-export function Pricing() {
+const STEPS = [
+  { title: 'Entra con tu cuenta de Lichess', text: 'No pedimos contraseña: Lichess solo nos confirma quién eres.' },
+  { title: 'Tu profesor de TopChess te autoriza', text: 'Él te da acceso con tu nombre de usuario de Lichess. Hasta entonces no se crea tu cuenta.' },
+  { title: 'Empieza tu ruta', text: 'Lecciones por niveles, análisis de tus partidas y la sesión Entrenar hoy.' },
+];
+
+export function HowItWorks() {
   return (
-    <section className="band band-raised" aria-labelledby="price-title">
-      <div className="wrap split">
-        <header className="split-head">
-          <h2 id="price-title">Una sola suscripción, con todo incluido</h2>
-          <p>Sin planes superiores y sin cursos de pago aparte. Tampoco habrá plan gratuito permanente: por eso puedes probar una lección antes, sin cuenta.</p>
+    <section className="band band-ink" aria-labelledby="how-title">
+      <div className="wrap">
+        <header className="band-head">
+          <h2 id="how-title">Cómo funciona</h2>
         </header>
-        <dl className="price">
-          <div className="price-row price-now">
-            <dt>Durante la beta</dt>
-            <dd>Gratis</dd>
-          </div>
-          <div className="price-row">
-            <dt>Después</dt>
-            <dd>10 € al mes</dd>
-          </div>
-        </dl>
+        <ol className="steps">
+          {STEPS.map((x, i) => (
+            <li key={x.title} className="step">
+              <span className="step-n" aria-hidden="true">{i + 1}</span>
+              <h3>{x.title}</h3>
+              <p>{x.text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Visita al producto: capturas reales de la app, sin soluciones de ejercicios ---------- */
+
+const TOUR = [
+  {
+    src: '/landing/aprender.webp', w: 800, h: 620, title: 'Tu ruta de aprendizaje',
+    text: 'Siempre sabes cuál es tu próxima lección, tu racha y cuánto llevas de cada unidad.',
+    alt: 'Pantalla Aprender de Chedex Pulse: la lección recomendada para empezar, tu racha actual, las lecciones aprendidas y la lista de unidades con tu progreso.',
+  },
+  {
+    src: '/landing/leccion.webp', w: 1000, h: 680, title: 'Lecciones con tablero',
+    text: 'Una idea cada vez: explicación, práctica con pista y una evaluación al final.',
+    alt: 'Una lección de práctica: a la izquierda un tablero con piezas de contorno naranja, arriba las fases de la lección y a la derecha el enunciado del ejercicio con el botón de pista.',
+  },
+  {
+    src: '/landing/tienda.webp', w: 800, h: 620, title: 'Tienda de Chedex',
+    text: 'Tu constancia se convierte en Chedex para personalizar tablero y piezas.',
+    alt: 'Pantalla Tienda: tu saldo de Chedex, el progreso de tu racha, los protectores y las piezas disponibles, con las piezas Contorno equipadas.',
+  },
+];
+
+export function Tour() {
+  return (
+    <section className="band band-raised" aria-labelledby="tour-title">
+      <div className="wrap">
+        <header className="band-head">
+          <h2 id="tour-title">Una visita por dentro</h2>
+          <p>Así se ve Chedex Pulse una vez que tu profesor te ha dado acceso.</p>
+        </header>
+        <ul className="tour">
+          {TOUR.map((x) => (
+            <li key={x.src}>
+              <figure>
+                <img src={x.src} width={x.w} height={x.h} alt={x.alt} loading="lazy" decoding="async" />
+                <figcaption>
+                  <strong>{x.title}</strong>
+                  <span>{x.text}</span>
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

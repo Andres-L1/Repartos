@@ -16,7 +16,7 @@ const NOW = Date.UTC(2026, 0, 10, 12, 0, 0);
 const lesson = (id: string, extra: Partial<Lesson> = {}): Lesson => ({
   id, unitId: 'a', title: `T ${id}`, objective: 'o', intro: 'i', explanation: [], practice: [], evaluation: [], ...extra,
 });
-const units: Unit[] = [{ id: 'a', order: 1, title: 'A', description: 'd', level: 'beginner', requires: [], lessons: [lesson('a.1', { demo: true }), lesson('a.2')] }];
+const units: Unit[] = [{ id: 'a', order: 1, title: 'A', description: 'd', level: 'beginner', requires: [], lessons: [lesson('a.1'), lesson('a.2')] }];
 
 let account: { id: string; username: string };
 let calls: string[];
@@ -147,15 +147,13 @@ describe('puerta de entrada', () => {
     expect(s.n('cp_users')).toBe(0);
   });
 
-  it('demo y temario siguen públicos, sin soluciones; el resto de la API privada exige sesión', async () => {
+  it('solo el temario es público (sin soluciones); no hay demo y el resto de la API privada exige sesión', async () => {
     const s = setup();
-    const demo = await s.req('GET', '/api/demo', undefined, { cookie: '' });
-    expect(demo.status).toBe(200);
-    expect(demo.json.lesson.id).toBe('a.1');
+    expect((await s.req('GET', '/api/demo', undefined, { cookie: '' })).status).toBe(404);
     const outline = await s.req('GET', '/api/outline', undefined, { cookie: '' });
     expect(outline.status).toBe(200);
     expect(JSON.stringify(outline.json)).not.toMatch(/solutionUci|explanationCorrect|"practice"|"evaluation"/);
-    for (const p of ['/api/lessons/a.2', '/api/map', '/api/profile', '/api/admin/access']) expect((await s.req('GET', p, undefined, { cookie: '' })).status).toBe(401);
+    for (const p of ['/api/lessons/a.1', '/api/lessons/a.2', '/api/map', '/api/profile', '/api/admin/access']) expect((await s.req('GET', p, undefined, { cookie: '' })).status).toBe(401);
   });
 });
 
@@ -197,7 +195,7 @@ describe('API de administración', () => {
 
   it('operaciones que modifican exigen Origin propio (CSRF): sin Origin o ajeno, 403', async () => {
     await s.as('AndresLi');
-    for (const extra of [{}, { origin: 'https://evil.example' }]) {
+    for (const extra of [{} as Record<string, string>, { origin: 'https://evil.example' }]) {
       expect((await post(s, 'Pepe', extra)).status).toBe(403);
       expect((await s.req('DELETE', '/api/admin/allowed/pepe', undefined, extra)).status).toBe(403);
       expect((await s.req('POST', '/api/admin/requests/pepe/approve', undefined, extra)).status).toBe(403);

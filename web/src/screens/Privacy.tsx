@@ -6,7 +6,19 @@ export function PrivacyScreen() {
       <p className="kicker">Privacidad</p>
       <h1>Qué datos usamos y para qué</h1>
       <p className="lead">
-        Chedex Pulse está en beta abierta. Esto es todo lo que hacemos con tu cuenta, explicado sin letra pequeña.
+        Chedex Pulse es la plataforma de entrenamiento de ajedrez de los alumnos de TopChess. Esto es todo lo que hacemos con tu cuenta, explicado sin letra pequeña.
+      </p>
+
+      <h2>Quién trata tus datos</h2>
+      <p>
+        Los datos los trata TopChess a través del administrador de la plataforma, que es quien autoriza el acceso. Esta
+        página no incluye datos legales de contacto de una entidad: si tienes dudas o quieres ejercer tus derechos, díselo a tu profesor de TopChess.
+      </p>
+
+      <h2>Acceso solo para alumnos</h2>
+      <p>
+        Solo entran las cuentas de Lichess que el administrador ha autorizado. Si no estás autorizado, no creamos tu
+        cuenta ni una sesión: solo anotamos el intento.
       </p>
 
       <h2>Acceso con Lichess</h2>
@@ -17,7 +29,17 @@ export function PrivacyScreen() {
 
       <h2>Qué guardamos en nuestros servidores</h2>
       <ul>
-        <li>Tu usuario de Lichess y las fechas de tu primer y último acceso, para identificarte.</li>
+        <li>Si eres alumno: tu usuario de Lichess y las fechas de tu primer y último acceso, para identificarte.</li>
+        <li>
+          La lista de autorizados: el identificador y el nombre de usuario de Lichess de cada alumno autorizado, la fecha
+          en que se añadió y quién lo añadió. Se borra de la lista cuando el administrador te quita el acceso (tus datos
+          de aprendizaje no se borran, pero sin acceso no puedes usar «Borrar mi cuenta»: pide el borrado a tu profesor de TopChess).
+        </li>
+        <li>
+          Las solicitudes de acceso: si entras con Lichess sin estar autorizado, guardamos tu identificador y nombre de
+          usuario de Lichess, la fecha del primer y del último intento y cuántos intentos has hecho, para que el administrador
+          pueda autorizarte. Se borran solas a los 90 días del último intento, o antes si el administrador las descarta o te autoriza.
+        </li>
         <li>Tu Elo y número de partidas en rápidas, clásicas y blitz (bullet no cuenta), solo para recomendarte dónde empezar.</li>
         <li>El nivel que eliges, tu objetivo diario, las lecciones que completas, tus puntuaciones y tu racha de días, para mostrarte tu progreso.</li>
         <li>Tus Chedex (movimientos de saldo), los objetos que compras o equipas y tus protectores de racha.</li>

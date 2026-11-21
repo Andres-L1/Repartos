@@ -14,7 +14,6 @@ export const unit: Unit = {
       unitId: 'u01',
       title: 'El tablero y la torre',
       objective: 'Leer las coordenadas del tablero y mover y capturar con la torre.',
-      demo: true,
       intro:
         'Todos los grandes jugadores empezaron un día sin saber qué hacía cada pieza. Hoy empiezas tú, y en pocos minutos ya estarás moviendo piezas con seguridad. Primero aprenderás a «leer» el tablero, como un mapa con direcciones. Después conocerás a la torre, la pieza más fácil de entender: va en línea recta, como si fuera por una calle.',
       explanation: [

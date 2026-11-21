@@ -151,7 +151,7 @@ a { text-underline-offset: 3px; }
     background: #101114; border-bottom: 1px solid var(--line);
   }
   .sidebar .brand-name { font-size: 1.05rem; }
-  .side-user .chip-beta, .whoami-sub { display: none; }
+  .whoami-sub { display: none; }
   /* El nombre ocupa el hueco libre entre el logo y el saldo (sin tope fijo: Lichess permite 20 caracteres) y se abrevia con puntos suspensivos solo si no cabe; el nombre completo va en el title y lo leen los lectores de pantalla. */
   .side-user { display: contents; }
   .sidebar .brand { order: -2; }
@@ -187,7 +187,6 @@ a { text-underline-offset: 3px; }
   @media (orientation: landscape) and (max-height: 500px) { :root { --land-board: calc(100dvh - 83px - var(--bottom-nav, 0px)); } }
 }
 @media (max-width: 479px) {
-  .topbar .chip-beta { display: none; }
   .sidebar .t-btn-ghost { padding-inline: 0.5rem; }
   /* Con sesión el logo basta (el enlace conserva su aria-label): el hueco se lo queda el nombre de usuario. */
   .sidebar .brand { min-width: 44px; justify-content: center; }
@@ -207,7 +206,6 @@ a { text-underline-offset: 3px; }
   .side-nav { flex-direction: column; gap: var(--s-1); }
   .side-nav .nav-link.active::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; background: var(--brand); }
   .side-user { margin-top: auto; flex-direction: column; align-items: stretch; gap: var(--s-3); padding-top: var(--s-4); border-top: 1px solid var(--line); }
-  .side-user .chip-beta { align-self: flex-start; }
   .side-user .t-btn { justify-content: flex-start; }
   .main-shell { padding: var(--s-5) var(--s-5) var(--s-7); }
 }
@@ -483,16 +481,10 @@ a.lesson-link:hover .node-go { transform: translateX(3px); }
 .learned-list .icon { color: var(--ok); }
 .chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
 
-/* Suscripción */
-.plan { max-width: 520px; }
-.price { font-size: 2.4rem; font-weight: 800; margin: 0.25rem 0; letter-spacing: -0.03em; }
-.price span { font-size: var(--fs-md); font-weight: 500; color: var(--muted); }
-.ticks { padding-left: 1.2rem; }
-.ticks li::marker { content: '✓  '; color: var(--ok); }
+/* Confirmaciones destructivas (borrar cuenta, quitar acceso) */
 .confirm { border: 1.6px solid var(--bad); border-radius: 14px; background: var(--bad-bg); padding: var(--s-3) var(--s-4); }
 
-/* Acceso con Lichess y estado de la beta */
-.chip-beta { display: inline-flex; background: var(--brand-soft); color: var(--brand-dark); box-shadow: inset 0 0 0 1.5px var(--brand); border-radius: var(--r-pill); padding: 0.15rem 0.7rem; font-size: var(--fs-xs); font-weight: 700; white-space: nowrap; }
+/* Acceso con Lichess */
 .auth { max-width: 520px; margin: var(--s-4) auto; }
 
 @media (prefers-reduced-motion: reduce) {

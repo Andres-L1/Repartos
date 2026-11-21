@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, USE_MOCK } from '../api';
+import { Link } from '../components/Link';
 import { navigate, replaceSearch } from '../router';
 import { useSession } from '../session';
 
@@ -30,11 +31,19 @@ export function LichessLogin({ large = false, small = false }: { large?: boolean
 export function AuthScreen() {
   const { user } = useSession();
   const [failed] = useState(() => new URLSearchParams(window.location.search).get('auth') === 'failed');
-  // Tras mostrar el error se quita ?auth=failed de la URL (conservando el resto, p. ej. ?mock=1).
+  const [denied] = useState(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('acceso') !== 'denegado') return null;
+    const u = q.get('usuario') ?? '';
+    return { username: /^[A-Za-z0-9_-]{1,30}$/.test(u) ? u : null }; // solo un nombre de Lichess válido, mostrado como texto
+  });
+  // Tras mostrar el aviso se quitan ?auth, ?acceso y ?usuario de la URL (conservando el resto, p. ej. ?mock=1).
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
-    if (p.get('auth') === null) return;
+    if (p.get('auth') === null && p.get('acceso') === null) return;
     p.delete('auth');
+    p.delete('acceso');
+    p.delete('usuario');
     const q = p.toString();
     replaceSearch(q ? '?' + q : '');
   }, []);
@@ -46,6 +55,32 @@ export function AuthScreen() {
         <button className="t-btn t-btn-primary" onClick={() => navigate('/aprender')}>
           Ir a la ruta
         </button>
+      </div>
+    );
+  }
+  if (denied) {
+    return (
+      <div className="auth">
+        <section className="t-card form" aria-labelledby="denied-title">
+          <h1 id="denied-title">Todavía no tienes acceso</h1>
+          <p>
+            Chedex Pulse es la plataforma de entrenamiento de ajedrez de los alumnos de TopChess, y el acceso lo da tu profesor.
+          </p>
+          <p>
+            {denied.username ? (
+              <>
+                Pídele que te añada con tu nombre de usuario de Lichess: <strong className="lichess-name">{denied.username}</strong>.
+              </>
+            ) : (
+              'Pídele que te añada con tu nombre de usuario de Lichess.'
+            )}{' '}
+            Cuando lo haga, vuelve a entrar con Lichess y ya podrás empezar.
+          </p>
+          <p className="muted">No hemos creado ninguna cuenta ni guardado tus datos de aprendizaje.</p>
+          <Link className="t-btn" href="/">
+            Volver al inicio
+          </Link>
+        </section>
       </div>
     );
   }
@@ -63,7 +98,9 @@ export function AuthScreen() {
           usuario.
         </p>
         <LichessLogin large />
-        <p className="muted center">¿No tienes cuenta? Crea una gratis en lichess.org y vuelve aquí.</p>
+        <p className="muted center">
+          El acceso es solo para alumnos de TopChess. Si aún no tienes acceso, pídele a tu profesor que te autorice con tu nombre de usuario de Lichess.
+        </p>
       </section>
     </div>
   );

@@ -15,7 +15,7 @@ const lesson = (id: string, unitId: string, extra: Partial<Lesson> = {}): Lesson
 });
 const units: Unit[] = [
   { id: 'a', order: 1, title: 'A', description: 'd', level: 'beginner', requires: [],
-    lessons: [lesson('a.1', 'a', { demo: true }), lesson('a.2', 'a'), lesson('a.3', 'a')] },
+    lessons: [lesson('a.1', 'a'), lesson('a.2', 'a'), lesson('a.3', 'a')] },
   { id: 'b', order: 2, title: 'B', description: 'd', level: 'beginner', requires: ['a'], lessons: [lesson('b.1', 'b')] },
 ];
 
@@ -283,7 +283,7 @@ describe('cabeceras, CORS y límites', () => {
   it('cabeceras de seguridad; cuerpos enormes 413; content-type incorrecto 415; Origin ajeno 403', async () => {
     const s = setup();
     await s.login();
-    const r = await s.raw('GET', '/api/demo');
+    const r = await s.raw('GET', '/api/me');
     expect(r.headers.get('x-content-type-options')).toBe('nosniff');
     expect(r.headers.get('x-frame-options')).toBe('DENY');
     expect(r.headers.get('content-security-policy')).toContain("default-src 'none'");
@@ -316,9 +316,9 @@ describe('temario público /api/outline', () => {
       { id: 'a.3', title: 'T a.3' },
     ]);
     const text = JSON.stringify(json);
-    for (const k of ['intro', 'objective', 'practice', 'evaluation', 'explanation', 'demo', 'status']) expect(text).not.toContain(`"${k}"`);
+    for (const k of ['intro', 'objective', 'practice', 'evaluation', 'explanation', 'status']) expect(text).not.toContain(`"${k}"`);
     // el resto de /api sigue sin caché
-    expect((await s.req('GET', '/api/demo', undefined, { cookie: '' })).headers.get('cache-control')).toBe('no-store');
+    expect((await s.req('GET', '/api/demo', undefined, { cookie: '' })).status).toBe(404); // ya no hay lección pública
   });
 });
 

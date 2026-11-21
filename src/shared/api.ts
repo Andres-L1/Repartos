@@ -23,7 +23,6 @@
  * DELETE /api/admin/allowed/:id                                 -> AccessOverview   (quita el acceso; sus datos no se borran)
  * POST   /api/admin/requests/:id/approve                        -> AccessOverview   (autoriza desde una solicitud)
  * DELETE /api/admin/requests/:id                                -> AccessOverview   (descarta la solicitud)
- * GET  /api/demo                                               -> {lesson}         (lección demo, sin sesión)
  * GET  /api/outline                                            -> {units: OutlineUnit[]}   (público, solo lectura: unidades y títulos de lección, SIN contenido)
  */
 import type { Lesson } from '../content/schema.js';
@@ -73,7 +72,6 @@ export interface MapLesson {
   id: string;
   title: string;
   objective: string;
-  demo: boolean;
   status: LessonStatus;
   bestScore?: number; // 0..1
 }

@@ -143,10 +143,6 @@ describe('contenido unidades 1-3: estructura', () => {
     expect(new Set(LESSONS.map((l) => l.id)).size).toBe(LESSONS.length);
   });
 
-  it('exactamente una lección demo: u01.l01', () => {
-    expect(lessons.filter((l) => l.demo === true).map((l) => l.id)).toEqual(['u01.l01']);
-  });
-
   it('conceptIds existen', () => {
     const known = new Set(CONCEPTS.map((c) => c.id));
     for (const l of lessons) for (const c of l.conceptIds ?? []) expect(known.has(c), `${l.id} ${c}`).toBe(true);

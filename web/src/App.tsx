@@ -3,7 +3,7 @@ import { USE_MOCK } from './api';
 import { isPrivatePath, navigate, titleFor, usePath } from './router';
 import { Link } from './components/Link';
 import { useSession } from './session';
-import { Landing, DemoScreen, SiteFooter } from './screens/Landing';
+import { Landing, SiteFooter } from './screens/Landing';
 import { AuthScreen, LichessLogin } from './screens/Auth';
 import { Coin } from './components/ShopVisuals';
 import { chedexText } from './shop';
@@ -16,16 +16,30 @@ const PrivacyScreen = lazy(() => import('./screens/Privacy').then((m) => ({ defa
 const MapScreen = lazy(() => import('./screens/MapScreen').then((m) => ({ default: m.MapScreen })));
 const LessonScreen = lazy(() => import('./screens/LessonScreen').then((m) => ({ default: m.LessonScreen })));
 const ProfileScreen = lazy(() => import('./screens/ProfileScreen').then((m) => ({ default: m.ProfileScreen })));
-const BillingScreen = lazy(() => import('./screens/BillingScreen').then((m) => ({ default: m.BillingScreen })));
+const AdminScreen = lazy(() => import('./screens/AdminScreen').then((m) => ({ default: m.AdminScreen })));
 const ReviewScreen = lazy(() => import('./screens/ReviewScreen').then((m) => ({ default: m.ReviewScreen })));
 const LevelScreen = lazy(() => import('./screens/LevelScreen').then((m) => ({ default: m.LevelScreen })));
 const ShopScreen = lazy(() => import('./screens/ShopScreen').then((m) => ({ default: m.ShopScreen })));
 const SessionScreen = lazy(() => import('./screens/SessionScreen').then((m) => ({ default: m.SessionScreen })));
 const CreditsScreen = lazy(() => import('./screens/CreditsScreen').then((m) => ({ default: m.CreditsScreen })));
 
+function NotFound() {
+  return (
+    <div className="t-card empty-state">
+      <span className="empty-icon" aria-hidden="true">
+        <Icon name="target" size={28} />
+      </span>
+      <h1>Página no encontrada</h1>
+      <Link className="t-btn t-btn-primary" href="/">
+        Volver al inicio
+      </Link>
+    </div>
+  );
+}
+
 export function App() {
   const path = usePath();
-  const { loading, connectionError, retryConnection, user, logout, billingMode, shop, levelChosen } = useSession();
+  const { loading, connectionError, retryConnection, user, isAdmin, logout, shop, levelChosen } = useSession();
   const isPrivate = isPrivatePath(path);
   useHeaderHeight(!!user && isPrivate);
 
@@ -64,7 +78,6 @@ export function App() {
   else if (isPrivate && !user) screen = <Loading label="Redirigiendo al acceso…" />;
   else if (needsLevel) screen = <Loading label="Cargando…" />;
   else if (path === '/') screen = <Landing />;
-  else if (path === '/demo') screen = <DemoScreen />;
   else if (path === '/privacidad') screen = <PrivacyScreen />;
   else if (path === '/creditos') screen = <CreditsScreen />;
   else if (path === '/tienda') screen = <ShopScreen />;
@@ -75,19 +88,8 @@ export function App() {
   else if (path === '/entrenar') screen = <SessionScreen />;
   else if (path === '/perfil') screen = <ProfileScreen />;
   else if (path === '/bienvenida') screen = <LevelScreen />;
-  else if (path === '/suscripcion') screen = <BillingScreen />;
-  else
-    screen = (
-      <div className="t-card empty-state">
-        <span className="empty-icon" aria-hidden="true">
-          <Icon name="target" size={28} />
-        </span>
-        <h1>Página no encontrada</h1>
-        <Link className="t-btn t-btn-primary" href="/">
-          Volver al inicio
-        </Link>
-      </div>
-    );
+  else if (path === '/admin') screen = isAdmin ? <AdminScreen /> : <NotFound />;
+  else screen = <NotFound />;
 
   const link = (to: string, label: string, icon: IconName, also: string[] = []) => {
     const active = [to, ...also].some((p) => path === p || path.startsWith(p + '/'));
@@ -125,7 +127,7 @@ export function App() {
               {link('/partidas', 'Partidas', 'eye')}
               {link('/tienda', 'Tienda', 'shop')}
               {link('/perfil', 'Perfil', 'user')}
-              {billingMode === 'dev' && link('/suscripcion', 'Suscripción', 'card')}
+              {isAdmin && link('/admin', 'Admin', 'shield')}
             </nav>
             {shop && (
               <Link href="/tienda" className="balance" aria-label={`Tienes ${chedexText(shop.balance)}. Abrir la tienda`}>
@@ -135,7 +137,6 @@ export function App() {
               </Link>
             )}
             <div className="side-user">
-              {billingMode === 'beta_open' && <span className="chip chip-beta">Beta abierta</span>}
               <span className="whoami" title={`${user.username} (cuenta de Lichess)`}>
                 <span className="whoami-avatar" aria-hidden="true">{user.username.slice(0, 1).toUpperCase()}</span>
                 <span className="whoami-text">
@@ -177,7 +178,6 @@ export function App() {
           </nav>
         ) : (
           <nav className="nav nav-guest" aria-label="Principal">
-            {billingMode === 'beta_open' && <span className="chip chip-beta">Beta abierta</span>}
             <LichessLogin small />
           </nav>
         )}
