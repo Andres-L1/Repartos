@@ -1,25 +1,28 @@
 /**
  * Contrato HTTP entre web/ y worker/ (Cloudflare Worker + D1). Cookie de sesión sellada HttpOnly.
- * Errores: { error: string } con código HTTP adecuado (400 validación, 401 sin sesión, 402 requiere suscripción
- * (solo BILLING_MODE=dev), 403, 404, 501 no disponible todavía).
+ * Errores: { error: string } con código HTTP adecuado (400 validación, 401 sin sesión, 403 sin permiso o cuenta
+ * no autorizada, 404, 409 conflicto).
+ *
+ * Acceso restringido a alumnos de TopChess: solo entran la administración (src/shared/admin.ts) y las cuentas de cp_allowed_users.
  *
  * Acceso: SOLO con Lichess (OAuth PKCE sin scopes; el token de Lichess nunca se guarda y se revoca al terminar).
  *   GET  /auth/login                                           -> 303 a lichess.org/oauth
- *   GET  /auth/callback?code&state                             -> 303 a /aprender (o /entrar?auth=failed)
+ *   GET  /auth/callback?code&state                             -> 303 a /aprender (o /entrar?auth=failed, o /entrar?acceso=denegado&usuario=... si la cuenta no está autorizada)
  *   POST /auth/logout                                          -> {ok:true}   (borra la cookie)
  *
  * API (JSON, bajo /api):
- * GET  /api/config                                             -> {billingMode}                    (público)
- * GET  /api/me                                                 -> {user, subscription, billingMode, equipped, level, levelChosen}   (401 sin sesión)
+ * GET  /api/me                                                 -> {user, isAdmin, equipped, level, levelChosen}   (401 sin sesión)
  * GET  /api/map                                                -> {units: MapUnit[]}   (con nivel elegido: placedOpen/recommended)
  * GET  /api/level                                              -> LevelInfo   (nivel elegido, sugerido por Lichess y tarjetas de los 6 niveles)
  * PUT  /api/level {level}                                      -> LevelInfo   (guarda la elección; nivel inválido: 400)
- * GET  /api/lessons/:id                                        -> {lesson}   (402 solo en 'dev' si no demo y sin suscripción)
+ * GET  /api/lessons/:id                                        -> {lesson}
  * POST /api/lessons/:id/complete {correct, total, mistakes}    -> {progress, chedexEarned, protectorUsed, profile}
  * GET  /api/profile                                            -> {profile}
- * GET  /api/billing                                            -> {subscription}
- * POST /api/billing/subscribe                                  -> {subscription}  ('dev': activa al instante; 'beta_open': 501)
- * POST /api/billing/cancel                                     -> {subscription}  ('beta_open': 501)
+ * GET    /api/admin/access                                     -> AccessOverview   (solo administración; el resto de /api/admin/* igual)
+ * POST   /api/admin/allowed {username}                          -> AccessOverview   (400 usuario no válido, 409 duplicado o tope)
+ * DELETE /api/admin/allowed/:id                                 -> AccessOverview   (quita el acceso; sus datos no se borran)
+ * POST   /api/admin/requests/:id/approve                        -> AccessOverview   (autoriza desde una solicitud)
+ * DELETE /api/admin/requests/:id                                -> AccessOverview   (descarta la solicitud)
  * GET  /api/demo                                               -> {lesson}         (lección demo, sin sesión)
  * GET  /api/outline                                            -> {units: OutlineUnit[]}   (público, solo lectura: unidades y títulos de lección, SIN contenido)
  */
@@ -35,20 +38,23 @@ export interface User {
   username: string;
 }
 
-/**
- * 'beta_open': beta abierta, todas las lecciones accesibles, sin pagos (producción por defecto).
- * 'dev': proveedor de pago simulado (solo local).
- */
-export type BillingMode = 'beta_open' | 'dev';
-
-export type SubscriptionStatus = 'none' | 'active' | 'canceled';
-export interface Subscription {
-  status: SubscriptionStatus;
-  priceEurPerMonth: 10;
-  provider: 'none' | 'dev' | 'stripe';
-  /** true en beta abierta: no hay precio ni suscripción. */
-  beta: boolean;
-  currentPeriodEnd?: string; // ISO
+/** Alumno autorizado, solicitud de acceso denegada y lista completa que devuelve /api/admin/*. Fechas en ms epoch. */
+export interface AllowedUser {
+  id: string;
+  username: string;
+  addedAt: number;
+}
+export interface AccessRequest {
+  id: string;
+  username: string;
+  firstAt: number;
+  lastAt: number;
+  attempts: number;
+}
+export interface AccessOverview {
+  allowed: AllowedUser[];
+  requests: AccessRequest[];
+  maxAllowed: number;
 }
 
 /** Lo que envía el servidor en `profile`. */
@@ -207,7 +213,7 @@ export interface CompleteLessonShopExtras {
   /** Se consumió un protector para cubrir un día sin estudiar. */
   protectorUsed: boolean;
 }
-/** GET /api/me: además de {user, subscription, billingMode}. */
+/** GET /api/me: además de {user, isAdmin}. */
 export interface MeShopExtras {
   equipped: Equipped;
 }

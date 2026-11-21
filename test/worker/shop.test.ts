@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createApp } from '../../worker/app.js';
-import { devBilling } from '../../worker/billing.js';
+import { createOpenApp } from './helpers.js';
 import { base64url } from '../../worker/auth.js';
 import { CATALOG, DEFAULT_BOARD, DEFAULT_PIECES, PROTECTOR_MAX, STREAK_DAYS_PER_CHEDEX, getItem } from '../../src/shop/catalog.js';
 import type { Lesson, Unit } from '../../src/content/schema.js';
@@ -24,8 +23,8 @@ let account = 'ana';
 function setup() {
   clock = Date.UTC(2026, 0, 1, 12, 0, 0);
   const db = openTestDb();
-  const app = createApp({
-    db, content: { units }, billingMode: 'beta_open', billing: devBilling(),
+  const app = createOpenApp({
+    db, content: { units },
     sessionSecret: SECRET, publicOrigin: ORIGIN, now: () => new Date(clock),
   });
   /** Un cliente con su propia cookie, sobre la misma app y base. */

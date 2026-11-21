@@ -74,6 +74,10 @@ export interface AuthConfig {
     user: { id: string; username: string },
     perfs: { rapid?: unknown; classical?: unknown; blitz?: unknown; present?: boolean },
   ) => Promise<void>;
+  /** Puerta de entrada: solo se crea usuario y sesión si devuelve true. */
+  isAllowed: (user: { id: string; username: string }) => Promise<boolean>;
+  /** Se llama (una vez) cuando una cuenta verificada no está autorizada. */
+  onDenied: (user: { id: string; username: string }) => Promise<void>;
   clientId?: string;
 }
 
@@ -189,6 +193,10 @@ export async function handleCallback(c: Context, cfg: AuthConfig): Promise<Respo
     )
       return failed();
     const me = { id: user.id.toLowerCase(), username: user.username };
+    if (!(await cfg.isAllowed(me))) {
+      await cfg.onDenied(me); // sin usuario ni sesión: solo queda la solicitud
+      return redirect(`${origin}/entrar?acceso=denegado&usuario=${encodeURIComponent(me.username)}`, [clearOauth]);
+    }
     // Del resto de la cuenta solo se extraen los ritmos rápido y clásico (colocación inicial).
     const rawPerfs = typeof user.perfs === 'object' && user.perfs !== null ? (user.perfs as Record<string, unknown>) : {};
     await cfg.onLogin(me, {

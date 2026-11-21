@@ -8,7 +8,7 @@ import { registerMapRoutes } from './routes/map.js';
 import { registerLessonRoutes } from './routes/lessons.js';
 import { registerReviewRoutes } from './routes/review.js';
 import { registerShopRoutes } from './routes/shop.js';
-import { registerBillingRoutes } from './routes/billing.js';
+import { registerAdminRoutes } from './routes/admin.js';
 
 export type { AppDeps };
 
@@ -78,7 +78,7 @@ export function createApp(deps: AppDeps) {
   registerLessonRoutes(app, k); // /api/lessons/*, /api/demo
   registerReviewRoutes(app, k); // /api/review/complete, /api/session/*
   registerShopRoutes(app, k); // /api/shop/*
-  registerBillingRoutes(app, k); // /api/billing/*
+  registerAdminRoutes(app, k); // /api/admin/*
 
   return app;
 }

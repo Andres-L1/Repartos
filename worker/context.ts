@@ -1,7 +1,7 @@
-/** Contexto compartido por las rutas: acceso a datos y helpers que usan varios dominios (perfil, nivel, suscripción, sesión). */
-import type { BillingMode, Profile, Subscription, SubscriptionStatus } from '../src/shared/api.js';
+/** Contexto compartido por las rutas: acceso a datos y helpers que usan varios dominios (perfil, nivel, sesión, acceso). */
+import type { Profile } from '../src/shared/api.js';
 import type { Db, Stmt } from './db.js';
-import type { BillingProvider } from './billing.js';
+import { recordDenied, type AccessMode } from './access.js';
 import { clearedCookies, readSession, type AuthConfig } from './auth.js';
 import { describePerfs, selectPerf } from './placement.js';
 import { levelPlan } from './level.js';
@@ -15,9 +15,11 @@ import type { Ctx } from './http.js';
 export interface AppDeps {
   db: Db;
   content: ContentSource;
-  billingMode: BillingMode;
-  /** Proveedor de pago; solo se usa con billingMode 'dev'. */
-  billing: BillingProvider;
+  /**
+   * 'allowlist' (valor por defecto, el de producción): solo entran la administración y las cuentas de cp_allowed_users.
+   * 'open': sin lista (solo para los tests y el desarrollo local).
+   */
+  accessMode?: AccessMode;
   /** SESSION_SECRET (32 bytes base64url). */
   sessionSecret: string | undefined;
   /** PUBLIC_ORIGIN, p. ej. https://chedexpulse.app. */
@@ -38,13 +40,17 @@ interface ProfileRow {
 }
 
 export function createContext(deps: AppDeps) {
-  const { db, content, billing, billingMode } = deps;
+  const { db, content } = deps;
+  const restricted = (deps.accessMode ?? 'allowlist') !== 'open';
   const now = deps.now ?? (() => new Date());
 
   const auth: AuthConfig = {
     secret: deps.sessionSecret,
     origin: deps.publicOrigin,
     now,
+    isAllowed: async (u) =>
+      !restricted || isAdmin(u.id) || !!(await db.first('SELECT 1 FROM cp_allowed_users WHERE lichess_id = ?', [u.id])),
+    onDenied: (u) => recordDenied(db, u, now().getTime()),
     onLogin: async (u, perfs) => {
       const t = now().toISOString();
       const sel = selectPerf(perfs); // validación estricta; lo no fiable o fuera de rango se descarta
@@ -77,29 +83,6 @@ export function createContext(deps: AppDeps) {
   });
 
   // ---------- helpers de datos ----------
-  async function subscriptionFor(userId: string): Promise<Subscription> {
-    const base = { priceEurPerMonth: 10 as const };
-    if (billingMode === 'beta_open') return { status: 'none', provider: 'none', beta: true, ...base };
-    const row = await db.first<{ status: string; provider: string; current_period_end: string | null }>(
-      'SELECT status, provider, current_period_end FROM cp_subscriptions WHERE user_id = ?',
-      [userId],
-    );
-    if (!row) return { status: 'none', provider: 'dev', beta: false, ...base };
-    let status = row.status as SubscriptionStatus;
-    const end = row.current_period_end ?? undefined;
-    if (end && new Date(end).getTime() <= now().getTime()) status = 'none'; // periodo vencido
-    return {
-      status,
-      ...base,
-      provider: row.provider as 'dev' | 'stripe',
-      beta: false,
-      ...(status !== 'none' && end ? { currentPeriodEnd: end } : {}),
-    };
-  }
-  /** Acceso a lecciones de pago: siempre en beta abierta; en 'dev', suscripción activa o cancelada dentro del periodo. */
-  const hasAccess = async (userId: string) =>
-    billingMode === 'beta_open' || isAdmin(userId) || (await subscriptionFor(userId)).status !== 'none';
-
   async function progressMap(userId: string): Promise<Map<string, ProgressRow>> {
     const rows = await db.all<{ lesson_id: string; completed: number; best_score: number }>(
       'SELECT lesson_id, completed, best_score FROM cp_lesson_progress WHERE user_id = ?',
@@ -156,9 +139,16 @@ export function createContext(deps: AppDeps) {
   const requireAuth = async (c: Ctx, next: () => Promise<void>) => {
     const s = await readSession(c, auth);
     if (!s) return c.json({ error: 'Sesión requerida' }, 401);
-    // Cuenta borrada (DELETE /api/account desde otro dispositivo o navegador): la cookie sigue firmada pero ya no hay usuario.
-    if (!(await db.first('SELECT 1 FROM cp_users WHERE id = ?', [s.id]))) {
-      const res = c.json({ error: 'Sesión requerida' }, 401);
+    // Una sola consulta por clave primaria: cuenta borrada (DELETE /api/account desde otro dispositivo) o ya no autorizada.
+    const row = await db.first<{ allowed: number | null }>(
+      'SELECT (SELECT 1 FROM cp_allowed_users WHERE lichess_id = u.id) AS allowed FROM cp_users u WHERE u.id = ?',
+      [s.id],
+    );
+    const denied = row && restricted && !isAdmin(s.id) && !row.allowed;
+    if (!row || denied) {
+      const res = denied
+        ? c.json({ error: 'Tu cuenta ya no tiene acceso a Chedex Pulse. Pide a tu profesor de TopChess que te autorice.' }, 403)
+        : c.json({ error: 'Sesión requerida' }, 401);
       for (const ck of clearedCookies(deps.publicOrigin!)) res.headers.append('Set-Cookie', ck);
       return res;
     }
@@ -167,8 +157,8 @@ export function createContext(deps: AppDeps) {
   };
 
   return {
-    deps, db, content, billing, billingMode, now, auth, requireAuth,
-    ensureProfileStmt, subscriptionFor, hasAccess, progressMap, loadProfile, isLevel, chosenLevel, profileFor, levelEffect,
+    deps, db, content, now, auth, requireAuth,
+    ensureProfileStmt, progressMap, loadProfile, isLevel, chosenLevel, profileFor, levelEffect,
   };
 }
 

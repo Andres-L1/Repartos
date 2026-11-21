@@ -9,12 +9,11 @@ import { isUnique, streakAdvance, streakUpdate } from '../shop.js';
 import { CONCEPT_IDS, touchSchedule, weakConceptStmt } from '../srs.js';
 
 export function registerLessonRoutes(app: Hono<Env>, k: AppContext): void {
-  const { db, content, now, requireAuth, hasAccess, progressMap, loadProfile, profileFor, levelEffect } = k;
-  /** Valida existencia, suscripción (solo 'dev') y bloqueo por progreso. */
+  const { db, content, now, requireAuth, progressMap, loadProfile, profileFor, levelEffect } = k;
+  /** Valida existencia y bloqueo por progreso. */
   async function lessonAccess(userId: string, id: string) {
     const lesson = findLesson(content, id);
     if (!lesson) throw new HttpError(404, 'Lección no encontrada');
-    if (!lesson.demo && !(await hasAccess(userId))) throw new HttpError(402, 'Requiere suscripción activa');
     const st = computeStatuses(content.units, await progressMap(userId), await levelEffect(userId)).lessonStatus.get(id);
     if (st === 'locked') throw new HttpError(403, 'Lección bloqueada: completa antes las anteriores');
     return lesson;

@@ -1,9 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
-import { createApp } from '../../worker/app.js';
-import { devBilling } from '../../worker/billing.js';
+import { createOpenApp } from './helpers.js';
 import { base64url, seal } from '../../worker/auth.js';
-import type { BillingMode } from '../../src/shared/api.js';
 import type { Lesson, Unit } from '../../src/content/schema.js';
 import { CONCEPTS } from '../../src/pedagogy/concepts.js';
 import { openTestDb } from './sqlite-db.js';
@@ -48,11 +46,11 @@ function stubLichess() {
   });
 }
 
-function setup(mode: BillingMode = 'beta_open', opts: { secret?: string | undefined; units?: Unit[] } = {}) {
+function setup(opts: { secret?: string | undefined; units?: Unit[] } = {}) {
   clock = Date.UTC(2026, 0, 10, 12, 0, 0);
   const db = openTestDb();
-  const app = createApp({
-    db, content: { units: opts.units ?? units }, billingMode: mode, billing: devBilling(),
+  const app = createOpenApp({
+    db, content: { units: opts.units ?? units },
     sessionSecret: 'secret' in opts ? opts.secret : SECRET, publicOrigin: ORIGIN, now: () => new Date(clock),
   });
   const jar = new Map<string, string>();
@@ -269,7 +267,7 @@ describe('OAuth con Lichess', () => {
   });
 
   it('sin SESSION_SECRET: 503 en login y la API privada responde 401', async () => {
-    const s = setup('beta_open', { secret: undefined });
+    const s = setup({ secret: undefined });
     expect((await s.raw('GET', '/auth/login')).status).toBe(503);
     expect((await s.req('GET', '/api/me')).status).toBe(401);
   });
@@ -324,71 +322,21 @@ describe('temario público /api/outline', () => {
   });
 });
 
-describe('modo beta_open (por defecto)', () => {
-  it('/api/config y /api/me informan beta; todas las lecciones accesibles sin suscripción', async () => {
-    const s = setup('beta_open');
-    expect((await s.req('GET', '/api/config')).json).toEqual({ billingMode: 'beta_open' });
+describe('sin suscripción ni pagos', () => {
+  it('no existen /api/config ni /api/billing; /api/me no lleva precio; las lecciones solo se bloquean por orden pedagógico', async () => {
+    const s = setup();
+    expect((await s.req('GET', '/api/config')).status).toBe(404);
     await s.login();
     const me = (await s.req('GET', '/api/me')).json;
-    expect(me.billingMode).toBe('beta_open');
-    expect(me.subscription).toMatchObject({ status: 'none', beta: true, provider: 'none' });
-    expect((await s.req('GET', '/api/billing')).json.subscription).toMatchObject({ status: 'none', beta: true });
+    expect(Object.keys(me).sort()).toEqual(['equipped', 'isAdmin', 'level', 'levelChosen', 'user']);
+    expect(me.isAdmin).toBe(false);
+    for (const [m, p] of [['GET', '/api/billing'], ['POST', '/api/billing/subscribe'], ['POST', '/api/billing/cancel']] as const)
+      expect((await s.req(m, p)).status).toBe(404);
     expect((await s.req('GET', '/api/lessons/a.2')).status).toBe(403); // bloqueada solo por orden pedagógico
     await s.req('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: [] });
-    expect((await s.req('GET', '/api/lessons/a.2')).status).toBe(200); // sin 402
+    expect((await s.req('GET', '/api/lessons/a.2')).status).toBe(200);
     expect((await s.req('GET', '/api/lessons/nope')).status).toBe(404);
-  });
-
-  it('subscribe y cancel responden 501 «próximamente» y no escriben nada', async () => {
-    const s = setup('beta_open');
-    await s.login();
-    const sub = await s.req('POST', '/api/billing/subscribe');
-    expect(sub.status).toBe(501);
-    expect(sub.json.error).toMatch(/próximamente/);
-    expect((await s.req('POST', '/api/billing/cancel')).status).toBe(501);
     expect(s.db.raw.prepare('SELECT COUNT(*) AS n FROM cp_subscriptions').get()).toEqual({ n: 0 });
-  });
-
-  it('cualquier BILLING_MODE desconocido es beta_open', async () => {
-    const { parseBillingMode } = await import('../../worker/billing.js');
-    expect(parseBillingMode(undefined)).toBe('beta_open');
-    expect(parseBillingMode('stripe')).toBe('beta_open');
-    expect(parseBillingMode('dev')).toBe('dev');
-  });
-});
-
-describe('modo dev (pago simulado)', () => {
-  it('402 sin suscripción -> subscribe -> 200; demo siempre accesible', async () => {
-    const s = setup('dev');
-    await s.login();
-    expect((await s.req('GET', '/api/config')).json).toEqual({ billingMode: 'dev' });
-    expect((await s.req('GET', '/api/lessons/a.1')).status).toBe(200); // demo
-    expect((await s.req('GET', '/api/demo', undefined, { cookie: '' })).json.lesson.id).toBe('a.1');
-    expect((await s.req('GET', '/api/lessons/a.2')).status).toBe(402);
-    const sub = await s.req('POST', '/api/billing/subscribe');
-    expect(sub.json.subscription).toMatchObject({ status: 'active', provider: 'dev', priceEurPerMonth: 10, beta: false });
-    expect((await s.req('GET', '/api/lessons/a.2')).status).toBe(403);
-    expect((await s.req('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: [] })).status).toBe(200);
-    expect((await s.req('GET', '/api/lessons/a.2')).status).toBe(200);
-  });
-
-  it('cancelar mantiene acceso hasta fin de periodo y luego lo pierde; 409 sin suscripción', async () => {
-    const s = setup('dev');
-    await s.login();
-    expect((await s.req('POST', '/api/billing/cancel')).status).toBe(409);
-    await s.req('POST', '/api/billing/subscribe');
-    await s.req('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: [] });
-    const c = await s.req('POST', '/api/billing/cancel');
-    expect(c.json.subscription.status).toBe('canceled');
-    expect(c.json.subscription.currentPeriodEnd).toBeTruthy();
-    expect((await s.req('GET', '/api/lessons/a.2')).status).toBe(200);
-    advance(29 * DAY);
-    await s.login(); // la sesión sellada dura 7 días
-    expect((await s.req('GET', '/api/lessons/a.2')).status).toBe(200);
-    advance(2 * DAY);
-    await s.login();
-    expect((await s.req('GET', '/api/billing')).json.subscription.status).toBe('none');
-    expect((await s.req('GET', '/api/lessons/a.2')).status).toBe(402);
   });
 });
 
@@ -414,7 +362,7 @@ describe('mapa y bloqueos', () => {
 
   it('la API privada exige sesión', async () => {
     const s = setup();
-    for (const p of ['/api/map', '/api/profile', '/api/billing', '/api/lessons/a.1'])
+    for (const p of ['/api/map', '/api/profile', '/api/lessons/a.1', '/api/admin/access'])
       expect((await s.req('GET', p)).status).toBe(401);
   });
 });
@@ -499,7 +447,7 @@ const perf = (rating: number, games = 50, extra: Record<string, unknown> = {}) =
 
 describe('lo que Lichess envió (cp_placement y cp_placement_seen)', () => {
   const loginWith = async (perfs: unknown) => {
-    const s = setup('beta_open', { units: placementUnits });
+    const s = setup({ units: placementUnits });
     lichess.account = { id: 'Ana', username: 'Ana', perfs };
     await s.login();
     return s;
@@ -586,7 +534,7 @@ describe('lo que Lichess envió (cp_placement y cp_placement_seen)', () => {
 
 describe('nivel elegido por el alumno', () => {
   const loginAna = async (perfs: unknown = { rapid: perf(1500) }) => {
-    const s = setup('beta_open', { units: placementUnits });
+    const s = setup({ units: placementUnits });
     lichess.account = { id: 'Ana', username: 'Ana', perfs };
     await s.login();
     return s;
@@ -595,7 +543,7 @@ describe('nivel elegido por el alumno', () => {
     Object.fromEntries(((await s.req('GET', '/api/map')).json.units as any[]).map((u) => [u.id, u]));
 
   it('401 sin sesión en GET y PUT /api/level', async () => {
-    const anon = setup('beta_open', { units: placementUnits });
+    const anon = setup({ units: placementUnits });
     expect((await anon.req('GET', '/api/level')).status).toBe(401);
     expect((await anon.req('PUT', '/api/level', { level: 'basic' })).status).toBe(401);
   });
@@ -820,6 +768,6 @@ describe('migraciones D1', () => {
     const names = (raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((r) => r.name);
     const indexes = (raw.prepare("SELECT name FROM sqlite_master WHERE type='index' AND name LIKE 'idx_cp_%'").all() as { name: string }[]).map((r) => r.name);
     expect(indexes).toEqual(expect.arrayContaining(['idx_cp_session_items_session', 'idx_cp_session_items_status', 'idx_cp_puzzle_pool_pick', 'idx_cp_puzzle_pool_take', 'idx_cp_puzzle_pool_used', 'idx_cp_session_items_created', 'idx_cp_review_positions_open', 'idx_cp_review_schedule_due']));
-    expect(names.sort()).toEqual(['cp_cron_state', 'cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_puzzle_stats', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_claims', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
+    expect(names.sort()).toEqual(['cp_access_requests', 'cp_allowed_users', 'cp_cron_state', 'cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_puzzle_stats', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_claims', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
   });
 });

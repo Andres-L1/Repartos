@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { createApp } from '../../worker/app.js';
-import { devBilling } from '../../worker/billing.js';
+import { createOpenApp } from './helpers.js';
 import { base64url, seal } from '../../worker/auth.js';
 import { EXERCISES } from '../../src/pedagogy/exercises.js';
 import { mirrorExercise } from '../../src/pedagogy/mirror.js';
@@ -18,8 +17,8 @@ function setup() {
   let clock = Date.UTC(2026, 0, 10, 12, 0, 0);
   const rnd = { value: 0.9 }; // >= 0.5: el ejercicio original del banco; < 0.5: su espejo
   const db = openTestDb();
-  const app = createApp({
-    db, content: { units: [] }, billingMode: 'beta_open', billing: devBilling(),
+  const app = createOpenApp({
+    db, content: { units: [] },
     sessionSecret: SECRET, publicOrigin: ORIGIN, now: () => new Date(clock), random: () => rnd.value,
   });
   const user = async (id: string) => {
@@ -46,7 +45,7 @@ function setup() {
 describe('sesión diaria', () => {
   it('las 4 rutas exigen sesión', async () => {
     const s = setup();
-    const app = createApp({ db: s.db, content: { units: [] }, billingMode: 'beta_open', billing: devBilling(), sessionSecret: SECRET, publicOrigin: ORIGIN });
+    const app = createOpenApp({ db: s.db, content: { units: [] }, sessionSecret: SECRET, publicOrigin: ORIGIN });
     for (const [m, p] of [['GET', '/api/session/status'], ['GET', '/api/session'], ['POST', '/api/session/answer'], ['POST', '/api/session/finish']] as const)
       expect((await app.request(ORIGIN + p, { method: m })).status).toBe(401);
   });

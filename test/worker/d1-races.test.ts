@@ -8,8 +8,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getPlatformProxy } from 'wrangler';
-import { createApp } from '../../worker/app.js';
-import { devBilling } from '../../worker/billing.js';
+import { createOpenApp } from './helpers.js';
 import { base64url, seal } from '../../worker/auth.js';
 import { d1Db, type D1Like } from '../../worker/db.js';
 import { EXERCISES } from '../../src/pedagogy/exercises.js';
@@ -60,8 +59,8 @@ const q = async <T>(sql: string, ...params: unknown[]) => (await d1.prepare(sql)
 const exec = (sql: string, ...params: unknown[]) => d1.prepare(sql).bind(...params).run();
 
 async function user(id: string) {
-  const app = createApp({
-    db: d1Db(d1), content: { units }, billingMode: 'beta_open', billing: devBilling(),
+  const app = createOpenApp({
+    db: d1Db(d1), content: { units },
     sessionSecret: SECRET, publicOrigin: ORIGIN, now: () => new Date(clock),
     random: () => 0.9,
   });

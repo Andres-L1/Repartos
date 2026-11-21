@@ -53,7 +53,7 @@ export interface Lesson {
   title: string;
   /** Qué sabrá hacer el alumno al terminar. */
   objective: string;
-  /** Si es true, accesible sin suscripción (demostración). */
+  /** Si es true, pública, sin sesión (demostración). */
   demo?: boolean;
   /** conceptos de src/pedagogy/concepts.ts que trabaja, si aplica. */
   conceptIds?: string[];

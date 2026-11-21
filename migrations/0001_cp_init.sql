@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS cp_weak_concepts (
   PRIMARY KEY (user_id, concept_id)
 );
 
--- Solo se usa con BILLING_MODE=dev (proveedor simulado). En beta_open queda vacía.
+-- Sin uso: ya no hay suscripciones. La tabla se queda porque las migraciones solo crean.
 CREATE TABLE IF NOT EXISTS cp_subscriptions (
   user_id TEXT PRIMARY KEY REFERENCES cp_users(id) ON DELETE CASCADE,
   status TEXT NOT NULL,

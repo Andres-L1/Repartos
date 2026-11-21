@@ -6,7 +6,7 @@ export type Env = { Variables: { user: User } };
 export type Ctx = Context<Env>;
 
 export class HttpError extends Error {
-  constructor(public status: 400 | 401 | 402 | 403 | 404 | 409 | 413 | 415 | 501, message: string) {
+  constructor(public status: 400 | 401 | 403 | 404 | 409 | 413 | 415, message: string) {
     super(message);
   }
 }
@@ -25,4 +25,10 @@ export async function readJson(c: Context): Promise<Record<string, unknown>> {
   }
   if (!isObj(v)) throw new HttpError(400, 'Se esperaba un objeto JSON');
   return v;
+}
+
+/** Operaciones que cambian estado y exigen cabecera Origin propia (o la de desarrollo). */
+export function requireOwnOrigin(c: Context, d: { publicOrigin?: string | undefined; devOrigin?: string | undefined }): void {
+  const origin = c.req.header('origin');
+  if (!origin || (origin !== d.publicOrigin && origin !== d.devOrigin)) throw new HttpError(403, 'Origen no permitido');
 }
