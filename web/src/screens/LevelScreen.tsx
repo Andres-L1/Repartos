@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import type { LevelInfo } from '../../../src/shared/api';
 import type { Level } from '../../../src/types';
 import { api, ApiError } from '../api';
+import { eloRange } from '../../../src/shared/levels';
 import { navigate } from '../router';
 import { useSession } from '../session';
 import { Icon, Loading, ErrorBox } from '../components/Icon';
@@ -124,7 +125,7 @@ export function LevelScreen() {
               <div className="lvl-body">
                 <h2 className="lvl-name">{c.label}</h2>
                 <p className="lvl-range">
-                  {c.id === 'competitive' ? `${c.minElo} Elo o más` : `${c.minElo} a ${c.maxElo} Elo`} · {c.blurb}.
+                  {c.id === 'beginner' ? 'Sin Elo todavía' : `Elo de Lichess en rápidas: ${eloRange(c)}`} · {c.blurb}.
                 </p>
                 <p className="lvl-tags">
                   {c.available ? (
@@ -150,7 +151,7 @@ export function LevelScreen() {
 
       {hint && (
         <p className="muted lvl-hint">
-          También vemos {hint.rating} en {PERF_LABEL[hint.perf]}, aún provisional.
+          También vemos {hint.rating} en {PERF_LABEL[hint.perf]}, aún provisional (pocas partidas): podría encajarte {cards.find((c) => c.id === hint.level)?.label ?? 'un nivel superior'}.
         </p>
       )}
       {!info.suggested && !info.chosen && (

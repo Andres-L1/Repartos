@@ -3,7 +3,7 @@ import type { MapUnit, Profile } from '../../../src/shared/api';
 import { numberUnits, type Numbered } from '../../../src/shared/unitNumber';
 import { api, ApiError } from '../api';
 import { useSession } from '../session';
-import { LEVELS } from '../../../src/shared/levels';
+import { LEVELS, eloRange } from '../../../src/shared/levels';
 import { Link } from '../components/Link';
 import { TrainCard } from './SessionScreen';
 import { Icon, Loading, ErrorBox } from '../components/Icon';
@@ -172,7 +172,7 @@ export function ProfileScreen() {
           const info = LEVELS.find((l) => l.id === level);
           return levelChosen && info ? (
             <p>
-              Estás en <strong>{info.label}</strong> ({info.id === 'competitive' ? `${info.minElo} Elo o más` : `${info.minElo} a ${info.maxElo} Elo`}). Lichess solo sugiere: el nivel lo eliges tú.
+              Estás en <strong>{info.label}</strong> ({info.id === 'beginner' ? 'sin Elo todavía' : `Elo de Lichess en rápidas: ${eloRange(info)}`}). Lichess solo sugiere: el nivel lo eliges tú.
             </p>
           ) : (
             <p>Todavía no has elegido tu nivel.</p>

@@ -4,20 +4,15 @@ import { numberUnits, type Numbered } from '../../../src/shared/unitNumber';
 import type { Level } from '../../../src/types';
 import { api, ApiError } from '../api';
 import { useSession } from '../session';
-import { LEVELS } from '../../../src/shared/levels';
+import { LEVELS, eloRange } from '../../../src/shared/levels';
 import { Link } from '../components/Link';
 import { TrainCard } from './SessionScreen';
 import { Icon, Loading, ErrorBox, type IconName } from '../components/Icon';
 import '../level.css';
 
-export const LEVEL_LABEL: Record<Level, string> = {
-  beginner: 'Principiante · 0-400',
-  initiation: 'Iniciación · 400-800',
-  basic: 'Básico · 800-1100',
-  intermediate: 'Intermedio · 1100-1400',
-  advanced: 'Avanzado · 1400-1700',
-  competitive: 'Competitivo · 1700 o más',
-};
+export const LEVEL_LABEL = Object.fromEntries(
+  LEVELS.map((l) => [l.id, `${l.label} · ${l.id === 'beginner' ? 'sin Elo todavía' : eloRange(l).replace(' a ', '-')}`]),
+) as Record<Level, string>;
 
 const STATUS_ICON: Record<LessonStatus, IconName> = { locked: 'lock', available: 'play', completed: 'check' };
 
