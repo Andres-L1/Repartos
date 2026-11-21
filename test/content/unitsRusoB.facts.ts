@@ -1,13 +1,28 @@
 import { expect } from 'vitest';
 import type { Chess } from 'chessops/chess';
+import { makeFen } from 'chessops/fen';
 import { makeUci, makeSquare, parseSquare } from 'chessops/util';
 import type { Move } from 'chessops/types';
 import type { ExplainStep } from '../../src/content/schema.js';
-import { legalMoves, playMove } from '../pedagogy/helpers.js';
+import { cacheProbe, loadCache, moverResult } from '../../scripts/lib/tablebase.js';
+import { CACHE_RUSO_B } from '../../scripts/lib/metodo-ruso-b.js';
+import { legalMoves, load, playMove } from '../pedagogy/helpers.js';
+import { bishopsAdjacent, kingDistance, kingRegion } from './unitsRusoB.geo.js';
+
+const probe = cacheProbe(loadCache(CACHE_RUSO_B));
+/** Jugadas que ganan lo antes posible según la tablebase (caché). */
+export const tbOptimal = (fen: string): string[] => {
+  const e = probe(fen);
+  const wins = e.moves.filter((m) => moverResult(m) === 'win');
+  const d = (m: { dtm: number | null; dtz: number | null }) => Math.abs(m.dtm ?? m.dtz ?? 0);
+  const best = Math.min(...wins.map(d));
+  return wins.filter((m) => d(m) === best).map((m) => m.uci).sort();
+};
 
 /** Hechos que afirma el texto de cada explicación, comprobados con chessops (clave `uNN.lNN:índice`). */
 type Fact = (pos: Chess, e: ExplainStep) => void;
 
+const makeFenOf = (pos: Chess): string => makeFen(pos.toSetup());
 const ucis = (pos: Chess) => legalMoves(pos).map(makeUci).sort();
 const mateIn = (pos: Chess, n: number): Move[] =>
   legalMoves(pos).filter((m) => {
@@ -105,6 +120,47 @@ export const FACTS: Record<string, Fact> = {
     expect(recapturable(pos, 'd3a6')).toBe(true); // el caballo está protegido
     expect(recapturable(pos, 'd3g6')).toBe(false); // la torre está colgada
   },
+};
+
+const u27Facts: Record<string, Fact> = {
+  'u27.l01:0': (pos) => expect(pos.isInsufficientMaterial()).toBe(true),
+  'u27.l01:1': (pos) => {
+    expect(pos.isInsufficientMaterial()).toBe(false);
+    expect(colorOfSq('c1')).not.toBe(colorOfSq('f1')); // alfiles de casillas de distinto color
+  },
+  'u27.l02:0': (pos, e) => {
+    expect(bishopsAdjacent(pos, 'white')).toBe(true);
+    expect([...(e.squares ?? [])].sort()).toEqual(kingRegion(pos, 'black'));
+  },
+  'u27.l02:1': (pos, e) => {
+    expect(tbOptimal(makeFenOf(pos))).toEqual(['d4e5']);
+    expect(e.squares).toEqual(['e5']);
+  },
+  'u27.l03:0': (pos) => expect(probe(makeFenOf(pos)).dtm).toBe(29), // 29 medias jugadas = mate en 15
+  'u27.l03:1': (pos) => {
+    mateInN(2, 'd7e6')(pos, undefined as never);
+    const after = playMove(pos, legalMoves(pos).find((m) => makeUci(m) === 'd7e6')!);
+    expect(legalMoves(after).map(makeUci)).toEqual(['g8h8']); // el rey rival solo puede ir a la esquina
+  },
+};
+Object.assign(FACTS, u27Facts);
+
+/** Pasos de barrera: tras la solución los alfiles del jugador quedan en diagonales vecinas. */
+export const BARRIER_STEPS = new Set(['u27.l02:practice:0', 'u27.l02:practice:1', 'u27.l02:evaluation:1', 'u27.l02:evaluation:2']);
+/** Pasos del rey: los alfiles ya forman la barrera y el rey se acerca al rey rival sin quedar a su lado. */
+export const KING_STEPS = new Set(['u27.l02:practice:2', 'u27.l02:evaluation:0']);
+export const techniqueErrors = (key: string, fen: string, uci: string): string[] => {
+  const pos = load(fen);
+  const mover = pos.turn;
+  const after = playMove(pos, legalMoves(pos).find((m) => makeUci(m) === uci)!);
+  const errors: string[] = [];
+  if (BARRIER_STEPS.has(key) && !bishopsAdjacent(after, mover)) errors.push('los alfiles no quedan en diagonales vecinas');
+  if (KING_STEPS.has(key)) {
+    if (!bishopsAdjacent(pos, mover)) errors.push('los alfiles no forman ya la barrera');
+    if (!(kingDistance(after) < kingDistance(pos))) errors.push('el rey no se acerca');
+    if (kingDistance(after) < 2) errors.push('el rey queda al lado del rey rival');
+  }
+  return errors;
 };
 
 /** Pasos de captura segura: la solución no se puede recapturar y toda otra captura legal sí. */

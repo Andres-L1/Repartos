@@ -47,4 +47,4 @@ for (const c of TB_CLAIMS) {
   }
 }
 console.log(`\n${steps.length - failed}/${steps.length} ejercicios cumplen; ${TB_CLAIMS.length} afirmaciones comprobadas; ${fetched} posiciones pedidas a la API; caché con ${Object.keys(cache).length}.`);
-process.exit(failed ? 1 : 0);
+process.exitCode = failed ? 1 : 0;
