@@ -15,7 +15,7 @@ El repositorio está como **MIT**, pero la web incluye librerías **GPL-3.0-or-l
 | Piezas `cburnett` (por defecto) | GPLv2+, compatible con GPL-3.0-or-later | Se mantienen con su atribución |
 
 ## Propuesta
-1. **Licenciar todo el código del repositorio como GPL-3.0-or-later.** Es la salida más simple y honesta: es compatible con todas las librerías usadas, con las piezas permitidas de la tienda y con vender una suscripción (la GPL no prohíbe cobrar; obliga a dar el código a quien recibe el programa).
+1. **Licenciar todo el código del repositorio como GPL-3.0-or-later.** Es la salida más simple y honesta: es compatible con todas las librerías usadas, con las piezas permitidas de la tienda y con cobrar por el servicio si algún día se quisiera (la GPL no prohíbe cobrar; obliga a dar el código a quien recibe el programa).
 2. **Separar el contenido educativo.** En `src/content/` añadir un aviso de que los textos y ejercicios son © Chedex con todos los derechos reservados y no se licencian bajo la GPL. Es válido porque el contenido es un trabajo aparte del programa. Aviso: mientras el repositorio sea público, cualquiera puede leer las lecciones. Si el contenido es el activo del negocio, la solución real es moverlo a un repositorio privado más adelante.
 3. **Los modelos de pago no cambian:** el código del servidor no tiene por qué publicarse, pero al ser todo el repositorio GPL se ofrece con el resto. Si se prefiere mantener el servidor propietario, habría que sacarlo del repositorio público.
 

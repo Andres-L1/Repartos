@@ -18,7 +18,7 @@ Lo que de verdad importa no es detectar el error sino **comunicarlo para que el 
 
 ## No objetivos
 
-- Suscripción y pagos (aplazados por decisión del usuario).
+- Pagos (descartados: la plataforma es solo para alumnos de TopChess).
 - Partidas bullet y variantes. Solo partidas estándar.
 - Guardar partidas en el servidor. Solo se guardan conceptos fallados y los identificadores de las partidas repasadas.
 - Analizar al rival, mostrar evaluaciones del motor en bruto, repasos espaciados, sesión diaria (siguientes pasos de la Fase 3).

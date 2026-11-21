@@ -89,7 +89,7 @@
   .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
 }
 @media (min-width: 980px) {
-  .tour { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
+  .tour { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; align-items: start; max-width: 62rem; }
 }
 
 /* ---------- El temario ---------- */

@@ -3,11 +3,11 @@
 Plataforma de entrenamiento de ajedrez para aprender con un camino claro, entender los errores y entrenar con un propósito. Web: <https://chedexpulse.app>
 
 - **Ruta de aprendizaje** por unidades y lecciones (de 0 a ~2000 Elo: 12 unidades y 42 lecciones), con lecciones interactivas sobre tablero, práctica con corrección y evaluación.
-- **Acceso con Lichess** (OAuth PKCE sin permisos). Tu Elo de rápidas, clásicas y blitz solo sirve para sugerirte un nivel; el nivel lo eliges tú.
+- **Acceso restringido a los alumnos de TopChess**: se entra con Lichess (OAuth PKCE sin permisos) y solo si el administrador ha autorizado esa cuenta (panel `/admin`). Tu Elo de rápidas, clásicas y blitz solo sirve para sugerirte un nivel; el nivel lo eliges tú.
 - **Entrenador pedagógico** (prototipo): analiza partidas PGN con Stockfish, diagnostica errores tácticos verificados y propone ejercicios.
 - Notación de jugadas como en Lichess (N, B, R, Q, K).
 
-Estado: beta abierta, sin pagos. Contenido verificado por código; la revisión por profesores de ajedrez está pendiente.
+Estado: plataforma privada para los alumnos de TopChess, sin pagos ni suscripción. Contenido verificado por código; la revisión por profesores de ajedrez está pendiente.
 
 ## Estructura
 

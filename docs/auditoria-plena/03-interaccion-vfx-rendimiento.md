@@ -39,7 +39,7 @@ Chrome real en modo headless controlado por CDP (script propio fuera del repo; e
 | I7 | Rendimiento | Menor | Al equipar un juego de piezas los sprites se piden al pintar: casillas vacías un instante | Arreglado: `preloadPieces` al cambiar `equipped.pieces` (los de la tienda se descargan al abrir: 60 WebP, 380 KB, ahora cacheados) | 0b9041b |
 | T1 | Tablero táctil | Importante (sin confirmar) | `touch-action` está en `manipulation` (motion.css pisa al `none` de styles.css). Con la emulación táctil de CDP el navegador cancela el gesto (`pointercancel`) y el arrastre no se completa; con `none` tampoco, porque `touchstart` llega no cancelable y chessground ignora esos eventos. No es concluyente: en dedo real `touchstart` sí es cancelable | No arreglado: no se puede reproducir sin dedo real. Propuesta: probar en un Android/iPhone y, si el arrastre vertical desplaza la página, poner `touch-action: none` en `.board-touch cg-board piece` (solo sobre las piezas, el resto del tablero sigue permitiendo desplazar) | — |
 | T2 | Teclado | Menor | Tras cancelar la promoción el foco se pierde (el diálogo desaparece) | No arreglado: el tablero no es focalizable por teclado; se ofrece la jugada escrita como alternativa | — |
-| A1 | Administración | Menor | La UI no contiene lógica de administrador: depende de lo que devuelve el servidor (`ownedIds`, `levelEffect`, `hasAccess`). El protector (consumable) no se regala al administrador: ve «Faltan N días» en esa tarjeta. Administración sin nivel elegido pasa por `/bienvenida` | No arreglado (decisión de producto / worker). Sin comprobar con mock de administrador (el mock no distingue cuentas) | — |
+| A1 | Administración | Menor | La UI no contiene lógica de administrador: depende de lo que devuelve el servidor (`ownedIds`, `levelEffect`). El protector (consumable) no se regala al administrador: ve «Faltan N días» en esa tarjeta. Administración sin nivel elegido pasa por `/bienvenida` | No arreglado (decisión de producto / worker). Sin comprobar con mock de administrador (el mock no distingue cuentas) | — |
 | X1 | Rendimiento | Menor | La portada espera a `/api/me` antes de pintar (un viaje de red antes del LCP) | Arreglado (ver «Arreglo de X1»): la portada pinta de inmediato; la sesión solo decide los botones | — |
 
 
@@ -53,7 +53,7 @@ Chrome real en modo headless controlado por CDP (script propio fuera del repo; e
 | CLS de la portada | 0,915 | 0,023 |
 | FCP / LCP de la portada (local) | 440 ms | 460 ms (sin mejora apreciable local: lo medido es transferencia, no CPU) |
 | Long tasks en la portada | 0 | 0 |
-| Audio descargado en la portada con demostración | 148 KB, 9 peticiones | 61 KB tras el primer gesto, 5 peticiones (121 KB hasta el gesto) |
+| Audio descargado en la portada de entonces | 148 KB, 9 peticiones | 61 KB tras el primer gesto, 5 peticiones (121 KB hasta el gesto) |
 | Heap tras 140 navegaciones (calentado) | 3,76 a 4,21 MB (+0,45) | 3,99 a 4,43 MB (+0,44) |
 | Nodos DOM y listeners tras 140 navegaciones | 618 / 170 sin cambio | 644 / 170 sin cambio |
 | Fotogramas durante el análisis de 41 posiciones | n/a | mediana 6 ms, p95 6 ms, máx. 9 ms (14,3 s, 350 ms por posición, init del motor 2,5 s en desarrollo) |

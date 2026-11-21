@@ -408,18 +408,13 @@ export function HowItWorks() {
   );
 }
 
-/* ---------- Visita al producto: capturas reales de la app, sin soluciones de ejercicios ---------- */
+/* ---------- Visita al producto: capturas reales de la app (la de la lección se retiró: mostraba un rótulo de beta ya falso) ---------- */
 
 const TOUR = [
   {
     src: '/landing/aprender.webp', w: 800, h: 620, title: 'Tu ruta de aprendizaje',
     text: 'Siempre sabes cuál es tu próxima lección, tu racha y cuánto llevas de cada unidad.',
     alt: 'Pantalla Aprender de Chedex Pulse: la lección recomendada para empezar, tu racha actual, las lecciones aprendidas y la lista de unidades con tu progreso.',
-  },
-  {
-    src: '/landing/leccion.webp', w: 1000, h: 680, title: 'Lecciones con tablero',
-    text: 'Una idea cada vez: explicación, práctica con pista y una evaluación al final.',
-    alt: 'Una lección de práctica: a la izquierda un tablero con piezas de contorno naranja, arriba las fases de la lección y a la derecha el enunciado del ejercicio con el botón de pista.',
   },
   {
     src: '/landing/tienda.webp', w: 800, h: 620, title: 'Tienda de Chedex',
