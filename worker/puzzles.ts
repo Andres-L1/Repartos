@@ -4,6 +4,7 @@
  * - Lo rellena el Cron Trigger de cada minuto (`scheduledRun`): como mucho UNA petición a Lichess por ejecución,
  *   para la combinación con menos puzles sin usar, así que nunca más de una por minuto en total.
  */
+import { aiCleanupStmts } from './ai.js';
 import type { Db, Stmt } from './db.js';
 import { REQUEST_TTL_MS } from './access.js';
 import { POOL_COMBOS, puzzleStart } from '../src/review/srs.js';
@@ -72,6 +73,7 @@ export async function fillPool(db: Db, nowMs: number, fetchImpl: typeof fetch): 
 /** Limpieza: solicitudes de acceso denegadas de más de 90 días, elementos de sesión de más de 7 días, puzles usados hace más de 30 y como mucho 200 sin usar por combinación. */
 export function cleanupStmts(nowMs: number): Stmt[] {
   return [
+    ...aiCleanupStmts(nowMs),
     { sql: 'DELETE FROM cp_access_requests WHERE last_at < ?', params: [nowMs - REQUEST_TTL_MS] }, // por el índice por last_at: no lee filas vigentes
     { sql: 'DELETE FROM cp_session_items WHERE created_at < ?', params: [nowMs - 7 * DAY] },
     { sql: 'DELETE FROM cp_puzzle_pool WHERE used_at IS NOT NULL AND used_at < ?', params: [nowMs - 30 * DAY] },

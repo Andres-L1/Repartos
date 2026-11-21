@@ -5,6 +5,7 @@ import { HttpError, readJson, requireOwnOrigin, type Ctx, type Env } from '../ht
 import { isAdmin } from '../../src/shared/admin.js';
 import { isValidUsername } from '../../src/lichess/games.js';
 import { MAX_ALLOWED, MAX_REQUESTS } from '../access.js';
+import { usageOverview } from '../ai.js';
 import type { AccessOverview } from '../../src/shared/api.js';
 
 export function registerAdminRoutes(app: Hono<Env>, k: AppContext): void {
@@ -51,6 +52,7 @@ export function registerAdminRoutes(app: Hono<Env>, k: AppContext): void {
     return raw.toLowerCase();
   };
 
+  app.get('/api/admin/ai', async (c) => c.json(await usageOverview(db, k.ai, now().getTime())));
   app.get('/api/admin/access', async (c) => c.json(await overview()));
 
   app.post('/api/admin/allowed', async (c) => {

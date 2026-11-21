@@ -13,6 +13,16 @@ export interface Env {
   /** Secreto de 32 bytes en base64url (wrangler secret put SESSION_SECRET). */
   SESSION_SECRET?: string;
   PUBLIC_ORIGIN?: string;
+  /** DeepSeek: la clave es un secreto de Wrangler (`wrangler secret put DEEPSEEK_API_KEY`); el resto son variables opcionales. */
+  DEEPSEEK_API_KEY?: string;
+  DEEPSEEK_BASE_URL?: string;
+  DEEPSEEK_MODEL?: string;
+  AI_ENABLED?: string;
+  DEEPSEEK_DAILY_TOKEN_CAP?: string;
+  DEEPSEEK_MONTHLY_BUDGET_EUR?: string;
+  DEEPSEEK_PRICE_IN_EUR_PER_M?: string;
+  DEEPSEEK_PRICE_OUT_EUR_PER_M?: string;
+  DEEPSEEK_MONTHLY_TOKEN_CAP?: string;
   ASSETS?: { fetch(req: Request): Promise<Response> };
 }
 
@@ -24,6 +34,17 @@ function appFor(env: Env) {
     content: { units: UNITS },
     sessionSecret: env.SESSION_SECRET,
     publicOrigin: env.PUBLIC_ORIGIN,
+    ai: {
+      apiKey: env.DEEPSEEK_API_KEY,
+      baseUrl: env.DEEPSEEK_BASE_URL,
+      model: env.DEEPSEEK_MODEL,
+      enabled: env.AI_ENABLED,
+      dailyTokenCap: env.DEEPSEEK_DAILY_TOKEN_CAP,
+      monthlyBudgetEur: env.DEEPSEEK_MONTHLY_BUDGET_EUR,
+      priceInEurPerM: env.DEEPSEEK_PRICE_IN_EUR_PER_M,
+      priceOutEurPerM: env.DEEPSEEK_PRICE_OUT_EUR_PER_M,
+      monthlyTokenCap: env.DEEPSEEK_MONTHLY_TOKEN_CAP,
+    },
     assets: env.ASSETS,
   });
   return cached;
