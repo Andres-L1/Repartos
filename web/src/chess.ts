@@ -99,3 +99,9 @@ export const PROMO_ROLES: { role: Role; letter: string; label: string }[] = [
   { role: 'bishop', letter: 'b', label: 'Alfil' },
   { role: 'knight', letter: 'n', label: 'Caballo' },
 ];
+
+/** UCI de una jugada escrita en SAN en esa posición; null si no es legal. */
+export function uciOfSan(fen: string, san: string): string | null {
+  const move = parseSan(posFromFen(fen), san);
+  return move ? makeUci(move) : null;
+}
