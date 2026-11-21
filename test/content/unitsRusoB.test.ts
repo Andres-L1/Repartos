@@ -142,7 +142,7 @@ describe('método ruso B: u25 a u29 (pendiente de validación de profesores)', (
           describe(key, () => {
             it('FEN legal, solución y jugadas erróneas legales, avisos verificados', () => {
               const pos = load(step.fen);
-              const end = playLine(step.fen, step.solutionUci);
+              playLine(step.fen, step.solutionUci);
               expect(step.prompt.trim().length).toBeGreaterThan(10);
               expect(step.explanationCorrect.trim().length).toBeGreaterThan(20);
               expect(step.explanationWrong.trim().length).toBeGreaterThan(20);
