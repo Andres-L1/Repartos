@@ -23,9 +23,9 @@ export const SYSTEM = [
 export const MAX_TOKENS = 120;
 export const TIMEOUT_MS = 8000;
 const DEFAULT_USER_CALLS = 8;
-const DEFAULT_TOKEN_CAP = 150_000;
+const DEFAULT_TOKEN_CAP = 30_000;
 const DEFAULT_BUDGET_EUR = 10;
-const DEFAULT_MONTH_TOKEN_CAP = 1_500_000;
+const DEFAULT_MONTH_TOKEN_CAP = 500_000;
 /** El corte mensual llega antes del tope, para dejar margen. */
 const CUT = 0.9;
 const MAX_CHARS = 300;
