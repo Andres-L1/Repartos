@@ -7,7 +7,7 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u08',
-  order: 8,
+  order: 16,
   title: 'Descubiertas y cálculo de capturas',
   description:
     'Ataques a la descubierta con y sin jaque, el jaque doble, y cómo contar atacantes y defensores para saber en qué orden capturar. Empezarás a calcular dos y tres jugadas seguidas.',

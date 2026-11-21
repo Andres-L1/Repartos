@@ -40,7 +40,7 @@ describe('soluciones alternativas (alt)', () => {
         const ranked = fenBefore ? rankMoves(fenBefore, 3) : [];
         // chessops escribe el enroque como rey sobre torre (e1h1); el contenido, como rey a destino (e1g1)
         const castle: Record<string, string> = { e1h1: 'e1g1', e1a1: 'e1c1', e8h8: 'e8g8', e8a8: 'e8c8' };
-        const score = (u: string) => ranked.find((r) => (castle[r.uci] ?? r.uci) === u)!.score;
+        const score = (u: string) => (ranked.find((r) => r.uci === u) ?? ranked.find((r) => (castle[r.uci] ?? r.uci) === u))!.score;
         for (const a of s.alt!) {
           const after = playLine(s.fen, [...s.solutionUci.slice(0, last), a]);
           if (wantMates) expect(after.isCheckmate(), a).toBe(true);

@@ -170,6 +170,7 @@ export const unit: Unit = {
     },
     {
       id: 'u22.l03',
+      conceptIds: ['tactics.hanging_piece'],
       unitId: 'u22',
       title: 'Torre y rey: protegida o colgada',
       objective: 'Distinguir una torre protegida de una torre colgada y actuar en consecuencia.',

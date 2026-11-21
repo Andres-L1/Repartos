@@ -231,8 +231,8 @@ const SIZES: Record<string, number> = {
   'u23.l02:practice:3': 4,
   'u23.l02:evaluation:1': 6,
   'u23.l02:evaluation:3': 4,
-  'u23.l03:practice:3': 2,
-  'u23.l03:evaluation:3': 2,
+  'u23.l03:practice:3': 1,
+  'u23.l03:evaluation:3': 1,
   'u24.l03:evaluation:2': 4,
 };
 

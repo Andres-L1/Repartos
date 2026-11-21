@@ -1,11 +1,12 @@
 import type { PracticeStep, Unit } from '../schema.js';
 
 /** Ejercicio de una jugada; `alt` son otras jugadas que cumplen el enunciado (el test comprueba que son TODAS las que lo cumplen). */
-const ex = (fen: string, prompt: string, sol: string, hint: string, ok: string, wrong: string, alt?: string[]): PracticeStep => ({
+const ex = (fen: string, prompt: string, sol: string, hint: string, ok: string, wrong: string, alt?: string[], wrongByMove?: Record<string, string>): PracticeStep => ({
   fen,
   prompt,
   solutionUci: [sol],
   ...(alt ? { alt } : {}),
+  ...(wrongByMove ? { wrongByMove } : {}),
   hint,
   explanationCorrect: ok,
   explanationWrong: wrong,
@@ -91,7 +92,8 @@ export const unit: Unit = {
           'Fíjate en los saltos que apuntan a d4, e5, d5 o e4.',
           'Muy bien. Desde esa casilla el caballo controla casillas centrales.',
           'Ese salto no apunta a ninguna casilla central. Mira a qué casillas llegaría el caballo.',
-          ['b8c6', 'g8e7'],
+          ['b8c6'],
+          { g8e7: 'Desde e7 el caballo apunta al centro, pero el peón de e5 se queda sin protección y el caballo blanco lo captura.' },
         ),
         ex(
           'rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1',
@@ -100,7 +102,8 @@ export const unit: Unit = {
           'Busca un peón que llegue a una casilla central con dos pasos.',
           'Correcto. El peón en el centro frena el avance de las blancas.',
           'Elige un peón que, al avanzar dos casillas, llegue a una de las cuatro casillas centrales.',
-          ['e7e5'],
+          undefined,
+          { e7e5: 'Ese peón llega al centro, pero el peón de d4 lo captura y no puedes recuperarlo enseguida.' },
         ),
       ],
     },
@@ -140,7 +143,8 @@ export const unit: Unit = {
           'Solo un alfil tiene casillas libres para salir.',
           'Muy bien. Ya has sacado caballo, caballo y alfil.',
           'Hay que mover un alfil que todavía esté en su casilla inicial.',
-          ['f1a6', 'f1b5', 'f1d3', 'f1e2'],
+          ['f1b5', 'f1d3', 'f1e2'],
+          { f1a6: 'El alfil sale, pero en a6 el peón de b7 lo captura.' },
         ),
         ex(
           'rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2',
@@ -169,7 +173,8 @@ export const unit: Unit = {
           'Solo un alfil tiene casillas libres para salir.',
           'Muy bien. Tienes ya tres piezas en juego.',
           'Hay que mover un alfil que todavía esté en su casilla inicial.',
-          ['f8a3', 'f8b4', 'f8d6', 'f8e7'],
+          ['f8b4', 'f8d6', 'f8e7'],
+          { f8a3: 'El alfil sale, pero en a3 el peón de b2 lo captura.' },
         ),
         ex(
           'r1bqkbnr/pppppppp/2n5/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2',
@@ -186,9 +191,9 @@ export const unit: Unit = {
       id: 'u32.l03',
       unitId: 'u32',
       title: 'Poner al rey a salvo',
-      objective: 'Enrocar para llevar al rey a un lugar seguro.',
+      objective: 'Entender por qué conviene sacar al rey del centro y enrocar pronto.',
       intro:
-        'En el centro, el rey puede recibir ataques muy pronto. Con el enroque lo llevas a un rincón y, de paso, sacas una torre. Es la jugada de seguridad más importante.',
+        'En el centro, el rey puede recibir ataques muy pronto. Ya sabes enrocar: aquí lo usas para poner al rey a salvo y sacar una torre. Es la jugada de seguridad más importante.',
       explanation: [
         {
           fen: '4r1k1/8/8/8/8/8/8/4K3 w - - 0 1',
@@ -203,7 +208,7 @@ export const unit: Unit = {
             ['e1', 'g1'],
             ['h1', 'f1'],
           ],
-          text: 'En el enroque corto, el rey avanza dos casillas hacia la torre y la torre salta al otro lado. El rey queda en g1, en un rincón, y la torre en f1.',
+          text: 'Después de enrocar, el rey queda en un rincón, detrás de sus peones, y la torre entra en juego. Por eso conviene enrocar antes de que lleguen los ataques.',
         },
       ],
       practice: [
@@ -211,17 +216,17 @@ export const unit: Unit = {
           'r1bq1rk1/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQ - 0 1',
           'Pon al rey a salvo: enroca en corto.',
           'e1g1',
-          'Mueve el rey dos casillas hacia el lado de la torre más cercana.',
+          'Ya sabes cómo se enroca: hazlo hacia el lado del rey.',
           'Muy bien. El rey salió del centro y la torre quedó lista para jugar.',
-          'El enroque corto se hace moviendo el rey dos casillas hacia la torre del lado del rey.',
+          'La jugada que pone al rey a salvo es el enroque corto.',
         ),
         ex(
           'r3k2r/ppp2ppp/2nqbn2/3pp3/3PP3/2NQBN2/PPP2PPP/R3KB1R w KQkq - 0 1',
           'El alfil de f1 estorba el enroque corto. Enroca en largo.',
           'e1c1',
-          'El enroque largo es hacia la torre de la columna a.',
-          'Correcto. En el enroque largo, el rey va dos casillas hacia la torre de a1.',
-          'El enroque largo se hace moviendo el rey dos casillas hacia la torre de la columna a.',
+          'Ya sabes cómo se enroca: hazlo hacia el lado de la dama.',
+          'Correcto. El enroque largo también deja al rey en un rincón, fuera del centro.',
+          'La jugada que pone al rey a salvo aquí es el enroque largo.',
         ),
         ex(
           'r1bqk2r/ppp2ppp/2np1n2/2b1p3/4P3/2NP1N2/PPP2PPP/R1BQKB1R w KQkq - 0 1',
@@ -237,17 +242,17 @@ export const unit: Unit = {
           'r1bqk2r/ppp2ppp/2np1n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQ1RK1 b kq - 0 1',
           'Juegan negras. Pon al rey a salvo: enroca en corto.',
           'e8g8',
-          'Mueve el rey dos casillas hacia el lado de la torre más cercana.',
+          'Ya sabes cómo se enroca: hazlo hacia el lado del rey.',
           'Muy bien. El rey negro también sale del centro.',
-          'El enroque corto se hace moviendo el rey dos casillas hacia la torre del lado del rey.',
+          'La jugada que pone al rey a salvo es el enroque corto.',
         ),
         ex(
           'r3kb1r/ppp2ppp/2nqbn2/3pp3/3PP3/2NQBN2/PPP2PPP/R3KB1R b kq - 0 1',
           'Juegan negras. El alfil de f8 estorba el enroque corto. Enroca en largo.',
           'e8c8',
-          'El enroque largo es hacia la torre de la columna a.',
-          'Correcto. El rey negro va dos casillas hacia la torre de a8.',
-          'El enroque largo se hace moviendo el rey dos casillas hacia la torre de la columna a.',
+          'Ya sabes cómo se enroca: hazlo hacia el lado de la dama.',
+          'Correcto. El rey negro también queda fuera del centro, en el lado de la dama.',
+          'La jugada que pone al rey a salvo aquí es el enroque largo.',
         ),
         ex(
           'r1bqkb1r/ppp2ppp/2np1n2/4p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R b KQkq - 0 5',
@@ -290,7 +295,8 @@ export const unit: Unit = {
           'Solo estorba una pieza en la primera fila: muévela.',
           'Muy bien. Ahora las dos torres se ven y se protegen.',
           'Entre las torres hay una pieza. Mueve esa pieza fuera de la primera fila.',
-          ['c1d2', 'c1e3', 'c1f4', 'c1h6'],
+          ['c1d2', 'c1e3'],
+          { c1f4: 'Las torres se conectan, pero en f4 el peón de e5 captura al alfil.', c1h6: 'Las torres se conectan, pero en h6 el peón de g7 captura al alfil.' },
         ),
         ex(
           'r1bq1rk1/ppp2ppp/2np1n2/2b1p3/4P3/2NPBN2/PPP2PPP/R2Q1RK1 w - - 0 1',
@@ -319,7 +325,8 @@ export const unit: Unit = {
           'Solo estorba una pieza en la primera fila: muévela.',
           'Bien. Las torres negras ya están conectadas.',
           'Entre las torres hay una pieza. Mueve esa pieza fuera de su primera fila.',
-          ['c8d7', 'c8e6', 'c8f5', 'c8h3'],
+          ['c8d7', 'c8e6'],
+          { c8f5: 'Las torres se conectan, pero en f5 el peón de e4 captura al alfil.', c8h3: 'Las torres se conectan, pero en h3 el peón de g2 captura al alfil.' },
         ),
         ex(
           'r2q1rk1/ppp2ppp/2npbn2/2b1p3/4P3/2NP1N2/PPP2PPP/R1BQ1RK1 b - - 0 1',

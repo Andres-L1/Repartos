@@ -8,7 +8,7 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u13',
-  order: 10,
+  order: 18,
   title: 'Finales de rey y peón',
   description:
     'Los finales con reyes y peones: la regla del cuadrado para saber si un rey alcanza a un peón, la oposición entre los reyes y las casillas clave. Verás también el rey delante del peón y el peón de torre.',

@@ -10,6 +10,7 @@ import { leaksIn, targetsOf } from '../../scripts/lib/hint-leaks.js';
 import { accepted, attackedBy, attacksFrom, canCastle, centerControlled, load, moves, P, rooksConnected, squareRule, undeveloped, type Pred } from '../../scripts/lib/ruso-c.js';
 import { promotionFens, squareExplainExpect, squareExplains, tbSteps, TB_CACHE_PATH } from '../../scripts/lib/ruso-c-tb.js';
 import { cacheProbe, checkLine, loadCache, moverResult, tbKey } from '../../scripts/lib/tablebase.js';
+import { rankMoves } from '../pedagogy/helpers.js';
 import { describeLessons } from './lesson-checks.js';
 
 /**
@@ -30,6 +31,15 @@ const ALL_KEYS = UNITS_RUSO_C.flatMap((u) => u.lessons.flatMap((l) => steps(l).m
 const N = (to: string | string[]): Pred => P.piece('N', { to });
 const PAWN = (to: string): Pred => P.piece('P', { to });
 const EP = (to: string): Pred => P.piece('P', { to, capture: true });
+/** Jugadas que cumplen el criterio y pierden material (se avisan en `wrongByMove`, no se aceptan). */
+const EXCLUDED: Record<string, string[]> = {
+  'u32.l01:evaluation:1': ['g8e7'],
+  'u32.l01:evaluation:2': ['e7e5'],
+  'u32.l02:practice:1': ['f1a6'],
+  'u32.l02:evaluation:1': ['f8a3'],
+  'u32.l04:practice:0': ['c1f4', 'c1h6'],
+  'u32.l04:evaluation:0': ['c8f5', 'c8h3'],
+};
 const CRITERIA: Record<string, Pred> = {
   'u30.l01:practice:0': N('c3'),
   'u30.l01:practice:1': N('e6'),
@@ -149,8 +159,27 @@ describe('método ruso, parte C: u30 a u33 (pendiente de validación de profesor
         expect(crit, `falta el criterio de ${key}`).toBeDefined();
         const step = UNITS_RUSO_C.flatMap((u) => u.lessons.flatMap(steps)).find((s) => s.key === key)!.step;
         expect(step.solutionUci.length, key).toBe(1);
-        expect([step.solutionUci[0]!, ...(step.alt ?? [])].sort(), key).toEqual(accepted(step.fen, crit!));
+        const out = EXCLUDED[key] ?? [];
+        expect([step.solutionUci[0]!, ...(step.alt ?? [])].sort(), key).toEqual(accepted(step.fen, crit!).filter((u) => !out.includes(u)));
       });
+    }
+  });
+
+  // Las jugadas que cumplen el enunciado pero regalan material no se aceptan como correctas (test/content/alternatives.test.ts exige
+  // que toda `alt` conserve el material): cada una lleva su aviso en `wrongByMove` y aquí se comprueba, con la búsqueda de material
+  // a 3 medias jugadas, que de verdad pierde material frente a la solución.
+  describe('jugadas que cumplen el enunciado pero pierden material: excluidas y avisadas', () => {
+    for (const [key, out] of Object.entries(EXCLUDED)) {
+      it(key, () => {
+        const step = UNITS_RUSO_C.flatMap((u) => u.lessons.flatMap(steps)).find((s) => s.key === key)!.step;
+        const ranked = rankMoves(step.fen, 3);
+        const sc = (u: string) => ranked.find((r) => r.uci === u)!.score;
+        for (const m of out) {
+          expect(accepted(step.fen, CRITERIA[key]!), `${m} cumple el enunciado`).toContain(m);
+          expect(step.wrongByMove?.[m], `${m} sin aviso`).toBeTruthy();
+          expect(sc(m), m).toBeLessThan(Math.max(...[step.solutionUci[0]!, ...(step.alt ?? [])].map(sc)) - 50);
+        }
+      }, 120_000);
     }
   });
 

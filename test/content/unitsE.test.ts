@@ -18,9 +18,9 @@ import { describeLessons } from './lesson-checks.js';
  * test/fixtures/tablebase/positions.json (sin red). Para refrescarla contra la API: `npm run verify:finales -- --refresh`.
  */
 const ENDGAME_UNITS: { id: string; level: Unit['level']; order: number; requires: string }[] = [
-  { id: 'u13', level: 'basic', order: 10, requires: 'u09' },
-  { id: 'u14', level: 'intermediate', order: 12, requires: 'u10' },
-  { id: 'u15', level: 'advanced', order: 14, requires: 'u14' },
+  { id: 'u13', level: 'basic', order: 18, requires: 'u09' },
+  { id: 'u14', level: 'intermediate', order: 20, requires: 'u10' },
+  { id: 'u15', level: 'advanced', order: 22, requires: 'u14' },
 ];
 const units = ENDGAME_UNITS.map((d) => UNITS.find((u) => u.id === d.id)!);
 const probe = cacheProbe(loadCache());

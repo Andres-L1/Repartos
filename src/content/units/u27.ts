@@ -160,6 +160,7 @@ export const unit: Unit = {
     },
     {
       id: 'u27.l03',
+      conceptIds: ['tactics.mate_threat'],
       unitId: 'u27',
       title: 'La técnica completa',
       objective: 'Dar mate con rey y dos alfiles contra rey, jugando paso a paso las mejores jugadas hasta el final.',

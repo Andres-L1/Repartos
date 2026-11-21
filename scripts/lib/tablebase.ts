@@ -219,12 +219,20 @@ function checkPath(
     }
     const keep = new Set(keepMoves.map((m) => m.uci));
     const ok = new Set(accepted(i));
+    // Si la última jugada de la línea da mate, la corrección compartida (isExpectedMove) acepta cualquier mate: no hace falta listarlos en `alt`.
+    if (i === line.length - 1 && playsMate(cur, uci)) for (const m of e.moves) if (playsMate(cur, m.uci)) ok.add(m.uci);
     const what = mode === 'optimal' && e.category === 'win' ? 'gana lo antes posible' : `conserva el resultado (${e.category})`;
     for (const a of ok) if (!keep.has(a)) errors.push(`${tag}: ${san(cur, a)} no ${what}`);
     if (complete(i)) for (const k of keep) if (!ok.has(k)) errors.push(`${tag}: ${san(cur, k)} también ${what} y no se acepta`);
   });
   return errors;
 }
+
+const playsMate = (pos: Chess, uci: string): boolean => {
+  const next = pos.clone();
+  next.play(parseUci(uci)!);
+  return next.isCheckmate();
+};
 
 /** Resumen legible de una posición: resultado y jugadas agrupadas por resultado para quien mueve. */
 export function describeEntry(fen: string, e: TbEntry): string {

@@ -7,12 +7,12 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u07',
-  order: 7,
+  order: 15,
   title: 'Ataques dobles y clavadas',
   description:
     'Un paso más en táctica: ataques dobles con la dama y el alfil, horquillas de caballo y de peón, y cómo ganar material contra una pieza clavada. Aprenderás a buscar la jugada que crea dos amenazas a la vez.',
   level: 'basic',
-  requires: ['u06'],
+  requires: ['u33'],
   lessons: [
     // ───────────────────────────── l01 ─────────────────────────────
     {

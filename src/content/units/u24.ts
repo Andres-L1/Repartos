@@ -24,12 +24,12 @@ export const unit: Unit = {
             ['e1', 'g1'],
             ['h1', 'f1'],
           ],
-          text: 'En el enroque corto, el rey avanza dos casillas hacia la torre de h1. Después la torre salta al otro lado del rey. Es una sola jugada y solo se puede hacer una vez por partida.',
+          text: 'En el enroque corto, el rey avanza dos casillas hacia la torre de h1. Después la torre salta al otro lado del rey. Es una sola jugada y solo se puede hacer una vez por partida. En notación se escribe O-O.',
         },
         {
           fen: fen('Kg1 Rf1 ke8', 'b'),
           squares: ['g1', 'f1'],
-          text: 'Así queda tras el enroque corto: el rey en g1 y la torre en f1. En notación se escribe O-O. Las negras enrocan igual: el rey de e8 va a g8 y la torre de h8 va a f8.',
+          text: 'Así queda tras el enroque corto: el rey en g1 y la torre en f1. Las negras enrocan igual: el rey de e8 va a g8 y la torre de h8 va a f8.',
         },
       ],
       practice: [
@@ -105,12 +105,12 @@ export const unit: Unit = {
             ['e1', 'c1'],
             ['a1', 'd1'],
           ],
-          text: 'En el enroque largo, el rey avanza dos casillas hacia la torre de a1. La torre pasa al otro lado del rey, a d1. Es largo porque la torre recorre tres casillas.',
+          text: 'En el enroque largo, el rey avanza dos casillas hacia la torre de a1. La torre pasa al otro lado del rey, a d1. Es largo porque la torre recorre tres casillas. En notación se escribe O-O-O.',
         },
         {
           fen: fen('Kc1 Rd1 ke8', 'b'),
           squares: ['c1', 'd1'],
-          text: 'Así queda tras el enroque largo: el rey en c1 y la torre en d1. En notación se escribe O-O-O. Las tres casillas entre el rey y la torre, b1, c1 y d1, tienen que estar libres.',
+          text: 'Así queda tras el enroque largo: el rey en c1 y la torre en d1. Las tres casillas entre el rey y la torre, b1, c1 y d1, tienen que estar libres.',
         },
       ],
       practice: [

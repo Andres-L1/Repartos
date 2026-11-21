@@ -3,120 +3,8 @@ import { CATALOG, DEFAULT_BOARD, DEFAULT_PIECES, PROTECTOR_ID, PROTECTOR_MAX, ST
 import type { Level } from '../../../src/types';
 import { LEVELS, suggestLevel } from '../../../src/shared/levels';
 import type { AccessOverview, Equipped, MapUnit, LevelInfo, OutlineUnit, Profile, Shop, User } from '../../../src/shared/api';
-import type { Lesson } from '../../../src/content/schema';
 import { UNITS } from '../../../src/content/index';
-
-const L1: Lesson = {
-  id: 'u01.l01',
-  unitId: 'u01',
-  title: 'El peón y la torre',
-  objective: 'Mover el peón, coronar y dar un mate de torre.',
-  conceptIds: ['tactics.hanging_piece'],
-  intro:
-    'Antes de planear nada hay que saber cómo se mueven las piezas. Hoy verás el peón (avanza y captura en diagonal) y la torre (líneas rectas). ¡Al final darás tu primer mate!',
-  explanation: [
-    {
-      fen: '4k3/4p3/8/8/8/8/4P3/4K3 w - - 0 1',
-      text: 'El peón avanza una casilla; desde su casilla inicial puede avanzar dos. Las flechas muestran las dos opciones del peón blanco.',
-      squares: ['e2'],
-      arrows: [
-        ['e2', 'e3'],
-        ['e2', 'e4'],
-      ],
-    },
-    {
-      fen: '6k1/5ppp/8/8/8/8/8/R3K3 w - - 0 1',
-      text: 'La torre se mueve en línea recta, tantas casillas como quiera. Aquí la torre puede llegar a la octava fila: ¡con jaque!',
-      arrows: [['a1', 'a8']],
-    },
-  ],
-  practice: [
-    {
-      fen: '4k3/4p3/8/8/8/8/4P3/4K3 w - - 0 1',
-      prompt: 'Abre la partida avanzando el peón dos casillas.',
-      solutionUci: ['e2e4', 'e7e5'],
-      hint: 'El peón de e2 puede saltar hasta e4.',
-      explanationCorrect: 'Desde su casilla inicial el peón avanza dos casillas.',
-      explanationWrong: 'Esa jugada no es la pedida: avanza el peón de la columna e dos casillas.',
-      wrongByMove: { e2e3: 'e3 es legal, pero avanza una sola casilla; aquí se pide la salida doble.' },
-    },
-    {
-      fen: '8/4P1k1/8/8/8/8/8/4K3 w - - 0 1',
-      prompt: 'Corona el peón de e7 en dama.',
-      solutionUci: ['e7e8q'],
-      hint: 'Al llegar a la última fila eliges pieza: elige la dama.',
-      explanationCorrect: 'Muy bien: al coronar, el peón se convierte en la pieza que elijas; la dama es la más fuerte.',
-      explanationWrong: 'Coronar en otra pieza es legal, pero aquí la dama es lo mejor.',
-      squares: ['e8'],
-    },
-  ],
-  evaluation: [
-    {
-      fen: '7k/8/6K1/8/8/8/8/R7 w - - 0 1',
-      prompt: 'Da jaque mate en una jugada.',
-      solutionUci: ['a1a8'],
-      explanationCorrect: 'Mate: el rey negro no puede escapar porque tu rey vigila g7 y h7.',
-      explanationWrong: 'Esa jugada no da mate. Busca la fila del rey rival.',
-    },
-    {
-      fen: '4k3/8/8/8/8/8/3P4/4K3 w - - 0 1',
-      prompt: 'Mueve el peón de d2 dos casillas.',
-      solutionUci: ['d2d4'],
-      explanationCorrect: 'Eso es: la salida doble desde la casilla inicial.',
-      explanationWrong: 'Avanza el peón d dos casillas.',
-      wrongByMove: { d2d3: 'd3 avanza solo una casilla.' },
-    },
-  ],
-};
-
-const L2: Lesson = {
-  id: 'u01.l02',
-  unitId: 'u01',
-  title: 'El caballo',
-  objective: 'Mover el caballo en forma de L.',
-  intro: 'El caballo salta sobre otras piezas y se mueve en forma de L.',
-  explanation: [
-    {
-      fen: '4k3/8/8/8/8/8/8/1N2K3 w - - 0 1',
-      text: 'Desde b1 el caballo puede ir a a3, c3 o d2.',
-      squares: ['b1'],
-      arrows: [
-        ['b1', 'c3'],
-        ['b1', 'a3'],
-        ['b1', 'd2'],
-      ],
-    },
-  ],
-  practice: [
-    {
-      fen: '4k3/8/8/8/8/8/8/1N2K3 w - - 0 1',
-      prompt: 'Saca el caballo a c3.',
-      solutionUci: ['b1c3'],
-      hint: 'Dos arriba y una a la derecha.',
-      explanationCorrect: 'Bien: c3 es una buena casilla central.',
-      explanationWrong: 'El caballo hace una L: dos casillas en una dirección y una en perpendicular.',
-    },
-  ],
-  evaluation: [
-    {
-      fen: '4k3/8/8/8/8/8/8/4K1N1 w - - 0 1',
-      prompt: 'Lleva el caballo a f3.',
-      solutionUci: ['g1f3'],
-      explanationCorrect: 'Así.',
-      explanationWrong: 'Recuerda la L del caballo.',
-    },
-  ],
-};
-
-const L3: Lesson = {
-  ...L2,
-  id: 'u02.l01',
-  unitId: 'u02',
-  title: 'Mate con dos torres',
-  objective: 'Dar mate con la escalera de torres.',
-};
-
-const LESSONS: Record<string, Lesson> = { [L1.id]: L1, [L2.id]: L2, [L3.id]: L3 };
+import { levelPlan } from '../../../worker/level';
 
 interface MockState {
   user: User | null;
@@ -168,11 +56,12 @@ const MOCK_ELO: number | null = (() => {
 /** Niveles del mock con contenido: el resto avisa de que llega pronto. */
 const MOCK_AVAILABLE: Level[] = ['beginner', 'initiation', 'basic', 'intermediate', 'advanced', 'competitive'];
 
-/** Unidades reales de la Fase 4 (u07 en adelante): el mapa simulado las muestra tal cual (el temario ya va en el paquete). */
-const fase4 = async () => UNITS.filter((u) => u.order >= 7);
+/** Temario real (el que va en el paquete): el mapa y el índice simulados salen de él, sin copias a mano que se desfasen. */
+const fase4 = async () => UNITS;
 
 async function fase4Map(chosen: Level | null): Promise<MapUnit[]> {
   const units = await fase4();
+  const plan = chosen ? levelPlan(chosen, { units }) : null;
   return units.map((u) => ({
     id: u.id,
     order: u.order,
@@ -180,7 +69,8 @@ async function fase4Map(chosen: Level | null): Promise<MapUnit[]> {
     description: u.description,
     level: u.level,
     status: state.completed[u.lessons.at(-1)!.id] !== undefined ? 'completed' : 'available',
-    ...(chosen === u.level && units.find((x) => x.level === u.level) === u ? { recommended: true } : {}),
+    ...(plan?.openUnitIds.includes(u.id) ? { placedOpen: true } : {}),
+    ...(plan?.recommendedUnitId === u.id ? { recommended: true } : {}),
     lessons: u.lessons.map((l) => ({
       id: l.id,
       title: l.title,
@@ -311,127 +201,6 @@ function json(body: unknown, status = 200): Response {
 }
 const err = (status: number, error: string) => json({ error }, status);
 
-/** Temario simulado: las mismas 6 unidades y 24 lecciones que sirve /api/outline en producción. */
-const OUTLINE: OutlineUnit[] = [
-  {
-    id: "u01", order: 1, title: "El tablero y las piezas", level: "beginner",
-    description: "Aprende a leer el tablero y cómo se mueve cada pieza: torre, alfil, dama, rey, caballo y peón. Es el primer paso para jugar tu primera partida.",
-    lessons: [
-      { id: "u01.l01", title: "El tablero y la torre" },
-      { id: "u01.l02", title: "El alfil y la dama" },
-      { id: "u01.l03", title: "El rey y el caballo" },
-      { id: "u01.l04", title: "El peón" },
-    ],
-  },
-  {
-    id: "u02", order: 2, title: "Capturar y proteger", level: "beginner",
-    description: "Aprende a capturar con cabeza: qué piezas están atacadas o protegidas, cuánto vale cada pieza y cuándo conviene (o no) hacer un cambio.",
-    lessons: [
-      { id: "u02.l01", title: "Capturar piezas" },
-      { id: "u02.l02", title: "Piezas atacadas y protegidas" },
-      { id: "u02.l03", title: "El valor de las piezas" },
-      { id: "u02.l04", title: "Cambiar piezas con sentido" },
-    ],
-  },
-  {
-    id: "u03", order: 3, title: "Reglas especiales y fin de partida", level: "beginner",
-    description: "Aprende el jaque y el jaque mate, el enroque, la promoción del peón, la captura al paso y todas las formas de terminar en tablas. Con esto ya conoces todas las reglas del ajedrez.",
-    lessons: [
-      { id: "u03.l01", title: "El jaque y cómo salir de él" },
-      { id: "u03.l02", title: "El jaque mate" },
-      { id: "u03.l03", title: "Enroque, promoción y captura al paso" },
-      { id: "u03.l04", title: "Las tablas" },
-    ],
-  },
-  {
-    id: "u04", order: 4, title: "Mates básicos", level: "initiation",
-    description: "Aprende a terminar la partida: mate de escalera y del pasillo, mate con dama o torre apoyadas por el rey, mate de la coz, mate del pastor (y cómo evitarlo) y los primeros mates en dos jugadas.",
-    lessons: [
-      { id: "u04.l01", title: "Mate de escalera y mate del pasillo" },
-      { id: "u04.l02", title: "Dama o torre apoyadas por el rey" },
-      { id: "u04.l03", title: "Mate de la coz y mate del pastor" },
-      { id: "u04.l04", title: "Mate en dos jugadas" },
-    ],
-  },
-  {
-    id: "u05", order: 5, title: "Tácticas básicas", level: "initiation",
-    description: "Gana material con tácticas sencillas: piezas colgadas y cambios desfavorables, horquillas, clavadas y jaques a la descubierta. Aprenderás a verlas en tus partidas y a no sufrirlas.",
-    lessons: [
-      { id: "u05.l01", title: "Piezas colgadas y cambios desfavorables" },
-      { id: "u05.l02", title: "La horquilla" },
-      { id: "u05.l03", title: "La clavada" },
-      { id: "u05.l04", title: "El jaque a la descubierta" },
-    ],
-  },
-  {
-    id: "u06", order: 6, title: "Principios de apertura", level: "initiation",
-    description: "Los principios que te hacen jugar bien las primeras jugadas: controla el centro, desarrolla tus piezas, enroca pronto, no muevas la misma pieza dos veces ni saques la dama demasiado pronto, y conoce las trampas que castigan romper estas ideas.",
-    lessons: [
-      { id: "u06.l01", title: "Controla el centro" },
-      { id: "u06.l02", title: "Desarrolla tus piezas y enroca" },
-      { id: "u06.l03", title: "No repitas piezas ni saques la dama pronto" },
-      { id: "u06.l04", title: "Trampas que castigan romper los principios" },
-    ],
-  },
-];
-
-function buildMap(): MapUnit[] {
-  const done1 = state.completed[L1.id] !== undefined;
-  const done2 = state.completed[L2.id] !== undefined;
-  const info = levelInfo();
-  // Nivel sin contenido: se abre todo lo actual como repaso, sin recomendada.
-  const u1Open = info.comingSoon;
-  const u1Done = done1 && done2;
-  const done3 = state.completed[L3.id] !== undefined;
-  const units: MapUnit[] = [
-    {
-      id: 'u01',
-      order: 1,
-      title: 'Primeros pasos',
-      description: 'Las piezas y cómo se mueven.',
-      level: 'beginner',
-      status: u1Done ? 'completed' : 'available',
-      ...(u1Open ? { placedOpen: true } : {}),
-      ...(info.chosen === 'beginner' ? { recommended: true } : {}),
-      lessons: [
-        {
-          id: L1.id,
-          title: L1.title,
-          objective: L1.objective,
-          status: done1 ? 'completed' : 'available',
-          ...(done1 ? { bestScore: state.completed[L1.id] ?? 0 } : {}),
-        },
-        {
-          id: L2.id,
-          title: L2.title,
-          objective: L2.objective,
-          status: done2 ? 'completed' : done1 || u1Open ? 'available' : 'locked',
-          ...(done2 ? { bestScore: state.completed[L2.id] ?? 0 } : {}),
-        },
-      ],
-    },
-    {
-      id: 'u02',
-      order: 2,
-      title: 'Mates básicos',
-      description: 'Los primeros mates con pocas piezas.',
-      level: 'initiation',
-      status: done3 ? 'completed' : u1Done || u1Open ? 'available' : 'locked',
-      ...(info.chosen === 'initiation' ? { recommended: true } : {}),
-      lessons: [
-        {
-          id: L3.id,
-          title: L3.title,
-          objective: L3.objective,
-          status: done3 ? 'completed' : u1Done || u1Open ? 'available' : 'locked',
-          ...(done3 ? { bestScore: state.completed[L3.id] ?? 0 } : {}),
-        },
-      ],
-    },
-  ];
-  return units;
-}
-
 export async function mockFetch(url: string, init: RequestInit): Promise<Response> {
   await new Promise((r) => setTimeout(r, 120));
   const method = (init.method ?? 'GET').toUpperCase();
@@ -439,8 +208,8 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   const body = init.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {};
 
   if (path === '/outline') {
-    const extra = (await fase4()).map(({ id, order, title, level, description, lessons }) => ({ id, order, title, level, description, lessons: lessons.map((l) => ({ id: l.id, title: l.title })) }));
-    return json({ units: [...OUTLINE, ...extra] });
+    const units: OutlineUnit[] = (await fase4()).map(({ id, order, title, level, description, lessons }) => ({ id, order, title, level, description, lessons: lessons.map((l) => ({ id: l.id, title: l.title })) }));
+    return json({ units });
   }
   if (path === '/auth/login' && method === 'GET') {
     state.user = ADMIN ? { id: 'andresli', username: 'AndresLi' } : { id: 'mockuser', username: 'MockUser' };
@@ -484,7 +253,7 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     save();
     return json(buildShop());
   }
-  if (path === '/map') return json({ units: [...buildMap(), ...(await fase4Map(levelInfo().chosen))] });
+  if (path === '/map') return json({ units: await fase4Map(levelInfo().chosen) });
   if (path === '/level' && method === 'GET') return json(levelInfo());
   if (path === '/level' && method === 'PUT') {
     const lv = LEVELS.find((l) => l.id === body.level);
@@ -496,7 +265,7 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   const lm = path.match(/^\/lessons\/([^/]+)(\/complete)?$/);
   if (lm) {
     const id = decodeURIComponent(lm[1] ?? '');
-    const lesson = LESSONS[id] ?? (await fase4()).flatMap((u) => u.lessons).find((l) => l.id === id);
+    const lesson = (await fase4()).flatMap((u) => u.lessons).find((l) => l.id === id);
     if (!lesson) return err(404, 'Lección no encontrada.');
     if (!lm[2]) {
       return json({ lesson });

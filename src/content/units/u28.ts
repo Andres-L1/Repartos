@@ -175,6 +175,7 @@ export const unit: Unit = {
     },
     {
       id: 'u28.l03',
+      conceptIds: ['tactics.hanging_piece'],
       unitId: 'u28',
       title: 'La dama frente a otras piezas',
       objective: 'Saber cuánto vale la dama y no perderla capturando piezas protegidas: capturar la pieza que está colgada.',

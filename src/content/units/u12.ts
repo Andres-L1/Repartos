@@ -11,7 +11,7 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u12',
-  order: 15,
+  order: 23,
   title: 'Defensa precisa y cálculo largo',
   description:
     'Encontrar la única jugada que salva una posición, cortar y abrir líneas con interferencias y despejes, y calcular combinaciones largas que mezclan varios temas.',

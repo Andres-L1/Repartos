@@ -199,6 +199,20 @@ describe('OAuth con Lichess', () => {
     expect((await s.req('GET', '/api/profile')).json.profile.lessonsCompleted).toBe(1);
   });
 
+  it('progreso de una lección que ya no está en el temario: mapa, lección y perfil no fallan y no cuenta como completada', async () => {
+    const s = setup();
+    await s.login();
+    await s.req('POST', '/api/lessons/a.1/complete', { correct: 5, total: 5, mistakes: [] });
+    // Fila de una lección retirada del temario (p. ej. las antiguas u01-u06): queda huérfana en D1.
+    s.db.raw.prepare("INSERT INTO cp_lesson_progress (user_id, lesson_id, completed, best_score, attempts) VALUES ('ana', 'u03.l02', 1, 1, 2)").run();
+    const map = await s.req('GET', '/api/map');
+    expect(map.status).toBe(200);
+    expect(JSON.stringify(map.json)).not.toContain('u03.l02');
+    expect((await s.req('GET', '/api/lessons/a.1')).status).toBe(200);
+    expect((await s.req('GET', '/api/lessons/u03.l02')).status).toBe(404);
+    expect((await s.req('GET', '/api/profile')).json.profile.lessonsCompleted).toBe(1);
+  });
+
   it('sesión: sin cookie, manipulada, de otra clave o caducada da 401', async () => {
     const s = setup();
     expect((await s.req('GET', '/api/me', undefined, { cookie: '' })).status).toBe(401);

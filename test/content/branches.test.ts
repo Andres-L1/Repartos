@@ -65,9 +65,16 @@ describe('reproductor: followMove sigue la línea por la alternativa jugada', ()
 });
 
 describe('contenido con ramas', () => {
-  const steps: { id: string; fen: string; solutionUci: string[]; alt?: string[]; branches?: Branch[] }[] = [
-    ...UNITS.flatMap((u) => u.lessons.flatMap((l) => [...l.practice, ...l.evaluation].map((s, i) => ({ id: `${l.id}:${i}`, ...s })))),
-    ...EXERCISES.flatMap((e) => [e, mirrorExercise(e)]),
+  // La tablebase solo juzga los ejercicios de finales (lecciones `endgame.*` y banco). Las ramas de ejercicios de movimiento de las
+  // lecciones iniciales (u22: mover la torre a una casilla) no tienen «resultado» que verificar: la tablebase las daría todas por
+  // ganadas; su corrección la fijan los tests de su unidad (unitsRusoA).
+  const steps: { id: string; fen: string; solutionUci: string[]; alt?: string[]; branches?: Branch[]; tb: boolean }[] = [
+    ...UNITS.flatMap((u) =>
+      u.lessons.flatMap((l) =>
+        [...l.practice, ...l.evaluation].map((s, i) => ({ id: `${l.id}:${i}`, ...s, tb: !!l.conceptIds?.some((c) => c.startsWith('endgame.')) })),
+      ),
+    ),
+    ...EXERCISES.flatMap((e) => [e, mirrorExercise(e)]).map((e) => ({ ...e, tb: true })),
   ].filter((s) => s.branches?.length);
 
   it('hay contenido con ramas en u15 y en el banco (y en su espejo)', () => {
@@ -84,7 +91,7 @@ describe('contenido con ramas', () => {
         expect(legalLine(s.fen, full), `${b.at}:${b.line[0]}`).toBe(true);
         for (const a of b.alt ?? []) expect(legalLine(s.fen, [...full.slice(0, -1), a]), a).toBe(true);
       }
-      expect(checkLine(probe, s.fen, s.solutionUci, s.alt ?? [], modeFor(s.id), s.branches)).toEqual([]);
+      if (s.tb) expect(checkLine(probe, s.fen, s.solutionUci, s.alt ?? [], modeFor(s.id), s.branches)).toEqual([]);
     });
   }
 

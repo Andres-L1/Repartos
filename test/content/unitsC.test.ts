@@ -10,11 +10,11 @@ import { describeLessons } from './lesson-checks.js';
 const UNITS_C: Unit[] = [u07, u08, u09];
 
 describe('contenido C: unidades 7-9 (básico, pendiente de validación de profesores)', () => {
-  it('unidades con metadatos correctos, encadenadas tras u06', () => {
+  it('unidades con metadatos correctos, encadenadas tras u33', () => {
     expect(UNITS_C.map((u) => [u.id, u.order, u.requires])).toEqual([
-      ['u07', 7, ['u06']],
-      ['u08', 8, ['u07']],
-      ['u09', 9, ['u08']],
+      ['u07', 15, ['u33']],
+      ['u08', 16, ['u07']],
+      ['u09', 17, ['u08']],
     ]);
     for (const u of UNITS_C) {
       expect(u.level).toBe('basic');

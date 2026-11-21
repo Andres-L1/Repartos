@@ -7,7 +7,7 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u09',
-  order: 9,
+  order: 17,
   title: 'Patrones de mate',
   description:
     'Mates que se repiten en las partidas: el mate del pasillo con sacrificio, el mate de la coz y los mates de dama apoyada por alfil o caballo. Aprenderás a calcular mates en dos jugadas.',

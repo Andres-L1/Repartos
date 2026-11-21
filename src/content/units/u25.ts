@@ -105,6 +105,7 @@ export const unit: Unit = {
     },
     {
       id: 'u25.l02',
+      conceptIds: ['tactics.mate_threat'],
       unitId: 'u25',
       title: 'Mate con una torre',
       objective: 'Dar mate con rey y torre contra rey: acercar el rey y dar el jaque final con la torre.',
@@ -187,6 +188,7 @@ export const unit: Unit = {
     },
     {
       id: 'u25.l03',
+      conceptIds: ['tactics.mate_threat'],
       unitId: 'u25',
       title: 'El mate de las dos torres',
       objective: 'Dar mate con dos torres contra el rey, usando la escalera: una torre da jaque y la otra cierra la fila siguiente.',

@@ -168,6 +168,7 @@ export const unit: Unit = {
     },
     {
       id: 'u26.l03',
+      conceptIds: ['tactics.hanging_piece'],
       unitId: 'u26',
       title: 'El alfil y el color de sus casillas',
       objective: 'Saber que cada alfil pisa siempre casillas del mismo color, y capturar solo piezas colgadas, no protegidas.',

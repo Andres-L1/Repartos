@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 /**
- * Router con History API: URLs limpias (/aprender, /leccion/u01.l01…).
+ * Router con History API: URLs limpias (/aprender, /leccion/u20.l01…).
  * Las partes puras (normalizePath, legacyRedirect, isPrivatePath) no tocan el DOM y se prueban aparte.
  */
 

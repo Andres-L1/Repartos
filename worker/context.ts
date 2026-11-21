@@ -117,15 +117,17 @@ export function createContext(deps: AppDeps) {
       'SELECT concept_id, count FROM cp_weak_concepts WHERE user_id = ?',
       [userId],
     );
-    const completed = await db.first<{ n: number }>(
-      'SELECT COUNT(*) AS n FROM cp_lesson_progress WHERE user_id = ? AND completed = 1',
+    // Solo lecciones que siguen en el temario: el progreso de lecciones retiradas (p. ej. u01-u06) queda huérfano y no cuenta.
+    const completed = await db.all<{ lesson_id: string }>(
+      'SELECT lesson_id FROM cp_lesson_progress WHERE user_id = ? AND completed = 1',
       [userId],
     );
+    const known = new Set(content.units.flatMap((u) => u.lessons.map((l) => l.id)));
     return {
       level: (await chosenLevel(userId)) ?? 'initiation',
       streakDays,
       longestStreak: p.longest_streak,
-      lessonsCompleted: completed?.n ?? 0,
+      lessonsCompleted: completed.filter((r) => known.has(r.lesson_id)).length,
       weakConcepts: Object.fromEntries(weak.map((w) => [w.concept_id, w.count])),
     };
   }

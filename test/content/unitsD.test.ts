@@ -10,9 +10,9 @@ import { describeLessons } from './lesson-checks.js';
 /** Fase 4 desde Intermedio. Además de estas comprobaciones, Stockfish: `npx tsx scripts/verify-fase4.mts u10 u11 u12 --bank`. */
 /** `order` es el número que ve el alumno en el mapa: desde 2026-11-15 los finales (u13...) se intercalan en su nivel. */
 const UNITS_D: { unit: Unit; level: Unit['level']; requires: string; order: number }[] = [
-  { unit: u10, level: 'intermediate', requires: 'u09', order: 11 },
-  { unit: u11, level: 'advanced', requires: 'u10', order: 13 },
-  { unit: u12, level: 'competitive', requires: 'u11', order: 15 },
+  { unit: u10, level: 'intermediate', requires: 'u09', order: 19 },
+  { unit: u11, level: 'advanced', requires: 'u10', order: 21 },
+  { unit: u12, level: 'competitive', requires: 'u11', order: 23 },
 ];
 
 /** Sacrificios de 5 medias jugadas (atracción a una horquilla): verificados con Stockfish, aquí por balance final. */

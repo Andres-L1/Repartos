@@ -9,7 +9,7 @@ export const unit: Unit = {
   order: 10,
   title: 'Casillas bomba y rey ahogado',
   description:
-    'Aprende a dar mate con la dama en las casillas junto al rey rival, a no ahogar al rey cuando vas ganando y a dar el mate de dama paso a paso.',
+    'Aprende a dar mate con la dama junto al rey rival, a no ahogar al rey cuando vas ganando y a dar el mate de dama paso a paso.',
   level: 'beginner',
   requires: ['u28'],
   lessons: [
@@ -200,6 +200,7 @@ export const unit: Unit = {
     },
     {
       id: 'u29.l03',
+      conceptIds: ['tactics.mate_threat'],
       unitId: 'u29',
       title: 'El mate de dama',
       objective: 'Dar mate con rey y dama contra rey, acercando el rey, quitando casillas con la dama y evitando el ahogado.',
@@ -235,7 +236,6 @@ export const unit: Unit = {
           fen: '2k5/8/5K2/8/8/8/8/6Q1 w - - 0 1',
           prompt: 'Mate en 3. Empieza quitando casillas al rey rival con la dama.',
           solutionUci: ['g1a7', 'c8d8', 'a7b7', 'd8e8', 'b7e7'],
-          alt: ['b7c8'],
           hint: 'Empieza con una jugada de dama que le quite casillas al rey rival.',
           explanationCorrect: 'Jaque mate. La dama le fue quitando casillas, tu rey la protegía de lejos, y el mate llegó en la casilla de al lado.',
           explanationWrong: 'La dama debe quitar casillas al rey rival sin ahogarlo. Piensa qué jugada le deja menos espacio.',
@@ -244,7 +244,6 @@ export const unit: Unit = {
           fen: '6k1/8/4K3/8/8/8/8/7Q w - - 0 1',
           prompt: 'Mate en 2. ¡Cuidado con el ahogado!',
           solutionUci: ['e6f6', 'g8f8', 'h1a8'],
-          alt: ['h1h8'],
           hint: 'Acerca el rey. Una jugada de dama tentadora deja al rey rival sin movimientos.',
           explanationCorrect: 'Jaque mate. Primero se acercó el rey, y la dama dio jaque desde la fila de abajo del rey rival.',
           explanationWrong: 'Cuidado: una jugada de dama deja al rey rival sin movimientos y sin jaque. Acerca primero tu rey.',
@@ -266,7 +265,6 @@ export const unit: Unit = {
           fen: '3k4/8/2Q5/5K2/8/8/8/8 w - - 0 1',
           prompt: 'Mate en 3. Empieza quitando casillas al rey rival con la dama.',
           solutionUci: ['c6b7', 'd8e8', 'f5e6', 'e8d8', 'b7d7'],
-          alt: ['b7b8'],
           hint: 'Empieza con una jugada de dama que le quite casillas al rey rival.',
           explanationCorrect: 'Jaque mate. La dama encerró al rey rival, tu rey se acercó para protegerla y llegó el mate.',
           explanationWrong: 'La dama debe quitar casillas al rey rival sin ahogarlo. Piensa qué jugada le deja menos espacio.',
@@ -275,7 +273,6 @@ export const unit: Unit = {
           fen: '1q6/8/8/8/8/8/6k1/4K3 b - - 0 1',
           prompt: 'Juegas con negras. Mate en 3. Empieza quitando casillas al rey rival con la dama.',
           solutionUci: ['b8b2', 'e1d1', 'g2f3', 'd1e1', 'b2c1'],
-          alt: ['b2e2'],
           hint: 'Empieza con una jugada de dama que le quite casillas al rey rival.',
           explanationCorrect: 'Jaque mate. La dama le quitó casillas, tu rey se acercó y el mate llegó protegido por tu rey.',
           explanationWrong: 'La dama debe quitar casillas al rey rival sin ahogarlo. Piensa qué jugada le deja menos espacio.',

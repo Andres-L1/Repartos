@@ -9,7 +9,7 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u14',
-  order: 12,
+  order: 20,
   title: 'Finales de torre',
   description:
     'Los finales de torre y peón contra torre: cortar al rey rival con la torre para ganar, y defender con jaques por detrás para hacer tablas. Verás también cómo salir del jaque hacia el peón en la posición de Lucena.',
