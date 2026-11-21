@@ -8,8 +8,9 @@ import { unit as u25 } from '../../src/content/units/u25.ts';
 import { unit as u26 } from '../../src/content/units/u26.ts';
 import { unit as u27 } from '../../src/content/units/u27.ts';
 import { unit as u28 } from '../../src/content/units/u28.ts';
+import { unit as u29 } from '../../src/content/units/u29.ts';
 
-export const RUSO_B: Unit[] = [u25, u26, u27, u28];
+export const RUSO_B: Unit[] = [u25, u26, u27, u28, u29];
 
 export const CACHE_RUSO_B = 'test/fixtures/tablebase/metodo-ruso-b.json';
 
@@ -46,4 +47,5 @@ export const tbSteps = (): TbStep[] =>
 export const TB_CLAIMS: { where: string; fen: string; moves: string[]; result: 'win' | 'draw' | 'loss' }[] = [
   { where: 'u27.l01 explicación 1: rey y un alfil contra rey son tablas', fen: '4k3/8/8/8/8/8/8/4KB2 w - - 0 1', moves: [], result: 'draw' },
   { where: 'u27.l01 explicación 2: rey y dos alfiles contra rey ganan', fen: '4k3/8/8/8/8/8/8/2B1KB2 w - - 0 1', moves: [], result: 'win' },
+  { where: 'u27.l02 explicación 2: la posición del ejemplo es de victoria (la jugada óptima del texto la comprueba el test)', fen: '8/8/6k1/8/3K1B2/7B/8/8 w - - 0 1', moves: [], result: 'win' },
 ];

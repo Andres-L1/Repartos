@@ -166,6 +166,49 @@ const u28Facts: Record<string, Fact> = {
 };
 Object.assign(FACTS, u28Facts);
 
+/** Casillas pegadas al rey de `color` («casillas bomba» cuando es el rey rival). */
+const neighbours = (pos: Chess, color: 'white' | 'black'): string[] => {
+  const k = pos.board.kingOf(color)!;
+  const out: string[] = [];
+  for (const df of [-1, 0, 1])
+    for (const dr of [-1, 0, 1]) {
+      const f = (k & 7) + df;
+      const r = (k >> 3) + dr;
+      if ((df || dr) && f >= 0 && f < 8 && r >= 0 && r < 8) out.push(makeSquare(r * 8 + f));
+    }
+  return out.sort();
+};
+const u29Facts: Record<string, Fact> = {
+  'u29.l01:0': (pos, e) => {
+    expect([...(e.squares ?? [])].sort()).toEqual(neighbours(pos, 'black'));
+    mateAfter('a7g7')(pos, e); // con la dama protegida por el rey, g7 y h7 dan mate
+    mateAfter('a7h7')(pos, e);
+  },
+  'u29.l01:1': (pos, e) => {
+    expect([...(e.squares ?? [])].sort()).toEqual(neighbours(pos, 'black'));
+    const after = playMove(pos, legalMoves(pos).find((m) => makeUci(m) === 'g1g7')!);
+    expect(after.isCheckmate()).toBe(false);
+    expect(ucis(after)).toContain('h8g7'); // el rey negro captura la dama
+  },
+  'u29.l02:0': (pos) => {
+    expect(pos.isCheck()).toBe(false);
+    expect(pos.isStalemate()).toBe(true);
+  },
+  'u29.l02:1': isMate,
+  'u29.l03:0': (pos, e) => {
+    mateInN(2, 'g6f6')(pos, e);
+    const after = playMove(pos, legalMoves(pos).find((m) => makeUci(m) === 'g6f6')!);
+    expect(ucis(after)).toEqual(['e8f8']); // el rey negro solo puede ir a f8
+  },
+  'u29.l03:1': (pos, e) => {
+    // hay exactamente dos jugadas que ahogan: las que dice el texto
+    const stale = legalMoves(pos).filter((m) => playMove(pos, m).isStalemate()).map(makeUci).sort();
+    expect(stale).toEqual(['f5g6', 'f6f7']);
+    expect([...(e.squares ?? [])].sort()).toEqual(['f7', 'g6']);
+  },
+};
+Object.assign(FACTS, u29Facts);
+
 /** Pasos de barrera: tras la solución los alfiles del jugador quedan en diagonales vecinas. */
 export const BARRIER_STEPS = new Set(['u27.l02:practice:0', 'u27.l02:practice:1', 'u27.l02:evaluation:1', 'u27.l02:evaluation:2']);
 /** Pasos del rey: los alfiles ya forman la barrera y el rey se acerca al rey rival sin quedar a su lado. */
