@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import type { AccessOverview } from '../../../src/shared/api';
+import type { AccessOverview, AiUsage } from '../../../src/shared/api';
 import { api, ApiError } from '../api';
 import { Icon, Loading } from '../components/Icon';
 import '../admin.css';
@@ -7,6 +7,34 @@ import '../admin.css';
 const USERNAME = /^[A-Za-z0-9_-]{2,30}$/;
 const fmt = (ms: number) => (ms ? new Date(ms).toLocaleDateString('es-ES', { dateStyle: 'medium' }) : '');
 const errText = (e: unknown, fallback: string) => (e instanceof ApiError ? e.message : fallback);
+
+const nf = new Intl.NumberFormat('es-ES');
+
+/** Consumo de las explicaciones con IA: hoy y mes en curso frente al tope mensual (solo lo ve la administración). */
+function AiUsageCard() {
+  const [u, setU] = useState<AiUsage | null>(null);
+  useEffect(() => {
+    api.adminAi().then(setU).catch(() => setU(null));
+  }, []);
+  if (!u) return null;
+  const m = u.month;
+  return (
+    <section className="t-card" aria-labelledby="ai-title">
+      <h2 id="ai-title">Explicaciones de IA</h2>
+      {!u.available && <p className="muted">Desactivadas (sin clave de DeepSeek o apagadas con AI_ENABLED).</p>}
+      <p>
+        Hoy: {u.today.calls} {u.today.calls === 1 ? 'llamada' : 'llamadas'}, {nf.format(u.today.tokens)} tokens, {u.today.cached} desde caché.
+      </p>
+      <p>
+        Este mes: {m.spendEur !== null ? `${m.spendEur.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })} estimados` : `${nf.format(m.tokens)} tokens`}
+        , {m.pct}% del tope; {m.calls} nuevas y {m.cached} desde caché.{m.cut ? ' Cortado: el tope mensual está casi agotado.' : ''}
+      </p>
+      {u.pricesMissing && (
+        <p className="muted">Faltan las tarifas (DEEPSEEK_PRICE_IN_EUR_PER_M y DEEPSEEK_PRICE_OUT_EUR_PER_M): no se puede estimar el gasto en euros y manda el tope de tokens.</p>
+      )}
+    </section>
+  );
+}
 
 /** Panel de administración del acceso. Solo se enlaza para la administración; la comprobación real está en el servidor (403). */
 export function AdminScreen() {
@@ -86,6 +114,8 @@ export function AdminScreen() {
           </p>
         )}
       </div>
+
+      <AiUsageCard />
 
       <section className="t-card" aria-labelledby="add-title">
         <h2 id="add-title">Añadir un alumno</h2>

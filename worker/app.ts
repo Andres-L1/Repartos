@@ -9,6 +9,7 @@ import { registerLessonRoutes } from './routes/lessons.js';
 import { registerReviewRoutes } from './routes/review.js';
 import { registerShopRoutes } from './routes/shop.js';
 import { registerAdminRoutes } from './routes/admin.js';
+import { registerExplainRoutes } from './routes/explain.js';
 
 export type { AppDeps };
 
@@ -79,6 +80,7 @@ export function createApp(deps: AppDeps) {
   registerReviewRoutes(app, k); // /api/review/complete, /api/session/*
   registerShopRoutes(app, k); // /api/shop/*
   registerAdminRoutes(app, k); // /api/admin/*
+  registerExplainRoutes(app, k); // /api/explain
 
   return app;
 }

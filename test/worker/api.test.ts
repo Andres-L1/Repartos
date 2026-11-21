@@ -328,7 +328,7 @@ describe('sin suscripción ni pagos', () => {
     expect((await s.req('GET', '/api/config')).status).toBe(404);
     await s.login();
     const me = (await s.req('GET', '/api/me')).json;
-    expect(Object.keys(me).sort()).toEqual(['equipped', 'isAdmin', 'level', 'levelChosen', 'user']);
+    expect(Object.keys(me).sort()).toEqual(['ai', 'equipped', 'isAdmin', 'level', 'levelChosen', 'user']);
     expect(me.isAdmin).toBe(false);
     for (const [m, p] of [['GET', '/api/billing'], ['POST', '/api/billing/subscribe'], ['POST', '/api/billing/cancel']] as const)
       expect((await s.req(m, p)).status).toBe(404);
@@ -768,6 +768,6 @@ describe('migraciones D1', () => {
     const names = (raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").all() as { name: string }[]).map((r) => r.name);
     const indexes = (raw.prepare("SELECT name FROM sqlite_master WHERE type='index' AND name LIKE 'idx_cp_%'").all() as { name: string }[]).map((r) => r.name);
     expect(indexes).toEqual(expect.arrayContaining(['idx_cp_session_items_session', 'idx_cp_session_items_status', 'idx_cp_puzzle_pool_pick', 'idx_cp_puzzle_pool_take', 'idx_cp_puzzle_pool_used', 'idx_cp_session_items_created', 'idx_cp_review_positions_open', 'idx_cp_review_schedule_due']));
-    expect(names.sort()).toEqual(['cp_access_requests', 'cp_allowed_users', 'cp_cron_state', 'cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_puzzle_stats', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_claims', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
+    expect(names.sort()).toEqual(['cp_access_requests', 'cp_ai_cache', 'cp_ai_month', 'cp_ai_usage', 'cp_allowed_users', 'cp_cron_state', 'cp_equipped', 'cp_inventory', 'cp_lesson_progress', 'cp_placement', 'cp_placement_seen', 'cp_profiles', 'cp_protectors', 'cp_puzzle_pool', 'cp_puzzle_stats', 'cp_review_positions', 'cp_review_schedule', 'cp_reviewed_games', 'cp_session_claims', 'cp_session_items', 'cp_subscriptions', 'cp_user_level', 'cp_users', 'cp_wallet_ledger', 'cp_weak_concepts']);
   });
 });

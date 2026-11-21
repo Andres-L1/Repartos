@@ -38,6 +38,7 @@ export function registerAccountRoutes(app: Hono<Env>, k: AppContext): void {
       equipped: await equippedFor(db, user.id),
       level: chosen ?? 'initiation',
       levelChosen: chosen !== null,
+      ai: k.ai.on, // la web oculta el botón «¿Por qué?» si no hay IA
     });
   });
 
@@ -45,7 +46,10 @@ export function registerAccountRoutes(app: Hono<Env>, k: AppContext): void {
   // Borra al usuario y, por ON DELETE CASCADE, todo lo suyo (progreso, tienda, repasos, nivel...). Exige Origin propio.
   app.delete('/api/account', requireAuth, async (c) => {
     requireOwnOrigin(c, deps);
-    await db.run('DELETE FROM cp_users WHERE id = ?', [c.get('user').id]);
+    await db.batch([
+      { sql: 'DELETE FROM cp_ai_usage WHERE user_id = ?', params: [c.get('user').id] },
+      { sql: 'DELETE FROM cp_users WHERE id = ?', params: [c.get('user').id] },
+    ]);
     const res = c.json({ ok: true });
     for (const ck of clearedCookies(deps.publicOrigin!)) res.headers.append('Set-Cookie', ck);
     return res;

@@ -23,7 +23,9 @@
  * DELETE /api/admin/allowed/:id                                 -> AccessOverview   (quita el acceso; sus datos no se borran)
  * POST   /api/admin/requests/:id/approve                        -> AccessOverview   (autoriza desde una solicitud)
  * DELETE /api/admin/requests/:id                                -> AccessOverview   (descarta la solicitud)
- * GET  /api/outline                                            -> {units: OutlineUnit[]}   (público, solo lectura: unidades y títulos de lección, SIN contenido)
+ * POST /api/explain {kind:'lesson',lessonId,stepKind,stepIndex} | {kind:'error',fen,played,best} -> {text, cached}   (429 topes, 503 sin IA; ver worker/ai.ts)
+ * GET    /api/admin/ai                                         -> AiUsage          (solo administración)
+ * GET  /api/outline                                          -> {units: OutlineUnit[]}   (público, solo lectura: unidades y títulos de lección, SIN contenido)
  */
 import type { Lesson } from '../content/schema.js';
 import type { Level } from '../types.js';
@@ -54,6 +56,23 @@ export interface AccessOverview {
   allowed: AllowedUser[];
   requests: AccessRequest[];
   maxAllowed: number;
+}
+
+/** Cuerpo de POST /api/explain: el servidor toma de su contenido (lecciones) o calcula (errores) todos los hechos. */
+export type ExplainBody =
+  | { kind: 'lesson'; lessonId: string; stepKind: 'practice' | 'evaluation'; stepIndex: number }
+  | { kind: 'error'; fen: string; played: string; best: string };
+export interface ExplainResponse {
+  text: string;
+  cached: boolean;
+}
+/** Uso de la IA del día UTC (panel de administración). */
+export interface AiUsage {
+  available: boolean;
+  today: { calls: number; tokens: number; cached: number };
+  /** Mes UTC: `spendEur` solo con tarifas configuradas; `pct` es el consumo frente al tope (euros o tokens); `cut`: ya cortado (90 %). */
+  month: { calls: number; cached: number; tokens: number; spendEur: number | null; pct: number; cut: boolean };
+  pricesMissing: boolean;
 }
 
 /** Lo que envía el servidor en `profile`. */

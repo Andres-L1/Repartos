@@ -14,6 +14,8 @@ interface SessionValue {
   user: User | null;
   /** La administración lo decide en el servidor; la web solo lo usa para mostrar el enlace a /admin. */
   isAdmin: boolean;
+  /** El servidor tiene la IA activa (clave y no apagada): si no, no se muestra el botón «¿Por qué?». */
+  aiAvailable: boolean;
   /** Nivel interno para adaptar los textos (nunca se muestra); 'initiation' hasta que /api/me lo devuelva. */
   level: Level;
   /** El alumno ya eligió su nivel (si no, se le lleva a /bienvenida). */
@@ -48,6 +50,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [level, setLevelState] = useState<Level>('initiation');
   const [levelChosen, setLevelChosen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [aiAvailable, setAiAvailable] = useState(false);
   const [equipped, setEquipped] = useState<Equipped>(DEFAULT_EQUIPPED);
   const [shop, setShopState] = useState<Shop | null>(null);
 
@@ -72,6 +75,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (r.level) setLevelState(r.level);
         setLevelChosen(r.levelChosen === true);
         setIsAdmin(r.isAdmin === true);
+        setAiAvailable(r.ai === true);
         if (r.equipped) setEquipped(sanitizeEquipped(r.equipped));
       })
       .catch((e: unknown) => {
@@ -129,6 +133,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         setLevelState(r.level ?? 'initiation');
         setLevelChosen(r.levelChosen === true);
         setIsAdmin(r.isAdmin === true);
+        setAiAvailable(r.ai === true);
       } catch {
         /* sin /api/me se conserva lo anterior */
       }
@@ -147,6 +152,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       retryConnection,
       user,
       isAdmin,
+      aiAvailable,
       level,
       levelChosen,
       setLevel,
@@ -176,7 +182,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         navigate('/');
       },
     }),
-    [loading, connectionError, retryConnection, user, isAdmin, level, levelChosen, setLevel, equipped, shop, setShop, refreshShop, setSession],
+    [loading, connectionError, retryConnection, user, isAdmin, aiAvailable, level, levelChosen, setLevel, equipped, shop, setShop, refreshShop, setSession],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

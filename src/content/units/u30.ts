@@ -1,0 +1,288 @@
+import type { PracticeStep, Unit } from '../schema.js';
+
+/** Ejercicio de una jugada; `alt` son otras jugadas igual de válidas (el test comprueba que son TODAS las que cumplen el enunciado). */
+const ex = (fen: string, prompt: string, sol: string, hint: string, ok: string, wrong: string, alt?: string[]): PracticeStep => ({
+  fen,
+  prompt,
+  solutionUci: [sol],
+  ...(alt ? { alt } : {}),
+  hint,
+  explanationCorrect: ok,
+  explanationWrong: wrong,
+});
+
+export const unit: Unit = {
+  id: 'u30',
+  order: 11,
+  title: 'El caballo',
+  description:
+    'Conoce al caballo: la pieza que salta. Aprende su movimiento en L, cómo salta sobre otras piezas, cómo captura y qué casillas controla desde el centro y desde el borde.',
+  level: 'beginner',
+  requires: ['u29'],
+  lessons: [
+    {
+      id: 'u30.l01',
+      unitId: 'u30',
+      title: 'El salto en L',
+      objective: 'Mover el caballo en forma de L, desde el centro y desde una esquina.',
+      intro:
+        'El caballo es la pieza más original: no camina, salta. Siempre dibuja una L en el tablero. Vas a practicar ese salto hasta que te salga solo.',
+      explanation: [
+        {
+          fen: '4k3/8/8/8/3N4/8/8/4K3 w - - 0 1',
+          squares: ['d4'],
+          arrows: [
+            ['d4', 'b3'],
+            ['d4', 'b5'],
+            ['d4', 'c2'],
+            ['d4', 'c6'],
+            ['d4', 'e2'],
+            ['d4', 'e6'],
+            ['d4', 'f3'],
+            ['d4', 'f5'],
+          ],
+          text: 'El caballo salta en forma de L: dos casillas en línea recta y una más hacia un lado. Desde d4 puede llegar a ocho casillas. Cuenta dos y una al lado.',
+        },
+        {
+          fen: '4k3/8/8/8/8/8/8/4K2N w - - 0 1',
+          squares: ['h1'],
+          arrows: [
+            ['h1', 'f2'],
+            ['h1', 'g3'],
+          ],
+          text: 'En una esquina el caballo tiene menos opciones. Desde h1 solo puede saltar a dos casillas. Cuanto más cerca del centro está, más saltos tiene.',
+        },
+      ],
+      practice: [
+        ex(
+          '4k3/8/8/8/8/8/8/1N2K3 w - - 0 1',
+          'Mueve el caballo de b1 a c3.',
+          'b1c3',
+          'Sube dos casillas y muévete una hacia la derecha.',
+          'Muy bien. Dos hacia arriba y una al lado: esa es la L del caballo.',
+          'Ese no es un salto en L. Piensa en dos casillas en una dirección y una casilla de lado.',
+        ),
+        ex(
+          '4k3/8/8/8/3N4/8/8/4K3 w - - 0 1',
+          'Lleva el caballo de d4 a e6.',
+          'd4e6',
+          'Sube dos casillas y desplázate una hacia la derecha.',
+          'Perfecto. Dos casillas hacia arriba y una a la derecha: otra L.',
+          'Cuenta bien la L: dos casillas rectas y una hacia un lado. El caballo no se mueve en línea recta.',
+        ),
+        ex(
+          '4k3/8/8/8/8/8/8/N3K3 w - - 0 1',
+          'Lleva el caballo de a1 a c2.',
+          'a1c2',
+          'Ve dos casillas hacia la derecha y una hacia arriba.',
+          'Correcto. Desde la esquina el caballo tiene pocos saltos, pero la L es la misma.',
+          'Recuerda la L. Desde una esquina solo hay dos saltos posibles, y este no es uno de ellos.',
+        ),
+      ],
+      evaluation: [
+        ex(
+          '4k3/8/8/8/8/5N2/8/4K3 w - - 0 1',
+          'Lleva el caballo de f3 a g5.',
+          'f3g5',
+          'Sube dos casillas y muévete una hacia la derecha.',
+          'Bien hecho. Dos hacia arriba y una a la derecha.',
+          'Ese salto no dibuja una L. Cuenta dos casillas rectas y una hacia un lado.',
+        ),
+        ex(
+          '4k3/8/8/4N3/8/8/8/4K3 w - - 0 1',
+          'Lleva el caballo de e5 a d3.',
+          'e5d3',
+          'Baja dos casillas y muévete una hacia la izquierda.',
+          'Excelente. El caballo también salta hacia atrás: dos abajo y una al lado.',
+          'El caballo puede ir hacia atrás. Prueba con dos casillas hacia abajo y una de lado.',
+        ),
+        ex(
+          '4k3/8/8/8/8/8/8/4K1N1 w - - 0 1',
+          'Lleva el caballo de g1 a h3.',
+          'g1h3',
+          'Sube dos casillas y muévete una hacia la derecha.',
+          'Muy bien. Desde g1 también hay saltos hacia los lados: aquí, dos arriba y una a la derecha.',
+          'Ese salto no es una L. Piensa dos casillas hacia arriba y una hacia un lado.',
+        ),
+      ],
+    },
+    {
+      id: 'u30.l02',
+      unitId: 'u30',
+      title: 'Salta y captura',
+      objective: 'Saltar por encima de otras piezas y capturar con el caballo.',
+      intro:
+        'El caballo tiene un superpoder: salta sobre cualquier pieza, propia o rival. Y captura donde cae. Vas a practicar las dos cosas.',
+      explanation: [
+        {
+          fen: '4k3/8/8/8/8/8/PPPPPPPP/1N2K3 w - - 0 1',
+          squares: ['b1'],
+          arrows: [
+            ['b1', 'a3'],
+            ['b1', 'c3'],
+          ],
+          text: 'Las demás piezas no pueden pasar por encima de otras, pero el caballo sí. Aquí está rodeado de peones y aun así sale con un salto.',
+        },
+        {
+          fen: '4k3/8/2P5/5p2/3N4/8/8/4K3 w - - 0 1',
+          squares: ['c6', 'f5'],
+          arrows: [['d4', 'f5']],
+          text: 'El caballo captura en la casilla donde cae: si hay una pieza rival, se la come. No puede caer sobre una pieza propia, como el peón de c6.',
+        },
+      ],
+      practice: [
+        ex(
+          '4k3/8/8/8/8/8/PPPPPPPP/4K1N1 w - - 0 1',
+          'Saca el caballo de g1 a h3, saltando sobre los peones.',
+          'g1h3',
+          'Los peones no estorban: el caballo salta por encima.',
+          'Muy bien. El caballo pasó por encima de los peones sin problema.',
+          'El caballo salta, pero siempre en forma de L. Piensa en dos casillas hacia arriba y una de lado.',
+        ),
+        ex(
+          '4k3/8/8/5p2/3N4/8/8/4K3 w - - 0 1',
+          'Captura el peón negro con el caballo.',
+          'd4f5',
+          'Cuenta un salto en L desde tu caballo hasta el peón.',
+          'Bien. El caballo cayó sobre la casilla del peón y lo capturó.',
+          'Para capturar, el caballo tiene que caer justo en la casilla del peón con un salto en L.',
+        ),
+        ex(
+          '4k3/8/4r3/3b4/3N4/8/8/6K1 w - - 0 1',
+          'Captura la torre negra con el caballo.',
+          'd4e6',
+          'La torre está a un salto en L. El alfil no.',
+          'Excelente. Capturaste la torre: una pieza valiosa que no podía defenderse.',
+          'Mira cuál de las dos piezas negras está a un salto en L del caballo. Esa es la que puedes capturar.',
+        ),
+      ],
+      evaluation: [
+        ex(
+          '1n2k3/pppppppp/8/8/8/8/8/4K3 b - - 0 1',
+          'Juegan negras. Saca el caballo de b8 a c6, saltando sobre los peones.',
+          'b8c6',
+          'Las negras bajan por el tablero: dos casillas abajo y una al lado.',
+          'Muy bien. Los caballos negros también saltan por encima de los peones.',
+          'Recuerda la L: dos casillas rectas y una de lado. Las negras avanzan hacia abajo.',
+        ),
+        ex(
+          '4k3/8/8/4b3/2N5/8/8/6K1 w - - 0 1',
+          'Captura el alfil negro con el caballo.',
+          'c4e5',
+          'Busca el salto en L que termina justo en el alfil.',
+          'Bien. El caballo capturó el alfil con un salto en L.',
+          'El caballo tiene que caer en la casilla del alfil. Cuenta una L desde tu caballo hasta él.',
+        ),
+        ex(
+          '4k3/8/8/1q6/3N4/5p2/8/6K1 w - - 0 1',
+          'Captura la dama negra con el caballo.',
+          'd4b5',
+          'Hay dos piezas a un salto: elige la más valiosa.',
+          'Excelente. Capturar la dama es una gran ventaja. Entre peón y dama, elegiste la dama.',
+          'Hay dos piezas rivales a un salto del caballo. Fíjate en cuál vale más.',
+        ),
+      ],
+    },
+    {
+      id: 'u30.l03',
+      unitId: 'u30',
+      title: 'Qué controla el caballo',
+      objective: 'Elegir casillas donde el caballo controla más y no dejarlo colgado.',
+      intro:
+        'Un caballo controla las casillas a las que podría saltar. Cuantas más controla, más fuerte está. También aprenderás a no dejarlo colgado.',
+      explanation: [
+        {
+          fen: '4k3/8/8/8/4N3/8/8/4K3 w - - 0 1',
+          squares: ['e4'],
+          arrows: [
+            ['e4', 'c3'],
+            ['e4', 'c5'],
+            ['e4', 'd2'],
+            ['e4', 'd6'],
+            ['e4', 'f2'],
+            ['e4', 'f6'],
+            ['e4', 'g3'],
+            ['e4', 'g5'],
+          ],
+          text: 'En el centro, el caballo controla ocho casillas. Cuenta las flechas que salen de e4. Allí tiene más opciones que en cualquier otro sitio.',
+        },
+        {
+          fen: '4k3/8/8/8/N7/8/8/4K3 w - - 0 1',
+          squares: ['a4'],
+          arrows: [
+            ['a4', 'b2'],
+            ['a4', 'b6'],
+            ['a4', 'c3'],
+            ['a4', 'c5'],
+          ],
+          text: 'En el borde, el caballo controla muchas menos casillas: desde a4 solo cuatro, y desde una esquina solo dos. Por eso conviene acercarlo al centro.',
+        },
+        {
+          fen: '7k/6b1/8/8/3N4/4P3/8/6K1 w - - 0 1',
+          squares: ['d4'],
+          arrows: [
+            ['g7', 'd4'],
+            ['e3', 'd4'],
+          ],
+          text: 'Un caballo está colgado si lo atacan y nadie lo protege. Aquí el alfil ataca al caballo, pero el peón de e3 lo protege: si el alfil lo captura, el peón recaptura.',
+        },
+      ],
+      practice: [
+        ex(
+          '4k3/8/8/8/8/2N5/8/4K3 w - - 0 1',
+          'Mueve el caballo a una casilla del centro: d4, d5, e4 o e5.',
+          'c3d5',
+          'Desde donde está, el centro queda a un salto.',
+          'Muy bien. Con el caballo en el centro controlas más casillas.',
+          'El caballo puede ir a varias casillas, pero tiene que acabar en una de las cuatro centrales.',
+          ['c3e4'],
+        ),
+        ex(
+          '4k3/8/8/8/8/N7/8/4K3 w - - 0 1',
+          'Mueve el caballo a la casilla desde la que controle más casillas.',
+          'a3c4',
+          'Aléjate del borde: cuanto más al centro, más casillas controla.',
+          'Correcto. Desde esa casilla el caballo controla ocho casillas, el máximo posible.',
+          'Compara los saltos posibles. Desde algunos el caballo controla pocas casillas porque queda cerca del borde.',
+        ),
+        ex(
+          '7k/3p2b1/8/8/3N2p1/3p4/8/6K1 w - - 0 1',
+          'El alfil negro ataca tu caballo y nadie lo protege. Ponlo a salvo: llévalo a una casilla que no ataque ninguna pieza negra.',
+          'd4b3',
+          'Revisa qué casillas atacan los peones negros y el alfil.',
+          'Muy bien. Tu caballo ya no está atacado y sigues con todas tus piezas.',
+          'Esa casilla sigue atacada por una pieza negra. Recuerda que los peones capturan en diagonal.',
+          ['d4b5', 'd4f5'],
+        ),
+      ],
+      evaluation: [
+        ex(
+          '4k3/8/8/8/8/5N2/8/4K3 w - - 0 1',
+          'Mueve el caballo a una casilla del centro: d4, d5, e4 o e5.',
+          'f3d4',
+          'Desde donde está, hay centrales a un salto.',
+          'Bien. En el centro el caballo está mucho más activo.',
+          'El caballo tiene varios saltos, pero solo algunos acaban en el centro.',
+          ['f3e5'],
+        ),
+        ex(
+          '4k3/8/8/8/8/7N/8/4K3 w - - 0 1',
+          'Mueve el caballo a la casilla desde la que controle más casillas.',
+          'h3f4',
+          'La casilla más central es la que más controla.',
+          'Excelente. Desde esa casilla el caballo controla ocho casillas.',
+          'Prueba a contar las casillas que controlaría el caballo desde cada salto. Gana la más central.',
+        ),
+        ex(
+          '7k/6b1/8/8/3N4/8/2P1P3/6K1 w - - 0 1',
+          'El alfil negro ataca tu caballo. Protégelo con un peón: avanza un peón una casilla.',
+          'c2c3',
+          'Un peón protege las casillas en diagonal hacia delante.',
+          'Muy bien. Ahora, si el alfil captura el caballo, el peón recaptura.',
+          'Un peón protege las dos casillas diagonales que tiene delante. Elige el que cubra la casilla del caballo.',
+          ['e2e3'],
+        ),
+      ],
+    },
+  ],
+};

@@ -6,6 +6,9 @@ import type {
   CompleteReviewBody,
   CompleteReviewResponse,
   Equipped,
+  ExplainBody,
+  ExplainResponse,
+  AiUsage,
   FinishResult,
   LessonProgress,
   MapUnit,
@@ -99,7 +102,7 @@ export const api = {
   /** Borra la cuenta y todos sus datos (irreversible). */
   deleteAccount: () => request<{ ok: true }>('DELETE', '/api/account'),
   me: () =>
-    request<{ user: User; isAdmin?: boolean; equipped?: Equipped; level?: Level; levelChosen?: boolean }>('GET', '/api/me', undefined, { silent401: true }),
+    request<{ user: User; isAdmin?: boolean; ai?: boolean; equipped?: Equipped; level?: Level; levelChosen?: boolean }>('GET', '/api/me', undefined, { silent401: true }),
   map: () => request<{ units: MapUnit[] }>('GET', '/api/map'),
   lesson: (id: string) => request<{ lesson: Lesson }>('GET', `/api/lessons/${encodeURIComponent(id)}`),
   outline: () => request<{ units: OutlineUnit[] }>('GET', '/api/outline', undefined, { silent401: true }),
@@ -121,6 +124,8 @@ export const api = {
   session: () => request<SessionStart>('GET', '/api/session'),
   answer: (b: AnswerBody) => request<AnswerResult>('POST', '/api/session/answer', b),
   finish: (sessionId: string) => request<FinishResult>('POST', '/api/session/finish', { sessionId }),
+  explain: (b: ExplainBody) => request<ExplainResponse>('POST', '/api/explain', b),
+  adminAi: () => request<AiUsage>('GET', '/api/admin/ai'),
   adminAccess: () => request<AccessOverview>('GET', '/api/admin/access'),
   adminAllow: (username: string) => request<AccessOverview>('POST', '/api/admin/allowed', { username }),
   adminRemove: (id: string) => request<AccessOverview>('DELETE', `/api/admin/allowed/${encodeURIComponent(id)}`),

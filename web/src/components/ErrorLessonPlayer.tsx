@@ -3,7 +3,8 @@ import type { DrawShape } from 'chessground/draw';
 import type { Key } from 'chessground/types';
 import type { ErrorLesson } from '../../../src/pedagogy/error-lesson';
 import { initLessonState, judgeBestMove, lessonReducer, type LessonStep } from '../review/lessonFlow';
-import { applyUci, lastMoveOf, turnOf } from '../chess';
+import { applyUci, lastMoveOf, turnOf, uciOfSan } from '../chess';
+import { ExplainButton } from './ExplainButton';
 import { playSound } from '../sound';
 import { Board } from './Board';
 import { Icon } from './Icon';
@@ -126,6 +127,13 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
 
   const afterBest = useMemo(() => applyUci(lesson.fenBefore, lesson.best.uci)?.fen ?? null, [lesson]);
   const orientation = turnOf(lesson.fenBefore);
+  const playedUci = useMemo(() => {
+    try {
+      return uciOfSan(lesson.fenBefore, lesson.yourMoveSan);
+    } catch {
+      return null;
+    }
+  }, [lesson]);
   // Lecciones sin causa tipificada: tras ver la mejor jugada se puede recorrer la línea del motor, media jugada a la vez.
   const line = lesson.line && lesson.line.sans.length > 1 ? lesson.line : null;
   const [lineIdx, setLineIdx] = useState(0);
@@ -247,6 +255,7 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
                     </p>
                   </div>
                 )}
+                {playedUci && <ExplainButton body={{ kind: 'error', fen: lesson.fenBefore, played: playedUci, best: lesson.best.uci }} />}
                 <p className="rl-rule">
                   <span className="rl-rule-tag">La regla</span>
                   {lesson.rule}

@@ -6,6 +6,7 @@ import { Icon } from './Icon';
 import { playSound } from '../sound';
 import { applyUci, canonicalUci, lastMoveOf, needsPromotion, PROMO_ROLES, sanOfUci, turnOf } from '../chess';
 import { TypedMove } from './TypedMove';
+import { ExplainButton } from './ExplainButton';
 
 export interface StepResult {
   /** acertado a la primera (sin errores) */
@@ -26,9 +27,11 @@ interface Props {
   appearance?: string;
   /** Vitrina de la landing: sin pista, sin jugada escrita y con la marca de la pieza solo hasta mover. */
   showcase?: boolean;
+  /** Qué paso de qué lección es: con esto se ofrece «¿Por qué?» tras ver la solución (el servidor toma los hechos de su contenido). */
+  explain?: { lessonId: string; stepKind: 'practice' | 'evaluation'; stepIndex: number };
 }
 
-export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appearance, showcase = false }: Props) {
+export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appearance, showcase = false, explain }: Props) {
   const [fen, setFen] = useState(step.fen);
   // Línea efectiva: la principal, o la de la rama si el alumno jugó una alternativa intermedia verificada.
   const [line, setLine] = useState<readonly string[]>(step.solutionUci);
@@ -230,6 +233,11 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
           )}
           {(status === 'rival' || (status === 'playing' && feedback)) && <p>{feedback}</p>}
         </div>
+
+        {/* Solo cuando la solución ya se ha visto (acierto, evaluación fallada o segundo fallo de la práctica): nunca la adelanta. */}
+        {explain && (status === 'correct' || (status === 'wrong' && (mode === 'evaluation' || mistakes >= 2))) && (
+          <ExplainButton key={`${status}-${mistakes}`} body={{ kind: 'lesson', ...explain }} />
+        )}
 
         {hint && status === 'playing' && step.hint && (
           <p className="t-alert t-alert-warn">

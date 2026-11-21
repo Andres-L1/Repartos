@@ -459,7 +459,7 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   }
   if (!state.user) return err(401, 'Necesitas iniciar sesión.');
 
-  if (path === '/me') return json({ user: state.user, isAdmin: ADMIN, equipped: wallet().equipped, level: state.chosenLevel ?? 'initiation', levelChosen: !!state.chosenLevel });
+  if (path === '/me') return json({ user: state.user, isAdmin: ADMIN, ai: true, equipped: wallet().equipped, level: state.chosenLevel ?? 'initiation', levelChosen: !!state.chosenLevel });
   if (path === '/shop') return json(buildShop());
   if (path === '/shop/buy' && method === 'POST') {
     const w = wallet();
@@ -536,6 +536,11 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     });
   }
   if (path === '/profile') return json({ profile: state.profile });
+  // IA simulada: una aclaración fija (nada sale del navegador); en el mock la solución ya se vio cuando se pide.
+  if (path === '/explain' && method === 'POST')
+    return json({ text: 'Al dar jaque, el rival tiene que atender el rey primero. Por eso no llega a salvar la otra pieza.', cached: false });
+  if (path === '/admin/ai' && ADMIN)
+    return json({ available: true, today: { calls: 3, tokens: 420, cached: 5 }, month: { calls: 41, cached: 96, tokens: 5740, spendEur: null, pct: 1, cut: false }, pricesMissing: true });
   // Administración del acceso (solo con ?admin=1).
   const am = path.match(/^\/admin\/(access|allowed|requests)(?:\/([^/]+))?(\/approve)?$/);
   if (am) {

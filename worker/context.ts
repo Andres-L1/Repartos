@@ -11,6 +11,7 @@ import { isAdmin } from '../src/shared/admin.js';
 import type { ContentSource, ProgressRow } from './progress.js';
 import { effectiveStreak, protectorCount } from './shop.js';
 import type { Ctx } from './http.js';
+import { resolveAi, type AiSettings } from './ai.js';
 
 export interface AppDeps {
   db: Db;
@@ -31,6 +32,8 @@ export interface AppDeps {
   assets?: { fetch(req: Request): Promise<Response> } | undefined;
   /** Azar del banco de la sesión (blancas o espejo con negras); los tests lo fijan. */
   random?: () => number;
+  /** Explicaciones con IA (clave y límites del Worker; `transport` falso en los tests). Sin clave ni transporte: desactivadas. */
+  ai?: AiSettings;
 }
 
 interface ProfileRow {
@@ -43,6 +46,7 @@ export function createContext(deps: AppDeps) {
   const { db, content } = deps;
   const restricted = (deps.accessMode ?? 'allowlist') !== 'open';
   const now = deps.now ?? (() => new Date());
+  const ai = resolveAi(deps.ai);
 
   const auth: AuthConfig = {
     secret: deps.sessionSecret,
@@ -157,7 +161,7 @@ export function createContext(deps: AppDeps) {
   };
 
   return {
-    deps, db, content, now, auth, requireAuth,
+    deps, db, content, now, auth, requireAuth, ai,
     ensureProfileStmt, progressMap, loadProfile, isLevel, chosenLevel, profileFor, levelEffect,
   };
 }
