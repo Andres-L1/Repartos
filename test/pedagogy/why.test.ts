@@ -16,8 +16,8 @@ const CASES: Case[] = [
   { name: 'jaque mate', fen: '6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1', line: ['d1d8'], good: { mate: 'La torre da jaque mate en d8: el rey rival está atacado y ninguna jugada lo salva.' } },
   { name: 'captura sin recaptura', fen: '4k3/8/8/3n4/8/8/3R4/4K3 w - - 0 1', line: ['d2d5'], good: { 'capture-free': 'La torre captura el caballo en d5 y el rival no puede recapturar.' } },
   { name: 'captura de pieza mayor', fen: '4k3/8/4p3/3q4/8/8/8/3RK3 w - - 0 1', line: ['d1d5'], good: { 'capture-wins': 'La dama vale más que la torre: aunque haya recaptura, el cambio sale a favor.' } },
-  { name: 'ataque doble', fen: '4k3/8/1r3q2/8/8/4N3/8/4K3 w - - 0 1', line: ['e3d5'], good: { fork: 'Desde d5, el caballo amenaza la torre en b6 y la dama en f6 al mismo tiempo.' } },
-  { name: 'ataque doble con jaque', fen: '4k3/1q6/8/8/4N3/8/8/4K3 w - - 0 1', line: ['e4d6'], good: { fork: 'Con el jaque, el caballo en d6 también ataca la dama en b7.' } },
+  { name: 'ataque doble', fen: '4k3/8/1r3q2/8/8/4N3/8/4K3 w - - 0 1', line: ['e3d5'], good: { fork: 'Desde d5, el caballo amenaza a la torre en b6 y a la dama en f6 al mismo tiempo.' } },
+  { name: 'ataque doble con jaque', fen: '4k3/1q6/8/8/4N3/8/8/4K3 w - - 0 1', line: ['e4d6'], good: { fork: 'Con el jaque, el caballo en d6 también ataca a la dama en b7.' } },
   { name: 'jaque', fen: '4k3/8/8/8/8/8/8/R3K3 w - - 0 1', line: ['a1a8'], good: { check: 'La torre ataca al rey desde a8, así que el rival está obligado a responder al jaque.' } },
   { name: 'jaque descubierto', fen: '4k3/8/8/8/8/8/4B3/4RK2 w - - 0 1', line: ['e2f3'], good: { discovered: 'El alfil se aparta y la torre da jaque al descubierto.' } },
   { name: 'clavada', fen: '4k3/8/8/4n3/8/8/3Q1PPP/6K1 w - - 0 1', line: ['d2e3'], good: { pin: 'La dama en e3 clava el caballo: si se mueve, el rey rival quedaría en jaque.' } },
@@ -33,12 +33,12 @@ const CASES: Case[] = [
     line: ['e3d5', 'f6h6', 'd5b6', 'h6b6'],
     good: { 'line-material': 'Siguiendo la secuencia, capturas una torre y el rival solo captura un caballo.' },
   },
-  { name: 'mala captura', fen: '4k3/8/4p3/3p4/8/8/3Q4/4K3 w - - 0 1', line: ['e1f1'], played: 'd2d5', bad: { 'bad-trade': 'La dama captura un peón, pero el peón rival puede capturar a la dama después y el cambio sale perdiendo.' } },
+  { name: 'mala captura', fen: '4k3/8/4p3/3p4/8/8/3Q4/4K3 w - - 0 1', line: ['e1f1'], played: 'd2d5', bad: { 'bad-trade': 'La dama captura un peón, pero el peón rival puede capturarla después y el cambio sale perdiendo.' } },
   { name: 'pieza movida sin protección', fen: '4k3/8/4p3/8/8/8/3Q4/4K3 w - - 0 1', line: ['e1f1'], played: 'd2d5', bad: { hangs: 'En d5, la dama no tiene protección: el peón rival puede capturarla gratis.' } },
   { name: 'pieza que se deja sin defensa', fen: '3qk3/8/8/B7/8/8/8/R3K3 w - - 0 1', line: ['a1a2'], played: 'a1b1', bad: { hangs: 'Tras esa jugada, el alfil en a5 queda sin protección: la dama rival puede capturarlo gratis.' } },
   { name: 'amenaza no atendida', fen: '4k3/8/8/8/3p4/2R5/8/4K3 w - - 0 1', line: ['c3a3'], played: 'e1e2', bad: { 'ignored-threat': 'La torre en c3 seguía en peligro: el peón rival podía capturarla.' } },
   { name: 'mate permitido', fen: '4r1k1/8/8/8/8/8/P4PPP/6K1 w - - 0 1', line: ['g1h1'], played: 'a2a3', bad: { 'mate-allowed': 'El rival ya amenazaba dar jaque mate en una jugada y esa jugada no lo evita.' } },
-  { name: 'ataque doble permitido', fen: '4k3/8/8/4n3/8/8/1R1Q4/4K3 w - - 0 1', line: ['d2d5'], played: 'e1f1', bad: { 'fork-allowed': 'Tras esa jugada, el rival puede mover el caballo a c4 y atacar a la vez la torre en b2 y la dama en d2.' } },
+  { name: 'ataque doble permitido', fen: '4k3/8/8/4n3/8/8/1R1Q4/4K3 w - - 0 1', line: ['d2d5'], played: 'e1f1', bad: { 'fork-allowed': 'Tras esa jugada, el rival puede mover el caballo a c4 y atacar a la vez a la torre en b2 y a la dama en d2.' } },
   { name: 'clavada permitida', fen: '4r1k1/8/8/8/8/2N5/8/4K3 w - - 0 1', line: ['c3d5'], played: 'c3e2', bad: { 'pin-allowed': 'Tras esa jugada, la torre rival clava el caballo en e2: no puede moverse sin dejar al rey en jaque.' } },
   {
     name: 'descubierto permitido',
@@ -47,6 +47,8 @@ const CASES: Case[] = [
     played: 'd3c4',
     bad: { 'discovered-allowed': 'El rival puede capturar el alfil en c4 y, al apartarse su caballo, la torre suya da jaque.' },
   },
+  { name: 'ataque doble con jaque permitido', fen: '4k3/8/8/4n3/8/8/3Q1PPP/6K1 w - - 0 1', line: ['d2e2'], played: 'g2g3', bad: { 'fork-allowed': 'Tras esa jugada, el rival puede mover el caballo a f3 y atacar a la vez al rey y a la dama en d2.' } },
+  { name: 'ataque descubierto permitido', fen: '3q2k1/8/8/8/3N4/8/8/3RK3 b - - 0 1', line: ['d8d4'], played: 'g8h8', bad: { 'discovered-attack-allowed': 'Tras esa jugada, el caballo rival puede apartarse de d4 y dejar que la torre suya ataque a la dama en d8.' } },
 ];
 
 describe('why: textos fijos por tipo de hecho', () => {
@@ -128,9 +130,13 @@ describe('why: errores de partida', () => {
     const t = whyError({ fen: '3qk3/8/8/B7/8/8/8/R3K3 w - - 0 1', played: 'a1b1', best: 'a1a2', known: [] });
     expect(t).toBe('Tras esa jugada, el alfil en a5 queda sin protección: la dama rival puede capturarlo gratis.');
   });
+  it('pieza amenazada que la jugada del alumno no salvó y la mejor sí: una sola frase', () => {
+    const t = whyError({ fen: '4k3/8/8/8/1b6/2N5/8/R3K3 w - - 0 1', played: 'a1b1', best: 'a1c1', known: [] });
+    expect(t).toBe('El caballo en c3 ya estaba amenazado por el alfil y esa jugada no lo puso a salvo; con la mejor, sí.');
+  });
   it('usa la línea del motor si empieza por la mejor jugada', () => {
     const fen = '4k3/8/1r3q2/8/8/4N3/8/4K3 w - - 0 1';
     const t = whyError({ fen, played: 'e1d1', best: 'e3d5', line: ['e3d5', 'f6h6', 'd5b6', 'h6b6'], known: [] });
-    expect(t).toBe('Desde d5, el caballo amenaza la torre en b6 y la dama en f6 al mismo tiempo. En la secuencia ganas una torre y pierdes un caballo.');
+    expect(t).toBe('Tras esa jugada, el rival puede mover la dama a f3 y atacar a la vez al rey y al caballo en e3. En cambio, desde d5, el caballo amenaza a la torre en b6 y a la dama en f6 al mismo tiempo. En la secuencia ganas una torre y pierdes un caballo.');
   });
 });

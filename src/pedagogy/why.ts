@@ -21,6 +21,8 @@ const the = (r: Role) => `${FEM[r] ? 'la' : 'el'} ${NAME[r]}`;
 const a = (r: Role) => `${FEM[r] ? 'una' : 'un'} ${NAME[r]}`;
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const at = (r: Role, s: Square) => `${the(r)} en ${makeSquare(s)}`;
+/** Complemento de persona o pieza atacada: «a la dama en d5», «al caballo en f3». */
+const atA = (r: Role, s: Square) => `${FEM[r] ? 'a la' : 'al'} ${NAME[r]} en ${makeSquare(s)}`;
 const lo = (r: Role) => (FEM[r] ? 'la' : 'lo');
 const ado = (r: Role) => (FEM[r] ? 'amenazada' : 'amenazado');
 const list = (xs: string[]) => (xs.length < 2 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} y ${xs.at(-1)}`);
@@ -130,7 +132,8 @@ function capturedSquare(s: Step): Square | undefined {
   return s.captured?.square;
 }
 
-type Sentence = { kind: string; text: string };
+/** `victim`: casilla de la pieza amenazada (en `saves` y `ignored-threat`), para unir las dos frases cuando hablan de la misma pieza. */
+type Sentence = { kind: string; text: string; victim?: Square };
 
 /* ---------- hechos de la jugada que se debe hacer (o la mejor) ---------- */
 
@@ -183,7 +186,7 @@ function goodSentences(fen: string, line: string[], seed: string): Sentence[] {
 
   // Ataque doble o amenaza sobre una pieza sin protección.
   const tg = after.isCheckmate() || p.castle || step.role === 'king' ? [] : forkTargets(after, step.to);
-  const names = tg.map((t) => at(t.role, t.sq));
+  const names = tg.map((t) => atA(t.role, t.sq));
   if (tg.length >= 2 || (tg.length === 1 && after.isCheck())) {
     if (after.isCheck()) {
       s('fork', [
@@ -201,7 +204,7 @@ function goodSentences(fen: string, line: string[], seed: string): Sentence[] {
     const t = tg[0]!;
     let defended = false;
     for (const [sq2, pc] of after.board) if (pc.color !== me && sq2 !== t.sq && attacks(pc, sq2, after.board.occupied).has(t.sq)) defended = true;
-    s('attack', [`${cap(P)} en ${dest} ataca ${at(t.role, t.sq)}, que ${defended ? `vale más que ${P}` : 'no tiene ninguna protección'}.`]);
+    s('attack', [`${cap(P)} en ${dest} ataca ${atA(t.role, t.sq)}, que ${defended ? `vale más que ${P}` : 'no tiene ninguna protección'}.`]);
   }
 
   if (after.isCheck() && !after.isCheckmate() && chk.length === 1 && chk[0]!.sq === step.to && tg.length === 0) {
@@ -229,8 +232,8 @@ function goodSentences(fen: string, line: string[], seed: string): Sentence[] {
     if (step.role === 'king') s('escape', [`El rey sale del jaque a una casilla que el rival no controla.`, `El rey se aparta del jaque hacia una casilla segura.`]);
     else if (wasChecker) s('capture-checker', [`${cap(P)} responde al jaque capturando la pieza que lo daba.`, `${cap(P)} quita el jaque capturando a ${the(step.captured!.role)} que atacaba al rey.`]);
     else s('block', [`${cap(P)} responde al jaque poniéndose en medio, entre el rey y la pieza que ataca.`, `${cap(P)} tapa el jaque en ${dest}, en la línea del ataque.`]);
-  } else if (!after.isCheckmate()) {
-    // Poner a salvo una pieza amenazada.
+  } else if (!after.isCheck()) {
+    // Poner a salvo (con jaque no vale: el rival está obligado a responderlo, no es una defensa de la pieza) una pieza amenazada.
     const flipped = withTurnFlipped(before);
     if (flipped) {
       const stillAfter = winningCaptures(after, me);
@@ -240,10 +243,10 @@ function goodSentences(fen: string, line: string[], seed: string): Sentence[] {
       });
       if (saved) {
         const v = saved.victim.role;
-        s('saves', [
-          `${cap(at(v, saved.victim.sq))} estaba ${ado(v)} por ${the(saved.attacker.role)}; con esa jugada el rival ya no puede ganar${lo(v)}.`,
+        out.push({ kind: 'saves', victim: saved.victim.sq, text: pick([
+          `${cap(at(v, saved.victim.sq))} estaba ${ado(v)} por ${the(saved.attacker.role)} rival; con esa jugada el rival ya no puede ganar${lo(v)}.`,
           `${cap(the(v))} en ${makeSquare(saved.victim.sq)} corría peligro por ${the(saved.attacker.role)} rival. Esa jugada ${lo(v)} deja a salvo.`,
-        ]);
+        ], `${seed}|saves`) });
       }
     }
   }
@@ -315,13 +318,13 @@ function badSentences(fen: string, uci: string, seed: string): Sentence[] {
     if (moved && step.captured && net < 0)
       s('bad-trade', [
         `Capturar ${a(step.captured.role)} con ${P} sale caro: ${the(top.attacker.role)} rival recaptura y se pierde más de lo que se gana.`,
-        `${cap(P)} captura ${a(step.captured.role)}, pero ${the(top.attacker.role)} rival puede capturar a ${P} después y el cambio sale perdiendo.`,
+        `${cap(P)} captura ${a(step.captured.role)}, pero ${the(top.attacker.role)} rival puede capturar${lo(step.role)} después y el cambio sale perdiendo.`,
       ]);
     else if (old)
-      s('ignored-threat', [
+      out.push({ kind: 'ignored-threat', victim: top.victim.sq, text: pick([
         `${cap(at(V, top.victim.sq))} ya estaba ${ado(V)} por ${the(top.attacker.role)} y esa jugada no ${lo(V)} puso a salvo.`,
         `${cap(the(V))} en ${makeSquare(top.victim.sq)} seguía en peligro: ${the(top.attacker.role)} rival podía capturar${lo(V)}.`,
-      ]);
+      ], `${seed}|ignored-threat`) });
     else if (!top.recapture)
       s('hangs', moved
         ? [
@@ -340,7 +343,8 @@ function badSentences(fen: string, uci: string, seed: string): Sentence[] {
   }
 
   // El rival puede hacer un ataque doble seguro o descubrir un jaque capturando.
-  let fork: { piece: Piece; targets: Piece[] } | undefined;
+  let fork: { piece: Piece; targets: Piece[]; check: boolean } | undefined;
+  let disc2: { piece: Piece; attacker: Piece; target: Piece } | undefined;
   let disc: { piece: Piece; victim: Piece; checker: Piece } | undefined;
   for (const [from, dests] of after.allDests()) {
     for (const to of dests) {
@@ -350,7 +354,18 @@ function badSentences(fen: string, uci: string, seed: string): Sentence[] {
       next.play({ from, to, ...(mover.role === 'pawn' && (to < 8 || to > 55) ? { promotion: 'queen' as const } : {}) });
       if (!fork && !victim && mover.role !== 'king' && !next.isEnd() && !canCaptureOn(next, to)) {
         const t = forkTargets(next, to);
-        if (t.length >= 2) fork = { piece: { role: mover.role, sq: to }, targets: t };
+        if (t.length >= 2 || (t.length === 1 && next.isCheck())) fork = { piece: { role: mover.role, sq: to }, targets: t, check: next.isCheck() };
+      }
+      if (!disc2 && !next.isEnd()) {
+        for (const [ps, pp] of next.board) {
+          if (pp.color !== me || VALUE[pp.role] < 5) continue;
+          for (const [xs, xp] of next.board) {
+            if (xp.color === me || xs === to || !between(xs, ps).has(from) || !attacks(xp, xs, next.board.occupied).has(ps)) continue;
+            let defended = false;
+            for (const [ds, dp] of next.board) if (dp.color === me && ds !== ps && attacks(dp, ds, next.board.occupied).has(ps)) defended = true;
+            if (!defended || VALUE[pp.role] > VALUE[xp.role]) disc2 = { piece: { role: mover.role, sq: from }, attacker: { role: xp.role, sq: xs }, target: { role: pp.role, sq: ps } };
+          }
+        }
       }
       if (!disc && victim && victim.color === me && VALUE[victim.role] >= 3 && next.isCheck()) {
         const c = [...checkersOf(next)].filter((x) => x !== to);
@@ -360,14 +375,20 @@ function badSentences(fen: string, uci: string, seed: string): Sentence[] {
       }
     }
   }
+  const forkNames = fork ? [...(fork.check ? ['al rey'] : []), ...fork.targets.map((x) => atA(x.role, x.sq))] : [];
   if (fork)
     s('fork-allowed', [
-      `Tras esa jugada, el rival puede mover ${the(fork.piece.role)} a ${makeSquare(fork.piece.sq)} y atacar a la vez ${list(fork.targets.map((t) => at(t.role, t.sq)))}.`,
-      `Esa jugada permite que ${the(fork.piece.role)} rival vaya a ${makeSquare(fork.piece.sq)} y amenace ${list(fork.targets.map((t) => at(t.role, t.sq)))} al mismo tiempo.`,
+      `Tras esa jugada, el rival puede mover ${the(fork.piece.role)} a ${makeSquare(fork.piece.sq)} y atacar a la vez ${list(forkNames)}.`,
+      `Esa jugada permite que ${the(fork.piece.role)} rival vaya a ${makeSquare(fork.piece.sq)} y amenace ${list(forkNames)} al mismo tiempo.`,
     ]);
   if (disc)
     s('discovered-allowed', [
       `El rival puede capturar ${at(disc.victim.role, disc.victim.sq)} y, al apartarse su ${NAME[disc.piece.role]}, ${the(disc.checker.role)} suya da jaque.`,
+    ]);
+
+  if (disc2 && !disc)
+    s('discovered-attack-allowed', [
+      `Tras esa jugada, ${the(disc2.piece.role)} rival puede apartarse de ${makeSquare(disc2.piece.sq)} y dejar que ${the(disc2.attacker.role)} suya ataque ${atA(disc2.target.role, disc2.target.sq)}.`,
     ]);
 
   const oldPins = findPins(before, me);
@@ -407,6 +428,16 @@ export function overlap(sentence: string, known: string[]): number {
 }
 
 /** Une frases dentro del tope de frases y de caracteres; null si no queda ninguna. */
+/** Si el alumno no puso a salvo una pieza amenazada y la jugada buena sí, una sola frase para las dos. */
+function joinSaves(bad: Sentence[], good: Sentence[], who: string): { bad: Sentence[]; good: Sentence[] } {
+  const ig = bad.find((x) => x.kind === 'ignored-threat' && good.some((g) => g.kind === 'saves' && g.victim === x.victim));
+  if (!ig) return { bad, good };
+  return {
+    bad: bad.map((x) => (x === ig ? { ...x, text: `${x.text.replace(/\.$/, '')}; ${who}, sí.` } : x)),
+    good: good.filter((g) => !(g.kind === 'saves' && g.victim === ig.victim)),
+  };
+}
+
 function assemble(sentences: string[]): string | null {
   const out: string[] = [];
   for (const t of sentences) {
@@ -434,9 +465,11 @@ export interface LessonWhyInput {
 /** «Por qué» de un paso de lección o evaluación: por qué vale la jugada correcta y, si hubo fallo, por qué falla la jugada hecha. */
 export function whyLesson(i: LessonWhyInput): string | null {
   const seed = `${i.fen.split(' ').slice(0, 4).join(' ')}|${i.line[0] ?? ''}`;
-  const bad = i.played ? fresh(badSentences(i.fen, i.played, `${seed}|${i.played}`), i.known).slice(0, 1) : [];
-  const good = fresh(goodSentences(i.fen, i.line, seed), i.known);
-  return assemble([...bad.map((x) => x.text), ...good.map((x) => x.text)]);
+  const j = joinSaves(i.played ? badSentences(i.fen, i.played, `${seed}|${i.played}`) : [], goodSentences(i.fen, i.line, seed), 'con la jugada correcta');
+  const bad = fresh(j.bad, i.known).slice(0, 1);
+  const good = fresh(j.good, i.known);
+  const parts = good.map((x, k) => (k === 0 && bad.length ? `En cambio, ${decap(x.text)}` : x.text));
+  return assemble([...bad.map((x) => x.text), ...parts]);
 }
 
 export interface ErrorWhyInput {
@@ -452,9 +485,10 @@ export interface ErrorWhyInput {
 /** «Por qué» de un error de partida: qué hacía la jugada del alumno y qué lograba la mejor. */
 export function whyError(i: ErrorWhyInput): string | null {
   const seed = `${i.fen.split(' ').slice(0, 4).join(' ')}|${i.played}|${i.best}`;
-  const bad = fresh(badSentences(i.fen, i.played, seed), i.known).slice(0, 2);
   const line = i.line && i.line[0] === i.best ? i.line : [i.best];
-  const good = fresh(goodSentences(i.fen, line, seed), i.known).slice(0, bad.length ? 2 : 3);
+  const j = joinSaves(badSentences(i.fen, i.played, seed), goodSentences(i.fen, line, seed), 'con la mejor');
+  const bad = fresh(j.bad, i.known).slice(0, 2);
+  const good = fresh(j.good, i.known).slice(0, bad.length ? 2 : 3);
   const parts = good.map((x, k) => (k === 0 && bad.length ? `En cambio, ${decap(x.text)}` : x.text));
   return assemble([...bad.map((x) => x.text), ...parts]);
 }
