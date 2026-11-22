@@ -45,10 +45,6 @@ export function PrivacyScreen() {
         <li>Tus Chedex (movimientos de saldo), los objetos que compras o equipas y tus protectores de racha.</li>
         <li>Los conceptos en los que has fallado, cuándo te toca repasarlos y, de las partidas que repasas, el identificador de la partida y la posición de tus errores (el tablero y la jugada mejor), para preparar los repasos y la sesión «Entrenar hoy».</li>
         <li>Las posiciones y respuestas de tus sesiones de «Entrenar hoy»; se borran a los 7 días.</li>
-        <li>
-          Explicaciones con IA: cuántas aclaraciones nuevas has pedido cada día (un contador por usuario y día, que se borra a los 30 días
-          o al borrar tu cuenta). El texto de las explicaciones se guarda en una memoria compartida con todos los alumnos, sin relación con tu cuenta.
-        </li>
       </ul>
       <p>
         <strong>No guardamos</strong> tu contraseña, tu correo, tu token de Lichess ni tus partidas completas.
@@ -74,13 +70,6 @@ export function PrivacyScreen() {
         </li>
         <li>
           Para los puzles, nuestro servidor pide a Lichess lotes anónimos por tema y dificultad, sin ningún dato tuyo.
-        </li>
-        <li>
-          Si pulsas «¿Por qué?» en una lección o en la mini lección de un error, nuestro servidor pide una aclaración corta a DeepSeek,
-          un servicio externo de terceros. Solo se le envía la posición (FEN), las jugadas y hechos de esa posición calculados por nosotros;
-          <strong> nunca</strong> tu usuario, tu identificador de Lichess ni el identificador de tu partida. Nunca se pide sola: solo si pulsas el botón.
-          La explicación se guarda en nuestra base de datos para dársela a otros alumnos sin volver a consultarlo. No sabemos cómo trata DeepSeek
-          los datos que recibe: consulta su política en su web.
         </li>
         <li>La web y la base de datos se alojan en Cloudflare. No usamos analítica, publicidad ni rastreadores de terceros.</li>
       </ul>
