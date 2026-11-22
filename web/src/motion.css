@@ -85,8 +85,11 @@
 .rl-feedback.is-kind { animation: m-fade var(--m-dur-base) var(--m-ease-out) both; }
 
 /* ---------- Tablero ---------- */
-/* La pieza que se arrastra se «levanta»: algo más grande y con más sombra (scale no pisa el translate de chessground). */
-.board-cg cg-board piece.dragging { scale: 1.12; filter: drop-shadow(0 6px 6px rgb(0 0 0 / 0.45)); }
+/* La pieza que se arrastra se «levanta» con más sombra. Sin scale: ese escalado multiplica el translate de chessground y la pieza se despega del cursor. */
+.board-cg cg-board piece.dragging { filter: drop-shadow(0 6px 6px rgb(0 0 0 / 0.45)); }
+/* Peón amenazado por otro peón: tiembla de miedo (rotate/translate sueltos, no pisan el transform de chessground). */
+@keyframes cg-fear { 0%, 100% { rotate: 0deg; translate: 0 0; } 20% { rotate: -4deg; translate: -1.5% 0; } 40% { rotate: 3.5deg; translate: 1.5% 0; } 60% { rotate: -3deg; translate: -1% 0; } 80% { rotate: 3deg; translate: 1% 0; } }
+.board-cg cg-board piece.fear:not(.dragging) { animation: cg-fear 0.45s linear infinite; }
 .board-cg .cg-wrap piece.ghost, .board-cg cg-board piece.ghost { opacity: 0.35; }
 /* Jaque: un halo rojo suave en lugar del degradado intenso por defecto. */
 .board-cg cg-board square.check { background: radial-gradient(circle at center, rgb(255 70 60 / 0.75) 0%, rgb(230 40 30 / 0.45) 35%, rgb(200 0 0 / 0) 72%); }
@@ -112,5 +115,5 @@
   }
   .rl-dot.is-current, .gv-move[aria-current='step'] { animation: none !important; }
   .t-btn, .t-chip, .t-tab, :is(a.lesson-link, .lvl-card, .balance, .gv-move, .nav-link) { transform: none !important; }
-  .board-cg cg-board piece.dragging { scale: none; }
+  .board-cg cg-board piece.fear { animation: none; }
 }

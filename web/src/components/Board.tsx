@@ -7,7 +7,7 @@ import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.brown.css';
 import 'chessground/assets/chessground.cburnett.css';
 import type { BoardMark } from '../../../src/content/schema';
-import { isInCheck, legalDests, turnOf } from '../chess';
+import { isInCheck, legalDests, threatenedPawns, turnOf } from '../chess';
 import { moveSoundOf, playSound, primeSounds } from '../sound';
 import { useSession } from '../session';
 import { appearanceClass } from '../shop';
@@ -106,6 +106,13 @@ export function Board({ fen, interactive = false, orientation, lastMove, shapes 
       // chessground anima con requestAnimationFrame: el CSS de «reducir movimiento» no le llega, hay que pedírselo.
       animation: { enabled: !prefersReducedMotion(), duration: 200 },
     });
+    // Peones amenazados por un peón rival: tiemblan (CSS .fear). Se marca ya y al acabar la animación de la jugada.
+    const scared = new Set(threatenedPawns(fen));
+    const mark = () =>
+      el.current?.querySelectorAll<HTMLElement & { cgKey?: string }>('piece').forEach((p) => p.classList.toggle('fear', !!p.cgKey && scared.has(p.cgKey)));
+    mark();
+    const t = window.setTimeout(mark, 260);
+    return () => window.clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fen, interactive, wantsSelect, orientation, lastMove?.[0], lastMove?.[1], nonce]);
 
