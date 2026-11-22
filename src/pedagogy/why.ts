@@ -25,6 +25,18 @@ const at = (r: Role, s: Square) => `${the(r)} en ${makeSquare(s)}`;
 const atA = (r: Role, s: Square) => `${FEM[r] ? 'a la' : 'al'} ${NAME[r]} en ${makeSquare(s)}`;
 const lo = (r: Role) => (FEM[r] ? 'la' : 'lo');
 const ado = (r: Role) => (FEM[r] ? 'amenazada' : 'amenazado');
+const PLURAL: Record<Role, string> = { pawn: 'peones', knight: 'caballos', bishop: 'alfiles', rook: 'torres', queen: 'damas', king: 'reyes' };
+const COUNT = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis'];
+/** «un peón y un caballo», «dos peones». */
+function tally(roles: Role[]): string {
+  const order: Role[] = ['queen', 'rook', 'bishop', 'knight', 'pawn'];
+  return list(
+    order.flatMap((r) => {
+      const n = roles.filter((x) => x === r).length;
+      return n === 0 ? [] : [n === 1 ? a(r) : `${COUNT[n] ?? n} ${PLURAL[r]}`];
+    }),
+  );
+}
 const list = (xs: string[]) => (xs.length < 2 ? (xs[0] ?? '') : `${xs.slice(0, -1).join(', ')} y ${xs.at(-1)}`);
 
 /** Hash estable (FNV-1a) para elegir plantilla: la misma posición y jugada dan siempre el mismo texto. */
@@ -133,7 +145,7 @@ function capturedSquare(s: Step): Square | undefined {
 }
 
 /** `victim`: casilla de la pieza amenazada (en `saves` y `ignored-threat`), para unir las dos frases cuando hablan de la misma pieza. */
-type Sentence = { kind: string; text: string; victim?: Square };
+type Sentence = { kind: string; text: string; victim?: Square; /** Solo afecta a peones: se cuenta después de lo importante. */ weak?: boolean };
 
 /* ---------- hechos de la jugada que se debe hacer (o la mejor) ---------- */
 
@@ -170,16 +182,18 @@ function goodSentences(fen: string, line: string[], seed: string): Sentence[] {
   if (step.captured && cs !== undefined && !after.isCheckmate()) {
     const tgt = at(step.captured.role, cs);
     const recapture = canCaptureOn(after, step.to);
-    if (!recapture) {
+    if (!recapture && cs !== step.to) {
+      s('capture-free', [`${cap(P)} captura al paso ${the(step.captured.role)} de ${makeSquare(cs)} y el rival no puede recapturar.`]);
+    } else if (!recapture) {
       s('capture-free', [
         `${cap(P)} captura ${tgt} y el rival no puede recapturar.`,
         `${cap(P)} toma ${the(step.captured.role)} en ${dest} gratis: no hay ninguna pieza rival que pueda recapturar.`,
-        `Con esa captura se gana ${the(step.captured.role)} sin perder nada, porque nadie puede recapturar en ${dest}.`,
+        `${cap(P)} gana ${the(step.captured.role)} en ${dest} sin coste: ninguna pieza rival puede recapturar.`,
       ]);
     } else if (VALUE[step.captured.role] > VALUE[step.role]) {
       s('capture-wins', [
         `${cap(P)} captura ${tgt}, que vale más. Aunque el rival recapture, se sale ganando.`,
-        `${cap(the(step.captured.role))} vale más que ${P}: aunque haya recaptura, el cambio sale a favor.`,
+        `${cap(P)} captura ${tgt}: vale más que ${P}, y aunque haya recaptura el cambio sale a favor.`,
       ]);
     }
   }
@@ -265,7 +279,7 @@ function goodSentences(fen: string, line: string[], seed: string): Sentence[] {
     else s('castle', [`El enroque aleja al rey del centro y saca la torre de la esquina.`, `Al enrocar, el rey se pone a un lado y la torre sale de la esquina.`]);
   }
 
-  if (p.promoRole && !after.isCheckmate()) s('promotion', [`El peón llega a la última fila y se convierte en ${the(p.promoRole)}.`, `El peón corona en ${dest}: ahora hay ${a(p.promoRole)} más en el tablero.`]);
+  if (p.promoRole && !after.isCheckmate()) s('promotion', [`El peón llega a la última fila y se convierte en ${a(p.promoRole)}.`, `El peón corona en ${dest}: ahora hay ${a(p.promoRole)} más en el tablero.`]);
 
   // Material de toda la secuencia correcta.
   if (line.length > 1) {
@@ -276,12 +290,12 @@ function goodSentences(fen: string, line: string[], seed: string): Sentence[] {
     if (steps.length === line.length && last?.pos.isCheckmate() && last.color === me && !after.isCheckmate())
       s('mate-line', [`La secuencia termina en jaque mate.`, `Siguiendo esa línea, el rival acaba en jaque mate.`]);
     else if (lastCap >= 0 && -settledLoss(before, steps, me, 6) > 0) {
-      const mine = steps.slice(0, lastCap + 1).filter((x) => x.color === me && x.captured).map((x) => a(x.captured!.role));
-      const theirs = steps.slice(0, lastCap + 1).filter((x) => x.color !== me && x.captured).map((x) => a(x.captured!.role));
+      const mine = steps.slice(0, lastCap + 1).filter((x) => x.color === me && x.captured).map((x) => x.captured!.role);
+      const theirs = steps.slice(0, lastCap + 1).filter((x) => x.color !== me && x.captured).map((x) => x.captured!.role);
       if (mine.length > 1 || theirs.length > 0 || (mine.length === 1 && !step.captured))
         s('line-material', [
-          `Siguiendo la secuencia, capturas ${list(mine)} y ${theirs.length ? `el rival solo captura ${list(theirs)}` : 'el rival no captura nada'}.`,
-          `En la secuencia ganas ${list(mine)}${theirs.length ? ` y pierdes ${list(theirs)}` : ' sin perder nada'}.`,
+          `Siguiendo la secuencia, capturas ${tally(mine)} y ${theirs.length ? `el rival solo captura ${tally(theirs)}` : 'el rival no captura nada'}.`,
+          `En la secuencia ganas ${tally(mine)}${theirs.length ? ` y pierdes ${tally(theirs)}` : ' sin perder nada'}.`,
         ]);
     }
   }
@@ -297,7 +311,7 @@ function badSentences(fen: string, uci: string, seed: string): Sentence[] {
   const out: Sentence[] = [];
   if (after.isEnd()) return out;
   const P = the(step.role);
-  const s = (kind: string, variants: string[]) => out.push({ kind, text: pick(variants, `${seed}|${kind}`) });
+  const s = (kind: string, variants: string[], weak = false) => out.push({ kind, text: pick(variants, `${seed}|${kind}`), ...(weak ? { weak } : {}) });
   const flipped = withTurnFlipped(before);
   const threats = flipped ? winningCaptures(flipped, me) : [];
 
@@ -321,8 +335,8 @@ function badSentences(fen: string, uci: string, seed: string): Sentence[] {
         `${cap(P)} captura ${a(step.captured.role)}, pero ${the(top.attacker.role)} rival puede capturar${lo(step.role)} después y el cambio sale perdiendo.`,
       ]);
     else if (old)
-      out.push({ kind: 'ignored-threat', victim: top.victim.sq, text: pick([
-        `${cap(at(V, top.victim.sq))} ya estaba ${ado(V)} por ${the(top.attacker.role)} y esa jugada no ${lo(V)} puso a salvo.`,
+      out.push({ kind: 'ignored-threat', victim: top.victim.sq, weak: V === 'pawn', text: pick([
+        `${cap(at(V, top.victim.sq))} ya estaba ${ado(V)} por ${the(top.attacker.role)} rival y esa jugada no ${lo(V)} puso a salvo.`,
         `${cap(the(V))} en ${makeSquare(top.victim.sq)} seguía en peligro: ${the(top.attacker.role)} rival podía capturar${lo(V)}.`,
       ], `${seed}|ignored-threat`) });
     else if (!top.recapture)
@@ -334,12 +348,12 @@ function badSentences(fen: string, uci: string, seed: string): Sentence[] {
         : [
             `Tras esa jugada, ${at(V, top.victim.sq)} queda sin protección: ${the(top.attacker.role)} rival puede capturar${lo(V)} gratis.`,
             `Esa jugada deja ${the(V)} en ${makeSquare(top.victim.sq)} sin defensa, y ${the(top.attacker.role)} rival puede capturar${lo(V)}.`,
-          ]);
+          ], V === 'pawn');
     else
       s('hangs-trade', [
         `${cap(the(top.attacker.role))} rival puede capturar ${at(V, top.victim.sq)}. Aunque se recapture, se pierde material.`,
         `Tras esa jugada, ${at(V, top.victim.sq)} se puede capturar con ${the(top.attacker.role)} y, aun recapturando, sale perdiendo.`,
-      ]);
+      ], V === 'pawn');
   }
 
   // El rival puede hacer un ataque doble seguro o descubrir un jaque capturando.
@@ -380,7 +394,7 @@ function badSentences(fen: string, uci: string, seed: string): Sentence[] {
     s('fork-allowed', [
       `Tras esa jugada, el rival puede mover ${the(fork.piece.role)} a ${makeSquare(fork.piece.sq)} y atacar a la vez ${list(forkNames)}.`,
       `Esa jugada permite que ${the(fork.piece.role)} rival vaya a ${makeSquare(fork.piece.sq)} y amenace ${list(forkNames)} al mismo tiempo.`,
-    ]);
+    ], fork.targets.every((x) => x.role === 'pawn') && !fork.check);
   if (disc)
     s('discovered-allowed', [
       `El rival puede capturar ${at(disc.victim.role, disc.victim.sq)} y, al apartarse su ${NAME[disc.piece.role]}, ${the(disc.checker.role)} suya da jaque.`,
@@ -487,8 +501,12 @@ export function whyError(i: ErrorWhyInput): string | null {
   const seed = `${i.fen.split(' ').slice(0, 4).join(' ')}|${i.played}|${i.best}`;
   const line = i.line && i.line[0] === i.best ? i.line : [i.best];
   const j = joinSaves(badSentences(i.fen, i.played, seed), goodSentences(i.fen, line, seed), 'con la mejor');
-  const bad = fresh(j.bad, i.known).slice(0, 2);
-  const good = fresh(j.good, i.known).slice(0, bad.length ? 2 : 3);
+  const fb = fresh(j.bad, i.known);
+  // Lo que solo afecta a peones va después de lo importante: si hay otra cosa, no se cuenta.
+  const strong = fb.filter((x) => !x.weak);
+  const allGood = fresh(j.good, i.known);
+  const bad = strong.length ? strong.slice(0, 2) : allGood.length ? [] : fb.slice(0, 1);
+  const good = allGood.slice(0, bad.length ? 2 : 3);
   const parts = good.map((x, k) => (k === 0 && bad.length ? `En cambio, ${decap(x.text)}` : x.text));
   return assemble([...bad.map((x) => x.text), ...parts]);
 }

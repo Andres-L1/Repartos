@@ -15,7 +15,8 @@ interface Case {
 const CASES: Case[] = [
   { name: 'jaque mate', fen: '6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1', line: ['d1d8'], good: { mate: 'La torre da jaque mate en d8: el rey rival está atacado y ninguna jugada lo salva.' } },
   { name: 'captura sin recaptura', fen: '4k3/8/8/3n4/8/8/3R4/4K3 w - - 0 1', line: ['d2d5'], good: { 'capture-free': 'La torre captura el caballo en d5 y el rival no puede recapturar.' } },
-  { name: 'captura de pieza mayor', fen: '4k3/8/4p3/3q4/8/8/8/3RK3 w - - 0 1', line: ['d1d5'], good: { 'capture-wins': 'La dama vale más que la torre: aunque haya recaptura, el cambio sale a favor.' } },
+  { name: 'captura al paso', fen: '4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1', line: ['e5d6'], good: { 'capture-free': 'El peón captura al paso el peón de d5 y el rival no puede recapturar.' } },
+  { name: 'captura de pieza mayor', fen: '4k3/8/4p3/3q4/8/8/8/3RK3 w - - 0 1', line: ['d1d5'], good: { 'capture-wins': 'La torre captura la dama en d5: vale más que la torre, y aunque haya recaptura el cambio sale a favor.' } },
   { name: 'ataque doble', fen: '4k3/8/1r3q2/8/8/4N3/8/4K3 w - - 0 1', line: ['e3d5'], good: { fork: 'Desde d5, el caballo amenaza a la torre en b6 y a la dama en f6 al mismo tiempo.' } },
   { name: 'ataque doble con jaque', fen: '4k3/1q6/8/8/4N3/8/8/4K3 w - - 0 1', line: ['e4d6'], good: { fork: 'Con el jaque, el caballo en d6 también ataca a la dama en b7.' } },
   { name: 'jaque', fen: '4k3/8/8/8/8/8/8/R3K3 w - - 0 1', line: ['a1a8'], good: { check: 'La torre ataca al rey desde a8, así que el rival está obligado a responder al jaque.' } },
@@ -132,7 +133,7 @@ describe('why: errores de partida', () => {
   });
   it('pieza amenazada que la jugada del alumno no salvó y la mejor sí: una sola frase', () => {
     const t = whyError({ fen: '4k3/8/8/8/1b6/2N5/8/R3K3 w - - 0 1', played: 'a1b1', best: 'a1c1', known: [] });
-    expect(t).toBe('El caballo en c3 ya estaba amenazado por el alfil y esa jugada no lo puso a salvo; con la mejor, sí.');
+    expect(t).toBe('El caballo en c3 ya estaba amenazado por el alfil rival y esa jugada no lo puso a salvo; con la mejor, sí.');
   });
   it('usa la línea del motor si empieza por la mejor jugada', () => {
     const fen = '4k3/8/1r3q2/8/8/4N3/8/4K3 w - - 0 1';
