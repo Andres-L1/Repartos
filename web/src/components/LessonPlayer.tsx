@@ -219,7 +219,7 @@ export function LessonPlayer({ lesson }: { lesson: Lesson }) {
           <PracticeBoard
             step={lesson.practice[phase.i]!}
             mode="practice"
-            explain={{ lessonId: lesson.id, stepKind: 'practice', stepIndex: phase.i }}
+            why
             isLast={phase.i + 1 >= lesson.practice.length}
             onDone={() => (phase.i + 1 < lesson.practice.length ? setPhase({ kind: 'practice', i: phase.i + 1 }) : toEval())}
           />
@@ -229,7 +229,7 @@ export function LessonPlayer({ lesson }: { lesson: Lesson }) {
           <PracticeBoard
             step={lesson.evaluation[phase.i]!}
             mode="evaluation"
-            explain={{ lessonId: lesson.id, stepKind: 'evaluation', stepIndex: phase.i }}
+            why
             isLast={phase.i + 1 >= lesson.evaluation.length}
             onDone={(r: StepResult) => {
               const next = [...evalResults, r.ok];

@@ -6,7 +6,8 @@ import { Icon } from './Icon';
 import { playSound } from '../sound';
 import { applyUci, canonicalUci, lastMoveOf, needsPromotion, PROMO_ROLES, sanOfUci, turnOf } from '../chess';
 import { TypedMove } from './TypedMove';
-import { ExplainButton } from './ExplainButton';
+import { WhyBlock } from './WhyBlock';
+import { whyLesson } from '../../../src/pedagogy/why';
 
 export interface StepResult {
   /** acertado a la primera (sin errores) */
@@ -27,11 +28,11 @@ interface Props {
   appearance?: string;
   /** Vitrina de la landing: sin pista, sin jugada escrita y con la marca de la pieza solo hasta mover. */
   showcase?: boolean;
-  /** Qué paso de qué lección es: con esto se ofrece «¿Por qué?» tras ver la solución (el servidor toma los hechos de su contenido). */
-  explain?: { lessonId: string; stepKind: 'practice' | 'evaluation'; stepIndex: number };
+  /** Muestra el bloque «Por qué» (generado en el navegador) tras ver la solución. */
+  why?: boolean;
 }
 
-export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appearance, showcase = false, explain }: Props) {
+export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appearance, showcase = false, why = false }: Props) {
   const [fen, setFen] = useState(step.fen);
   // Línea efectiva: la principal, o la de la rama si el alumno jugó una alternativa intermedia verificada.
   const [line, setLine] = useState<readonly string[]>(step.solutionUci);
@@ -44,6 +45,8 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
   const [nonce, setNonce] = useState(0);
   const [promo, setPromo] = useState<{ from: string; to: string } | null>(null);
   const [solutionSan, setSolutionSan] = useState('');
+  /** Último fallo: posición, jugada hecha y línea correcta desde ahí (para el «Por qué»). */
+  const [wrong, setWrong] = useState<{ fen: string; played: string; rest: string[] } | null>(null);
   const timer = useRef<number | undefined>(undefined);
   const fenBefore = useRef(step.fen);
 
@@ -67,6 +70,14 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
   const orientation = turnOf(step.fen);
   const interactive = status === 'playing' && !promo;
   const canHint = mode === 'practice' && !!step.hint && !showcase;
+
+  // Política de avisos: solo cuando la solución ya se ha visto (acierto, evaluación fallada o segundo fallo de la práctica).
+  const solutionSeen = status === 'correct' || (status === 'wrong' && (mode === 'evaluation' || mistakes >= 2));
+  const whyText = useMemo(() => {
+    if (!why || !solutionSeen) return null;
+    if (status === 'correct') return whyLesson({ fen: step.fen, line: [...line], known: [feedback] });
+    return wrong ? whyLesson({ fen: wrong.fen, line: wrong.rest, played: wrong.played, known: [feedback] }) : null;
+  }, [why, solutionSeen, status, step.fen, line, feedback, wrong]);
 
   function finishCorrect(msg: string) {
     setStatus('correct');
@@ -124,6 +135,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
       setHint(false);
       setFeedback(step.wrongByMove?.[uci] ?? step.explanationWrong);
       setSolutionSan(expected ? sanOfUci(fenBefore.current, expected) : '');
+      setWrong({ fen: fenBefore.current, played: uci, rest: line.slice(idx) });
     }
   }
 
@@ -234,10 +246,7 @@ export function PracticeBoard({ step, mode, onDone, isLast, plain = false, appea
           {(status === 'rival' || (status === 'playing' && feedback)) && <p>{feedback}</p>}
         </div>
 
-        {/* Solo cuando la solución ya se ha visto (acierto, evaluación fallada o segundo fallo de la práctica): nunca la adelanta. */}
-        {explain && (status === 'correct' || (status === 'wrong' && (mode === 'evaluation' || mistakes >= 2))) && (
-          <ExplainButton key={`${status}-${mistakes}`} body={{ kind: 'lesson', ...explain }} />
-        )}
+        <WhyBlock text={whyText} />
 
         {hint && status === 'playing' && step.hint && (
           <p className="t-alert t-alert-warn">

@@ -33,6 +33,20 @@ function material(pos: Chess): number {
   return s;
 }
 
+/**
+ * Jugadas legales con las capturas primero (víctima más valiosa y atacante más barato antes): con alfa-beta el valor exacto no
+ * depende del orden, pero un buen orden poda muchísimo. Sin esto, `rankMoves` a profundidad 3 en una posición de
+ * medio juego con las 32 piezas tardaba más de 200 s (u32.l04.2).
+ */
+function ordered(pos: Chess): Move[] {
+  const key = (m: Move) => {
+    const victim = pos.board.get(m.to);
+    const mover = 'from' in m ? pos.board.get(m.from) : undefined;
+    return victim && mover ? 10 * VALUE[victim.role] - VALUE[mover.role] : -1;
+  };
+  return legalMoves(pos).sort((a, b) => key(b) - key(a));
+}
+
 /** Evaluación (punto de vista del bando que mueve) con búsqueda de capturas. */
 function quiesce(pos: Chess, alpha: number, beta: number, ply: number): number {
   if (pos.isCheckmate()) return -MATE + ply;
@@ -41,8 +55,8 @@ function quiesce(pos: Chess, alpha: number, beta: number, ply: number): number {
   let best = sign * material(pos);
   if (best >= beta) return best;
   alpha = Math.max(alpha, best);
-  for (const m of legalMoves(pos)) {
-    if (!pos.board.get(m.to) ) continue;
+  for (const m of ordered(pos)) {
+    if (!pos.board.get(m.to)) continue;
     const next = pos.clone();
     next.play(m);
     const v = -quiesce(next, -beta, -alpha, ply + 1);
@@ -58,7 +72,7 @@ function search(pos: Chess, depth: number, alpha: number, beta: number, ply: num
   if (pos.isStalemate()) return 0;
   if (depth === 0) return quiesce(pos, alpha, beta, ply);
   let best = -Infinity;
-  for (const m of legalMoves(pos)) {
+  for (const m of ordered(pos)) {
     const next = pos.clone();
     next.play(m);
     const v = -search(next, depth - 1, -beta, -alpha, ply + 1);
