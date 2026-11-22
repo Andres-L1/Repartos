@@ -5,6 +5,7 @@
  *   para la combinación con menos puzles sin usar, así que nunca más de una por minuto en total.
  */
 import { aiCleanupStmts } from './ai.js';
+import { openingsCleanupStmts } from './openings.js';
 import type { Db, Stmt } from './db.js';
 import { REQUEST_TTL_MS } from './access.js';
 import { POOL_COMBOS, puzzleStart } from '../src/review/srs.js';
@@ -74,6 +75,7 @@ export async function fillPool(db: Db, nowMs: number, fetchImpl: typeof fetch): 
 export function cleanupStmts(nowMs: number): Stmt[] {
   return [
     ...aiCleanupStmts(nowMs),
+    ...openingsCleanupStmts(nowMs),
     { sql: 'DELETE FROM cp_access_requests WHERE last_at < ?', params: [nowMs - REQUEST_TTL_MS] }, // por el índice por last_at: no lee filas vigentes
     { sql: 'DELETE FROM cp_session_items WHERE created_at < ?', params: [nowMs - 7 * DAY] },
     { sql: 'DELETE FROM cp_puzzle_pool WHERE used_at IS NOT NULL AND used_at < ?', params: [nowMs - 30 * DAY] },

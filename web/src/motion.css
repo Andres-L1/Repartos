@@ -43,6 +43,9 @@
 :is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :nth-child(7) { --m-i: 6; }
 :is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :nth-child(8) { --m-i: 7; }
 
+/* Explorador de aperturas: la lista de jugadas entra con un fundido y un pequeño deslizamiento. */
+.op-moves > li { animation: m-rise var(--m-dur-base) var(--m-ease-out) both; }
+
 /* Un tablero nunca se desplaza al entrar: chessground mide su posición y un transform pasajero desviaría los toques. */
 :is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > :is(.step-board, .board-frame) { animation-name: m-fade; }
 
@@ -110,10 +113,10 @@
   :root { --m-shift: 0px; --m-hover-lift: 0px; --m-press-y: 0px; --m-stagger: 0ms; }
   .main, .m-enter, .m-swap, .m-pop, .lesson-body > .t-card,
   :is(.m-stagger, .map, .rv-list, .rp, .lvl-grid, .lesson-body > .step-layout) > *,
-  .feedback-correct, .rl-feedback.is-good, .rl-feedback.is-kind {
+  .op-moves > li, .feedback-correct, .rl-feedback.is-good, .rl-feedback.is-kind {
     animation: m-fade 120ms linear both !important;
   }
   .rl-dot.is-current, .gv-move[aria-current='step'] { animation: none !important; }
-  .t-btn, .t-chip, .t-tab, :is(a.lesson-link, .lvl-card, .balance, .gv-move, .nav-link) { transform: none !important; }
+  .t-btn, .t-chip, .t-tab, :is(a.lesson-link, .lvl-card, .balance, .gv-move, .nav-link, .op-move) { transform: none !important; }
   .board-cg cg-board piece.fear { animation: none; }
 }

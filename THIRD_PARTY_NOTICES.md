@@ -9,6 +9,7 @@ Chedex Pulse usa el software y los materiales siguientes. Cada uno conserva su l
 | stockfish (npm, Stockfish.js) | Nathan Rugg; proyecto Stockfish | GPL-3.0 | Motor de análisis del entrenador de partidas |
 | Piezas «cburnett» (incluidas en chessground) | Colin M.L. Burnett | GPLv2+ | Juego de piezas por defecto |
 | Sonidos «sfx» de Lichess (`web/public/sound/`, ver `LICENSE.md` allí) | Enigmahack | AGPL-3.0-or-later | Sonidos del tablero y de fin de lección |
+| chess-openings (`src/openings/openings.json`, generado con `scripts/build-openings.mts`) | Lichess y colaboradores (https://github.com/lichess-org/chess-openings) | CC0 1.0 Universal (dominio público; su README: «As a collection of facts, this data set is in the public domain», y lo que pudiera tener copyright se libera bajo CC0) | Nombres y códigos ECO de las aperturas |
 | hono | Yusuke Wada | MIT | Servidor de la API |
 | react, react-dom | Meta Platforms, Inc. y colaboradores | MIT | Interfaz web |
 | DM Sans | Los autores del proyecto DM Sans | SIL Open Font License 1.1 (`web/public/fonts/OFL.txt`) | Tipografía |

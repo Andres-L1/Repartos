@@ -5,6 +5,7 @@ import { LEVELS, suggestLevel } from '../../../src/shared/levels';
 import type { AccessOverview, Equipped, MapUnit, LevelInfo, OutlineUnit, Profile, Shop, User } from '../../../src/shared/api';
 import { UNITS } from '../../../src/content/index';
 import { levelPlan } from '../../../worker/level';
+import { legalDests, sanOfUci } from '../chess';
 
 interface MockState {
   user: User | null;
@@ -228,7 +229,17 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
   }
   if (!state.user) return err(401, 'Necesitas iniciar sesión.');
 
-  if (path === '/me') return json({ user: state.user, isAdmin: ADMIN, ai: true, equipped: wallet().equipped, level: state.chosenLevel ?? 'initiation', levelChosen: !!state.chosenLevel });
+  if (path === '/me') return json({ user: state.user, isAdmin: ADMIN, ai: true, openingsStats: true, equipped: wallet().equipped, level: state.chosenLevel ?? 'initiation', levelChosen: !!state.chosenLevel });
+  if (path.startsWith('/openings/stats')) {
+    // Cifras inventadas pero deterministas, solo para ver la pantalla sin servidor.
+    const fen = new URL(url, 'http://x').searchParams.get('fen') ?? '';
+    const moves = [...legalDests(fen)].flatMap(([from, tos]) => tos.map((to) => from + to)).slice(0, 5).map((uci, i) => {
+      const n = 4000 - i * 700;
+      return { uci, san: sanOfUci(fen, uci), white: Math.round(n * 0.4), draws: Math.round(n * 0.3), black: Math.round(n * 0.3) };
+    });
+    const sum = (k: 'white' | 'draws' | 'black') => moves.reduce((a, m) => a + m[k], 0);
+    return json({ white: sum('white'), draws: sum('draws'), black: sum('black'), opening: null, moves });
+  }
   if (path === '/shop') return json(buildShop());
   if (path === '/shop/buy' && method === 'POST') {
     const w = wallet();

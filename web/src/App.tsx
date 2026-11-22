@@ -21,6 +21,7 @@ const ReviewScreen = lazy(() => import('./screens/ReviewScreen').then((m) => ({ 
 const LevelScreen = lazy(() => import('./screens/LevelScreen').then((m) => ({ default: m.LevelScreen })));
 const ShopScreen = lazy(() => import('./screens/ShopScreen').then((m) => ({ default: m.ShopScreen })));
 const SessionScreen = lazy(() => import('./screens/SessionScreen').then((m) => ({ default: m.SessionScreen })));
+const OpeningsScreen = lazy(() => import('./screens/OpeningsScreen').then((m) => ({ default: m.OpeningsScreen })));
 const CreditsScreen = lazy(() => import('./screens/CreditsScreen').then((m) => ({ default: m.CreditsScreen })));
 
 function NotFound() {
@@ -85,6 +86,7 @@ export function App() {
   else if (path === '/aprender') screen = <MapScreen />;
   else if (path.startsWith('/leccion/')) screen = <LessonScreen id={decodeURIComponent(path.slice('/leccion/'.length))} />;
   else if (path === '/partidas' || path === '/partidas/informe' || path.startsWith('/partidas/repaso/')) screen = <ReviewScreen path={path} />;
+  else if (path === '/aperturas') screen = <OpeningsScreen />;
   else if (path === '/entrenar') screen = <SessionScreen />;
   else if (path === '/perfil') screen = <ProfileScreen />;
   else if (path === '/bienvenida') screen = <LevelScreen />;
@@ -125,6 +127,7 @@ export function App() {
             <nav className="nav side-nav" aria-label="Principal">
               {link('/aprender', 'Aprender', 'learn', ['/leccion', '/entrenar'])}
               {link('/partidas', 'Partidas', 'eye')}
+              {link('/aperturas', 'Aperturas', 'book')}
               {link('/tienda', 'Tienda', 'shop')}
               {link('/perfil', 'Perfil', 'user')}
               {isAdmin && link('/admin', 'Admin', 'shield')}

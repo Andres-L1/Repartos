@@ -71,6 +71,11 @@ export function PrivacyScreen() {
         <li>
           Para los puzles, nuestro servidor pide a Lichess lotes anónimos por tema y dificultad, sin ningún dato tuyo.
         </li>
+        <li>
+          Solo si el administrador activa las estadísticas de aperturas, nuestro servidor consulta a Lichess el diagrama
+          (FEN) de la posición que miras en «Aperturas», y la fuente elegida (maestros o jugadores de Lichess). No se envían datos
+          personales: ni tu usuario, ni tu cuenta de Lichess, ni cookies. El libro de aperturas básico no usa ningún servicio externo.
+        </li>
         <li>La web y la base de datos se alojan en Cloudflare. No usamos analítica, publicidad ni rastreadores de terceros.</li>
       </ul>
 

@@ -20,6 +20,14 @@ describe('router: rutas privadas', () => {
   });
 });
 
+describe('router: aperturas', () => {
+  it('/aperturas es privada y tiene título', () => {
+    expect(isPrivatePath('/aperturas')).toBe(true);
+    expect(isPrivatePath('/aperturasx')).toBe(false);
+    expect(titleFor('/aperturas')).toBe('Aperturas · Chedex Pulse');
+  });
+});
+
 describe('router: entrenar', () => {
   it('/entrenar es privada', () => {
     expect(isPrivatePath('/entrenar')).toBe(true);

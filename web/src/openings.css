@@ -1,0 +1,43 @@
+/* Pantalla /aperturas: tablero, nombre de la apertura y lista de jugadas del libro o de Lichess. */
+.op { display: grid; gap: var(--s-4); width: 100%; max-width: 64rem; margin-inline: auto; min-width: 0; }
+.op-head { display: grid; gap: 0.25rem; }
+.op-head h1, .op-head p { margin: 0; overflow-wrap: anywhere; }
+.op-layout { display: grid; gap: var(--s-4); min-width: 0; }
+.op-board { position: relative; min-width: 0; display: grid; gap: var(--s-3); align-content: start; }
+.op-tools { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.op-tools .t-btn { margin-bottom: 0; min-height: 44px; }
+.op-side { display: grid; gap: var(--s-3); min-width: 0; align-content: start; }
+.op-side .t-card { margin: 0; }
+.op-now > div > p, .op-now > p { margin: 0; overflow-wrap: anywhere; }
+.op-name { font-size: 1.15rem; font-weight: 800; }
+.op-eco { color: var(--brand-dark); font-weight: 800; font-variant-numeric: tabular-nums; }
+.op-line { font-variant-numeric: tabular-nums; color: var(--muted); }
+.op-tabs { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.op-tabs .t-chip { min-height: 44px; margin-bottom: 0; }
+
+.op-moves { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+.op-move { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 0 var(--s-3); align-items: center; width: 100%; min-height: 48px; padding: var(--s-2) var(--s-3); border: 0; border-radius: var(--r-md); background: var(--t-graphite-2); color: var(--ink); font: inherit; text-align: left; cursor: pointer; box-shadow: inset 0 0 0 1px var(--line); }
+.op-move:hover { background: var(--t-graphite-3); }
+.op-move:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+.op-san { font-weight: 800; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.op-move-name { min-width: 0; overflow-wrap: anywhere; }
+.op-stat > .op-bar, .op-stat > .op-bar-text { grid-column: 2; }
+.op-total { margin: 0 0 var(--s-2); font-weight: 700; }
+
+/* Barra de resultados: blancas / tablas / negras. El texto con los porcentajes va siempre al lado: el color nunca es la única señal. */
+.op-bar { display: flex; height: 10px; margin-top: 6px; border-radius: 5px; overflow: hidden; box-shadow: 0 0 0 1px var(--line); }
+.op-bar-w { background: #f2f2ee; }
+.op-bar-d { background: #8a8d94; }
+.op-bar-b { background: #17181c; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18); }
+.op-bar-text { display: block; margin-top: 4px; font-size: var(--fs-sm); color: var(--muted); font-variant-numeric: tabular-nums; }
+.op > .t-card > .op-bar { margin-bottom: 0; }
+.op-source { margin: var(--s-3) 0 0; }
+
+@media (min-width: 900px) {
+  .op-layout { grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr); gap: var(--s-6); align-items: start; }
+  .op-board .board-frame { max-width: max(320px, min(100%, 640px, calc(100vh - 14rem))); margin: 0; }
+}
+@media (max-width: 480px) {
+  .op-move { grid-template-columns: 3.5rem minmax(0, 1fr); padding-inline: var(--s-2); }
+  .op-tools .t-btn { flex: 1 1 auto; justify-content: center; }
+}

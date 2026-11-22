@@ -32,6 +32,13 @@ export const LIBRARIES: Library[] = [
     use: 'El motor que analiza tus partidas.',
   },
   {
+    name: 'chess-openings de Lichess',
+    author: 'Lichess y colaboradores (lichess-org/chess-openings)',
+    license: 'CC0 1.0 (dominio público)',
+    url: 'https://github.com/lichess-org/chess-openings',
+    use: 'Los nombres y códigos ECO del explorador de aperturas.',
+  },
+  {
     name: 'Piezas «cburnett» de Lichess',
     author: 'Colin M.L. Burnett',
     license: 'GPLv2+',

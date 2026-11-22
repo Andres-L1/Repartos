@@ -12,6 +12,7 @@ import type { ContentSource, ProgressRow } from './progress.js';
 import { effectiveStreak, protectorCount } from './shop.js';
 import type { Ctx } from './http.js';
 import { resolveAi, type AiSettings } from './ai.js';
+import { resolveOpenings, type OpeningsSettings } from './openings.js';
 
 /** Binding de límite de peticiones de Cloudflare (wrangler.jsonc `ratelimits`). */
 export interface Limiter {
@@ -42,6 +43,8 @@ export interface AppDeps {
   random?: () => number;
   /** Explicaciones con IA (clave y límites del Worker; `transport` falso en los tests). Sin clave ni transporte: desactivadas. */
   ai?: AiSettings;
+  /** Estadísticas de aperturas de Lichess (opcionales; sin configuración: apagadas). */
+  openings?: OpeningsSettings;
 }
 
 interface ProfileRow {
@@ -55,6 +58,7 @@ export function createContext(deps: AppDeps) {
   const restricted = (deps.accessMode ?? 'allowlist') !== 'open';
   const now = deps.now ?? (() => new Date());
   const ai = resolveAi(deps.ai);
+  const openings = resolveOpenings(deps.openings);
 
   const auth: AuthConfig = {
     secret: deps.sessionSecret,
@@ -171,7 +175,7 @@ export function createContext(deps: AppDeps) {
   };
 
   return {
-    deps, db, content, now, auth, requireAuth, ai,
+    deps, db, content, now, auth, requireAuth, ai, openings,
     ensureProfileStmt, progressMap, loadProfile, isLevel, chosenLevel, profileFor, levelEffect,
   };
 }

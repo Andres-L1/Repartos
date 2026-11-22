@@ -19,6 +19,8 @@ export interface Env {
   DEEPSEEK_BASE_URL?: string;
   DEEPSEEK_MODEL?: string;
   AI_ENABLED?: string;
+  /** '1' enciende las estadísticas de aperturas de Lichess (por defecto '0'). */
+  OPENINGS_STATS_ENABLED?: string;
   DEEPSEEK_DAILY_TOKEN_CAP?: string;
   DEEPSEEK_MONTHLY_BUDGET_EUR?: string;
   DEEPSEEK_PRICE_IN_EUR_PER_M?: string;
@@ -48,6 +50,7 @@ function appFor(env: Env) {
       priceOutEurPerM: env.DEEPSEEK_PRICE_OUT_EUR_PER_M,
       monthlyTokenCap: env.DEEPSEEK_MONTHLY_TOKEN_CAP,
     },
+    openings: { enabled: env.OPENINGS_STATS_ENABLED },
     assets: env.ASSETS,
     apiLimiter: env.API_LIMITER,
     authLimiter: env.AUTH_LIMITER,

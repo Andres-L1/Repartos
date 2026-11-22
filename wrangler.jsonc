@@ -29,7 +29,9 @@
   ],
   "vars": {
     "PUBLIC_ORIGIN": "https://chedexpulse.app",
-    "AI_ENABLED": "0"
+    "AI_ENABLED": "0",
+    // Estadísticas de aperturas de Lichess: "1" las enciende. Requiere la migración 0013 aplicada en remoto.
+    "OPENINGS_STATS_ENABLED": "0"
   },
   // Cada minuto: como mucho una petición a Lichess para rellenar el depósito de puzles, y limpieza a la hora en punto.
   // Cada ejecución lee ~76 filas (contadores cp_puzzle_stats, migración 0010): ~110 mil filas/día frente a las 5 M del plan gratuito de D1.

@@ -39,6 +39,7 @@ export function registerAccountRoutes(app: Hono<Env>, k: AppContext): void {
       level: chosen ?? 'initiation',
       levelChosen: chosen !== null,
       ai: k.ai.on, // la web oculta el botón «¿Por qué?» si no hay IA
+      openingsStats: k.openings.on, // la web solo ofrece «Estadísticas (Lichess)» si el administrador las activó
     });
   });
 
@@ -48,6 +49,7 @@ export function registerAccountRoutes(app: Hono<Env>, k: AppContext): void {
     requireOwnOrigin(c, deps);
     await db.batch([
       { sql: 'DELETE FROM cp_ai_usage WHERE user_id = ?', params: [c.get('user').id] },
+      { sql: 'DELETE FROM cp_openings_usage WHERE user_id = ?', params: [c.get('user').id] },
       { sql: 'DELETE FROM cp_users WHERE id = ?', params: [c.get('user').id] },
     ]);
     const res = c.json({ ok: true });
