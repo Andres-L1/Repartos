@@ -124,7 +124,7 @@ export const api = {
   answer: (b: AnswerBody) => request<AnswerResult>('POST', '/api/session/answer', b),
   finish: (sessionId: string) => request<FinishResult>('POST', '/api/session/finish', { sessionId }),
   /** Estadísticas de Lichess para una posición; cualquier fallo (apagado, tope, error) llega como {unavailable:true}. */
-  openingsStats: (fen: string, source: 'masters' | 'lichess') =>
+  openingsStats: (fen: string, source: 'masters') =>
     request<OpeningsStats | { unavailable: true }>('GET', `/api/openings/stats?fen=${encodeURIComponent(fen)}&source=${source}`).catch(
       (): { unavailable: true } => ({ unavailable: true }),
     ),

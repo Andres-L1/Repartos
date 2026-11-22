@@ -112,8 +112,6 @@ describe('GET /api/openings/stats', () => {
     const sent = JSON.stringify(s.calls[0]);
     expect(sent).not.toMatch(/ana|cookie|authorization/i);
     expect(Object.keys((s.calls[0]!.init?.headers ?? {}) as object)).toEqual(['accept']);
-    await s.stats(START, 'lichess');
-    expect(new URL(s.calls[1]!.url).pathname).toBe('/lichess');
   });
 
   it('FEN o source inválidos: 400 sin llamar a Lichess', async () => {
@@ -126,7 +124,7 @@ describe('GET /api/openings/stats', () => {
     ];
     for (const fen of bad) expect((await s.stats(fen)).status).toBe(400);
     expect((await s.get('/api/openings/stats?source=masters')).status).toBe(400);
-    for (const src of ['', 'otro', 'MASTERS', 'lichess/../x']) expect((await s.stats(START, src)).status).toBe(400);
+    for (const src of ['', 'otro', 'MASTERS', 'lichess', 'masters/../x']) expect((await s.stats(START, src)).status).toBe(400);
     expect((await s.get(`/api/openings/stats?fen=${encodeURIComponent(START)}`)).status).toBe(400);
     expect(s.calls).toHaveLength(0);
   });
@@ -140,7 +138,7 @@ describe('GET /api/openings/stats', () => {
     expect(s.calls).toHaveLength(1);
     await s.login({ id: 'Luis', username: 'Luis' });
     expect((await s.stats(AFTER_E4)).json.cached).toBe(true); // compartida entre alumnos
-    await s.stats(AFTER_E4, 'lichess');
+    await s.stats(START);
     expect(s.calls).toHaveLength(2);
     s.clock.t += TTL_MS + 1;
     expect((await s.stats(AFTER_E4)).json.cached).toBe(false);

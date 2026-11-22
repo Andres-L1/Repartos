@@ -10,11 +10,10 @@ import { useSession } from '../session';
 import '../openings.css';
 
 const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-type Source = 'book' | 'masters' | 'lichess';
+type Source = 'book' | 'masters';
 const SOURCES: { id: Source; label: string }[] = [
   { id: 'book', label: 'Libro' },
   { id: 'masters', label: 'Maestros' },
-  { id: 'lichess', label: 'Jugadores de Lichess' },
 ];
 
 interface Ply {
@@ -222,7 +221,7 @@ export function OpeningsScreen() {
               )}
             </section>
           ) : (
-            <StatsPanel source={effective} state={stats} onPlay={play} book={index} fenKey={key} />
+            <StatsPanel state={stats} onPlay={play} book={index} fenKey={key} />
           )}
         </div>
       </div>
@@ -249,8 +248,8 @@ function Bar({ o }: { o: { white: number; draws: number; black: number } }) {
   );
 }
 
-function StatsPanel({ source, state, onPlay, book, fenKey }: { source: Source; state: StatsState; onPlay(uci: string): void; book: OpeningIndex; fenKey: string }) {
-  const title = source === 'masters' ? 'Partidas de maestros' : 'Partidas de jugadores de Lichess';
+function StatsPanel({ state, onPlay, book, fenKey }: { state: StatsState; onPlay(uci: string): void; book: OpeningIndex; fenKey: string }) {
+  const title = 'Partidas de maestros';
   const names = useMemo(() => new Map(bookMoves(book, fenKey).map((m) => [m.uci, m.opening.name])), [book, fenKey]);
   return (
     <section className="t-card" aria-labelledby="op-stats-title" aria-busy={state.kind === 'loading'}>

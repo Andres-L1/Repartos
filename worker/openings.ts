@@ -8,7 +8,7 @@ import { makeFen, parseFen } from 'chessops/fen';
 import type { Db, Stmt } from './db.js';
 import type { OpeningsStats } from '../src/shared/api.js';
 
-export const SOURCES = ['masters', 'lichess'] as const;
+export const SOURCES = ['masters'] as const;
 export type Source = (typeof SOURCES)[number];
 export const isSource = (v: unknown): v is Source => typeof v === 'string' && (SOURCES as readonly string[]).includes(v);
 

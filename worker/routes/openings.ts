@@ -1,4 +1,4 @@
-/** GET /api/openings/stats?fen=&source=masters|lichess: estadísticas del explorador de Lichess (opcional, apagado por defecto). */
+/** GET /api/openings/stats?fen=&source=masters: estadísticas del explorador de Lichess (opcional, apagado por defecto). */
 import type { Hono } from 'hono';
 import type { AppContext } from '../context.js';
 import { HttpError, type Env } from '../http.js';

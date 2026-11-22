@@ -25,7 +25,7 @@
  * DELETE /api/admin/requests/:id                                -> AccessOverview   (descarta la solicitud)
  * POST /api/explain {kind:'lesson',lessonId,stepKind,stepIndex} | {kind:'error',fen,played,best} -> {text, cached}   (429 topes, 503 sin IA; ver worker/ai.ts)
  * GET    /api/admin/ai                                         -> AiUsage          (solo administración)
- * GET    /api/openings/stats?fen=&source=masters|lichess      -> OpeningsStats | {unavailable:true}   (opcional: 404 {disabled:true} si OPENINGS_STATS_ENABLED no está activo; ver worker/openings.ts)
+ * GET    /api/openings/stats?fen=&source=masters      -> OpeningsStats | {unavailable:true}   (opcional: 404 {disabled:true} si OPENINGS_STATS_ENABLED no está activo; ver worker/openings.ts)
  * GET  /api/outline                                          -> {units: OutlineUnit[]}   (público, solo lectura: unidades y títulos de lección, SIN contenido)
  */
 import type { Lesson } from '../content/schema.js';
