@@ -13,7 +13,15 @@ import { effectiveStreak, protectorCount } from './shop.js';
 import type { Ctx } from './http.js';
 import { resolveAi, type AiSettings } from './ai.js';
 
+/** Binding de límite de peticiones de Cloudflare (wrangler.jsonc `ratelimits`). */
+export interface Limiter {
+  limit(o: { key: string }): Promise<{ success: boolean }>;
+}
+
 export interface AppDeps {
+  /** Límites por IP: general (/api) y estricto (/auth). Sin binding (tests, desarrollo): sin límite. */
+  apiLimiter?: Limiter | undefined;
+  authLimiter?: Limiter | undefined;
   db: Db;
   content: ContentSource;
   /**

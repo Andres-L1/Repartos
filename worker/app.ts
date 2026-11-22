@@ -19,6 +19,23 @@ const MAX_BODY = 16 * 1024;
 export function createApp(deps: AppDeps) {
   const app = new Hono<Env>();
 
+  // ---------- límite de peticiones por IP (antes de tocar D1) ----------
+  app.use('*', async (c, next) => {
+    const p = new URL(c.req.url).pathname;
+    const lim = p.startsWith('/auth/') ? deps.authLimiter : p.startsWith('/api/') ? deps.apiLimiter : undefined;
+    if (lim) {
+      const ip = c.req.header('cf-connecting-ip') ?? 'sin-ip';
+      let ok = true;
+      try {
+        ok = (await lim.limit({ key: ip })).success;
+      } catch {
+        // shortcut: si el binding falla, se deja pasar (no tumbar la web), vigilar si aparece en logs
+      }
+      if (!ok) return c.json({ error: 'Demasiadas peticiones, espera un momento' }, 429, { 'Retry-After': '60' });
+    }
+    await next();
+  });
+
   // ---------- cabeceras, CORS, límites ----------
   app.use('*', async (c, next) => {
     await next();

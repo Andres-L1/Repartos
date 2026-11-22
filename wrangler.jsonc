@@ -36,6 +36,11 @@
   // OJO: aplicar la migración 0011 (acceso restringido) ANTES de desplegar: sin sus tablas nadie (salvo administración) puede entrar.
   // OJO: aplicar la migración 0010 ANTES de desplegar este cron (sin cp_puzzle_stats el relleno falla y se registra en el log).
   "triggers": { "crons": ["* * * * *"] },
+  // Límite por IP (Cloudflare Rate Limiting, gratis, por ubicación): 300 peticiones/min en /api y 30/min en /auth.
+  "ratelimits": [
+    { "name": "API_LIMITER", "namespace_id": "1001", "simple": { "limit": 300, "period": 60 } },
+    { "name": "AUTH_LIMITER", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } }
+  ],
   "observability": { "enabled": false },
   "routes": [{ "pattern": "chedexpulse.app", "custom_domain": true }]
 }

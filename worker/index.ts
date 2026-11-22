@@ -4,6 +4,7 @@
  */
 import { UNITS } from '../src/content/index.js';
 import { createApp } from './app.js';
+import type { Limiter } from './context.js';
 import { d1Db, type D1Like } from './db.js';
 import { scheduledRun } from './puzzles.js';
 
@@ -23,6 +24,8 @@ export interface Env {
   DEEPSEEK_PRICE_IN_EUR_PER_M?: string;
   DEEPSEEK_PRICE_OUT_EUR_PER_M?: string;
   DEEPSEEK_MONTHLY_TOKEN_CAP?: string;
+  API_LIMITER?: Limiter;
+  AUTH_LIMITER?: Limiter;
   ASSETS?: { fetch(req: Request): Promise<Response> };
 }
 
@@ -46,6 +49,8 @@ function appFor(env: Env) {
       monthlyTokenCap: env.DEEPSEEK_MONTHLY_TOKEN_CAP,
     },
     assets: env.ASSETS,
+    apiLimiter: env.API_LIMITER,
+    authLimiter: env.AUTH_LIMITER,
   });
   return cached;
 }
