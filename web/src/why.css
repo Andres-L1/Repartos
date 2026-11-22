@@ -1,0 +1,4 @@
+/* Bloque «Por qué»: aclaración automática, sin botón; aparece de golpe junto al resultado (no hay carga, no hay salto de maquetación). */
+.why { display: grid; gap: 4px; margin: 8px 0 0; min-width: 0; padding: 10px 12px; border-left: 4px solid var(--t-orange); border-radius: var(--t-r-chip); background: var(--t-graphite-3); }
+.why-title { margin: 0; font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--t-muted); }
+.why-text { margin: 0; line-height: 1.5; overflow-wrap: anywhere; }

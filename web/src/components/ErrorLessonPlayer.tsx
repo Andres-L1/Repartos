@@ -4,7 +4,8 @@ import type { Key } from 'chessground/types';
 import type { ErrorLesson } from '../../../src/pedagogy/error-lesson';
 import { initLessonState, judgeBestMove, lessonReducer, type LessonStep } from '../review/lessonFlow';
 import { applyUci, lastMoveOf, turnOf, uciOfSan } from '../chess';
-import { ExplainButton } from './ExplainButton';
+import { WhyBlock } from './WhyBlock';
+import { whyError } from '../../../src/pedagogy/why';
 import { playSound } from '../sound';
 import { Board } from './Board';
 import { Icon } from './Icon';
@@ -140,6 +141,21 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
   useEffect(() => setLineIdx(0), [step]);
   const lineUci = line ? line.ucis[lineIdx]! : lesson.best.uci;
 
+  // Solo en el último momento y con la mejor jugada ya a la vista; no repite lo que dicen los momentos anteriores.
+  const whyText = useMemo(
+    () =>
+      playedUci
+        ? whyError({
+            fen: lesson.fenBefore,
+            played: playedUci,
+            best: lesson.best.uci,
+            ...(lesson.line ? { line: lesson.line.ucis } : {}),
+            known: [lesson.happened.text, lesson.why, lesson.best.text, lesson.rule],
+          })
+        : null,
+    [lesson, playedUci],
+  );
+
   const shapes: DrawShape[] = useMemo(() => {
     if (step === 'happened') {
       return [
@@ -255,7 +271,7 @@ export function ErrorLessonPlayer({ lesson, mode = 'full', onFinish }: Props) {
                     </p>
                   </div>
                 )}
-                {playedUci && <ExplainButton body={{ kind: 'error', fen: lesson.fenBefore, played: playedUci, best: lesson.best.uci }} />}
+                <WhyBlock text={whyText} />
                 <p className="rl-rule">
                   <span className="rl-rule-tag">La regla</span>
                   {lesson.rule}
