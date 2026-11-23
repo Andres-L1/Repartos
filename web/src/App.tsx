@@ -21,6 +21,7 @@ const ReviewScreen = lazy(() => import('./screens/ReviewScreen').then((m) => ({ 
 const LevelScreen = lazy(() => import('./screens/LevelScreen').then((m) => ({ default: m.LevelScreen })));
 const ShopScreen = lazy(() => import('./screens/ShopScreen').then((m) => ({ default: m.ShopScreen })));
 const SessionScreen = lazy(() => import('./screens/SessionScreen').then((m) => ({ default: m.SessionScreen })));
+const RepertoireScreen = lazy(() => import('./screens/RepertoireScreen').then((m) => ({ default: m.RepertoireScreen })));
 const OpeningsScreen = lazy(() => import('./screens/OpeningsScreen').then((m) => ({ default: m.OpeningsScreen })));
 const CreditsScreen = lazy(() => import('./screens/CreditsScreen').then((m) => ({ default: m.CreditsScreen })));
 
@@ -87,6 +88,7 @@ export function App() {
   else if (path.startsWith('/leccion/')) screen = <LessonScreen id={decodeURIComponent(path.slice('/leccion/'.length))} />;
   else if (path === '/partidas' || path === '/partidas/informe' || path.startsWith('/partidas/repaso/')) screen = <ReviewScreen path={path} />;
   else if (path === '/aperturas') screen = <OpeningsScreen />;
+  else if (path === '/repertorio') screen = <RepertoireScreen />;
   else if (path === '/entrenar') screen = <SessionScreen />;
   else if (path === '/perfil') screen = <ProfileScreen />;
   else if (path === '/bienvenida') screen = <LevelScreen />;

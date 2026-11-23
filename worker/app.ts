@@ -11,6 +11,7 @@ import { registerShopRoutes } from './routes/shop.js';
 import { registerAdminRoutes } from './routes/admin.js';
 import { registerExplainRoutes } from './routes/explain.js';
 import { registerOpeningsRoutes } from './routes/openings.js';
+import { registerRepertoireRoutes } from './routes/repertoire.js';
 
 export type { AppDeps };
 
@@ -100,6 +101,7 @@ export function createApp(deps: AppDeps) {
   registerAdminRoutes(app, k); // /api/admin/*
   registerExplainRoutes(app, k); // /api/explain
   registerOpeningsRoutes(app, k); // /api/openings/stats
+  registerRepertoireRoutes(app, k); // /api/repertoire
 
   return app;
 }

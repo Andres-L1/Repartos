@@ -14,12 +14,12 @@ export class LichessError extends Error {
 
 export async function fetchRecentGames(
   username: string,
-  opts: { signal?: AbortSignal; fetchImpl?: typeof fetch } = {},
+  opts: { signal?: AbortSignal; fetchImpl?: typeof fetch; max?: number } = {},
 ): Promise<LichessGame[]> {
   const doFetch = opts.fetchImpl ?? fetch;
   let res: Response;
   try {
-    res = await doFetch(gamesUrl(username), {
+    res = await doFetch(gamesUrl(username, opts.max), {
       headers: { Accept: 'application/x-ndjson' },
       signal: opts.signal,
     });

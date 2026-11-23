@@ -202,6 +202,7 @@ function json(body: unknown, status = 200): Response {
 }
 const err = (status: number, error: string) => json({ error }, status);
 
+let repMoves: { color: 'white' | 'black'; key: string; uci: string }[] = [];
 export async function mockFetch(url: string, init: RequestInit): Promise<Response> {
   await new Promise((r) => setTimeout(r, 120));
   const method = (init.method ?? 'GET').toUpperCase();
@@ -239,6 +240,13 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     });
     const sum = (k: 'white' | 'draws' | 'black') => moves.reduce((a, m) => a + m[k], 0);
     return json({ white: sum('white'), draws: sum('draws'), black: sum('black'), opening: null, moves });
+  }
+  if (path.startsWith('/repertoire')) {
+    const b = init.body ? JSON.parse(String(init.body)) : {};
+    if (path === '/repertoire/add') for (const m of b.moves) if (!repMoves.some((r) => r.color === b.color && r.key === m.key && r.uci === m.uci)) repMoves.push({ color: b.color, key: m.key, uci: m.uci });
+    if (path === '/repertoire/remove') repMoves = repMoves.filter((r) => !(r.color === b.color && r.key === b.key && r.uci === b.uci));
+    if (path === '/repertoire/clear') repMoves = repMoves.filter((r) => r.color !== b.color);
+    return json({ moves: repMoves });
   }
   if (path === '/shop') return json(buildShop());
   if (path === '/shop/buy' && method === 'POST') {

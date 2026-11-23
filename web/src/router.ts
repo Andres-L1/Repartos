@@ -8,7 +8,7 @@ import { useSyncExternalStore } from 'react';
 /** Rutas antiguas que ahora se llaman distinto (también dentro del hash antiguo). */
 const RENAMED: Record<string, string> = { '/mapa': '/aprender', '/registro': '/entrar' };
 
-export const PRIVATE_PREFIXES = ['/aprender', '/leccion', '/perfil', '/admin', '/bienvenida', '/tienda', '/partidas', '/entrenar', '/aperturas'];
+export const PRIVATE_PREFIXES = ['/aprender', '/leccion', '/perfil', '/admin', '/bienvenida', '/tienda', '/partidas', '/entrenar', '/aperturas', '/repertorio'];
 
 /** Quita query/hash y la barra final; '' pasa a '/'. */
 export function normalizePath(raw: string): string {
@@ -26,6 +26,7 @@ const TITLES: [string, string][] = [
   ['/partidas/informe', 'Informe de tus partidas'],
   ['/partidas', 'Repaso de partidas'],
   ['/aperturas', 'Aperturas'],
+  ['/repertorio', 'Mi repertorio'],
   ['/tienda', 'Tienda'],
   ['/perfil', 'Perfil'],
   ['/admin', 'Administración'],

@@ -76,6 +76,11 @@ export function PrivacyScreen() {
           (FEN) de la posición que miras en «Aperturas», para mostrar estadísticas de partidas de maestros. No se envían datos
           personales: ni tu usuario, ni tu cuenta de Lichess, ni cookies. El libro de aperturas básico no usa ningún servicio externo.
         </li>
+        <li>
+          Si creas tu repertorio a partir de tus partidas, tu navegador descarga tus partidas públicas de Lichess y las analiza
+          con Stockfish en tu propio dispositivo: no pasan por nuestro servidor. Solo guardamos las jugadas del repertorio que
+          apruebas, y se borran al borrar tu cuenta.
+        </li>
         <li>La web y la base de datos se alojan en Cloudflare. No usamos analítica, publicidad ni rastreadores de terceros.</li>
       </ul>
 

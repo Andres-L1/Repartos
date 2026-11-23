@@ -1,3 +1,4 @@
+import type { RepColor, RepMove } from '../../src/openings/repertoire';
 import type {
   AnswerBody,
   AccessOverview,
@@ -128,6 +129,10 @@ export const api = {
     request<OpeningsStats | { unavailable: true }>('GET', `/api/openings/stats?fen=${encodeURIComponent(fen)}&source=${source}`).catch(
       (): { unavailable: true } => ({ unavailable: true }),
     ),
+  repertoire: () => request<{ moves: RepMove[] }>('GET', '/api/repertoire'),
+  repertoireAdd: (color: RepColor, moves: { key: string; uci: string }[]) => request<{ moves: RepMove[] }>('POST', '/api/repertoire/add', { color, moves }),
+  repertoireRemove: (m: RepMove) => request<{ moves: RepMove[] }>('POST', '/api/repertoire/remove', m),
+  repertoireClear: (color: RepColor) => request<{ moves: RepMove[] }>('POST', '/api/repertoire/clear', { color }),
   adminAi: () => request<AiUsage>('GET', '/api/admin/ai'),
   adminAccess: () => request<AccessOverview>('GET', '/api/admin/access'),
   adminAllow: (username: string) => request<AccessOverview>('POST', '/api/admin/allowed', { username }),

@@ -26,6 +26,9 @@
  * POST /api/explain {kind:'lesson',lessonId,stepKind,stepIndex} | {kind:'error',fen,played,best} -> {text, cached}   (429 topes, 503 sin IA; ver worker/ai.ts)
  * GET    /api/admin/ai                                         -> AiUsage          (solo administración)
  * GET    /api/openings/stats?fen=&source=masters      -> OpeningsStats | {unavailable:true}   (opcional: 404 {disabled:true} si OPENINGS_STATS_ENABLED no está activo; ver worker/openings.ts)
+ * GET    /api/repertoire                                      -> {moves: RepMove[]}   (repertorio del alumno; src/openings/repertoire.ts)
+ * POST   /api/repertoire/add {color,moves:[{key,uci}]}         -> {moves}   (400 jugada ilegal o repertorio lleno; ignora repetidas)
+ * POST   /api/repertoire/remove {color,key,uci} | /clear {color} -> {moves}
  * GET  /api/outline                                          -> {units: OutlineUnit[]}   (público, solo lectura: unidades y títulos de lección, SIN contenido)
  */
 import type { Lesson } from '../content/schema.js';
