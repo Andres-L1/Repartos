@@ -21,6 +21,7 @@ export function useRepertoire() {
       for (let i = 0; i < list.length || i === 0; i += 500) await apply(api.repertoireAdd(color, list.slice(i, i + 500)));
     },
     remove: (m: RepMove) => apply(api.repertoireRemove(m)),
+    note: (m: RepMove, note: string) => apply(api.repertoireNote(m, note)),
     clear: (color: RepColor) => apply(api.repertoireClear(color)),
   };
 }

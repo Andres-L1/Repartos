@@ -202,7 +202,7 @@ function json(body: unknown, status = 200): Response {
 }
 const err = (status: number, error: string) => json({ error }, status);
 
-let repMoves: { color: 'white' | 'black'; key: string; uci: string }[] = [];
+let repMoves: { color: 'white' | 'black'; key: string; uci: string; note?: string }[] = [];
 export async function mockFetch(url: string, init: RequestInit): Promise<Response> {
   await new Promise((r) => setTimeout(r, 120));
   const method = (init.method ?? 'GET').toUpperCase();
@@ -245,6 +245,7 @@ export async function mockFetch(url: string, init: RequestInit): Promise<Respons
     const b = init.body ? JSON.parse(String(init.body)) : {};
     if (path === '/repertoire/add') for (const m of b.moves) if (!repMoves.some((r) => r.color === b.color && r.key === m.key && r.uci === m.uci)) repMoves.push({ color: b.color, key: m.key, uci: m.uci });
     if (path === '/repertoire/remove') repMoves = repMoves.filter((r) => !(r.color === b.color && r.key === b.key && r.uci === b.uci));
+    if (path === '/repertoire/note') repMoves = repMoves.map((r) => (r.color === b.color && r.key === b.key && r.uci === b.uci ? { ...r, note: b.note.trim() || undefined } : r));
     if (path === '/repertoire/clear') repMoves = repMoves.filter((r) => r.color !== b.color);
     return json({ moves: repMoves });
   }

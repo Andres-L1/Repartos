@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { OpeningsStats } from '../../../src/shared/api';
 import { bookMoves, buildIndex, openingOfGame, positionKey, type OpeningIndex, type OpeningLine } from '../../../src/openings/index';
-import { lineToMoves, repAt, repIndex, type RepColor } from '../../../src/openings/repertoire';
+import { lineToMoves } from '../../../src/openings/repertoire';
 import { Board } from '../components/Board';
 import { Link } from '../components/Link';
 import { useRepertoire } from '../repertoire';
@@ -45,8 +45,6 @@ export function OpeningsScreen() {
   const [nonce, setNonce] = useState(0);
   const [stats, setStats] = useState<StatsState>({ kind: 'loading' });
   const rep = useRepertoire();
-  const [repColor, setRepColor] = useState<RepColor>('white');
-  const repIdx = useMemo(() => repIndex(rep.moves ?? []), [rep.moves]);
 
   // Datos y código del libro: solo se descargan al entrar aquí (carga diferida).
   useEffect(() => {
@@ -197,37 +195,20 @@ export function OpeningsScreen() {
 
           <section className="t-card rep-card" aria-labelledby="op-rep-title">
             <h2 id="op-rep-title">Mi repertorio</h2>
-            <div className="op-tabs" role="group" aria-label="Color del repertorio">
+            {rep.error && <p role="alert">{rep.error}</p>}
+            <div className="op-tools">
               {(['white', 'black'] as const).map((c) => (
-                <button key={c} className="t-chip" aria-pressed={repColor === c} onClick={() => setRepColor(c)}>
-                  {c === 'white' ? 'Blancas' : 'Negras'}
+                <button
+                  key={c}
+                  className="t-btn t-btn-sm"
+                  disabled={hist.length < 2 || !rep.moves}
+                  onClick={() => void rep.add(c, lineToMoves(c, hist.map((p) => p.fen), hist.slice(1).map((p) => p.uci!)))}
+                >
+                  Añadir línea a {c === 'white' ? 'blancas' : 'negras'}
                 </button>
               ))}
-            </div>
-            {rep.error && <p role="alert">{rep.error}</p>}
-            {repAt(repIdx, repColor, cur.fen).map((u) => {
-              const mv = { color: repColor, key: positionKey(cur.fen), uci: u };
-              return (
-                <p key={u} className="rep-row">
-                  <span>
-                    En tu repertorio: <strong>{applyUci(cur.fen, u)?.san ?? u}</strong>
-                  </span>
-                  <button className="t-btn t-btn-sm" onClick={() => void rep.remove(mv)}>
-                    Quitar
-                  </button>
-                </p>
-              );
-            })}
-            <div className="op-tools">
-              <button
-                className="t-btn t-btn-sm"
-                disabled={hist.length < 2 || !rep.moves}
-                onClick={() => void rep.add(repColor, lineToMoves(repColor, hist.map((p) => p.fen), hist.slice(1).map((p) => p.uci!)))}
-              >
-                Añadir esta línea
-              </button>
               <Link className="t-btn t-btn-sm" href="/repertorio">
-                Repetir y gestionar
+                Abrir mi repertorio
               </Link>
             </div>
           </section>

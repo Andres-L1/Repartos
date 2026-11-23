@@ -51,6 +51,7 @@ export function registerAccountRoutes(app: Hono<Env>, k: AppContext): void {
       { sql: 'DELETE FROM cp_ai_usage WHERE user_id = ?', params: [c.get('user').id] },
       { sql: 'DELETE FROM cp_openings_usage WHERE user_id = ?', params: [c.get('user').id] },
       { sql: 'DELETE FROM cp_repertoire WHERE user_id = ?', params: [c.get('user').id] },
+      { sql: 'DELETE FROM cp_repertoire_notes WHERE user_id = ?', params: [c.get('user').id] },
       { sql: 'DELETE FROM cp_users WHERE id = ?', params: [c.get('user').id] },
     ]);
     const res = c.json({ ok: true });

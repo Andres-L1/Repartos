@@ -132,6 +132,7 @@ export const api = {
   repertoire: () => request<{ moves: RepMove[] }>('GET', '/api/repertoire'),
   repertoireAdd: (color: RepColor, moves: { key: string; uci: string }[]) => request<{ moves: RepMove[] }>('POST', '/api/repertoire/add', { color, moves }),
   repertoireRemove: (m: RepMove) => request<{ moves: RepMove[] }>('POST', '/api/repertoire/remove', m),
+  repertoireNote: (m: RepMove, note: string) => request<{ moves: RepMove[] }>('POST', '/api/repertoire/note', { color: m.color, key: m.key, uci: m.uci, note }),
   repertoireClear: (color: RepColor) => request<{ moves: RepMove[] }>('POST', '/api/repertoire/clear', { color }),
   adminAi: () => request<AiUsage>('GET', '/api/admin/ai'),
   adminAccess: () => request<AccessOverview>('GET', '/api/admin/access'),

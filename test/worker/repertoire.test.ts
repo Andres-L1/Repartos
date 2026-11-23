@@ -82,6 +82,24 @@ describe('/api/repertoire', () => {
     expect((await s.call('POST', '/api/repertoire/clear', {})).status).toBe(400);
   });
 
+  it('comentarios: se guardan, se borran con texto vacío, solo en jugadas propias y con límite', async () => {
+    const s = setup();
+    await s.login({ id: 'Ana', username: 'Ana' });
+    const mv = { color: 'white', key: START, uci: 'e2e4' };
+    expect((await s.call('POST', '/api/repertoire/note', { ...mv, note: 'Centro' })).status).toBe(404);
+    await s.call('POST', '/api/repertoire/add', { color: 'white', moves: [{ key: START, uci: 'e2e4' }] });
+    const key = (await s.call('GET', '/api/repertoire')).json.moves[0].key;
+    expect((await s.call('POST', '/api/repertoire/note', { ...mv, key, note: '  Centro  ' })).json.moves[0].note).toBe('Centro');
+    expect((await s.call('POST', '/api/repertoire/note', { ...mv, key, note: 'x'.repeat(281) })).status).toBe(400);
+    await s.login({ id: 'Luis', username: 'Luis' });
+    expect((await s.call('GET', '/api/repertoire')).json.moves).toEqual([]);
+    await s.login({ id: 'Ana', username: 'Ana' });
+    expect((await s.call('POST', '/api/repertoire/note', { ...mv, key, note: '' })).json.moves[0].note).toBeNull();
+    await s.call('POST', '/api/repertoire/note', { ...mv, key, note: 'Otra' });
+    await s.call('POST', '/api/repertoire/remove', { ...mv, key });
+    expect(await s.db.first('SELECT 1 FROM cp_repertoire_notes')).toBeNull();
+  });
+
   it('borrar la cuenta borra el repertorio', async () => {
     const s = setup();
     await s.login({ id: 'Ana', username: 'Ana' });

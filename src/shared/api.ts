@@ -29,6 +29,7 @@
  * GET    /api/repertoire                                      -> {moves: RepMove[]}   (repertorio del alumno; src/openings/repertoire.ts)
  * POST   /api/repertoire/add {color,moves:[{key,uci}]}         -> {moves}   (400 jugada ilegal o repertorio lleno; ignora repetidas)
  * POST   /api/repertoire/remove {color,key,uci} | /clear {color} -> {moves}
+ * POST   /api/repertoire/note {color,key,uci,note}            -> {moves}   (comentario de una jugada guardada, máx. 280; vacío lo borra; 404 si la jugada no está)
  * GET  /api/outline                                          -> {units: OutlineUnit[]}   (público, solo lectura: unidades y títulos de lección, SIN contenido)
  */
 import type { Lesson } from '../content/schema.js';

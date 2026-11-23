@@ -18,6 +18,8 @@ export interface RepMove {
   color: RepColor;
   key: string;
   uci: string;
+  /** Comentario del alumno sobre la jugada (solo viene del servidor). */
+  note?: string | null;
 }
 export const isRepColor = (v: unknown): v is RepColor => v === 'white' || v === 'black';
 export const MAX_REP_MOVES = 3000;

@@ -51,3 +51,8 @@
 @media (max-width: 480px) {
   .rep-card > .t-btn, .rep-card .op-tools .t-btn { flex: 1 1 100%; justify-content: center; }
 }
+
+/* Comentario de una jugada del repertorio */
+.rep-note { display: grid; gap: 4px; margin: 8px 0; }
+.rep-note textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 8px; border-radius: 8px; border: 1px solid var(--line, #8884); background: transparent; color: inherit; resize: vertical; }
+.rep-more summary { cursor: pointer; padding: 8px 0; }
