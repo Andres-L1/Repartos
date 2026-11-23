@@ -47,13 +47,3 @@ describe('reproductor: formas UCI del contenido', () => {
   });
 });
 
-import { threatenedPawns } from '../../web/src/chess';
-describe('threatenedPawns', () => {
-  it('marca los peones que otro peón puede capturar', () => {
-    expect(threatenedPawns('4k3/8/8/3p4/4P3/8/8/4K3 w - - 0 1').sort()).toEqual(['d5', 'e4']);
-  });
-  it('un peón de frente o una posición sin tensión no tiembla', () => {
-    expect(threatenedPawns('4k3/8/8/4p3/4P3/8/8/4K3 w - - 0 1')).toEqual([]);
-    expect(threatenedPawns('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')).toEqual([]);
-  });
-});

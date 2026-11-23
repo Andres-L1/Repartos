@@ -4,7 +4,6 @@ import { parseUci, makeSquare, parseSquare, makeUci } from 'chessops';
 import { parseSan, makeSan } from 'chessops/san';
 import { chessgroundDests } from 'chessops/compat';
 import type { Role } from 'chessops';
-import { pawnAttacks } from 'chessops/attacks';
 
 export function posFromFen(fen: string): Chess {
   const setup = parseFen(fen).unwrap();
@@ -107,14 +106,3 @@ export function uciOfSan(fen: string, san: string): string | null {
   return move ? makeUci(move) : null;
 }
 
-/** Casillas de los peones que otro peón rival puede capturar ahora mismo (los que «tiemblan de miedo»). */
-export function threatenedPawns(fen: string): string[] {
-  const { board } = parseFen(fen).unwrap();
-  const out: string[] = [];
-  for (const [color, foe] of [['white', 'black'], ['black', 'white']] as const) {
-    for (const sq of board.pieces(color, 'pawn')) {
-      for (const t of pawnAttacks(color, sq).intersect(board.pieces(foe, 'pawn'))) out.push(makeSquare(t));
-    }
-  }
-  return out;
-}
