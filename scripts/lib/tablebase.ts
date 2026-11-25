@@ -228,6 +228,19 @@ function checkPath(
   return errors;
 }
 
+/**
+ * Para los pasos de ONLY_RESULT (el texto dice «la única jugada»): las jugadas que conservan el resultado de la posición
+ * son exactamente la de la línea y, si el ejercicio es de una jugada, las de `alt`.
+ */
+export function onlyResultErrors(probe: Probe, fen: string, line: readonly string[], alt: readonly string[] = []): string[] {
+  const e = probe(fen);
+  const want = new Set([line[0]!, ...(line.length === 1 ? alt : [])]);
+  const have = new Set(e.moves.filter((m) => moverResult(m) === e.category).map((m) => m.uci));
+  const pos = load(fen);
+  const name = (u: string) => san(pos, u);
+  return [...have].filter((u) => !want.has(u)).map((u) => `${name(u)} también conserva el resultado (${e.category}) y el texto dice que no`).concat([...want].filter((u) => !have.has(u)).map((u) => `${name(u)} no conserva el resultado (${e.category})`));
+}
+
 const playsMate = (pos: Chess, uci: string): boolean => {
   const next = pos.clone();
   next.play(parseUci(uci)!);

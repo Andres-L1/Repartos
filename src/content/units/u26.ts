@@ -16,7 +16,7 @@ export const unit: Unit = {
       title: 'El alfil se mueve en diagonal',
       objective: 'Mover el alfil por las diagonales, tan lejos como quiera, sin saltar sobre otras piezas.',
       intro:
-        'El alfil es la pieza de las diagonales. Cada jugador empieza con dos. Aquí vas a moverlo tú, una y otra vez, hasta que te salga solo.',
+        'El alfil es la pieza de las diagonales. Cada jugador empieza con dos. Aquí vas a moverlo tú, una y otra vez, hasta que te salga solo. Verás peones y otras piezas en el tablero: por ahora son solo obstáculos u objetivos, cada una tiene su propia lección.',
       explanation: [
         {
           fen: '6k1/8/8/8/3B4/8/8/7K w - - 0 1',

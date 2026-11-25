@@ -9,12 +9,15 @@
 import { Chess } from 'chessops/chess';
 import { makeFen, parseFen } from 'chessops/fen';
 import { parseUci } from 'chessops/util';
-import { LESSONS } from '../src/content/index.ts';
+import { LESSONS as REGISTERED } from '../src/content/index.ts';
+import { unit as u18 } from '../src/content/units/u18.ts';
 import { EXERCISES } from '../src/pedagogy/exercises.ts';
 import { mirrorExercise } from '../src/pedagogy/mirror.ts';
-import { CLAIMS, EXPLAIN_RESULT } from './lib/finales-claims.ts';
-import { cacheProbe, checkLine, describeEntry, fetchEntry, lineFens, loadCache, modeFor, saveCache, tbKey } from './lib/tablebase.ts';
+import { CLAIMS, EXPLAIN_RESULT, ONLY_RESULT } from './lib/finales-claims.ts';
+import { cacheProbe, checkLine, describeEntry, fetchEntry, lineFens, loadCache, modeFor, onlyResultErrors, saveCache, tbKey } from './lib/tablebase.ts';
 
+// u18 se verifica aunque aún no esté registrada en src/content/index.ts (sin duplicar si ya lo está).
+const LESSONS = [...REGISTERED, ...u18.lessons.filter((l) => !REGISTERED.some((r) => r.id === l.id))];
 const args = process.argv.slice(2);
 const cache = loadCache();
 
@@ -69,6 +72,7 @@ let failed = 0;
 for (const s of steps) {
   const errors = checkLine(probe, s.fen, s.line, s.alt, modeFor(s.key), s.branches);
   console.log(`${errors.length ? 'FALLA' : 'ok   '} ${s.key} (${probe(s.fen).category})${s.alt.length ? ` alt ${s.alt.join(',')}` : ''}${s.branches.length ? ` ramas ${s.branches.length}` : ''}`);
+  if (ONLY_RESULT.includes(s.key)) errors.push(...onlyResultErrors(probe, s.fen, s.line, s.alt));
   for (const e of errors) console.log(`        ${e}`);
   if (errors.length) failed++;
 }

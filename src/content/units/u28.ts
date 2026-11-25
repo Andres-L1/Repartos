@@ -16,7 +16,7 @@ export const unit: Unit = {
       title: 'La dama se mueve en línea y en diagonal',
       objective: 'Mover la dama en línea recta y en diagonal, tan lejos como quiera, sin saltar otras piezas.',
       intro:
-        'La dama es la pieza más fuerte. Se mueve como una torre y como un alfil a la vez. Aquí la moverás tú, muchas veces, hasta que te salga sola.',
+        'La dama es la pieza más fuerte. Se mueve como una torre y como un alfil a la vez. Aquí la moverás tú, muchas veces, hasta que te salga sola. Verás peones y caballos en el tablero: por ahora son solo obstáculos u objetivos, cada uno tiene su propia lección.',
       explanation: [
         {
           fen: '6k1/8/8/8/3Q4/8/8/7K w - - 0 1',

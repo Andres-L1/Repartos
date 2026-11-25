@@ -26,7 +26,7 @@ export const unit: Unit = {
       title: 'El salto en L',
       objective: 'Mover el caballo en forma de L, desde el centro y desde una esquina.',
       intro:
-        'El caballo es la pieza más original: no camina, salta. Siempre dibuja una L en el tablero. Vas a practicar ese salto hasta que te salga solo.',
+        'El caballo es la pieza más original: no camina, salta. Siempre dibuja una L en el tablero. Vas a practicar ese salto hasta que te salga solo. Verás peones en el tablero: por ahora son solo obstáculos, el peón tiene su propia lección.',
       explanation: [
         {
           fen: '4k3/8/8/8/3N4/8/8/4K3 w - - 0 1',

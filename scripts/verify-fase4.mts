@@ -18,11 +18,15 @@ import { Chess } from 'chessops/chess';
 import { makeFen, parseFen } from 'chessops/fen';
 import { makeSan } from 'chessops/san';
 import { parseUci } from 'chessops/util';
-import { UNITS } from '../src/content/index.ts';
+import { UNITS as REGISTERED } from '../src/content/index.ts';
+import { unit as u17 } from '../src/content/units/u17.ts';
 import { EXERCISES } from '../src/pedagogy/exercises.ts';
 import { mirrorExercise } from '../src/pedagogy/mirror.ts';
 import { FASE4, legalMoves } from './audit/lib.ts';
 import { Stockfish, type Line } from './verify-lib.mts';
+
+// u17 se verifica aunque aún no esté registrada en index.ts.
+const UNITS = REGISTERED.some((u) => u.id === 'u17') ? REGISTERED : [...REGISTERED, u17];
 
 // Criterios compartidos con el auditor general (scripts/audit/lib.ts), que los usa para «gana material».
 const DEPTH = Number(process.env.DEPTH ?? FASE4.depth);
@@ -124,6 +128,18 @@ if (args[0] === 'line') {
   console.log(errs.length ? 'FALLA\n   ' + errs.join('\n   ') : 'ok');
   sf.quit();
   process.exit(errs.length ? 1 : 0);
+}
+
+if (args[0] === 'lines') {
+  // lines <archivo.json>: [{key, fen, uci: "e2e4 ...", alt?: ["uci"]}] ; imprime ok/FALLA por línea
+  const { readFileSync } = await import('node:fs');
+  const items = JSON.parse(readFileSync(args[1]!, 'utf8')) as { key: string; fen: string; uci: string; alt?: string[] }[];
+  for (const it of items) {
+    const errs = await checkStep(sf, { key: it.key, fen: it.fen, solutionUci: it.uci.split(' '), ...(it.alt ? { alt: it.alt } : {}) });
+    console.log(`${errs.length ? 'FALLA' : 'ok   '} ${it.key}${errs.length ? '\n   ' + errs.join('\n   ') : ''}`);
+  }
+  sf.quit();
+  process.exit(0);
 }
 
 const DEFENSE = 'tactics.defensive_move';

@@ -23,8 +23,10 @@ import { unit as u13 } from './units/u13.js';
 import { unit as u14 } from './units/u14.js';
 import { unit as u15 } from './units/u15.js';
 import { unit as u16 } from './units/u16.js';
+import { unit as u17 } from './units/u17.js';
+import { unit as u18 } from './units/u18.js';
 
-export const UNITS: Unit[] = [u20, u21, u22, u23, u24, u25, u26, u27, u28, u29, u30, u31, u32, u33, u07, u08, u09, u10, u11, u12, u13, u14, u15, u16].sort((a, b) => a.order - b.order);
+export const UNITS: Unit[] = [u20, u21, u22, u23, u24, u25, u26, u27, u28, u29, u30, u31, u32, u33, u07, u08, u09, u10, u11, u12, u13, u14, u15, u16, u17, u18].sort((a, b) => a.order - b.order);
 export const LESSONS: Lesson[] = UNITS.flatMap((u) => u.lessons);
 export const getLesson = (id: string): Lesson | undefined => LESSONS.find((l) => l.id === id);
 export const getUnit = (id: string): Unit | undefined => UNITS.find((u) => u.id === id);
