@@ -88,7 +88,7 @@ const lesson = (
 
 export const unit: Unit = {
   id: 'u16',
-  order: 24,
+  order: 26,
   title: 'Estrategia verificable: actividad de las piezas',
   description:
     'Tres ideas de plan que se pueden comprobar en el tablero. Son la torre a una columna abierta, la torre a la séptima fila y el caballo en una casilla de avanzada.',

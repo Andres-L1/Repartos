@@ -9,7 +9,7 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u17',
-  order: 40,
+  order: 23,
   title: 'Ataque al rey',
   description:
     'Sacrificar para atacar al rey: la pieza que atrae al rey a la columna h, sacrificios que abren columnas y el mate con dama y otra pieza. Combinaciones de tres a cinco medias jugadas.',
