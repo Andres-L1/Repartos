@@ -1,3 +1,5 @@
+import type { DrawShape } from 'chessground/draw';
+import { Board } from '../components/Board';
 import { Coin } from '../components/ShopVisuals';
 import { Cycle, HowItWorks, Path, Problem, Quality, ShopLine, Tour, Trainer } from './LandingSections';
 import { navigate } from '../router';
@@ -18,13 +20,25 @@ function HeroArt() {
   );
 }
 
-/** Caballo Contorno grande a la derecha del titular (solo en pantallas anchas). */
+/** Tablero real a la derecha del titular (solo en pantallas anchas): la horquilla del caballo, lo primero que se aprende a ver. */
+const HERO_FEN = 'r1b1k3/pp3ppp/8/3N4/8/8/PP3PPP/6K1 w - - 0 1';
+const HERO_SHAPES: DrawShape[] = [
+  { orig: 'd5', dest: 'c7', brush: 'green' },
+  { orig: 'c7', dest: 'e8', brush: 'red' },
+  { orig: 'c7', dest: 'a8', brush: 'red' },
+];
+
 function HeroVisual() {
   return (
-    <div className="hero-visual" aria-hidden="true">
-      <span className="hero-knight-glow" />
-      <img src="/pieces/contorno/wN.svg" width="360" height="360" alt="" />
-    </div>
+    <figure className="hero-visual" aria-label="Ejemplo: Cc7+ ataca a la vez al rey y a la torre">
+      <span className="hero-knight-glow" aria-hidden="true" />
+      <div className="hero-board" aria-hidden="true" inert>
+        <Board fen={HERO_FEN} orientation="white" shapes={HERO_SHAPES} plain appearance="theme-noche pieces-contorno" label="Tablero de ejemplo" sound={false} />
+      </div>
+      <figcaption>
+        <strong>Cc7+</strong> ataca al rey y a la torre a la vez. Esto se aprende aquí, jugando.
+      </figcaption>
+    </figure>
   );
 }
 
@@ -138,8 +152,8 @@ export function Landing() {
         <HeroArt />
         <div className="wrap hero-grid">
           <div className="hero-copy">
-            <h1 id="hero-title">Aprende ajedrez con un camino claro, comprende tus errores y entrena con un propósito</h1>
-            <p className="lead">Chedex Pulse: la plataforma de entrenamiento de ajedrez de los alumnos de TopChess.</p>
+            <h1 id="hero-title">Aprende ajedrez con un <em>camino claro</em></h1>
+            <p className="lead">Comprende tus errores y entrena con un propósito. La plataforma de los alumnos de TopChess.</p>
             <section className="access-card" aria-labelledby="access-title">
               <h2 id="access-title">Acceso solo para alumnos de TopChess</h2>
               <div className="actions">
