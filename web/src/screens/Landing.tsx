@@ -1,5 +1,3 @@
-import type { DrawShape } from 'chessground/draw';
-import { Board } from '../components/Board';
 import { Coin } from '../components/ShopVisuals';
 import { Cycle, HowItWorks, Path, Problem, Quality, ShopLine, Tour, Trainer } from './LandingSections';
 import { navigate } from '../router';
@@ -20,25 +18,38 @@ function HeroArt() {
   );
 }
 
-/** Tablero real a la derecha del titular (solo en pantallas anchas): la horquilla del caballo, lo primero que se aprende a ver. */
-const HERO_FEN = 'r1b1k3/pp3ppp/8/3N4/8/8/PP3PPP/6K1 w - - 0 1';
-const HERO_SHAPES: DrawShape[] = [
-  { orig: 'd5', dest: 'c7', brush: 'green' },
-  { orig: 'c7', dest: 'e8', brush: 'red' },
-  { orig: 'c7', dest: 'a8', brush: 'red' },
-];
+/** Ejemplo de unidad a la derecha del titular (solo en pantallas anchas): así se ve tu ruta. */
+const HERO_LESSONS = [
+  { t: 'Columnas y filas', d: 'Nombrar cualquier casilla con su letra y su número, y llegar a ella.', s: 'done' },
+  { t: 'Casillas claras y oscuras', d: 'Saber si una casilla es clara u oscura con la regla de la esquina.', s: 'done' },
+  { t: 'Diagonales', d: 'Reconocer una diagonal por sus casillas.', s: 'next' },
+  { t: 'La posición inicial', d: 'Saber dónde empieza cada pieza.', s: 'todo' },
+] as const;
 
 function HeroVisual() {
   return (
-    <figure className="hero-visual" aria-label="Ejemplo: Cc7+ ataca a la vez al rey y a la torre">
-      <span className="hero-knight-glow" aria-hidden="true" />
-      <div className="hero-board" aria-hidden="true" inert>
-        <Board fen={HERO_FEN} orientation="white" shapes={HERO_SHAPES} plain appearance="theme-noche pieces-contorno" label="Tablero de ejemplo" sound={false} />
+    <div className="hero-visual" aria-hidden="true">
+      <span className="hero-knight-glow" />
+      <div className="hero-unit">
+        <p className="hero-unit-kicker">Unidad 1 · Principiante · 2 de 4</p>
+        <p className="hero-unit-title">El tablero y las coordenadas</p>
+        <ol>
+          {HERO_LESSONS.map((l) => (
+            <li key={l.t} className={`hu-${l.s}`}>
+              <span className="hu-dot">
+                <Icon name={l.s === 'done' ? 'check' : 'play'} size={16} />
+              </span>
+              <span className="hu-body">
+                <strong>{l.t}</strong>
+                <span>{l.d}</span>
+              </span>
+              {l.s === 'done' && <span className="hu-tag">Completada</span>}
+              {l.s === 'next' && <span className="hu-tag hu-tag-next">Siguiente</span>}
+            </li>
+          ))}
+        </ol>
       </div>
-      <figcaption>
-        <strong>Cc7+</strong> ataca al rey y a la torre a la vez. Esto se aprende aquí, jugando.
-      </figcaption>
-    </figure>
+    </div>
   );
 }
 
