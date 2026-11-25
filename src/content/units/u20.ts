@@ -10,7 +10,7 @@ export const unit: Unit = {
   order: 1,
   title: 'El tablero y las coordenadas',
   description:
-    'Aprende a leer el tablero como un mapa: columnas, filas, casillas claras y oscuras, diagonales y dónde empieza cada pieza. Lo practicas moviendo una torre, sin prisa.',
+    'Aprende a leer el tablero como un mapa: columnas, filas, casillas claras y oscuras, diagonales y dónde empieza cada pieza. Lo practicas con una torre, la pieza que más fácil se mueve, sin prisa.',
   level: 'beginner',
   requires: [],
   lessons: [
@@ -20,7 +20,7 @@ export const unit: Unit = {
       title: 'Columnas y filas',
       objective: 'Nombrar cualquier casilla con su letra y su número, y llegar a ella con una torre.',
       intro:
-        'El tablero es como un mapa y cada casilla tiene su dirección. Hoy aprendes a leerla. Con una torre irás de casilla en casilla para practicar.',
+        'El tablero es como un mapa y cada casilla tiene su dirección. Hoy aprendes a leerla. Para practicar usarás una torre: avanza en línea recta, por columnas y filas, y solo sirve para llegar a las casillas. Sus reglas completas las verás más adelante.',
       explanation: [
         {
           fen: fen('Kh1 kh8'),
