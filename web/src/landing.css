@@ -260,7 +260,7 @@
 .cta-pending { min-width: 13.5rem; background: var(--t-graphite-2); border-color: transparent; box-shadow: none; pointer-events: none; }
 
 /* Hero: titular corto con acento y tablero real en lugar del caballo suelto */
-.hero h1 em { font-style: normal; color: var(--accent, #f18b42); }
+.hero h1 em { font-style: normal; color: var(--brand); }
 .hero-visual { display: flex; align-items: center; justify-content: center; min-height: 0; margin: 0; }
 @media (min-width: 980px) { .hero-visual { min-height: 22rem; } }
 .hero-unit { position: relative; width: min(100%, 30rem); background: #16181d; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 1.1rem; padding: 1.25rem; box-shadow: 0 30px 50px -18px rgb(0 0 0 / 0.8), 0 0 60px rgb(241 139 66 / 0.12); }
