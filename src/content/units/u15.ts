@@ -12,7 +12,7 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u15',
-  order: 22,
+  order: 25,
   title: 'Finales de torre: nivel Avanzado',
   description:
     'El puente de Lucena completo y la defensa de Philidor en sus dos fases. Además, tres reglas: peón de torre y de alfil, torre detrás del peón pasado y regla de las columnas.',

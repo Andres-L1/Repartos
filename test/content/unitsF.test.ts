@@ -27,7 +27,7 @@ const stepsOf = (l: (typeof u16.lessons)[number]) => [
 
 describe('contenido F: estrategia verificable (pendiente de validación de profesores)', () => {
   it('unidad con metadatos correctos y orden único', () => {
-    expect([u16.level, u16.order, u16.requires, u16.lessons.length]).toEqual(['competitive', 26, ['u12'], 3]);
+    expect([u16.level, u16.order, u16.requires, u16.lessons.length]).toEqual(['competitive', 30, ['u12'], 3]);
     expect(new Set(UNITS.map((u) => u.order)).size).toBe(UNITS.length);
     expect(u16.lessons.map((l) => l.conceptIds)).toEqual([['strategy.open_file'], ['strategy.seventh_rank'], ['strategy.outpost']]);
     expect(levelPlan('competitive', { units: UNITS })).toMatchObject({ comingSoon: false });

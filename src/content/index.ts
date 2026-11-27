@@ -25,8 +25,13 @@ import { unit as u15 } from './units/u15.js';
 import { unit as u16 } from './units/u16.js';
 import { unit as u17 } from './units/u17.js';
 import { unit as u18 } from './units/u18.js';
+import { unit as u19 } from './units/u19.js';
+import { unit as u34 } from './units/u34.js';
+import { unit as u35 } from './units/u35.js';
+import { unit as u36 } from './units/u36.js';
+import { unit as u37 } from './units/u37.js';
 
-export const UNITS: Unit[] = [u20, u21, u22, u23, u24, u25, u26, u27, u28, u29, u30, u31, u32, u33, u07, u08, u09, u10, u11, u12, u13, u14, u15, u16, u17, u18].sort((a, b) => a.order - b.order);
+export const UNITS: Unit[] = [u20, u21, u22, u23, u24, u25, u26, u27, u28, u29, u30, u31, u32, u33, u07, u08, u09, u10, u11, u12, u13, u14, u15, u16, u17, u18, u19, u34, u35, u36, u37].sort((a, b) => a.order - b.order);
 export const LESSONS: Lesson[] = UNITS.flatMap((u) => u.lessons);
 export const getLesson = (id: string): Lesson | undefined => LESSONS.find((l) => l.id === id);
 export const getUnit = (id: string): Unit | undefined => UNITS.find((u) => u.id === id);

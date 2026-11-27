@@ -13,7 +13,7 @@ import type { Unit } from '../schema.js';
  */
 export const unit: Unit = {
   id: 'u18',
-  order: 24,
+  order: 27,
   title: 'Finales prácticos: dama, alfil y caballo',
   description:
     'Tres finales que aparecen en partidas reales: la dama contra un peón y el mate con dama, el alfil contra el caballo (alfil bueno y alfil malo) y cómo convertir una ventaja cambiando piezas y no peones.',

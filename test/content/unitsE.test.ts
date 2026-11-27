@@ -19,8 +19,8 @@ import { describeLessons } from './lesson-checks.js';
  */
 const ENDGAME_UNITS: { id: string; level: Unit['level']; order: number; requires: string }[] = [
   { id: 'u13', level: 'basic', order: 18, requires: 'u09' },
-  { id: 'u14', level: 'intermediate', order: 20, requires: 'u10' },
-  { id: 'u15', level: 'advanced', order: 22, requires: 'u14' },
+  { id: 'u14', level: 'intermediate', order: 21, requires: 'u10' },
+  { id: 'u15', level: 'advanced', order: 25, requires: 'u14' },
 ];
 const units = ENDGAME_UNITS.map((d) => UNITS.find((u) => u.id === d.id)!);
 const probe = cacheProbe(loadCache());
